@@ -1,0 +1,122 @@
+.list {
+  margin-bottom: 6em;
+  .questionType {
+    & > p {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    & > ul {
+      list-style-type: none;
+      padding: 0;
+      display: flex;
+      gap: 2rem;
+      justify-content: stretch;
+
+      & .item {
+        height: 16rem;
+        width: 280px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        color: #000;
+        text-align: center;
+        font-size: 1.2rem;
+
+        .box {
+          position: relative;
+          height: 5rem;
+          width: 7rem;
+          margin-bottom: 1rem;
+          overflow: hidden;
+
+          & img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center center;
+          }
+        }
+
+        & > p:first-of-type {
+          color: #d09;
+        }
+
+        & > p:last-child {
+          font-size: 1rem;
+        }
+
+        &:hover {
+          background-color: #eee;
+        }
+      }
+    }
+  }
+
+  & .questionList {
+    font-size: 1.25rem;
+
+    & ul {
+      list-style-type: none;
+    }
+
+    & a {
+      text-decoration: none;
+    }
+
+    & > ul {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      & .row {
+        display: flex;
+        padding: 0.5rem 1rem;
+        border-bottom: 1px solid #ccc;
+        // color: #000;
+        & > span {
+          flex: 33%;
+        }
+
+        & .actions {
+          display: flex;
+          gap: 1rem;
+          // font-size: 2rem;
+
+          & .show-button {
+            border-radius: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            & svg {
+              font-size: 2rem;
+            }
+          }
+
+          & .delete-button {
+            border-radius: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            & svg {
+              font-size: 2rem;
+            }
+          }
+        }
+      }
+
+      & .header {
+        padding: 1rem;
+        background-color: #ccc;
+        font-weight: bold;
+
+        & > span {
+          flex: 33%;
+        }
+      }
+    }
+  }
+}
