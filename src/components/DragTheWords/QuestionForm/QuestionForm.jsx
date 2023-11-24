@@ -3,8 +3,22 @@ import { Button, Checkbox, Input, TextField } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import InfoIcon from "@mui/icons-material/Info";
 import { generateOption } from "../../../utils";
-
+import { styled } from "@mui/material/styles";
 import styles from "./questionForm.module.scss";
+
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  whiteSpace: "nowrap",
+  width: 1,
+});
 
 const styleSheet = {
   objectName: {
@@ -82,8 +96,16 @@ const QuestionForm = (props) => {
 
   return (
     <div className={styles.form}>
+      <Button
+        component="label"
+        variant="contained"
+        startIcon={<CloudUploadIcon />}
+      >
+        Upload file
+        <VisuallyHiddenInput type="file" />
+      </Button>
       <TextField
-        label="Question"
+        label="Sentence"
         variant="outlined"
         name="title"
         sx={styleSheet.objectName}

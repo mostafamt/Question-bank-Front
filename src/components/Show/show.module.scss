@@ -1,9 +1,10 @@
-// .questions {
-//   //   display: flex;
+.questions {
+  //   display: flex;
 
-//   & iframe {
-//     margin: 1rem 0;
-//     width: 100%;
-//     transition: height 0.2s;
-//   }
-// }
+  & iframe {
+    height: 50rem;
+    // margin: 1rem 0;
+    // width: 100%;
+    // transition: height 0.2s;
+  }
+}

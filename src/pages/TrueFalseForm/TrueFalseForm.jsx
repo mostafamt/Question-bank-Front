@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Box,
   FormControl,
@@ -7,6 +6,8 @@ import {
   RadioGroup,
   TextField,
 } from "@mui/material";
+import React from "react";
+
 import styles from "./trueFalseForm.module.scss";
 
 const styleSheet = {
@@ -38,8 +39,7 @@ const styleSheet = {
   },
 };
 
-const TrueFalseForm = (props) => {
-  // const { question, handleEditQuestionParam } = props;
+const TrueFalseForm = () => {
   const [questions, setQuestions] = React.useState([
     {
       title: "",

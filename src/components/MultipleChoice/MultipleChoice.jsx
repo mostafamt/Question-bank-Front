@@ -145,37 +145,38 @@ const MultipleChoice = () => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-    if (uploadMethod === "bulk") {
-      const data = new FormData();
-      data.append("file", file);
-      await fetch(`${BACKEND_URL}/upload`, {
-        method: "POST",
-        body: data,
-      });
-    } else {
-      const questionsWithoutIds = questions.map((question) => {
-        const newOptions = question.options.map((option) => ({
-          title: option.text,
-          correct: option.correct,
-        }));
-        return {
-          title: question.title,
-          options: newOptions,
-        };
-      });
-      const body = {
-        name,
-        questions: questionsWithoutIds,
-      };
-      await fetch(`${BACKEND_URL}/mcq`, {
-        method: "POST",
-        mode: "cors",
-        cache: "no-cache",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-    }
-    navigate("/");
+    console.log("questions= ", questions);
+    // if (uploadMethod === "bulk") {
+    //   const data = new FormData();
+    //   data.append("file", file);
+    //   await fetch(`${BACKEND_URL}/upload`, {
+    //     method: "POST",
+    //     body: data,
+    //   });
+    // } else {
+    //   const questionsWithoutIds = questions.map((question) => {
+    //     const newOptions = question.options.map((option) => ({
+    //       title: option.text,
+    //       correct: option.correct,
+    //     }));
+    //     return {
+    //       title: question.title,
+    //       options: newOptions,
+    //     };
+    //   });
+    //   const body = {
+    //     name,
+    //     questions: questionsWithoutIds,
+    //   };
+    //   await fetch(`${BACKEND_URL}/mcq`, {
+    //     method: "POST",
+    //     mode: "cors",
+    //     cache: "no-cache",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify(body),
+    //   });
+    // }
+    // navigate("/");
   };
 
   return (

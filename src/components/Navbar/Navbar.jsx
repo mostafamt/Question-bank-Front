@@ -12,7 +12,12 @@ import styles from "./navbar.module.scss";
 const Navbar = () => {
   return (
     <Box sx={{ mb: 6 }}>
-      <AppBar position="static">
+      <AppBar
+        position="static"
+        sx={{
+          backgroundColor: "#343a40",
+        }}
+      >
         <Toolbar>
           <IconButton
             size="large"
