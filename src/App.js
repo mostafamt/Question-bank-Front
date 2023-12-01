@@ -20,8 +20,9 @@ import Home from "./pages/Home/Home";
 import AddQuestion from "./pages/AddQuestion/AddQuestion";
 import TrueFalseForm from "./pages/TrueFalseForm/TrueFalseForm";
 import FillInTheBlankForm from "./pages/FillInTheBlankForm/FillInTheBlankForm";
-import EditQuestion from "./pages/EditQuestion/EditQuestion";
+import EditObject from "./pages/EditObject/EditObject";
 import DragTheWords from "./pages/DragTheWords/DragTheWords";
+import EditQuestion from "./pages/EditQuestion/EditQuestion";
 
 function App() {
   return (
@@ -56,8 +57,12 @@ function App() {
               path="/add-question/fill-in-the-blank/manual"
               Component={FillInTheBlankForm}
             />
-            <Route path="/dragthewords" Component={DragTheWords} />
-            <Route path="/edit/:id" Component={EditQuestion} />
+            <Route
+              path="/add-question/drag-the-words/manual"
+              Component={DragTheWords}
+            />
+            <Route path="/edit/:id" Component={EditObject} />
+            <Route path="/question/:id" Component={EditQuestion} />
             <Route path="/excel-file" Component={ExcelFile} />
             <Route path="/test" Component={Test} />
           </Routes>

@@ -46,7 +46,12 @@ const subDomainList = {
   "اللغة العربية": ["قراءة", "محفوظات", "نحو", "تعبير", "خط"],
 };
 
-const questionTypeList = ["multiple-choice", "true-false", "fill-in-the-blank"];
+const questionTypeList = [
+  "Multiple Choice",
+  "True False",
+  "Fill In The Blank",
+  "Drag the words",
+];
 
 const AddQuestion = () => {
   const [values, setValues] = React.useState({
@@ -102,13 +107,15 @@ const AddQuestion = () => {
   const onSubmit = (values) => {
     console.log("values= ", values);
     setFormState(values);
-    console.log(values.question_type);
-    if (values.question_type === "multiple-choice") {
+    console.log(values.questionType);
+    if (values.questionType === "Multiple Choice") {
       navigate("/add-question/multiple-choice/manual");
-    } else if (values.question_type === "true-false") {
+    } else if (values.questionType === "True False") {
       navigate("/add-question/true-false/manual");
-    } else if (values.question_type === "fill-in-the-blank") {
+    } else if (values.questionType === "Fill In The Blank") {
       navigate("/add-question/fill-in-the-blank/manual");
+    } else if (values.questionType === "Drag the words") {
+      navigate("/add-question/drag-the-words/manual");
     }
   };
 
@@ -128,7 +135,7 @@ const AddQuestion = () => {
             <div className={styles.row}>
               <Select
                 label="object owner"
-                name="object_owner"
+                name="objectOwner"
                 register={register}
                 errors={errors}
               >
@@ -186,7 +193,7 @@ const AddQuestion = () => {
               </Select>
               <Select
                 label="question type"
-                name="question_type"
+                name="questionType"
                 register={register}
                 errors={errors}
               >

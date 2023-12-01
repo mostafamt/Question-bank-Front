@@ -14,7 +14,6 @@ import {
 import { Delete, ExpandLess, ExpandMore } from "@mui/icons-material";
 import { grey } from "@mui/material/colors";
 import { v4 as uuidv4 } from "uuid";
-import { generateOption } from "../../utils";
 import QuestionForm from "../../components/MultipleChoice/QuestionForm/QuestionForm";
 import axios from "../../axios";
 import { useNavigate } from "react-router-dom";
@@ -27,7 +26,7 @@ const generateMultipleChoiceQuestion = () => {
     open: true,
     type: "multipleChoice",
     params: {
-      title: "Question Title ?",
+      title: "",
       options: [
         { id: uuidv4(), title: "", correct: false, tip: "", showTip: false },
         { id: uuidv4(), title: "", correct: false, tip: "", showTip: false },
@@ -95,6 +94,17 @@ const MultipleChoiceForm = () => {
     setQuestions(newQuestions);
   };
 
+  const formatQuestions = (questions) => {
+    return questions.map((question) => {
+      const { title, options } = question.params;
+      const newOptions = options.map((option) => {
+        const { title, correct, tip } = option;
+        return { title, correct, tip };
+      });
+      return { title, options: newOptions };
+    });
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -103,7 +113,10 @@ const MultipleChoiceForm = () => {
       domain: state.domain,
       subDomain: state.subDomain,
       objectOwner: state.objectOwner,
-      questions: questions.map((question) => question.params),
+      topic: state.topic,
+      language: state.language,
+      questionType: state.questionType,
+      questions: formatQuestions(questions),
     };
     console.log("data= ", data);
     try {
@@ -123,7 +136,7 @@ const MultipleChoiceForm = () => {
 
   return (
     <form className="container" onSubmit={handleSubmit}>
-      <div className={styles.header}>Drag the words</div>
+      <div className={styles.header}>Multiple Choice</div>
       <List
         sx={{ width: "100%", bgcolor: "background.paper" }}
         component="nav"

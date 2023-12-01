@@ -1,0 +1,77 @@
+.form {
+  padding: 1rem 0;
+  & .options {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+    padding: 1rem 0;
+
+    & > li {
+      & > div:first-child {
+        position: relative;
+        padding: 0;
+        margin: 0;
+
+        display: flex;
+        align-items: flex-start;
+        //   justify-content: center;
+        gap: 0.5rem;
+
+        & > div {
+          flex: 1 1 auto;
+
+          & > div:first-child {
+            position: relative;
+
+            & > button {
+              position: absolute;
+              top: 50%;
+              right: 1%;
+              transform: translateY(-50%);
+              height: 2.5rem;
+              width: 2.5rem;
+              border-radius: 50%;
+              font-size: 1.4rem;
+              font-weight: bold;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              border: 0;
+            }
+
+            & .popover {
+              position: absolute;
+              top: 0;
+              right: 0;
+              height: 2.6rem;
+              width: 50%;
+              border-radius: 0.5rem;
+              background-color: #fff;
+              z-index: 2;
+              box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+              transform: translate(0, -100%);
+
+              & > div {
+                width: 100%;
+                height: 100%;
+              }
+            }
+          }
+        }
+
+        & > *:nth-child(2) {
+          display: flex;
+          // align-items: center;
+          // justify-content: center;
+        }
+
+        & > button {
+          height: 54px;
+        }
+      }
+    }
+  }
+}

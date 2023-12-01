@@ -1,10 +1,11 @@
 import React from "react";
-import { Button, Checkbox, Input, TextField } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import InfoIcon from "@mui/icons-material/Info";
-import { generateOption } from "../../../utils";
 
-import styles from "./questionForm.module.scss";
+import { generateOption } from "../../../utils";
+import { Button, Checkbox, Input, TextField } from "@mui/material";
+import InfoIcon from "@mui/icons-material/Info";
+import DeleteIcon from "@mui/icons-material/Delete";
+
+import styles from "./singleQuestion.module.scss";
 
 const styleSheet = {
   objectName: {
@@ -35,20 +36,17 @@ const styleSheet = {
   },
 };
 
-const QuestionForm = (props) => {
+const SingleQuestion = (props) => {
   const { question, handleEditQuestionParam } = props;
-  console.log("QuestionForm");
-  console.log(question);
 
   const handleAddOption = () => {
     const newOptions = [...question.params.options, generateOption()];
-    handleEditQuestionParam(question.id, "options", newOptions);
+    handleEditQuestionParam("options", newOptions);
   };
 
   const handleUpdateOption = (optionId, value, isCorrect, tip) => {
-    console.log("optionId= ", optionId);
     const newOptions = question.params.options.map((option) => {
-      if (option.id === optionId) {
+      if (option._id === optionId) {
         return {
           ...option,
           title: value,
@@ -58,7 +56,7 @@ const QuestionForm = (props) => {
       }
       return option;
     });
-    handleEditQuestionParam(question.id, "options", newOptions);
+    handleEditQuestionParam("options", newOptions);
   };
 
   const handleDeleteOption = (optionId) => {
@@ -66,12 +64,12 @@ const QuestionForm = (props) => {
     const newOptions = question.params.options.filter(
       (option) => option.id !== optionId
     );
-    handleEditQuestionParam(question.id, "options", newOptions);
+    handleEditQuestionParam("options", newOptions);
   };
 
   const onClickTip = (optionId) => {
     const newOptions = question.params.options.map((option) => {
-      if (option.id === optionId) {
+      if (option._id === optionId) {
         return {
           ...option,
           showTip: !option.showTip,
@@ -79,7 +77,8 @@ const QuestionForm = (props) => {
       }
       return option;
     });
-    handleEditQuestionParam(question.id, "options", newOptions);
+    console.log("newOptions= ", newOptions);
+    handleEditQuestionParam("options", newOptions);
   };
 
   return (
@@ -90,9 +89,7 @@ const QuestionForm = (props) => {
         name="title"
         sx={styleSheet.objectName}
         value={question?.params?.title}
-        onChange={(e) =>
-          handleEditQuestionParam(question.id, e.target.name, e.target.value)
-        }
+        onChange={(e) => handleEditQuestionParam(e.target.name, e.target.value)}
       />
       <h4>options: </h4>
       <ul className={styles.options}>
@@ -109,14 +106,17 @@ const QuestionForm = (props) => {
                       value={option.title}
                       onChange={(e) =>
                         handleUpdateOption(
-                          option.id,
+                          option._id,
                           e.target.value,
                           option.correct,
                           option.tip
                         )
                       }
                     ></TextField>
-                    <button type="button" onClick={() => onClickTip(option.id)}>
+                    <button
+                      type="button"
+                      onClick={() => onClickTip(option._id)}
+                    >
                       <InfoIcon color="primary" />
                     </button>
                     <div
@@ -129,7 +129,7 @@ const QuestionForm = (props) => {
                         value={option.tip}
                         onChange={(e) =>
                           handleUpdateOption(
-                            option.id,
+                            option._id,
                             option.title,
                             option.correct,
                             e.target.value
@@ -181,4 +181,4 @@ const QuestionForm = (props) => {
   );
 };
 
-export default QuestionForm;
+export default SingleQuestion;
