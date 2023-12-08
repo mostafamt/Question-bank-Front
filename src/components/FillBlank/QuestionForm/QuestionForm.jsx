@@ -1,60 +1,196 @@
 import React from "react";
-import { Button, TextField } from "@mui/material";
-
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import IconButton from "@mui/material/IconButton";
+import { Button, Checkbox, Input, TextField } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
-
+import InfoIcon from "@mui/icons-material/Info";
+import { generateOption } from "../../../utils";
+import { styled } from "@mui/material/styles";
 import styles from "./questionForm.module.scss";
 
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  whiteSpace: "nowrap",
+  width: 1,
+});
+
 const styleSheet = {
-  textField: {
+  objectName: {
+    position: "relative",
+    marginBottom: "2rem",
     width: "100%",
   },
-  radioGroup: {
-    height: "100%",
+  option: {
+    // position: "relative",
+    width: "100%",
+  },
+  btn: {
     display: "flex",
-    flexDirection: "column",
-    gap: "2rem",
+    gap: ".5rem",
   },
-  radio: {
-    height: "3.5rem",
+  deleteBtn: {},
+  box: {
+    marginTop: "4rem",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  iconButton: {
-    height: "3.5rem",
+  treeItem: {
+    ".MuiTreeItem-label": {
+      fontSize: "1.4rem !important",
+      padding: "1rem 0",
+    },
   },
 };
 
-const QuestionForm = ({
-  question,
-  addAnswerHandler,
-  deleteAnswerHandler,
-  editQuestionHandler,
-  editAnswerHandler,
-  editWhichCorrectAnswerHandler,
-}) => {
-  return (
-    <div className="container">
-      <form className={styles.form}>
-        <TextField
-          label="Question"
-          value={question.text}
-          onChange={(e) => editQuestionHandler(question.id, e.target.value)}
-          variant="outlined"
-          sx={styleSheet.textField}
-        />
+const QuestionForm = (props) => {
+  const { question, handleEditQuestionParam } = props;
 
-        <TextField
-          label="answer"
-          value={question.answer}
-          onChange={(e) => editAnswerHandler(question.id, e.target.value)}
-          variant="outlined"
-          sx={styleSheet.textField}
-        />
-      </form>
+  const handleAddOption = () => {
+    const newOptions = [...question.params.options, generateOption()];
+    handleEditQuestionParam(question.id, "options", newOptions);
+  };
+
+  const handleUpdateOption = (optionId, value, isCorrect, tip) => {
+    console.log("optionId= ", optionId);
+    const newOptions = question.params.options.map((option) => {
+      if (option.id === optionId) {
+        return {
+          ...option,
+          title: value,
+          correct: isCorrect,
+          tip: tip,
+        };
+      }
+      return option;
+    });
+    handleEditQuestionParam(question.id, "options", newOptions);
+  };
+
+  const handleDeleteOption = (optionId) => {
+    if (question.params.options.length <= 2) return;
+    const newOptions = question.params.options.filter(
+      (option) => option.id !== optionId
+    );
+    handleEditQuestionParam(question.id, "options", newOptions);
+  };
+
+  const onClickTip = (optionId) => {
+    const newOptions = question.params.options.map((option) => {
+      if (option.id === optionId) {
+        return {
+          ...option,
+          showTip: !option.showTip,
+        };
+      }
+      return option;
+    });
+    handleEditQuestionParam(question.id, "options", newOptions);
+  };
+
+  return (
+    <div className={styles.form}>
+  
+      <TextField
+        label="Sentence"  //*edited
+        variant="outlined"
+        name="title"
+        sx={styleSheet.objectName}
+        value={question.title}
+        onChange={(e) =>
+          handleEditQuestionParam(question.id, e.target.name, e.target.value)
+        }
+      />
+      <h4>options: </h4>
+      <ul className={styles.options}>
+        {question?.params?.options?.map((option, idx) => (
+          <li key={idx} className={styles.option}>
+            <>
+              <div>
+                <div>
+                  <div>
+                    <TextField
+                      label={`Option ${idx + 1}`}  //*edited
+                      variant="outlined"
+                      sx={styleSheet.option}
+                      value={option.title}
+                      onChange={(e) =>
+                        handleUpdateOption(
+                          option.id,
+                          e.target.value,
+                          option.correct,
+                          option.tip
+                        )
+                      }
+                    ></TextField>
+                    <button type="button" onClick={() => onClickTip(option.id)}>
+                      <InfoIcon color="primary" />
+                    </button>
+                    <div
+                      className={styles.popover}
+                      style={{
+                        display: option.showTip ? "block" : "none",
+                      }}
+                    >
+                      <Input
+                        value={option.tip}
+                        onChange={(e) =>
+                          handleUpdateOption(
+                            option.id,
+                            option.title,
+                            option.correct,
+                            e.target.value
+                          )
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+              
+                {/* <Button   //!edit delete 
+                  sx={styleSheet.deleteBtn}
+                  variant="outlined"
+                  color="primary"
+                >
+                  <Checkbox
+                    checked={option.correct}
+                    onChange={(e) =>
+                      handleUpdateOption(
+                        option.id,
+                        option.title,
+                        !option.correct,
+                        option.tip
+                      )
+                    }
+                  />
+                </Button> */}
+                <Button
+                  sx={styleSheet.deleteBtn}
+                  variant="outlined"
+                  color="error"
+                  onClick={() => handleDeleteOption(option.id)}
+                >
+                  <DeleteIcon />
+                </Button>
+              </div>
+            </>
+          </li>
+        ))}
+      </ul>
+      <Button
+        color="success"
+        sx={(styleSheet.btn, { fontWeight: "bold" })}
+        size="large"
+        onClick={handleAddOption}
+      >
+        add option
+      </Button>
     </div>
   );
 };
