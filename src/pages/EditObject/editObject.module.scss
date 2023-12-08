@@ -1,0 +1,55 @@
+.edit-object {
+  width: 70%;
+  margin: 0 auto;
+
+  & > form {
+    margin-bottom: 4rem;
+    & > fieldset {
+      min-width: auto;
+      padding: revert;
+      border: 1px solid #ced4da;
+      margin: revert;
+      padding: 3rem;
+      border-radius: 0.5rem;
+
+      & > legend {
+        float: none;
+        width: auto;
+        padding: initial;
+      }
+
+      & > div {
+        display: flex;
+        flex-direction: column;
+        // gap: 1rem;
+
+        & .row {
+          display: flex;
+          align-items: center;
+          //   justify-content: center;
+          gap: 4%;
+
+          & > * {
+            flex: 0 1 48%;
+          }
+        }
+
+        & .actions {
+          margin-top: 2rem;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+
+          & > button {
+            flex: 0 1 15%;
+            font-weight: bold;
+
+            &:nth-child(3) {
+              background-color: rgb(199, 105, 105);
+            }
+          }
+        }
+      }
+    }
+  }
+}

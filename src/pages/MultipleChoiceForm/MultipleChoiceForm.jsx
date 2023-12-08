@@ -1,38 +1,21 @@
 import React from "react";
 import styles from "./multipleChoiceForm.module.scss";
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Collapse,
-  IconButton,
-  List,
-  ListItemButton,
-  ListItemText,
-  Stack,
-} from "@mui/material";
-import { Delete, ExpandLess, ExpandMore } from "@mui/icons-material";
-import { grey } from "@mui/material/colors";
+import { Button, CircularProgress } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
-import { generateOption } from "../../utils";
 import QuestionForm from "../../components/MultipleChoice/QuestionForm/QuestionForm";
 import axios from "../../axios";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useStore } from "../../store/store";
 import { toast } from "react-toastify";
+import AddIcon from "@mui/icons-material/Add";
 
 const generateMultipleChoiceQuestion = () => {
   return {
-    id: uuidv4(),
-    open: true,
-    type: "multipleChoice",
-    params: {
-      title: "Question Title ?",
-      options: [
-        { id: uuidv4(), title: "", correct: false, tip: "", showTip: false },
-        { id: uuidv4(), title: "", correct: false, tip: "", showTip: false },
-      ],
-    },
+    title: "",
+    options: [
+      { id: uuidv4(), title: "", correct: false, tip: "", showTip: false },
+      { id: uuidv4(), title: "", correct: false, tip: "", showTip: false },
+    ],
   };
 };
 
@@ -40,80 +23,81 @@ const MultipleChoiceForm = () => {
   const [questions, setQuestions] = React.useState([
     generateMultipleChoiceQuestion(),
   ]);
-  const navigate = useNavigate();
+  const location = useLocation();
+  const params = useParams();
+  const [showForm, setShowForm] = React.useState(true);
   const [loading, setLoading] = React.useState(false);
   const { data: state } = useStore();
+  const navigate = useNavigate();
+
+  const fetchData = async (id) => {
+    const res = await axios.get(`/question/${id}`);
+    console.log(res.data);
+    const { question } = res.data;
+    setQuestions([
+      {
+        title: question.title,
+        options: question.options.map((option, idx) => ({
+          id: uuidv4(),
+          title: option.title,
+          correct: option.correct,
+          tip: option.tip,
+          showTip: false,
+        })),
+      },
+    ]);
+  };
 
   React.useEffect(() => {
-    console.log("global state= ", state);
-    console.log("status= ", !!Object.keys(state).length);
-    // if (!Object.keys(state).length) {
-    //   navigate("/add-question");
-    // }
+    console.log(location);
+    if (location.pathname !== "/add-question/multiple-choice/manual") {
+      const { id } = params;
+      fetchData(id);
+    }
   }, []);
 
-  const handleOpenQuestion = (id) => {
-    setQuestions((prevState) => {
-      return prevState.map((question) => {
-        if (question.id === id) {
-          question.open = !question.open;
-        }
-        return question;
-      });
-    });
+  const handleEditQuestionParam = (param, value) => {
+    setQuestions([{ ...questions[0], [param]: value }]);
   };
 
-  const handleAddQuestion = () => {
-    setQuestions((prevState) => [
-      ...prevState,
-      generateMultipleChoiceQuestion(),
-    ]);
-  };
-
-  const handleDeleteQuestion = (id) => {
-    if (questions.length <= 1) {
-      return;
-    }
-    setQuestions((prevState) => [
-      ...prevState.filter((question) => question.id !== id),
-    ]);
-  };
-
-  const handleEditQuestionParam = (questionId, param, value) => {
-    const newQuestions = questions.map((question) => {
-      if (question.id === questionId) {
-        return {
-          ...question,
-          params: {
-            ...question.params,
-            [param]: value,
-          },
-        };
-      }
-      return question;
-    });
-    setQuestions(newQuestions);
+  const onClickNew = () => {
+    setShowForm(true);
+    setQuestions([generateMultipleChoiceQuestion()]);
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    console.log(state);
     const data = {
-      name: state.name,
-      domain: state.domain,
-      subDomain: state.subDomain,
-      objectOwner: state.objectOwner,
-      questions: questions.map((question) => question.params),
+      ...state,
+      questions: questions.map((question) => {
+        const newOptions = question.options.map((option) => {
+          delete option.id;
+          delete option.showTip;
+          return option;
+        });
+        return { ...question, options: newOptions };
+      }),
     };
-    console.log("data= ", data);
+    console.log(data);
     try {
       setLoading(true);
-      await axios.post("/multiple-choice", data);
-      toast.success("Question created successfully!");
+      if (location.pathname !== "/add-question/multiple-choice/manual") {
+        const { id } = params;
+        await axios.put(`/question/${id}`, { ...data, question: questions[0] });
+        toast.success("Question updated successfully!");
+        // setTimeout(() => {
+        //   navigate("/");
+        // }, 2000);
+      } else {
+        await axios.post("/question", data);
+        toast.success("Question created successfully!");
 
-      // setTimeout(() => {
-      //   navigate("/");
-      // }, 2000);
+        setTimeout(() => {
+          setShowForm(false);
+        }, 2000);
+      }
     } catch (error) {
       toast.error(error.message);
     } finally {
@@ -121,73 +105,16 @@ const MultipleChoiceForm = () => {
     }
   };
 
-  return (
+  return showForm ? (
     <form className="container" onSubmit={handleSubmit}>
-      <div className={styles.header}>Drag the words</div>
-      <List
-        sx={{ width: "100%", bgcolor: "background.paper" }}
-        component="nav"
-        aria-labelledby="nested-list-subheader"
-      >
-        {questions.map((question, idx) => (
-          <Box key={question.id} sx={{ mb: 2 }}>
-            <Stack direction="row" spacing={2}>
-              <ListItemButton
-                onClick={() => handleOpenQuestion(question.id)}
-                sx={
-                  question.open
-                    ? { backgroundColor: grey[300] }
-                    : { backgroundColor: grey[200] }
-                }
-              >
-                <ListItemText primary={`Question ${idx + 1}`} />
-                {question.open ? <ExpandLess /> : <ExpandMore />}
-              </ListItemButton>
-              <IconButton
-                aria-label="delete"
-                sx={{ width: "3rem", height: "3rem" }}
-                color="error"
-                onClick={() => handleDeleteQuestion(question.id)}
-              >
-                <Delete />
-              </IconButton>
-            </Stack>
-            <Collapse
-              in={question.open}
-              timeout="auto"
-              unmountOnExit
-              sx={{
-                border: `1px solid ${grey[300]}`,
-                borderTop: 0,
-                mb: 2,
-                p: 2,
-                borderRadius: "0 0 .5rem .5rem",
-                width: "95%",
-              }}
-            >
-              <Box>
-                <div className={styles["image-box"]}>
-                  <img
-                    src="/assets/question-bg-2.jpg"
-                    alt="question background"
-                  />
-                </div>
-                <QuestionForm
-                  question={question}
-                  handleEditQuestionParam={handleEditQuestionParam}
-                />
-              </Box>
-            </Collapse>
-          </Box>
-        ))}
-      </List>
-      <Button
-        size="large"
-        sx={{ fontWeight: "bold" }}
-        onClick={handleAddQuestion}
-      >
-        Add Question
-      </Button>
+      <div className={styles.header}>Multiple Choice</div>
+      <div className={styles["image-box"]}>
+        <img src="/assets/question-bg-2.jpg" alt="question background" />
+      </div>
+      <QuestionForm
+        question={questions[0]}
+        handleEditQuestionParam={handleEditQuestionParam}
+      />
       <div className={styles["submit-box"]}>
         <Button
           type="submit"
@@ -200,6 +127,17 @@ const MultipleChoiceForm = () => {
         </Button>
       </div>
     </form>
+  ) : (
+    <div className="container">
+      <Button
+        variant="contained"
+        size="large"
+        startIcon={<AddIcon />}
+        onClick={onClickNew}
+      >
+        New
+      </Button>
+    </div>
   );
 };
 

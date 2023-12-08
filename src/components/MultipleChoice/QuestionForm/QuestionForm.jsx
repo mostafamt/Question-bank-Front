@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Checkbox, Input, TextField } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import InfoIcon from "@mui/icons-material/Info";
-import { generateOption } from "../../../utils";
+import { v4 as uuidv4 } from "uuid";
 
 import styles from "./questionForm.module.scss";
 
@@ -39,13 +39,15 @@ const QuestionForm = (props) => {
   const { question, handleEditQuestionParam } = props;
 
   const handleAddOption = () => {
-    const newOptions = [...question.params.options, generateOption()];
-    handleEditQuestionParam(question.id, "options", newOptions);
+    const newOptions = [
+      ...question.options,
+      { id: uuidv4(), title: "", correct: false, tip: "", showTip: false },
+    ];
+    handleEditQuestionParam("options", newOptions);
   };
 
   const handleUpdateOption = (optionId, value, isCorrect, tip) => {
-    console.log("optionId= ", optionId);
-    const newOptions = question.params.options.map((option) => {
+    const newOptions = question.options.map((option) => {
       if (option.id === optionId) {
         return {
           ...option,
@@ -56,7 +58,7 @@ const QuestionForm = (props) => {
       }
       return option;
     });
-    handleEditQuestionParam(question.id, "options", newOptions);
+    handleEditQuestionParam("options", newOptions);
   };
 
   const handleDeleteOption = (optionId) => {
@@ -64,11 +66,11 @@ const QuestionForm = (props) => {
     const newOptions = question.params.options.filter(
       (option) => option.id !== optionId
     );
-    handleEditQuestionParam(question.id, "options", newOptions);
+    handleEditQuestionParam("options", newOptions);
   };
 
   const onClickTip = (optionId) => {
-    const newOptions = question.params.options.map((option) => {
+    const newOptions = question.options.map((option) => {
       if (option.id === optionId) {
         return {
           ...option,
@@ -77,7 +79,7 @@ const QuestionForm = (props) => {
       }
       return option;
     });
-    handleEditQuestionParam(question.id, "options", newOptions);
+    handleEditQuestionParam("options", newOptions);
   };
 
   return (
@@ -88,13 +90,11 @@ const QuestionForm = (props) => {
         name="title"
         sx={styleSheet.objectName}
         value={question.title}
-        onChange={(e) =>
-          handleEditQuestionParam(question.id, e.target.name, e.target.value)
-        }
+        onChange={(e) => handleEditQuestionParam(e.target.name, e.target.value)}
       />
       <h4>options: </h4>
       <ul className={styles.options}>
-        {question?.params?.options?.map((option, idx) => (
+        {question.options.map((option, idx) => (
           <li key={idx} className={styles.option}>
             <>
               <div>

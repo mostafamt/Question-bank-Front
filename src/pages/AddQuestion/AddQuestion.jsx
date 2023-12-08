@@ -102,12 +102,11 @@ const AddQuestion = () => {
   const onSubmit = (values) => {
     console.log("values= ", values);
     setFormState(values);
-    console.log(values.question_type);
-    if (values.question_type === "multiple-choice") {
+    if (values.questionType === "multiple-choice") {
       navigate("/add-question/multiple-choice/manual");
-    } else if (values.question_type === "true-false") {
+    } else if (values.questionType === "true-false") {
       navigate("/add-question/true-false/manual");
-    } else if (values.question_type === "fill-in-the-blank") {
+    } else if (values.questionType === "fill-in-the-blank") {
       navigate("/add-question/fill-in-the-blank/manual");
     }
   };
@@ -128,7 +127,7 @@ const AddQuestion = () => {
             <div className={styles.row}>
               <Select
                 label="object owner"
-                name="object_owner"
+                name="objectOwner"
                 register={register}
                 errors={errors}
               >
@@ -186,7 +185,7 @@ const AddQuestion = () => {
               </Select>
               <Select
                 label="question type"
-                name="question_type"
+                name="questionType"
                 register={register}
                 errors={errors}
               >
