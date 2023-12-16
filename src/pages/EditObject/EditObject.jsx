@@ -1,6 +1,5 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useStore } from "../../store/store";
 import { useForm } from "react-hook-form";
 import Input from "../../components/Input/Input";
 import Select from "../../components/Select/Select";
@@ -9,58 +8,25 @@ import Modal from "../../components/Modal/Modal";
 import DeleteModalContent from "../../components/Modal/DeleteModalContent/DeleteModalContent";
 import axios from "../../axios";
 import { toast } from "react-toastify";
+import {
+  ownerList,
+  domainList,
+  languageList,
+  subDomainList,
+  getDomainName,
+  getSubDomainName,
+} from "../../config";
 
 import styles from "./editObject.module.scss";
 
-const ownerList = ["me", "azharengineering2020", "Public"];
-
-const domainList = [
-  "Science",
-  "Scube Test Domain",
-  "English",
-  "Mathematics",
-  "اللغة العربية",
+const questionTypeList = [
+  "multiple-choice",
+  "true-false",
+  "fill-in-the-blank",
+  "essay-question",
 ];
-
-const languageList = [
-  "English",
-  "Arabic",
-  "French",
-  "Spanish",
-  "Italian",
-  "German",
-];
-
-const subDomainList = {
-  Science: ["Chemistry", "Biology", "Physics", "Earth And Space"],
-  "Scube Test Domain": ["كتاب الفقه", "كتاب التاريخ", "كتاب الجغرافيا"],
-  English: [
-    "Grammar",
-    "Reading-Fiction",
-    "Reading-None Fiction",
-    "Reading-Play Scripts",
-    "Poetry",
-    "Writing",
-    "Listening",
-  ],
-  Mathematics: ["Arithmetic", "Algebra", "Geometry", "Statistics"],
-  "اللغة العربية": ["قراءة", "محفوظات", "نحو", "تعبير", "خط"],
-};
-
-const questionTypeList = ["multiple-choice", "true-false", "fill-in-the-blank"];
 
 const EditObject = () => {
-  const [values, setValues] = React.useState({
-    name: "",
-    ownerList: ownerList,
-    owner: "",
-    languageList: languageList,
-    domainList: domainList,
-    domain: "",
-    subDomain: "",
-    question_type: questionTypeList[0],
-  });
-  const [valid, setValid] = React.useState(false);
   const [showModal, setShowModal] = React.useState(false);
   const navigate = useNavigate();
   const params = useParams();
@@ -73,10 +39,9 @@ const EditObject = () => {
   } = useForm({
     defaultValues: async () => fetchData(),
   });
-  const { setFormState } = useStore();
 
   const fetchData = async () => {
-    const res = await axios.get(`/question/${id}`);
+    const res = await axios.get(`/interactive-objects/${id}`);
     console.log(res.data);
     return {
       ...res.data,
@@ -90,7 +55,7 @@ const EditObject = () => {
   const onConfirmDelete = async () => {
     closeModal();
     try {
-      const res = await axios.delete(`/question/${id}`);
+      await axios.delete(`/interactive-objects/${id}`);
       toast.success("Question deleted successfully");
       setTimeout(() => {
         navigate("/");
@@ -99,8 +64,6 @@ const EditObject = () => {
       console.log(error);
     }
   };
-
-  React.useEffect(() => {}, [values.name, valid]);
 
   const onClickDelete = () => {
     openModal();
@@ -120,8 +83,10 @@ const EditObject = () => {
 
   const onSubmit = async (values) => {
     try {
-      const res = await axios.put(`/question/${id}`, {
+      const res = await axios.patch(`/interactive-objects/${id}`, {
         ...values,
+        domainName: getDomainName(values.domainId),
+        subDomainName: getSubDomainName(values.domainId, values.subDomainId),
       });
       toast.success("Question updated successfully!");
       setTimeout(() => {
@@ -148,7 +113,7 @@ const EditObject = () => {
             <div>
               <Input
                 label="title"
-                name="name"
+                name="questionName"
                 type="text"
                 register={register}
                 errors={errors}
@@ -168,13 +133,13 @@ const EditObject = () => {
                 </Select>
                 <Select
                   label="domain"
-                  name="domain"
+                  name="domainId"
                   register={register}
                   errors={errors}
                 >
                   {domainList.map((domain, idx) => (
-                    <option key={idx} value={domain}>
-                      {domain}
+                    <option key={domain.id} value={domain.id}>
+                      {domain.name}
                     </option>
                   ))}
                 </Select>
@@ -182,13 +147,13 @@ const EditObject = () => {
               <div className={styles.row}>
                 <Select
                   label="sub domain"
-                  name="subDomain"
+                  name="subDomainId"
                   register={register}
                   errors={errors}
                 >
-                  {subDomainList["Science"].map((item, idx) => (
-                    <option key={idx} value={item}>
-                      {item}
+                  {subDomainList?.[watch().domainId]?.map((subDomain, idx) => (
+                    <option key={subDomain.id} value={subDomain.id}>
+                      {subDomain.name}
                     </option>
                   ))}
                 </Select>
@@ -207,14 +172,14 @@ const EditObject = () => {
                   errors={errors}
                 >
                   {languageList.map((item, idx) => (
-                    <option key={idx} value={item}>
-                      {item}
+                    <option key={idx} value={item.code}>
+                      {item.name}
                     </option>
                   ))}
                 </Select>
                 <Select
                   label="question type"
-                  name="questionType"
+                  name="type"
                   register={register}
                   errors={errors}
                   disabled={true}

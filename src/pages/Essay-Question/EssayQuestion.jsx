@@ -3,7 +3,7 @@ import { useStore } from "../../store/store";
 import axios from "../../axios";
 import { toast } from "react-toastify";
 
-const DragTheWords = () => {
+const EssayQuestion = () => {
   const [name, setName] = React.useState("");
   const { data: state } = useStore();
 
@@ -22,6 +22,7 @@ const DragTheWords = () => {
 
   return (
     <form onSubmit={onSubmit}>
+      <h1>Essay Question</h1>
       <div>
         <label>
           <span>name</span>
@@ -41,4 +42,4 @@ const DragTheWords = () => {
   );
 };
 
-export default DragTheWords;
+export default EssayQuestion;

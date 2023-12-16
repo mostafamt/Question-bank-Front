@@ -23,6 +23,7 @@ import FillInTheBlankForm from "./pages/FillInTheBlankForm/FillInTheBlankForm";
 import EditQuestion from "./pages/EditQuestion/EditQuestion";
 import DragTheWords from "./pages/DragTheWords/DragTheWords";
 import EditObject from "./pages/EditObject/EditObject";
+import EssayQuestion from "./pages/Essay-Question/EssayQuestion";
 
 function App() {
   return (
@@ -50,6 +51,10 @@ function App() {
               Component={MultipleChoiceForm}
             />
             <Route
+              path="/add-question/drag-the-words/manual"
+              Component={DragTheWords}
+            />
+            <Route
               path="/add-question/true-false/manual"
               Component={TrueFalseForm}
             />
@@ -57,6 +62,11 @@ function App() {
               path="/add-question/fill-in-the-blank/manual"
               Component={FillInTheBlankForm}
             />
+            <Route
+              path="/add-question/essay-question/manual"
+              Component={EssayQuestion}
+            />
+
             <Route path="/dragthewords" Component={DragTheWords} />
             {/* <Route path="/edit/:id" Component={EditQuestion} /> */}
             <Route path="/edit/:id" Component={EditObject} />

@@ -8,58 +8,28 @@ import ScannerIcon from "@mui/icons-material/Scanner";
 import Input from "../../components/Input/Input";
 import Select from "../../components/Select/Select";
 import { Button } from "@mui/material";
+import {
+  ownerList,
+  domainList,
+  languageList,
+  subDomainList,
+  getDomainName,
+  getSubDomainName,
+} from "../../config";
 
 import styles from "./addQuestion.module.scss";
 
-const ownerList = ["me", "azharengineering2020", "Public"];
-
-const domainList = [
-  "Science",
-  "Scube Test Domain",
-  "English",
-  "Mathematics",
-  "اللغة العربية",
+// 1- Add your questions list here
+// 2- Create your own page in: /page/{question-type}
+const questionTypeList = [
+  "multiple-choice",
+  "true-false",
+  "fill-in-the-blank",
+  "drag-the-words",
+  "essay-question",
 ];
-
-const languageList = [
-  "English",
-  "Arabic",
-  "French",
-  "Spanish",
-  "Italian",
-  "German",
-];
-
-const subDomainList = {
-  Science: ["Chemistry", "Biology", "Physics", "Earth And Space"],
-  "Scube Test Domain": ["كتاب الفقه", "كتاب التاريخ", "كتاب الجغرافيا"],
-  English: [
-    "Grammar",
-    "Reading-Fiction",
-    "Reading-None Fiction",
-    "Reading-Play Scripts",
-    "Poetry",
-    "Writing",
-    "Listening",
-  ],
-  Mathematics: ["Arithmetic", "Algebra", "Geometry", "Statistics"],
-  "اللغة العربية": ["قراءة", "محفوظات", "نحو", "تعبير", "خط"],
-};
-
-const questionTypeList = ["multiple-choice", "true-false", "fill-in-the-blank"];
 
 const AddQuestion = () => {
-  const [values, setValues] = React.useState({
-    name: "",
-    ownerList: ownerList,
-    owner: "",
-    languageList: languageList,
-    domainList: domainList,
-    domain: "",
-    subDomain: "",
-    question_type: questionTypeList[0],
-  });
-  const [valid, setValid] = React.useState(false);
   const navigate = useNavigate();
   const {
     register,
@@ -68,28 +38,6 @@ const AddQuestion = () => {
     watch,
   } = useForm();
   const { setFormState } = useStore();
-
-  React.useEffect(() => {}, [values.name, valid]);
-
-  const checkValidity = () => {
-    if (Boolean(values.name)) {
-      setValid(true);
-    } else {
-      setValid(false);
-    }
-    console.log("valid= ", valid);
-  };
-
-  const onChangeValues = (name, value) => {
-    setValues((prevState) => ({ ...prevState, [name]: value }));
-    console.log("hello");
-    checkValidity();
-  };
-
-  const onClickManualForm = () => {
-    console.log("onClickManualUpload");
-    window.open(`/manual-form/${values.question_type}`, "_blank");
-  };
 
   const onClickExcelFile = () => {
     window.open("/excel-file", "_blank");
@@ -100,14 +48,23 @@ const AddQuestion = () => {
   };
 
   const onSubmit = (values) => {
-    console.log("values= ", values);
-    setFormState(values);
-    if (values.questionType === "multiple-choice") {
+    const data = {
+      ...values,
+      domainName: getDomainName(values.domainId),
+      subDomainName: getSubDomainName(values.domainId, values.subDomainId),
+    };
+    setFormState(data);
+    const { type } = values;
+    if (type === "multiple-choice") {
       navigate("/add-question/multiple-choice/manual");
-    } else if (values.questionType === "true-false") {
+    } else if (type === "true-false") {
       navigate("/add-question/true-false/manual");
-    } else if (values.questionType === "fill-in-the-blank") {
+    } else if (type === "fill-in-the-blank") {
       navigate("/add-question/fill-in-the-blank/manual");
+    } else if (type === "drag-the-words") {
+      navigate("/add-question/drag-the-words/manual");
+    } else if (values.questionType === "essay-question") {
+      navigate("/add-question/essay-question/manual");
     }
   };
 
@@ -119,7 +76,7 @@ const AddQuestion = () => {
           <div>
             <Input
               label="title"
-              name="name"
+              name="questionName"
               type="text"
               register={register}
               errors={errors}
@@ -139,13 +96,13 @@ const AddQuestion = () => {
               </Select>
               <Select
                 label="domain"
-                name="domain"
+                name="domainId"
                 register={register}
                 errors={errors}
               >
-                {domainList.map((domain, idx) => (
-                  <option key={idx} value={domain}>
-                    {domain}
+                {domainList?.map((domain, idx) => (
+                  <option key={domain.id} value={domain.id}>
+                    {domain.name}
                   </option>
                 ))}
               </Select>
@@ -153,13 +110,13 @@ const AddQuestion = () => {
             <div className={styles.row}>
               <Select
                 label="sub domain"
-                name="subDomain"
+                name="subDomainId"
                 register={register}
                 errors={errors}
               >
-                {subDomainList["Science"].map((item, idx) => (
-                  <option key={idx} value={item}>
-                    {item}
+                {subDomainList?.[watch().domainId]?.map((subDomain, idx) => (
+                  <option key={subDomain.id} value={subDomain.id}>
+                    {subDomain.name}
                   </option>
                 ))}
               </Select>
@@ -178,14 +135,14 @@ const AddQuestion = () => {
                 errors={errors}
               >
                 {languageList.map((item, idx) => (
-                  <option key={idx} value={item}>
-                    {item}
+                  <option key={idx} value={item.code}>
+                    {item.name}
                   </option>
                 ))}
               </Select>
               <Select
                 label="question type"
-                name="questionType"
+                name="type"
                 register={register}
                 errors={errors}
               >

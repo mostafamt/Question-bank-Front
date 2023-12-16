@@ -106,13 +106,13 @@ export default function DataTable(props) {
 
   const fetchQuestions = React.useCallback(async () => {
     setLoading(true);
-    const res = await axios.get(`/`);
+    const res = await axios.get(`/interactive-objects`);
     const data = res.data;
-    if (!!data.length) {
+    if (!!data.docs.length) {
       setRows(
-        data.map((item) => ({
+        data.docs.map((item) => ({
           id: item._id,
-          name: item.name,
+          name: item.questionName,
           type: item.type,
           domain: "Scube Test Domain",
           subDomain: "Scube Test Sub Domain",

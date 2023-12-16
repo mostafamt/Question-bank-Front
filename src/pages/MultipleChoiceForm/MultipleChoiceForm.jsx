@@ -20,9 +20,9 @@ const generateMultipleChoiceQuestion = () => {
 };
 
 const MultipleChoiceForm = () => {
-  const [questions, setQuestions] = React.useState([
-    generateMultipleChoiceQuestion(),
-  ]);
+  const [parameters, setParameters] = React.useState(
+    generateMultipleChoiceQuestion
+  );
   const location = useLocation();
   const params = useParams();
   const [showForm, setShowForm] = React.useState(true);
@@ -31,25 +31,13 @@ const MultipleChoiceForm = () => {
   const navigate = useNavigate();
 
   const fetchData = async (id) => {
-    const res = await axios.get(`/question/${id}`);
+    const res = await axios.get(`/interactive-objects/${id}`);
     console.log(res.data);
-    const { question } = res.data;
-    setQuestions([
-      {
-        title: question.title,
-        options: question.options.map((option, idx) => ({
-          id: uuidv4(),
-          title: option.title,
-          correct: option.correct,
-          tip: option.tip,
-          showTip: false,
-        })),
-      },
-    ]);
+    const { parameters } = res.data;
+    setParameters(parameters);
   };
 
   React.useEffect(() => {
-    console.log(location);
     if (location.pathname !== "/add-question/multiple-choice/manual") {
       const { id } = params;
       fetchData(id);
@@ -57,12 +45,12 @@ const MultipleChoiceForm = () => {
   }, []);
 
   const handleEditQuestionParam = (param, value) => {
-    setQuestions([{ ...questions[0], [param]: value }]);
+    setParameters((prevState) => ({ ...prevState, [param]: value }));
   };
 
   const onClickNew = () => {
     setShowForm(true);
-    setQuestions([generateMultipleChoiceQuestion()]);
+    setParameters([generateMultipleChoiceQuestion()]);
   };
 
   const handleSubmit = async (event) => {
@@ -71,29 +59,24 @@ const MultipleChoiceForm = () => {
     console.log(state);
     const data = {
       ...state,
-      questions: questions.map((question) => {
-        const newOptions = question.options.map((option) => {
-          delete option.id;
-          delete option.showTip;
-          return option;
-        });
-        return { ...question, options: newOptions };
-      }),
+      isAnswered: "g",
+      parameters,
     };
     console.log(data);
     try {
       setLoading(true);
       if (location.pathname !== "/add-question/multiple-choice/manual") {
         const { id } = params;
-        await axios.put(`/question/${id}`, { ...data, question: questions[0] });
+        await axios.patch(`/interactive-objects/${id}`, {
+          ...data,
+        });
         toast.success("Question updated successfully!");
-        // setTimeout(() => {
-        //   navigate("/");
-        // }, 2000);
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
       } else {
-        await axios.post("/question", data);
+        await axios.post("/interactive-objects", data);
         toast.success("Question created successfully!");
-
         setTimeout(() => {
           setShowForm(false);
         }, 2000);
@@ -112,7 +95,7 @@ const MultipleChoiceForm = () => {
         <img src="/assets/question-bg-2.jpg" alt="question background" />
       </div>
       <QuestionForm
-        question={questions[0]}
+        question={parameters}
         handleEditQuestionParam={handleEditQuestionParam}
       />
       <div className={styles["submit-box"]}>
