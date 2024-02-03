@@ -62,8 +62,8 @@ const QuestionForm = (props) => {
   };
 
   const handleDeleteOption = (optionId) => {
-    if (question.params.options.length <= 2) return;
-    const newOptions = question.params.options.filter(
+    if (question.options.length <= 2) return;
+    const newOptions = question.options.filter(
       (option) => option.id !== optionId
     );
     handleEditQuestionParam("options", newOptions);

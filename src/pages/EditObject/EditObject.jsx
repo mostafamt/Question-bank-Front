@@ -24,6 +24,7 @@ const questionTypeList = [
   "true-false",
   "fill-in-the-blank",
   "essay-question",
+  "drag-the-words",
 ];
 
 const EditObject = () => {
@@ -74,10 +75,12 @@ const EditObject = () => {
   };
 
   const onClickEdit = () => {
-    const { questionType } = watch();
+    const { type } = watch();
 
-    if (questionType === "multiple-choice") {
+    if (type === "multiple-choice") {
       navigate(`/edit-question/${id}`);
+    } else if (type === "drag-the-words") {
+      navigate(`/dragthewords/${id}`);
     }
   };
 

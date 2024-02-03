@@ -1,0 +1,12 @@
+.test {
+  & > img {
+    position: "relative";
+    height: 650px;
+  }
+
+  & > canvas {
+    position: absolute;
+    overflow: auto;
+    border: 2px solid red;
+  }
+}

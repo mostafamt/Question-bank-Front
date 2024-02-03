@@ -43,10 +43,6 @@ const AddQuestion = () => {
     window.open("/excel-file", "_blank");
   };
 
-  const onClickScanAndUpload = () => {
-    console.log("onClickScanAndUpload");
-  };
-
   const onSubmit = (values) => {
     const data = {
       ...values,
@@ -66,6 +62,16 @@ const AddQuestion = () => {
     } else if (values.questionType === "essay-question") {
       navigate("/add-question/essay-question/manual");
     }
+  };
+
+  const onSubmitOcr = (values) => {
+    const data = {
+      ...values,
+      domainName: getDomainName(values.domainId),
+      subDomainName: getSubDomainName(values.domainId, values.subDomainId),
+    };
+    setFormState(data);
+    navigate("/scan-and-upload");
   };
 
   return (
@@ -171,7 +177,7 @@ const AddQuestion = () => {
               </Button>
               <Button
                 variant="contained"
-                onClick={onClickScanAndUpload}
+                onClick={handleSubmit(onSubmitOcr)}
                 startIcon={<ScannerIcon />}
               >
                 Scan and Upload

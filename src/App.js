@@ -24,6 +24,8 @@ import EditQuestion from "./pages/EditQuestion/EditQuestion";
 import DragTheWords from "./pages/DragTheWords/DragTheWords";
 import EditObject from "./pages/EditObject/EditObject";
 import EssayQuestion from "./pages/Essay-Question/EssayQuestion";
+import ScanAndUpload from "./pages/ScanAndUpload/ScanAndUpload";
+import Test2 from "./pages/Test/Test2";
 
 function App() {
   return (
@@ -46,6 +48,7 @@ function App() {
             <Route path="/show/:id" Component={Show} />
             <Route path="/bulk" Component={Bulk} />
             <Route path="/add-question" Component={AddQuestion} />
+            <Route path="/scan-and-upload" Component={ScanAndUpload} />
             <Route
               path="/add-question/multiple-choice/manual"
               Component={MultipleChoiceForm}
@@ -68,11 +71,13 @@ function App() {
             />
 
             <Route path="/dragthewords" Component={DragTheWords} />
+            <Route path="/dragthewords/:id" Component={DragTheWords} />
             {/* <Route path="/edit/:id" Component={EditQuestion} /> */}
             <Route path="/edit/:id" Component={EditObject} />
             <Route path="/edit-question/:id" Component={MultipleChoiceForm} />
             <Route path="/excel-file" Component={ExcelFile} />
             <Route path="/test" Component={Test} />
+            <Route path="/test2" Component={Test2} />
           </Routes>
           <Footer />
         </div>
