@@ -1,14 +1,27 @@
-import { Button } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 import React from "react";
 import Tesseract from "tesseract.js";
+import { v4 as uuidv4 } from "uuid";
+import Loader from "../../components/Loader/Loader";
 
 import styles from "./ocr.module.scss";
-import Loader from "../../components/Loader/Loader";
+
+let timeoutId;
+const debounce = (fn, ms = 2000) => {
+  return function (...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn.apply(this, args), ms);
+  };
+};
 
 const OCR = React.forwardRef((props, ref) => {
   const { areas, parameters, setExtractedTextList, loading, setLoading } =
     props;
   const canvasRef = React.createRef();
+
+  // React.useEffect(() => {
+  //   debounce(onClickExtract)();
+  // }, [areas]);
 
   const onClickExtract = async () => {
     setLoading(true);
@@ -28,11 +41,15 @@ const OCR = React.forwardRef((props, ref) => {
       })
     );
     setLoading(false);
+    setExtractedTextList((prevState) => [
+      ...prevState.sort((a, b) => a.y - b.y),
+    ]);
   };
 
   const extract = async (x, y, width, height, parameter) => {
     const canvas = canvasRef.current;
     const image = ref.current;
+    console.log("image= ", image);
 
     canvas.width = image.naturalWidth;
     canvas.height = image.naturalHeight;
@@ -49,12 +66,14 @@ const OCR = React.forwardRef((props, ref) => {
       let text = result.data.text;
       setExtractedTextList((prevState) => [
         ...prevState,
-        { text, parameter, y },
+        { id: uuidv4(), text, parameter, y },
       ]);
       return text;
     } catch (err) {
       console.error(err);
     }
+    // SORT
+
     return "";
   };
 
@@ -62,11 +81,16 @@ const OCR = React.forwardRef((props, ref) => {
     <div>
       <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
       <div className={styles["submit-box"]}>
-        <Button variant="contained" onClick={onClickExtract}>
-          extract text
+        <Button
+          variant="contained"
+          onClick={onClickExtract}
+          disabled={loading}
+          className={styles.btn}
+        >
+          <span>extract text</span>
+          {loading && <CircularProgress />}
         </Button>
       </div>
-      {loading && <Loader text="Extracting Text..." />}
     </div>
   );
 });

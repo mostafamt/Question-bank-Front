@@ -28,15 +28,8 @@ const VisuallyHiddenInput = styled("input")({
 const ScanAndUpload = () => {
   const [images, setImages] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
-  const [params, setParams] = React.useState([]);
 
   const { data: state } = useStore();
-
-  React.useEffect(() => {
-    console.log(state);
-    console.log(parameters[state.type]);
-    setParams(parameters[state.type]);
-  }, []);
 
   const convertPdfToImage = async (file) => {
     setLoading(true);
@@ -77,7 +70,7 @@ const ScanAndUpload = () => {
     <div className={`container ${styles["scan-and-upload"]}`}>
       <QuestionNameHeader>{state.type}</QuestionNameHeader>
       {!!images.length ? (
-        <Studio images={images} params={params} />
+        <Studio images={images} />
       ) : (
         <div>
           <Button

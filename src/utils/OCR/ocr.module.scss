@@ -4,6 +4,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
+  & .btn {
+    display: flex;
+    gap: 1rem;
+
+    & > span:nth-child(2) {
+      width: 1rem !important;
+      height: 1rem !important;
+
+      & svg {
+        color: #fff;
+      }
+    }
+  }
 }
 
 .final-actions {

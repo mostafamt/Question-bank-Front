@@ -2,23 +2,27 @@ import React from "react";
 import { AreaSelector } from "@bmunozg/react-image-area";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DeleteForever from "@mui/icons-material/DeleteForever";
-import { Button, IconButton } from "@mui/material";
-import MuiSelect from "../MuiSelect/MuiSelect";
+import { Button, CircularProgress } from "@mui/material";
 import OCR from "../../utils/OCR/OCR";
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import { useStore } from "../../store/store";
-import { constructMCQParametersFromKeyValuePairs } from "../../utils/helper";
+import {
+  constructMCQParametersFromKeyValuePairs,
+  hexToRgbA,
+} from "../../utils/helper";
 import { useNavigate } from "react-router-dom";
 import axios from "../../axios";
 import { toast } from "react-toastify";
-
-import styles from "./studio.module.scss";
 import Modal from "../Modal/Modal";
 import EditParametersModal from "../Modal/EditParametersModal/EditParametersModal";
+import AreaActions from "../AreaActions/AreaActions";
+
+import styles from "./studio.module.scss";
+import ImageActions from "../ImageActions/ImageActions";
 
 const Studio = (props) => {
-  const { images, params } = props;
+  const { images } = props;
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [areas, setAreas] = React.useState([]);
   const [parameters, setParameters] = React.useState([]);
@@ -26,9 +30,9 @@ const Studio = (props) => {
   const [extractedTextList, setExtractedTextList] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const imageRef = React.createRef();
-  const navigate = useNavigate();
   const { data: state, setFormState } = useStore();
   const [openModal, setOpenModal] = React.useState(false);
+  const [imageScaleFactor, setImageScaleFactor] = React.useState(1);
 
   const onClickImage = (idx) => {
     setActiveIndex(idx);
@@ -42,43 +46,36 @@ const Studio = (props) => {
     setAreas(areasParam);
   };
 
-  const onClickDeleteArea = () => {
-    areas.pop();
-    setAreas([...areas]);
-    boxColors.pop();
-    setBoxColors([...boxColors]);
+  const onClickDeleteArea = (idx) => {
+    setAreas((prevState) => [...prevState.filter((_, id) => idx !== id)]);
+    setBoxColors((prevState) => [...prevState.filter((_, id) => idx !== id)]);
   };
 
-  const onClickDeleteAreas = () => {
-    setAreas([]);
-    setBoxColors([]);
-    setParameters([]);
-    setExtractedTextList([]);
-  };
-
-  const onChangeSelect = (value, idx) => {
+  const onChangeParameter = (value, idx) => {
     const newParameters = [...parameters];
     newParameters[idx] = value;
     setParameters(newParameters);
     const newBoxColors = [...boxColors];
     if (value === "question") {
-      newBoxColors[idx] = "purple";
+      // newBoxColors[idx] = "red";
+      newBoxColors[idx] = "#800080";
     } else if (value === "option") {
-      newBoxColors[idx] = "orange";
+      newBoxColors[idx] = "#FFA500";
     }
     setBoxColors(newBoxColors);
     console.log(parameters);
   };
 
   const constructBoxColors = () => {
-    console.log(boxColors);
-    const values = boxColors.map((a, idx) => `& > div:nth-child(${idx + 2})`);
+    console.log("constructBoxColors");
+    const values = boxColors.map((_, idx) => `& > div:nth-child(${idx + 2})`);
 
     const obj = boxColors.map((color, idx) => {
       if (values[idx]) {
         return {
           [values[idx]]: {
             border: `2px solid ${color} !important`,
+            backgroundColor: `${hexToRgbA(color)}`,
           },
         };
       } else {
@@ -86,18 +83,16 @@ const Studio = (props) => {
       }
     });
 
+    console.log("obj= ", obj);
+
     return obj;
   };
-
-  const sortedExtractedTextList = extractedTextList.sort((a, b) => a.y - b.y);
 
   const onClickEdit = () => {
     console.log("onClickEdit");
     console.log("parameters= ", parameters);
 
-    const params = constructMCQParametersFromKeyValuePairs(
-      sortedExtractedTextList
-    );
+    const params = constructMCQParametersFromKeyValuePairs(extractedTextList);
 
     console.log("params= ", params);
 
@@ -112,9 +107,7 @@ const Studio = (props) => {
   };
 
   const onClickSubmit = async () => {
-    const params = constructMCQParametersFromKeyValuePairs(
-      sortedExtractedTextList
-    );
+    const params = constructMCQParametersFromKeyValuePairs(extractedTextList);
 
     const data = {
       ...state,
@@ -125,6 +118,16 @@ const Studio = (props) => {
       ...data,
     });
     toast.success("Question created successfully!");
+  };
+
+  const onEditText = (id, text) => {
+    const newExtractedTextList = extractedTextList.map((item) => {
+      if (item.id === id) {
+        item.text = text;
+      }
+      return item;
+    });
+    setExtractedTextList(newExtractedTextList);
   };
 
   return (
@@ -148,14 +151,24 @@ const Studio = (props) => {
           <div
             className={styles.editor}
             css={{
-              "& > div:first-child": constructBoxColors(),
+              "& > div:nth-child(2)": constructBoxColors(),
             }}
           >
+            <ImageActions
+              imageScaleFactor={imageScaleFactor}
+              setImageScaleFactor={setImageScaleFactor}
+              areas={areas}
+              setAreas={setAreas}
+            />
             <AreaSelector areas={areas} onChange={onChangeHandler}>
               <img
                 src={images[activeIndex]}
                 alt={images[activeIndex]}
                 ref={imageRef}
+                style={{
+                  width: `${imageScaleFactor * 100}%`,
+                  overflow: "scroll",
+                }}
               />
             </AreaSelector>
 
@@ -171,40 +184,28 @@ const Studio = (props) => {
             </div>
           </div>
           <div className={styles.actions}>
-            <div className={styles["action-icons"]}>
-              <IconButton aria-label="delete" onClick={onClickDeleteArea}>
-                <DeleteIcon />
-              </IconButton>
-              <IconButton aria-label="delete" onClick={onClickDeleteAreas}>
-                <DeleteForever />
-              </IconButton>
-            </div>
             {areas.map((area, idx) => (
-              <div key={area}>
-                <MuiSelect
-                  params={params}
-                  value={parameters[idx]}
-                  color={boxColors[idx]}
-                  onChange={(e) => onChangeSelect(e.target.value, idx)}
-                />
-                <p>
-                  {loading
-                    ? "loading text...."
-                    : sortedExtractedTextList?.[idx]?.text}
-                </p>
-              </div>
+              <AreaActions
+                key={area}
+                parameters={parameters}
+                parameter={parameters[idx]}
+                color={boxColors[idx]}
+                idx={idx}
+                boxColors={boxColors}
+                onChangeParameter={onChangeParameter}
+                loading={loading}
+                extractedTextList={extractedTextList}
+                onEditText={onEditText}
+                onClickDeleteArea={() => onClickDeleteArea(idx)}
+              />
             ))}
-            {sortedExtractedTextList.length > 0 && (
-              <div
-                style={{
-                  display: "flex",
-                  gap: "1rem",
-                }}
-              >
-                <Button variant="contained" onClick={onClickEdit}>
-                  Edit
-                </Button>
-                <Button variant="contained" onClick={onClickSubmit}>
+            {extractedTextList.length > 0 && (
+              <div>
+                <Button
+                  variant="contained"
+                  onClick={onClickSubmit}
+                  sx={{ width: "100%" }}
+                >
                   Submit
                 </Button>
               </div>

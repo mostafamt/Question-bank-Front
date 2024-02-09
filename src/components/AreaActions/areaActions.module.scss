@@ -1,0 +1,14 @@
+.row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+
+  & > *:nth-child(2) {
+    flex-grow: 1;
+  }
+
+  & .color {
+    width: 2rem;
+    height: 2rem;
+  }
+}
