@@ -27,7 +27,6 @@ function hexToRgbA(hex) {
       "rgba(" + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(",") + ", 0.2)"
     );
   }
-  console.log("hex= ", hex);
   // throw new Error("Bad Hex");
 }
 

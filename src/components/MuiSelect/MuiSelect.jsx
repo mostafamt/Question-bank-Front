@@ -6,6 +6,7 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import { useStore } from "../../store/store";
 import TypeParameters from "../../constants/parameters.json";
+import axios from "../../axios";
 
 const MuiSelect = (props) => {
   const { value, onChange, color } = props;
@@ -14,8 +15,15 @@ const MuiSelect = (props) => {
   const { data: state } = useStore();
 
   React.useEffect(() => {
-    setParams(TypeParameters[state.type]);
+    getLabels();
   }, []);
+
+  const getLabels = async () => {
+    const type = state.type;
+    const res = await axios.get(`objectLabels${type}`);
+    const params = res.data.map((param) => Object.keys(param)?.[0]);
+    setParams(params);
+  };
 
   return (
     <Box sx={{ minWidth: 120 }}>

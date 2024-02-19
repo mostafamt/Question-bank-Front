@@ -17,7 +17,7 @@ import MultipleChoiceForm from "./pages/MultipleChoiceForm/MultipleChoiceForm";
 import { ThemeProvider } from "@mui/material/styles";
 import { theme } from "./theme/theme";
 import Home from "./pages/Home/Home";
-import AddQuestion from "./pages/AddQuestion/AddQuestion";
+import AddObject from "./pages/AddObject/AddObject";
 import TrueFalseForm from "./pages/TrueFalseForm/TrueFalseForm";
 import FillInTheBlankForm from "./pages/FillInTheBlankForm/FillInTheBlankForm";
 import EditQuestion from "./pages/EditQuestion/EditQuestion";
@@ -47,7 +47,7 @@ function App() {
             <Route path="/multiple-choice" Component={MultipleChoice} />
             <Route path="/show/:id" Component={Show} />
             <Route path="/bulk" Component={Bulk} />
-            <Route path="/add-question" Component={AddQuestion} />
+            <Route path="/add-question" Component={AddObject} />
             <Route path="/scan-and-upload" Component={ScanAndUpload} />
             <Route
               path="/add-question/multiple-choice/manual"

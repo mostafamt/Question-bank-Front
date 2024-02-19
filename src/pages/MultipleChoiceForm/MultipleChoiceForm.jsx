@@ -12,8 +12,8 @@ import QuestionNameHeader from "../../components/QuestionNameHeader/QuestionName
 
 const generateMultipleChoiceQuestion = () => {
   return {
-    title: "",
-    options: [
+    question: "",
+    answers: [
       { id: uuidv4(), title: "", correct: false, tip: "", showTip: false },
       { id: uuidv4(), title: "", correct: false, tip: "", showTip: false },
     ],

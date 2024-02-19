@@ -16,20 +16,12 @@ import {
   getDomainName,
   getSubDomainName,
 } from "../../config";
+import axios from "../../axios";
+import { toast } from "react-toastify";
 
-import styles from "./addQuestion.module.scss";
+import styles from "./addObject.module.scss";
 
-// 1- Add your questions list here
-// 2- Create your own page in: /page/{question-type}
-const questionTypeList = [
-  "multiple-choice",
-  "true-false",
-  "fill-in-the-blank",
-  "drag-the-words",
-  "essay-question",
-];
-
-const AddQuestion = () => {
+const AddObject = () => {
   const navigate = useNavigate();
   const {
     register,
@@ -38,20 +30,32 @@ const AddQuestion = () => {
     watch,
   } = useForm();
   const { setFormState } = useStore();
+  const [types, setTypes] = React.useState([]);
+
+  const getQuestionTypes = async () => {
+    const res = await axios.get("interactive-object-types");
+    const types = res.data.map((item) => item.typeName);
+    setTypes(types);
+  };
+
+  React.useEffect(() => {
+    getQuestionTypes();
+  }, []);
 
   const onClickExcelFile = () => {
     window.open("/excel-file", "_blank");
   };
 
-  const onSubmit = (values) => {
+  const onSubmit = async (values) => {
     const data = {
       ...values,
       domainName: getDomainName(values.domainId),
       subDomainName: getSubDomainName(values.domainId, values.subDomainId),
     };
-    setFormState(data);
+    const id = await saveObject(data);
+    setFormState({ id, ...data });
     const { type } = values;
-    if (type === "multiple-choice") {
+    if (type === "MCQ") {
       navigate("/add-question/multiple-choice/manual");
     } else if (type === "true-false") {
       navigate("/add-question/true-false/manual");
@@ -64,14 +68,25 @@ const AddQuestion = () => {
     }
   };
 
-  const onSubmitOcr = (values) => {
+  const onSubmitOcr = async (values) => {
     const data = {
       ...values,
       domainName: getDomainName(values.domainId),
       subDomainName: getSubDomainName(values.domainId, values.subDomainId),
     };
-    setFormState(data);
+    const id = await saveObject(data);
+    setFormState({ id, ...data });
     navigate("/scan-and-upload");
+  };
+
+  const saveObject = async (data) => {
+    const res = await axios.post("/interactive-objects", {
+      ...data,
+      isAnswered: "g", // g, y , r
+      parameters: {},
+    });
+    toast.success("Question created successfully!");
+    return res.data;
   };
 
   return (
@@ -152,7 +167,7 @@ const AddQuestion = () => {
                 register={register}
                 errors={errors}
               >
-                {questionTypeList.map((type, idx) => (
+                {types.map((type, idx) => (
                   <option key={idx} value={type}>
                     {type}
                   </option>
@@ -190,4 +205,4 @@ const AddQuestion = () => {
   );
 };
 
-export default AddQuestion;
+export default AddObject;
