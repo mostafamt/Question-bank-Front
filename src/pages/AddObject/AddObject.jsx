@@ -59,8 +59,8 @@ const AddObject = () => {
       navigate("/add-question/multiple-choice/manual");
     } else if (type === "true-false") {
       navigate("/add-question/true-false/manual");
-    } else if (type === "fill-in-the-blank") {
-      navigate("/add-question/fill-in-the-blank/manual");
+    } else if (type === "FillTheBlank") {
+      navigate("/add-question/filltheblanks/manual");
     } else if (type === "drag-the-words") {
       navigate("/add-question/drag-the-words/manual");
     } else if (values.questionType === "essay-question") {

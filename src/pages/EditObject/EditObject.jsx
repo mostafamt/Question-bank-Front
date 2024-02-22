@@ -24,10 +24,12 @@ const questionTypeList = [
   "true-false",
   "fill-in-the-blank",
   "essay-question",
+  "drag-the-words",
 ];
 
 const EditObject = () => {
   const [showModal, setShowModal] = React.useState(false);
+  const [types, setTypes] = React.useState([]);
   const navigate = useNavigate();
   const params = useParams();
   const { id } = params;
@@ -48,6 +50,16 @@ const EditObject = () => {
       questionType: res.data.type,
     };
   };
+
+  const getQuestionTypes = async () => {
+    const res = await axios.get("interactive-object-types");
+    const types = res.data.map((item) => item.typeName);
+    setTypes(types);
+  };
+
+  React.useEffect(() => {
+    getQuestionTypes();
+  }, []);
 
   const closeModal = () => setShowModal(false);
   const openModal = () => setShowModal(true);
@@ -74,12 +86,13 @@ const EditObject = () => {
   };
 
   const onClickEdit = () => {
-    const { questionType } = watch();
+    const { type } = watch();
 
-    if (questionType === "multiple-choice") {
+    if (type === "MCQ") {
       navigate(`/edit-question/${id}`);
-    }
-   else if (questionType === "fill-in-the-blank") {
+    } else if (type === "drag-the-words") {
+      navigate(`/dragthewords/${id}`);
+    }else if (type === "FillTheBlank") {
       navigate(`/add-question/filltheblanks/manual/${id}`);
     }
   };
@@ -187,7 +200,7 @@ const EditObject = () => {
                   errors={errors}
                   disabled={true}
                 >
-                  {questionTypeList.map((type, idx) => (
+                  {types.map((type, idx) => (
                     <option key={idx} value={type}>
                       {type}
                     </option>
