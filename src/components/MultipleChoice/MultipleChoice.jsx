@@ -9,7 +9,7 @@ import TreeItem from "@mui/lab/TreeItem";
 import { v4 as uuidv4 } from "uuid";
 
 import styles from "./multipleChoice.module.scss";
-import { BACKEND_URL } from "../../config/config";
+
 import { useNavigate } from "react-router-dom";
 import { TreeView } from "@mui/lab";
 import QuestionForm from "./QuestionForm/QuestionForm";

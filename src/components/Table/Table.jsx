@@ -1,6 +1,5 @@
 import * as React from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { BACKEND_URL } from "../../config/config";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./table.module.scss";
 import { Button, IconButton, Radio } from "@mui/material";
@@ -107,13 +106,13 @@ export default function DataTable(props) {
 
   const fetchQuestions = React.useCallback(async () => {
     setLoading(true);
-    const res = await fetch(`${BACKEND_URL}`);
-    const data = await res.json();
-    if (!!data.length) {
+    const res = await axios.get(`/interactive-objects`);
+    const data = res.data;
+    if (!!data.docs.length) {
       setRows(
-        data.map((item) => ({
+        data.docs.map((item) => ({
           id: item._id,
-          name: item.name,
+          name: item.questionName,
           type: item.type,
           domain: "Scube Test Domain",
           subDomain: "Scube Test Sub Domain",

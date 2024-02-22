@@ -2,23 +2,9 @@ import React from "react";
 import { Button, Checkbox, Input, TextField } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import InfoIcon from "@mui/icons-material/Info";
-import { generateOption } from "../../../utils";
-import { styled } from "@mui/material/styles";
+import { v4 as uuidv4 } from "uuid";
+import axios from "../../../axios";
 import styles from "./questionForm.module.scss";
-
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-
-const VisuallyHiddenInput = styled("input")({
-  clip: "rect(0 0 0 0)",
-  clipPath: "inset(50%)",
-  height: 1,
-  overflow: "hidden",
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  whiteSpace: "nowrap",
-  width: 1,
-});
 
 const styleSheet = {
   objectName: {
@@ -53,13 +39,15 @@ const QuestionForm = (props) => {
   const { question, handleEditQuestionParam } = props;
 
   const handleAddOption = () => {
-    const newOptions = [...question.params.options, generateOption()];
-    handleEditQuestionParam(question.id, "options", newOptions);
+    const newOptions = [
+      ...question.options,
+      { id: uuidv4(), title: "", correct: false, tip: "", showTip: false },
+    ];
+    handleEditQuestionParam("options", newOptions);
   };
 
   const handleUpdateOption = (optionId, value, isCorrect, tip) => {
-    console.log("optionId= ", optionId);
-    const newOptions = question.params.options.map((option) => {
+    const newOptions = question.options.map((option) => {
       if (option.id === optionId) {
         return {
           ...option,
@@ -70,19 +58,19 @@ const QuestionForm = (props) => {
       }
       return option;
     });
-    handleEditQuestionParam(question.id, "options", newOptions);
+    handleEditQuestionParam("options", newOptions);
   };
 
   const handleDeleteOption = (optionId) => {
-    if (question.params.options.length <= 2) return;
-    const newOptions = question.params.options.filter(
+    if (question.options.length <= 1) return;
+    const newOptions = question.options.filter(
       (option) => option.id !== optionId
     );
-    handleEditQuestionParam(question.id, "options", newOptions);
+    handleEditQuestionParam("options", newOptions);
   };
 
   const onClickTip = (optionId) => {
-    const newOptions = question.params.options.map((option) => {
+    const newOptions = question.options.map((option) => {
       if (option.id === optionId) {
         return {
           ...option,
@@ -91,32 +79,40 @@ const QuestionForm = (props) => {
       }
       return option;
     });
-    handleEditQuestionParam(question.id, "options", newOptions);
+    handleEditQuestionParam("options", newOptions);
   };
-
+  const handleShowObject = async () => {
+    try {
+      const {data} = await axios.get(
+        "http://localhost:4000/api/createObject/65ccf38d2bc7f5003417ccec"
+      );
+      
+      window.open(data)
+      // Handle the response data as needed
+    } catch (error) {
+      console.error("Error fetching object:", error);
+    }
+  };
   return (
     <div className={styles.form}>
-  
       <TextField
-        label="Sentence"  //*edited
+        label="Question"
         variant="outlined"
         name="title"
         sx={styleSheet.objectName}
         value={question.title}
-        onChange={(e) =>
-          handleEditQuestionParam(question.id, e.target.name, e.target.value)
-        }
+        onChange={(e) => handleEditQuestionParam(e.target.name, e.target.value)}
       />
-      <h4>options: </h4>
+      <h4>Correct Answer: </h4>
       <ul className={styles.options}>
-        {question?.params?.options?.map((option, idx) => (
+        {question.options.map((option, idx) => (
           <li key={idx} className={styles.option}>
             <>
               <div>
                 <div>
                   <div>
                     <TextField
-                      label={`Option ${idx + 1}`}  //*edited
+                      label={`correct answer ${idx + 1}`}
                       variant="outlined"
                       sx={styleSheet.option}
                       value={option.title}
@@ -153,23 +149,6 @@ const QuestionForm = (props) => {
                   </div>
                 </div>
               
-                {/* <Button   //!edit delete 
-                  sx={styleSheet.deleteBtn}
-                  variant="outlined"
-                  color="primary"
-                >
-                  <Checkbox
-                    checked={option.correct}
-                    onChange={(e) =>
-                      handleUpdateOption(
-                        option.id,
-                        option.title,
-                        !option.correct,
-                        option.tip
-                      )
-                    }
-                  />
-                </Button> */}
                 <Button
                   sx={styleSheet.deleteBtn}
                   variant="outlined"
@@ -189,8 +168,17 @@ const QuestionForm = (props) => {
         size="large"
         onClick={handleAddOption}
       >
-        add option
+        add correct answer
       </Button>
+      <Button
+        color="primary"
+        sx={(styleSheet.btn, { fontWeight: "bold" })}
+        size="large"
+        onClick={handleShowObject} // Call the handleShowObject function when the button is clicked
+      >
+        Show Object
+      </Button>
+      
     </div>
   );
 };

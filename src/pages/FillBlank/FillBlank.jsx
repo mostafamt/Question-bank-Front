@@ -1,115 +1,87 @@
 import React from "react";
-import { v4 as uuidv4 } from "uuid";
-import { useNavigate } from "react-router-dom";
-import { useStore } from "../../store/store";
-import axios from "../../axios";
-import { toast } from "react-toastify";
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Collapse,
-  IconButton,
-  List,
-  ListItemButton,
-  ListItemText,
-  Stack,
-} from "@mui/material";
 import styles from "./fillBlank.module.scss";
-import { grey } from "@mui/material/colors";
-import { Delete, ExpandLess, ExpandMore } from "@mui/icons-material";
+import { Button, CircularProgress } from "@mui/material";
+import { v4 as uuidv4 } from "uuid";
 import QuestionForm from "../../components/FillBlank/QuestionForm/QuestionForm";
+import axios from "../../axios";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useStore } from "../../store/store";
+import { toast } from "react-toastify";
+import AddIcon from "@mui/icons-material/Add";
 
-const generateDragtheWordsQuestion = () => {
+const generateFillBlankQuestion = () => {
   return {
-    id: uuidv4(),
-    open: true,
-    type: "multipleChoice",
-    params: {
-      title: "Question Title ?",
-      options: [
-        { id: uuidv4(), title: "", correct: false, tip: "", showTip: false },
-        { id: uuidv4(), title: "", correct: false, tip: "", showTip: false },
-      ],
-    },
+    title: "",
+    options: [
+      { id: uuidv4(), title: "", correct: false, tip: "", showTip: false },
+     
+    ],
+    
   };
 };
 
-const DragTheWords = () => {
-  const [questions, setQuestions] = React.useState([
-    generateDragtheWordsQuestion(),
-  ]);
-  const navigate = useNavigate();
+const FillBlankForm = () => {
+  const [parameters, setParameters] = React.useState(
+    generateFillBlankQuestion
+  );
+  const location = useLocation();
+  const params = useParams();
+  const [showForm, setShowForm] = React.useState(true);
   const [loading, setLoading] = React.useState(false);
   const { data: state } = useStore();
+  const navigate = useNavigate();
+
+  const fetchData = async (id) => {
+    const res = await axios.get(`/interactive-objects/${id}`);
+    console.log(res.data);
+    const { parameters } = res.data;
+    setParameters(parameters);
+  };
 
   React.useEffect(() => {
-    console.log("global state= ", state);
-    console.log("status= ", !!Object.keys(state).length);
-    // if (!Object.keys(state).length) {
-    //   navigate("/add-question");
-    // }
+    if (location.pathname !== "/add-question/filltheblanks/manual") {
+      const { id } = params;
+      fetchData(id);
+    }
   }, []);
 
-  const handleOpenQuestion = (id) => {
-    setQuestions((prevState) => {
-      return prevState.map((question) => {
-        if (question.id === id) {
-          question.open = !question.open;
-        }
-        return question;
-      });
-    });
+  const handleEditQuestionParam = (param, value) => {
+    setParameters((prevState) => ({ ...prevState, [param]: value }));
   };
 
-  const handleAddQuestion = () => {
-    setQuestions((prevState) => [...prevState, generateDragtheWordsQuestion()]);
-  };
-
-  const handleDeleteQuestion = (id) => {
-    if (questions.length <= 1) {
-      return;
-    }
-    setQuestions((prevState) => [
-      ...prevState.filter((question) => question.id !== id),
-    ]);
-  };
-
-  const handleEditQuestionParam = (questionId, param, value) => {
-    const newQuestions = questions.map((question) => {
-      if (question.id === questionId) {
-        return {
-          ...question,
-          params: {
-            ...question.params,
-            [param]: value,
-          },
-        };
-      }
-      return question;
-    });
-    setQuestions(newQuestions);
+  const onClickNew = () => {
+    setShowForm(true);
+    setParameters(generateFillBlankQuestion());
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    console.log(state);
     const data = {
-      name: state.name,
-      domain: state.domain,
-      subDomain: state.subDomain,
-      objectOwner: state.objectOwner,
-      questions: questions.map((question) => question.params),
+      ...state,
+      isAnswered: "g",
+      parameters,
     };
-    console.log("data= ", data);
+    console.log(data);
     try {
       setLoading(true);
-      await axios.post("/multiple-choice", data);
-      toast.success("Question created successfully!");
-
-      // setTimeout(() => {
-      //   navigate("/");
-      // }, 2000);
+      if (location.pathname !== "/add-question/filltheblanks/manual") {
+        const { id } = params;
+        await axios.patch(`/interactive-objects/${id}`, {
+          ...data,
+        });
+        toast.success("Question updated successfully!");
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
+      } else {
+        await axios.post("/interactive-objects", data);
+        toast.success("Question created successfully!");
+        setTimeout(() => {
+          setShowForm(false);
+        }, 2000);
+      }
     } catch (error) {
       toast.error(error.message);
     } finally {
@@ -117,88 +89,40 @@ const DragTheWords = () => {
     }
   };
 
-  return (
+  return showForm ? (
     <form className="container" onSubmit={handleSubmit}>
-      <div className={styles.header}>Fill in The Blanks</div>
-      <List
-        sx={{ width: "100%", bgcolor: "background.paper" }}
-        component="nav"
-        aria-labelledby="nested-list-subheader"
-      >
-        {questions.map((question, idx) => (
-          <Box key={question.id} sx={{ mb: 2 }}>
-            <Stack direction="row" spacing={2}>
-              <ListItemButton
-                onClick={() => handleOpenQuestion(question.id)}
-                sx={
-                  question.open
-                    ? { backgroundColor: grey[300] }
-                    : { backgroundColor: grey[200] }
-                }
-              >
-                <ListItemText primary={`Question ${idx + 1}`} />
-                {question.open ? <ExpandLess /> : <ExpandMore />}
-              </ListItemButton>
-              <IconButton
-                aria-label="delete"
-                sx={{ width: "3rem", height: "3rem" }}
-                color="error"
-                onClick={() => handleDeleteQuestion(question.id)}
-              >
-                <Delete />
-              </IconButton>
-            </Stack>
-            <Collapse
-              in={question.open}
-              timeout="auto"
-              unmountOnExit
-              sx={{
-                border: `1px solid ${grey[300]}`,
-                borderTop: 0,
-                mb: 2,
-                p: 2,
-                borderRadius: "0 0 .5rem .5rem",
-                width: "95%",
-              }}
-            >
-              <Box>
-                <div className={styles["image-box"]}>
-                  <img
-                    src="/assets/question-bg-2.jpg"
-                    alt="question background"
-                  />
-                </div>
-                <QuestionForm
-                  question={question}
-                  handleEditQuestionParam={handleEditQuestionParam}
-                />
-              </Box>
-            </Collapse>
-          </Box>
-        ))}
-      </List>
-      <Button   //*deited
-        size="large"
-        sx={{ fontWeight: "bold" }}
-        onClick={handleAddQuestion}
-      >
-        Add Sentence   
-      </Button>
+      <div className={styles.header}>Fill The Blank</div>
+      <div className={styles["image-box"]}>
+        <img src="/assets/question-bg-2.jpg" alt="question background" />
+      </div>
+      <QuestionForm
+        question={parameters}
+        handleEditQuestionParam={handleEditQuestionParam}
+      />
       <div className={styles["submit-box"]}>
-        <Button                      //*edited
+        <Button
           type="submit"
           variant="contained"
           size="large"
           disabled={loading}
         >
-          
-          <span>Save</span>      
-
+          <span>Submit</span>
           {loading && <CircularProgress />}
         </Button>
       </div>
     </form>
+  ) : (
+    <div className="container">
+      <Button
+        variant="contained"
+        size="large"
+        startIcon={<AddIcon />}
+        onClick={onClickNew}
+      >
+        New
+      </Button>
+    </div>
   );
 };
 
-export default DragTheWords;
+export default FillBlankForm;

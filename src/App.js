@@ -52,7 +52,8 @@ function App() {
               path="/add-question/true-false/manual"
               Component={TrueFalseForm}
             />
-                     <Route path="/add-question/filltheblanks/manual" Component={FillBlank} />
+                    <Route path="/add-question/filltheblanks/manual" Component={FillBlank} />
+           <Route path="/add-question/filltheblanks/manual/:id" Component={FillBlank} /> 
 
             <Route path="/dragthewords" Component={DragTheWords} />
             <Route path="/edit/:id" Component={EditQuestion} />

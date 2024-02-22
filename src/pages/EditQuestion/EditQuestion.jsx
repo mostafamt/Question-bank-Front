@@ -125,7 +125,7 @@ const EditQuestion = () => {
     } else if (values.question_type === "true-false") {
       navigate("/add-question/true-false/manual");
     } else if (values.question_type === "fill-in-the-blank") {
-      navigate("/add-question/fill-in-the-blank/manual");
+      navigate("/add-question/filltheblanks/manual");
     }
   };
 
