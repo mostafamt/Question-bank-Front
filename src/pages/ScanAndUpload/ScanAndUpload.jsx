@@ -52,7 +52,7 @@ const ScanAndUpload = () => {
 
   const onChange = async (event) => {
     const file = event.target.files[0];
-    const images = await convertPdfToImage(file);
+    const images = await convertPdfToImage2(file);
     setImages(images);
     console.log(images);
   };
