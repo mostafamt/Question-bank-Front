@@ -8,6 +8,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useStore } from "../../store/store";
 import { toast } from "react-toastify";
 import AddIcon from "@mui/icons-material/Add";
+import QuestionNameHeader from "../../components/QuestionNameHeader/QuestionNameHeader";
 
 const generateFillBlankQuestion = () => {
   return {
@@ -20,7 +21,7 @@ const generateFillBlankQuestion = () => {
   };
 };
 
-const FillBlankForm = () => {
+const FillBlankForm = (props) => {
   const [parameters, setParameters] = React.useState(
     generateFillBlankQuestion
   );
@@ -30,6 +31,7 @@ const FillBlankForm = () => {
   const [loading, setLoading] = React.useState(false);
   const { data: state } = useStore();
   const navigate = useNavigate();
+  const [renderFromModal, setRenderFromModal] = React.useState(false);
 
   const fetchData = async (id) => {
     const res = await axios.get(`/interactive-objects/${id}`);
@@ -37,11 +39,20 @@ const FillBlankForm = () => {
     const { parameters } = res.data;
     setParameters(parameters);
   };
-
   React.useEffect(() => {
-    if (location.pathname !== "/add-question/filltheblanks/manual") {
+    // Edit
+    if (location.pathname.includes("/edit_fill/")) {
       const { id } = params;
       fetchData(id);
+    } else {
+      if (state.parameters) {
+        const keys = Object.keys(state.parameters);
+        // OCR
+        if (keys.length > 0) {
+          setParameters(state.parameters);
+          setRenderFromModal(true);
+        }
+      }
     }
   }, []);
 
@@ -66,7 +77,7 @@ const FillBlankForm = () => {
     console.log(data);
     try {
       setLoading(true);
-      if (location.pathname !== "/add-question/filltheblanks/manual") {
+      if (location.pathname.includes("/edit_fill/")) {
         const { id } = params;
         await axios.patch(`/interactive-objects/${id}`, {
           ...data,
@@ -76,11 +87,19 @@ const FillBlankForm = () => {
           navigate("/");
         }, 2000);
       } else {
-        await axios.post("/interactive-objects", data);
-        toast.success("Question created successfully!");
-        setTimeout(() => {
-          setShowForm(false);
-        }, 2000);
+        await axios.post("/interactive-objects", {
+          ...state,
+          isAnswered: "g", // g, y , r
+          parameters,
+        });
+        if (props.onSubmit) {
+          props.onSubmit();
+        } else {
+          toast.success("Question created successfully!");
+          setTimeout(() => {
+            setShowForm(false);
+          }, 2000);
+        }
       }
     } catch (error) {
       toast.error(error.message);
@@ -91,13 +110,18 @@ const FillBlankForm = () => {
 
   return showForm ? (
     <form className="container" onSubmit={handleSubmit}>
-      <div className={styles.header}>Fill The Blank</div>
-      <div className={styles["image-box"]}>
-        <img src="/assets/question-bg-2.jpg" alt="question background" />
-      </div>
+      {!renderFromModal && (
+        <>
+          <QuestionNameHeader>Fill The Blank</QuestionNameHeader>
+          <div className={styles["image-box"]}>
+            <img src="/assets/question-bg-2.jpg" alt="question background" />
+          </div>
+        </>
+      )}
       <QuestionForm
         question={parameters}
         handleEditQuestionParam={handleEditQuestionParam}
+        renderFromModal={renderFromModal}
       />
       <div className={styles["submit-box"]}>
         <Button

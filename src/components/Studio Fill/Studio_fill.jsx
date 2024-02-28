@@ -8,9 +8,9 @@ import OCR from "../../utils/OCR/OCR";
 import { css } from "@emotion/react";
 import { useStore } from "../../store/store";
 import {
-  constructMCQParametersFromKeyValuePairs,
+  constructFillTheBlankParametersFromKeyValuePairs,
   hexToRgbA,
-} from "../../utils/helper";
+} from "../../utils/helper_fill";
 import { useNavigate } from "react-router-dom";
 import axios from "../../axios";
 import { toast } from "react-toastify";
@@ -21,9 +21,9 @@ import Tesseract from "tesseract.js";
 import ImageActions from "../ImageActions/ImageActions";
 import { v4 as uuidv4 } from "uuid";
 
-import styles from "./studio.module.scss";
+import styles from "./studio_fill.module.scss";
 
-const Studio = (props) => {
+const StudioFill = (props) => {
   const { images } = props;
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [areas, setAreas] = React.useState([]);
@@ -107,7 +107,7 @@ const Studio = (props) => {
   };
 
   const onClickEdit = () => {
-    const params = constructMCQParametersFromKeyValuePairs(extractedTextList);
+    const params = constructFillTheBlankParametersFromKeyValuePairs(extractedTextList);
     setFormState({
       ...state,
       parameters: {
@@ -277,4 +277,4 @@ const Studio = (props) => {
   );
 };
 
-export default Studio;
+export default StudioFill;

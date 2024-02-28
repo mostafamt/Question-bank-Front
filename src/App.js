@@ -25,6 +25,7 @@ import DragTheWords from "./pages/DragTheWords/DragTheWords";
 import EditObject from "./pages/EditObject/EditObject";
 import EssayQuestion from "./pages/Essay-Question/EssayQuestion";
 import ScanAndUpload from "./pages/ScanAndUpload/ScanAndUpload";
+import ScanAndUploadFill from "./pages/ScanAndUpload Fill/ScanAndUploadFill";
 import Test2 from "./pages/Test/Test2";
 
 function App() {
@@ -43,12 +44,13 @@ function App() {
           <Routes>
             <Route path="/" Component={Home} />
             <Route path="/true-false" Component={TrueFalse} />
-            <Route path="/fill-blank" Component={FillBlank} />
+            {/* <Route path="/fill-blank" Component={FillBlank} /> */}
             <Route path="/multiple-choice" Component={MultipleChoice} />
             <Route path="/show/:id" Component={Show} />
             <Route path="/bulk" Component={Bulk} />
             <Route path="/add-question" Component={AddObject} />
             <Route path="/scan-and-upload" Component={ScanAndUpload} />
+            <Route path="/scan-and-upload-fill" Component={ScanAndUploadFill} />
             <Route
               path="/add-question/multiple-choice/manual"
               Component={MultipleChoiceForm}
@@ -62,7 +64,7 @@ function App() {
               Component={TrueFalseForm}
             />
            <Route path="/add-question/filltheblanks/manual" Component={FillBlank} />
-           <Route path="/add-question/filltheblanks/manual/:id" Component={FillBlank} /> 
+           <Route path="/edit_fill/:id" Component={FillBlank} /> 
             <Route
               path="/add-question/essay-question/manual"
               Component={EssayQuestion}

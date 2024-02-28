@@ -11,7 +11,7 @@ import { useFormState } from "react-hook-form";
 import { useStore } from "../../store/store";
 import parameters from "../../constants/parameters.json";
 
-import styles from "./scanAndUpload.module.scss";
+import styles from "./scanAndUploadFill.module.scss";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -25,7 +25,7 @@ const VisuallyHiddenInput = styled("input")({
   width: 1,
 });
 
-const ScanAndUpload = () => {
+const ScanAndUploadFill = () => {
   const [images, setImages] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
 
@@ -45,7 +45,7 @@ const ScanAndUpload = () => {
 
   const convertPdfToImage2 = async (file) => {
     setLoading(true);
-    const res = await convertPdfToImages(file);
+    const res = await convertPdfToImage(file);
     setLoading(false);
     return res;
   };
@@ -88,4 +88,4 @@ const ScanAndUpload = () => {
   );
 };
 
-export default ScanAndUpload;
+export default ScanAndUploadFill;

@@ -39,34 +39,51 @@ const QuestionForm = (props) => {
   const { question, handleEditQuestionParam } = props;
 
   const handleAddOption = () => {
-    const newOptions = [
-      ...question.options,
-      { id: uuidv4(), title: "", correct: false, tip: "", showTip: false },
-    ];
-    handleEditQuestionParam("options", newOptions);
+    const newAnswers = question.answers
+      ? [
+          ...question?.answers,
+          {
+            id: uuidv4(),
+            title: "",
+            correct: false,
+            tip: "",
+            showTip: false,
+          },
+        ]
+      : [
+          {
+            id: uuidv4(),
+            title: "",
+            correct: false,
+            tip: "",
+            showTip: false,
+          },
+        ];
+
+    handleEditQuestionParam("answers", newAnswers);
   };
 
   const handleUpdateOption = (optionId, value, isCorrect, tip) => {
-    const newOptions = question.options.map((option) => {
-      if (option.id === optionId) {
+    const newAnswers = question.answers.map((answer) => {
+      if (answer.id === optionId) {
         return {
-          ...option,
-          title: value,
+          ...answer,
+          text: value,
           correct: isCorrect,
           tip: tip,
         };
       }
-      return option;
+      return answer;
     });
-    handleEditQuestionParam("options", newOptions);
+    handleEditQuestionParam("answers", newAnswers);
   };
 
-  const handleDeleteOption = (optionId) => {
-    if (question.options.length <= 1) return;
-    const newOptions = question.options.filter(
-      (option) => option.id !== optionId
+  const handleDeleteOption = (answerId) => {
+    if (question.answers.length <= 1) return;
+    const newAnswers = question.answers.filter(
+      (answer) => answer.id !== answerId
     );
-    handleEditQuestionParam("options", newOptions);
+    handleEditQuestionParam("answers", newAnswers);
   };
 
   const onClickTip = (optionId) => {
@@ -100,13 +117,13 @@ const QuestionForm = (props) => {
         variant="outlined"
         name="title"
         sx={styleSheet.objectName}
-        value={question.title}
+        value={question?.questions||question.title}
         onChange={(e) => handleEditQuestionParam(e.target.name, e.target.value)}
       />
       <h4>Correct Answer: </h4>
       <ul className={styles.options}>
-        {question.options.map((option, idx) => (
-          <li key={idx} className={styles.option}>
+        {question?.answers?.map((answer, idx) => (
+          <li key={idx} className={styles?.option}>
             <>
               <div>
                 <div>
@@ -115,32 +132,32 @@ const QuestionForm = (props) => {
                       label={`correct answer ${idx + 1}`}
                       variant="outlined"
                       sx={styleSheet.option}
-                      value={option.title}
+                      value={answer?.text}
                       onChange={(e) =>
                         handleUpdateOption(
-                          option.id,
+                          answer.id,
                           e.target.value,
-                          option.correct,
-                          option.tip
+                          answer.correct,
+                          answer.tip
                         )
                       }
                     ></TextField>
-                    <button type="button" onClick={() => onClickTip(option.id)}>
+                    <button type="button" onClick={() => onClickTip(answer?.id)}>
                       <InfoIcon color="primary" />
                     </button>
                     <div
                       className={styles.popover}
                       style={{
-                        display: option.showTip ? "block" : "none",
+                        display: answer.showTip ? "block" : "none",
                       }}
                     >
                       <Input
-                        value={option.tip}
+                        value={answer.tip}
                         onChange={(e) =>
                           handleUpdateOption(
-                            option.id,
-                            option.title,
-                            option.correct,
+                            answer.id,
+                            answer.text,
+                            answer.correct,
                             e.target.value
                           )
                         }
@@ -153,7 +170,7 @@ const QuestionForm = (props) => {
                   sx={styleSheet.deleteBtn}
                   variant="outlined"
                   color="error"
-                  onClick={() => handleDeleteOption(option.id)}
+                  onClick={() => handleDeleteOption(answer.id)}
                 >
                   <DeleteIcon />
                 </Button>

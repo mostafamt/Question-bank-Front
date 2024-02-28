@@ -3,6 +3,7 @@ import { Button, IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ClearIcon from "@mui/icons-material/Clear";
 import MultipleChoiceForm from "../../../pages/MultipleChoiceForm/MultipleChoiceForm";
+import FillBlank from "../../../pages/FillBlank/FillBlank";
 import { toast } from "react-toastify";
 
 import styles from "./editParametersModal.module.scss";
@@ -24,6 +25,7 @@ const EditParametersModal = (props) => {
       </div>
 
       <MultipleChoiceForm onSubmit={handleSubmit} />
+      <FillBlank onSubmit={handleSubmit} />
     </div>
   );
 };

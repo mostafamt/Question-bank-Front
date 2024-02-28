@@ -93,7 +93,7 @@ const EditObject = () => {
     } else if (type === "drag-the-words") {
       navigate(`/dragthewords/${id}`);
     }else if (type === "FillTheBlank") {
-      navigate(`/add-question/filltheblanks/manual/${id}`);
+      navigate(`/edit_fill/${id}`);
     }
   };
 
