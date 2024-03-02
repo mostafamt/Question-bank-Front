@@ -32,11 +32,21 @@ const MultipleChoiceForm = (props) => {
   const navigate = useNavigate();
   const [renderFromModal, setRenderFromModal] = React.useState(false);
 
+  const appendIdToAnswers = (parameters) => {
+    const newAnswers = parameters.answers.map((ans) => ({
+      ...ans,
+      id: uuidv4(),
+    }));
+    const newParameters = { ...parameters, answers: newAnswers };
+    return newParameters;
+  };
+
   const fetchData = async (id) => {
     const res = await axios.get(`/interactive-objects/${id}`);
     console.log(res.data);
     const { parameters } = res.data;
-    setParameters(parameters);
+    const newParameters = appendIdToAnswers(parameters);
+    setParameters(newParameters);
   };
 
   React.useEffect(() => {

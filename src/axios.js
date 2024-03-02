@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BACKEND_URL = "https://questions-api-osxg.onrender.com/api";
+const BACKEND_URL = "http://localhost:4000/api";
 
 const instance = axios.create({
   baseURL: process.env.REACT_APP_REMOTE_URL || BACKEND_URL,

@@ -39,14 +39,25 @@ const EditObject = () => {
   } = useForm({
     defaultValues: async () => fetchData(),
   });
+  const [types, setTypes] = React.useState([]);
 
   const fetchData = async () => {
     const res = await axios.get(`/interactive-objects/${id}`);
     console.log(res.data);
     return {
       ...res.data,
-      questionType: res.data.type,
+      type: res.data.type,
     };
+  };
+
+  React.useEffect(() => {
+    getQuestionTypes();
+  }, []);
+
+  const getQuestionTypes = async () => {
+    const res = await axios.get("interactive-object-types");
+    const types = res.data.map((item) => item.typeName);
+    setTypes(types);
   };
 
   const closeModal = () => setShowModal(false);
@@ -74,12 +85,11 @@ const EditObject = () => {
   };
 
   const onClickEdit = () => {
-    const { questionType } = watch();
+    const { type } = watch();
 
-    if (questionType === "multiple-choice") {
+    if (type === "MCQ") {
       navigate(`/edit-question/${id}`);
-    }
-   else if (questionType === "fill-in-the-blank") {
+    } else if (type === "fill-in-the-blank") {
       navigate(`/add-question/filltheblanks/manual/${id}`);
     }
   };
@@ -187,7 +197,7 @@ const EditObject = () => {
                   errors={errors}
                   disabled={true}
                 >
-                  {questionTypeList.map((type, idx) => (
+                  {types.map((type, idx) => (
                     <option key={idx} value={type}>
                       {type}
                     </option>
