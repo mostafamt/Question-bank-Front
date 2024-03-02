@@ -37,6 +37,18 @@ export default function DataTable(props) {
     }
   };
 
+  const renderColorStatus = (status) => {
+    let color = { backgroundColor: "black" };
+    if (status === "g") {
+      color = { backgroundColor: "green" };
+    } else if (status === "y") {
+      color = { backgroundColor: "yellow" };
+    } else if (status === "r") {
+      color = { backgroundColor: "red" };
+    }
+    return color;
+  };
+
   const columns = [
     {
       field: "col0",
@@ -85,6 +97,14 @@ export default function DataTable(props) {
       field: "hasAnswered",
       headerName: "Has Answered",
       width: 150,
+      renderCell: (params) => {
+        return (
+          <div
+            className={styles["circular-status"]}
+            style={renderColorStatus(params.row.hasAnswered)}
+          ></div>
+        );
+      },
     },
     {
       field: "actions",
@@ -114,10 +134,10 @@ export default function DataTable(props) {
           id: item._id,
           name: item.questionName,
           type: item.type,
-          domain: "Scube Test Domain",
-          subDomain: "Scube Test Sub Domain",
+          domain: item.domainName,
+          subDomain: item.subDomainName,
           dateModified: new Date(item.createdAt).toLocaleDateString("en-GB"),
-          hasAnswered: "True",
+          hasAnswered: item.isAnswered,
         }))
       );
     }

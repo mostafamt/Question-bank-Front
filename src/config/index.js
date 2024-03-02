@@ -35,18 +35,22 @@ const languageList = [
   {
     name: "French",
     code: "fr",
+    code2: "",
   },
   {
     name: "Spanish",
     code: "es",
+    code2: "",
   },
   {
     name: "Italian",
     code: "it",
+    code2: "",
   },
   {
     name: "German",
     code: "de",
+    code2: "",
   },
 ];
 

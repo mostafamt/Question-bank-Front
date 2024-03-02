@@ -9,7 +9,7 @@ import TypeParameters from "../../constants/parameters.json";
 import axios from "../../axios";
 
 const MuiSelect = (props) => {
-  const { value, onChange, color } = props;
+  const { value, onChange, color, list } = props;
 
   const [params, setParams] = React.useState([]);
   const { data: state } = useStore();
@@ -19,9 +19,10 @@ const MuiSelect = (props) => {
   }, []);
 
   const getLabels = async () => {
-    const type = state.type;
-    const res = await axios.get(`objectLabels${type}`);
-    const params = res.data.map((param) => Object.keys(param)?.[0]);
+    // const type = state.type;
+    // const res = await axios.get(`objectLabels${type}`);
+    // const params = res.data.map((param) => Object.keys(param)?.[0]);
+    const params = state.labels?.map((item) => Object.keys(item)?.[0]);
     setParams(params);
   };
 
@@ -39,7 +40,7 @@ const MuiSelect = (props) => {
           //   border: `2px solid ${color}`,
           // }}
         >
-          {params.map((param) => (
+          {list.map((param) => (
             <MenuItem key={param} value={param}>
               {param}
             </MenuItem>

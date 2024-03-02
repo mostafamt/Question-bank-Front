@@ -1,3 +1,24 @@
 .scan-and-upload {
   margin-bottom: 4rem;
+
+  & .upload-buttons {
+    margin-top: 4rem;
+    display: flex;
+    height: 12rem;
+    justify-content: space-between;
+
+    & > * {
+      flex: 0 1 49%;
+      font-size: 1.6rem;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      & > span {
+        & > svg {
+          font-size: 5rem;
+        }
+      }
+    }
+  }
 }

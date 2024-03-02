@@ -9,6 +9,7 @@ import { css } from "@emotion/react";
 import { useStore } from "../../store/store";
 import {
   constructMCQParametersFromKeyValuePairs,
+  getSet2FromSet1,
   hexToRgbA,
 } from "../../utils/helper";
 import { useNavigate } from "react-router-dom";
@@ -20,6 +21,8 @@ import AreaActions from "../AreaActions/AreaActions";
 import Tesseract from "tesseract.js";
 import ImageActions from "../ImageActions/ImageActions";
 import { v4 as uuidv4 } from "uuid";
+import { colors } from "../../constants/highlight-color";
+import AddIcon from "@mui/icons-material/Add";
 
 import styles from "./studio.module.scss";
 
@@ -27,17 +30,18 @@ const Studio = (props) => {
   const { images } = props;
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [areas, setAreas] = React.useState([]);
+  // TODO: set areas foreach page.
   const [newAreas, setNewAreas] = React.useState(Array(images.length).fill([]));
   const [parameters, setParameters] = React.useState([]);
   const [boxColors, setBoxColors] = React.useState([]);
+  const [colorIndex, setColorIndex] = React.useState(0);
   const [extractedTextList, setExtractedTextList] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const imageRef = React.createRef();
   const canvasRef = React.createRef();
   const { data: state, setFormState } = useStore();
-  const [openModal, setOpenModal] = React.useState(false);
   const [imageScaleFactor, setImageScaleFactor] = React.useState(1);
-  const [activeAreaIndex, setActiveAreaIndex] = React.useState(0);
+  const [output, setOutput] = React.useState(null);
 
   const onClickImage = (idx) => {
     setActiveIndex(idx);
@@ -76,15 +80,13 @@ const Studio = (props) => {
     newParameters[idx] = value;
     setParameters(newParameters);
     const newBoxColors = [...boxColors];
-    if (value === "question") {
-      // newBoxColors[idx] = "red";
-      newBoxColors[idx] = "#800080";
-    } else if (value === "option") {
-      newBoxColors[idx] = "#FFA500";
-    }
+    newBoxColors[idx] = colors[colorIndex];
+    setColorIndex((prevState) =>
+      prevState === colors.length - 1 ? 0 : prevState + 1
+    );
     setBoxColors(newBoxColors);
 
-    onClickExtract(newParameters);
+    extract(newParameters);
   };
 
   const constructBoxColors = () => {
@@ -106,22 +108,7 @@ const Studio = (props) => {
     return obj;
   };
 
-  const onClickEdit = () => {
-    const params = constructMCQParametersFromKeyValuePairs(extractedTextList);
-    setFormState({
-      ...state,
-      parameters: {
-        ...params,
-      },
-    });
-    setOpenModal(true);
-    // navigate("/add-question/multiple-choice/manual");
-  };
-
   const onClickSubmit = async () => {
-    console.log("extractedTextList= ", extractedTextList);
-    console.log("state= ", state);
-
     const objectElements = extractedTextList.map((item) => ({
       [item.parameter]: item.text,
     }));
@@ -131,6 +118,29 @@ const Studio = (props) => {
     });
 
     toast.success("Question parameters updated successfully!");
+    clear();
+  };
+
+  const clear = async () => {
+    // CLEAR STATES
+    setAreas([]);
+    setParameters([]);
+    setBoxColors([]);
+    setColorIndex(0);
+    setExtractedTextList([]);
+    setLoading(false);
+
+    const data = { ...state, id: "" };
+
+    // Add a new object
+    const res = await axios.post("/interactive-objects", {
+      ...data,
+      isAnswered: "g", // g, y , r
+      parameters: {},
+    });
+
+    const id = res.data;
+    setFormState({ ...state, id });
   };
 
   const onEditText = (id, text) => {
@@ -143,7 +153,7 @@ const Studio = (props) => {
     setExtractedTextList(newExtractedTextList);
   };
 
-  const onClickExtract = async (newParameters) => {
+  const extract = async (newParameters) => {
     if (loading) return;
     setLoading(true);
     const image = imageRef.current;
@@ -157,120 +167,131 @@ const Studio = (props) => {
         const y = area.y * ratio;
         const width = area.width * ratio;
         const height = area.height * ratio;
-        const text = await extract(x, y, width, height, newParameters[idx]);
+        const croppedImage = cropSelectedArea(x, y, width, height);
+        const id = uuidv4();
+        setExtractedTextList((prevState) => [
+          ...prevState,
+          {
+            id,
+            image: croppedImage,
+            parameter: newParameters[idx],
+            y,
+          },
+        ]);
+        const text = await ocr(croppedImage, newParameters[idx], y);
+        setExtractedTextList((prevState) =>
+          prevState.map((item) => {
+            if (item.id === id) {
+              const newItem = { ...item, text };
+              return newItem;
+            }
+            return item;
+          })
+        );
       })
     );
-    setLoading(false);
+    // SORT BY Y COORDINATE
     setExtractedTextList((prevState) => [
       ...prevState.sort((a, b) => a.y - b.y),
     ]);
+    setLoading(false);
   };
 
-  const extract = async (x, y, width, height, parameter) => {
+  const cropSelectedArea = (x, y, width, height) => {
     const canvas = canvasRef.current;
     const image = imageRef.current;
 
-    canvas.width = image.naturalWidth;
-    canvas.height = image.naturalHeight;
+    canvas.width = width;
+    canvas.height = height;
     const ctx = canvas.getContext("2d");
 
     ctx.drawImage(image, x, y, width, height, 0, 0, width, height);
-    const ctx2 = canvas.getContext("2d");
-    const finalImage = ctx2.getImageData(0, 0, canvas.width, canvas.height);
-    ctx2.putImageData(finalImage, 0, 0);
     const dataUrl = canvas.toDataURL("image/jpeg");
+    return dataUrl;
+  };
 
+  const ocr = async (dataUrl) => {
+    const language = getSet2FromSet1(state.language);
+    let text = "";
     try {
-      const result = await Tesseract.recognize(dataUrl, "eng");
-      let text = result.data.text;
-      setExtractedTextList((prevState) => [
-        ...prevState,
-        { id: uuidv4(), text, parameter, y },
-      ]);
-      return text;
+      const result = await Tesseract.recognize(dataUrl, language);
+      text = result.data.text;
     } catch (err) {
       console.error(err);
     }
-    // SORT
-
-    return "";
+    return text;
   };
 
   return (
     <>
-      <Modal show={openModal} onHide={() => setOpenModal(false)}>
-        <EditParametersModal handleClose={() => setOpenModal(false)} />
-      </Modal>
-      <div className="container">
-        <div className={styles.studio}>
-          <div className={styles.thumbnails}>
-            {images.map((img, idx) => (
-              <img
-                key={idx}
-                src={img}
-                alt={img}
-                width="200"
-                onClick={() => onClickImage(idx)}
-              />
-            ))}
-          </div>
-          <div
-            className={styles.editor}
-            css={{
-              "& > div:nth-child(2)": constructBoxColors(),
-            }}
-          >
-            <ImageActions
-              imageScaleFactor={imageScaleFactor}
-              setImageScaleFactor={setImageScaleFactor}
-              areas={areas}
-              setAreas={setAreas}
+      <div className={styles.studio}>
+        <div className={styles.thumbnails}>
+          {images.map((img, idx) => (
+            <img
+              key={idx}
+              src={img}
+              alt={img}
+              width="200"
+              onClick={() => onClickImage(idx)}
             />
-            <AreaSelector areas={areas} onChange={onChangeHandler}>
-              <img
-                src={images[activeIndex]}
-                alt={images[activeIndex]}
-                ref={imageRef}
-                style={{
-                  width: `${imageScaleFactor * 100}%`,
-                  overflow: "scroll",
-                }}
-              />
-            </AreaSelector>
+          ))}
+        </div>
+        <div
+          className={styles.editor}
+          css={{
+            "& > div:nth-child(2)": constructBoxColors(),
+          }}
+        >
+          <ImageActions
+            imageScaleFactor={imageScaleFactor}
+            setImageScaleFactor={setImageScaleFactor}
+            areas={areas}
+            setAreas={setAreas}
+          />
+          <AreaSelector areas={areas} onChange={onChangeHandler}>
+            <img
+              src={images[activeIndex]}
+              alt={images[activeIndex]}
+              ref={imageRef}
+              style={{
+                width: `${imageScaleFactor * 100}%`,
+                overflow: "scroll",
+              }}
+            />
+          </AreaSelector>
 
+          <div>
+            <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
+          </div>
+        </div>
+        <div className={styles.actions}>
+          {areas.map((area, idx) => (
+            <AreaActions
+              key={area}
+              parameters={parameters}
+              parameter={parameters[idx]}
+              color={boxColors[idx]}
+              idx={idx}
+              boxColors={boxColors}
+              onChangeParameter={onChangeParameter}
+              loading={loading}
+              extractedTextList={extractedTextList}
+              onEditText={onEditText}
+              onClickDeleteArea={() => onClickDeleteArea(idx)}
+            />
+          ))}
+          {extractedTextList.length > 0 && (
             <div>
-              <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
+              <Button
+                variant="contained"
+                onClick={onClickSubmit}
+                sx={{ width: "100%" }}
+              >
+                Submit
+              </Button>
             </div>
-          </div>
-          <div className={styles.actions}>
-            {areas.map((area, idx) => (
-              <AreaActions
-                key={area}
-                parameters={parameters}
-                parameter={parameters[idx]}
-                color={boxColors[idx]}
-                idx={idx}
-                boxColors={boxColors}
-                onChangeParameter={onChangeParameter}
-                loading={loading}
-                extractedTextList={extractedTextList}
-                onEditText={onEditText}
-                onClickDeleteArea={() => onClickDeleteArea(idx)}
-              />
-            ))}
-            {extractedTextList.length > 0 && (
-              <div>
-                <Button
-                  variant="contained"
-                  onClick={onClickSubmit}
-                  sx={{ width: "100%" }}
-                >
-                  Submit
-                </Button>
-              </div>
-            )}
-            Num of areas: {areas.length}
-          </div>
+          )}
+          Num of areas: {areas.length}
         </div>
       </div>
     </>

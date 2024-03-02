@@ -5,6 +5,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import DeleteForever from "@mui/icons-material/DeleteForever";
 
 import styles from "./areaActions.module.scss";
+import { useStore } from "../../store/store";
 
 const AreaActions = (props) => {
   const {
@@ -18,6 +19,24 @@ const AreaActions = (props) => {
     onClickDeleteArea,
   } = props;
 
+  const { data: state } = useStore();
+  const [list, setList] = React.useState([]);
+  const [types, setTypes] = React.useState({});
+
+  const getLabels = React.useCallback(() => {
+    const object = state.labels.reduce((acc, item) => {
+      const key = Object.keys(item)?.[0];
+      return { ...acc, [key]: item[key] };
+    }, {});
+    setTypes(object);
+    const params = state.labels?.map((item) => Object.keys(item)?.[0]);
+    setList(params);
+  }, [state.labels]);
+
+  React.useEffect(() => {
+    getLabels();
+  }, [getLabels]);
+
   return (
     <>
       <div className={styles.row}>
@@ -26,6 +45,7 @@ const AreaActions = (props) => {
           style={{ backgroundColor: color ? color : "green" }}
         ></div>
         <MuiSelect
+          list={list}
           value={parameter}
           color={color}
           onChange={(e) => onChangeParameter(e.target.value, idx)}
@@ -36,8 +56,15 @@ const AreaActions = (props) => {
       </div>
 
       <div>
-        {loading ? (
-          <p>loading text....</p>
+        {types[parameter] === "image" ? (
+          <img
+            src={extractedTextList?.[idx]?.image}
+            alt="image1"
+            style={{
+              width: "100%",
+              objectFit: "cover",
+            }}
+          />
         ) : extractedTextList?.[idx] ? (
           <TextField
             sx={{

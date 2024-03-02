@@ -2,6 +2,7 @@ import React from "react";
 import { styled } from "@mui/material/styles";
 import Button from "@mui/material/Button";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import axios from "axios";
 import Loader from "../../components/Loader/Loader";
 import Studio from "../../components/Studio/Studio";
@@ -10,8 +11,11 @@ import QuestionNameHeader from "../../components/QuestionNameHeader/QuestionName
 import { useFormState } from "react-hook-form";
 import { useStore } from "../../store/store";
 import parameters from "../../constants/parameters.json";
+import DescriptionIcon from "@mui/icons-material/Description";
+import CollectionsIcon from "@mui/icons-material/Collections";
 
 import styles from "./scanAndUpload.module.scss";
+import { toast } from "react-toastify";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -28,6 +32,7 @@ const VisuallyHiddenInput = styled("input")({
 const ScanAndUpload = () => {
   const [images, setImages] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState("");
 
   const { data: state } = useStore();
 
@@ -35,12 +40,18 @@ const ScanAndUpload = () => {
     setLoading(true);
     const formData = new FormData();
     formData.append("file", file);
-    const res = await axios.post(
-      "http://34.246.140.123:5000/api/pdf2img",
-      formData
-    );
-    setLoading(false);
-    return res.data?.images;
+
+    try {
+      const res = await axios.post(
+        "http://34.246.140.123:5000/api/pdf2img",
+        formData
+      );
+      setLoading(false);
+      return res.data?.images;
+    } catch (error) {
+      toast.error("This service isn't available at the moment !");
+      setLoading(false);
+    }
   };
 
   const convertPdfToImage2 = async (file) => {
@@ -50,11 +61,16 @@ const ScanAndUpload = () => {
     return res;
   };
 
-  const onChange = async (event) => {
+  const onChangePdf = async (event) => {
     const file = event.target.files[0];
     const images = await convertPdfToImage(file);
-    setImages(images);
-    console.log(images);
+    setImages(images ? images : []);
+  };
+
+  const onChangeImages = async (event) => {
+    const files = event.target.files;
+    const urls = [...files].map((file) => URL.createObjectURL(file));
+    setImages(urls);
   };
 
   if (loading) {
@@ -72,15 +88,30 @@ const ScanAndUpload = () => {
       {!!images.length ? (
         <Studio images={images} />
       ) : (
-        <div>
+        <div className={styles["upload-buttons"]}>
           <Button
             component="label"
-            variant="contained"
-            startIcon={<CloudUploadIcon />}
-            onChange={onChange}
+            variant="outlined"
+            startIcon={<DescriptionIcon />}
+            onChange={onChangePdf}
+            color="warning"
           >
-            Upload file
+            Upload PDF
             <VisuallyHiddenInput type="file" accept="application/pdf" />
+          </Button>
+          <Button
+            component="label"
+            variant="outlined"
+            startIcon={<CollectionsIcon />}
+            onChange={onChangeImages}
+            color="success"
+          >
+            Upload images
+            <VisuallyHiddenInput
+              type="file"
+              accept="image/png, image/jpeg"
+              multiple
+            />
           </Button>
         </div>
       )}

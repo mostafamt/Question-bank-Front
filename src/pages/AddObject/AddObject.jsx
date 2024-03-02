@@ -31,9 +31,13 @@ const AddObject = () => {
   } = useForm();
   const { setFormState } = useStore();
   const [types, setTypes] = React.useState([]);
+  const [interactiveObjectTypes, setInteractiveObjectTypes] = React.useState(
+    []
+  );
 
   const getQuestionTypes = async () => {
     const res = await axios.get("interactive-object-types");
+    setInteractiveObjectTypes(res.data);
     const types = res.data.map((item) => item.typeName);
     setTypes(types);
   };
@@ -74,8 +78,12 @@ const AddObject = () => {
       domainName: getDomainName(values.domainId),
       subDomainName: getSubDomainName(values.domainId, values.subDomainId),
     };
+
     const id = await saveObject(data);
-    setFormState({ id, ...data });
+    const selectedTypeObject = interactiveObjectTypes.find(
+      (item) => item.typeName === values.type
+    );
+    setFormState({ id, ...data, labels: selectedTypeObject.labels });
     navigate("/scan-and-upload");
   };
 
