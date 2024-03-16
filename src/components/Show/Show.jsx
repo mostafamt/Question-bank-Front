@@ -1,29 +1,47 @@
 import React from "react";
 import { useParams } from "react-router-dom";
-// import { BACKEND_URL } from "../../config/config";
+import axios from "../../axios";
+import { toast } from "react-toastify";
+
 import styles from "./show.module.scss";
-import ShowIFrame from "./ShowIFrame/ShowIFrame";
 
 const Show = () => {
-  return <h1>Show</h1>;
-  // const [data, setData] = React.useState({});
-  // let { id } = useParams();
+  const [url, setUrl] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  let { id } = useParams();
 
-  // const getData = React.useCallback(async (id) => {
-  //   const res = await fetch(`${BACKEND_URL}/question?id=${id}`);
-  //   const data = await res.json();
-  //   setData(data);
-  // }, []);
+  const getData = React.useCallback(async (id) => {
+    if (!id) return;
+    setLoading(true);
+    try {
+      const res = await axios.get(`createObject/${id}`);
+      setUrl(res.data);
+    } catch (error) {
+      console.log(error);
+      toast.error(`${error?.message}, please try again later!`);
+    }
+    setLoading(false);
+  }, []);
 
-  // React.useEffect(() => {
-  //   getData(id);
-  // }, [getData, id]);
+  React.useEffect(() => {
+    getData(id);
+  }, [id, getData]);
 
-  // return (
-  //   <div className={`container ${styles.questions}`}>
-  //     <ShowIFrame title={data?.name} url={data.url} />
-  //   </div>
-  // );
+  return (
+    <div className={`container ${styles.questions}`}>
+      {!loading ? (
+        <iframe
+          id="inlineFrameExample"
+          title="Inline Frame Example"
+          height="100vh"
+          width="100%"
+          src={url}
+        ></iframe>
+      ) : (
+        <p>Loading...</p>
+      )}
+    </div>
+  );
 };
 
 export default Show;

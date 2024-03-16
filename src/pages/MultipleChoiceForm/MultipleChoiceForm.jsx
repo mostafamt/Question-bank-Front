@@ -24,6 +24,7 @@ const MultipleChoiceForm = (props) => {
   const [parameters, setParameters] = React.useState(
     generateMultipleChoiceQuestion
   );
+  const [json, setJSON] = React.useState("");
   const location = useLocation();
   const params = useParams();
   const [showForm, setShowForm] = React.useState(true);
@@ -133,6 +134,17 @@ const MultipleChoiceForm = (props) => {
         handleEditQuestionParam={handleEditQuestionParam}
         renderFromModal={renderFromModal}
       />
+      <div>
+        <button
+          type="button"
+          onClick={() => {
+            setJSON(parameters);
+          }}
+        >
+          Show JSON
+        </button>
+        <p>{JSON.stringify(parameters)}</p>
+      </div>
       <div className={styles["submit-box"]}>
         <Button
           type="submit"

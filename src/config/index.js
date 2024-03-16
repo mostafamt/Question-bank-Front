@@ -182,6 +182,11 @@ const getSubDomainName = (domainId, subDomainId) =>
   subDomainList[domainId].find((subDomain) => subDomain.id === subDomainId)
     ?.name || "";
 
+const mappedLabels = {
+  question: "question",
+  optionText: "option",
+};
+
 export {
   ownerList,
   domainList,
@@ -189,4 +194,5 @@ export {
   subDomainList,
   getDomainName,
   getSubDomainName,
+  mappedLabels,
 };

@@ -25,6 +25,7 @@ import { colors } from "../../constants/highlight-color";
 import AddIcon from "@mui/icons-material/Add";
 
 import styles from "./studio.module.scss";
+import { mappedLabels } from "../../config";
 
 const Studio = (props) => {
   const { images } = props;
@@ -108,12 +109,25 @@ const Studio = (props) => {
     return obj;
   };
 
+  const saveObject = async () => {
+    const data = { ...state };
+    const res = await axios.post("/interactive-objects", {
+      ...data,
+      isAnswered: "g", // g, y , r
+      parameters: {},
+    });
+    toast.success("Question created successfully!");
+    return res.data;
+  };
+
   const onClickSubmit = async () => {
+    const id = await saveObject();
+
     const objectElements = extractedTextList.map((item) => ({
       [item.parameter]: item.text,
     }));
 
-    const res = await axios.post(`saveObject${state.type}/${state.id}`, {
+    const res = await axios.post(`saveObject${state.type}/${id}`, {
       objectElements,
     });
 
@@ -130,17 +144,17 @@ const Studio = (props) => {
     setExtractedTextList([]);
     setLoading(false);
 
-    const data = { ...state, id: "" };
+    // const data = { ...state, id: "" };
 
-    // Add a new object
-    const res = await axios.post("/interactive-objects", {
-      ...data,
-      isAnswered: "g", // g, y , r
-      parameters: {},
-    });
+    // // Add a new object
+    // const res = await axios.post("/interactive-objects", {
+    //   ...data,
+    //   isAnswered: "g", // g, y , r
+    //   parameters: {},
+    // });
 
-    const id = res.data;
-    setFormState({ ...state, id });
+    // const id = res.data;
+    // setFormState({ ...state, id });
   };
 
   const onEditText = (id, text) => {
@@ -210,7 +224,10 @@ const Studio = (props) => {
     return dataUrl;
   };
 
+  const trimText = (text) => text.replaceAll("\n", "");
+
   const ocr = async (dataUrl) => {
+    console.log(state);
     const language = getSet2FromSet1(state.language);
     let text = "";
     try {
@@ -219,7 +236,7 @@ const Studio = (props) => {
     } catch (err) {
       console.error(err);
     }
-    return text;
+    return trimText(text);
   };
 
   return (

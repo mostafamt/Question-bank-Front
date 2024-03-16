@@ -79,11 +79,16 @@ const AddObject = () => {
       subDomainName: getSubDomainName(values.domainId, values.subDomainId),
     };
 
-    const id = await saveObject(data);
+    // const id = await saveObject(data);
     const selectedTypeObject = interactiveObjectTypes.find(
       (item) => item.typeName === values.type
     );
-    setFormState({ id, ...data, labels: selectedTypeObject.labels });
+    setFormState({
+      // id,
+      ...data,
+      labels: selectedTypeObject.labels,
+      types: interactiveObjectTypes,
+    });
     navigate("/scan-and-upload");
   };
 

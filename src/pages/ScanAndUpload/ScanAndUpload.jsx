@@ -84,7 +84,7 @@ const ScanAndUpload = () => {
 
   return (
     <div className={`container ${styles["scan-and-upload"]}`}>
-      <QuestionNameHeader>{state.type}</QuestionNameHeader>
+      <QuestionNameHeader />
       {!!images.length ? (
         <Studio images={images} />
       ) : (
