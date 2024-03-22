@@ -19,12 +19,15 @@ import {
 
 import styles from "./editObject.module.scss";
 
-const questionTypeList = [
-  "multiple-choice",
-  "true-false",
-  "fill-in-the-blank",
-  "essay-question",
-];
+const getCorrectQuestionTypeName = (type) => {
+  let correctType = type;
+  if (type === "drag-the-words") {
+    correctType = "DragTheWords";
+  } else if (type === "multiple-choice") {
+    correctType = "MultipleChoice";
+  }
+  return correctType;
+};
 
 const EditObject = () => {
   const [showModal, setShowModal] = React.useState(false);
@@ -43,10 +46,9 @@ const EditObject = () => {
 
   const fetchData = async () => {
     const res = await axios.get(`/interactive-objects/${id}`);
-    console.log(res.data);
     return {
       ...res.data,
-      type: res.data.type,
+      type: getCorrectQuestionTypeName(res.data.type),
     };
   };
 

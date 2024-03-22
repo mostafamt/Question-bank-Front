@@ -6,7 +6,6 @@ import TrueFalse from "../components/TrueFalse/TrueFalse";
 import AddObject from "../pages/AddObject/AddObject";
 import DragTheWords from "../pages/DragTheWords/DragTheWords";
 import EditObject from "../pages/EditObject/EditObject";
-import EditQuestion from "../pages/EditQuestion/EditQuestion";
 import EssayQuestion from "../pages/Essay-Question/EssayQuestion";
 import FillBlankForm from "../pages/FillBlank/FillBlank";
 import Home from "../pages/Home/Home";
@@ -87,7 +86,7 @@ const routes = [
   },
   {
     path: "/edit/:id",
-    component: EditQuestion,
+    component: EditObject,
   },
   {
     path: "/edit/:id",
