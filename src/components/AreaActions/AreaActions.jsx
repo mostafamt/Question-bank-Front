@@ -17,6 +17,7 @@ const AreaActions = (props) => {
     extractedTextList,
     onEditText,
     onClickDeleteArea,
+    labels,
   } = props;
 
   const { data: state } = useStore();
@@ -24,16 +25,17 @@ const AreaActions = (props) => {
   const [types, setTypes] = React.useState({});
 
   const getLabels = React.useCallback(() => {
-    const object = state.labels.reduce((acc, item) => {
+    const object = labels.reduce((acc, item) => {
       const key = Object.keys(item)?.[0];
       return { ...acc, [key]: item[key] };
     }, {});
     setTypes(object);
-    const params = state.labels?.map((item) => Object.keys(item)?.[0]);
+    const params = labels?.map((item) => Object.keys(item)?.[0]);
     setList(params);
-  }, [state.labels]);
+  }, [labels]);
 
   React.useEffect(() => {
+    console.log("state= ", state);
     getLabels();
   }, [getLabels]);
 

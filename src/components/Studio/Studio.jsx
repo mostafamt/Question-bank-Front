@@ -1,34 +1,25 @@
 import React from "react";
 import { AreaSelector } from "@bmunozg/react-image-area";
-import DeleteIcon from "@mui/icons-material/Delete";
-import DeleteForever from "@mui/icons-material/DeleteForever";
-import { Button, CircularProgress } from "@mui/material";
-import OCR from "../../utils/OCR/OCR";
+import { Button } from "@mui/material";
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import { useStore } from "../../store/store";
-import {
-  constructMCQParametersFromKeyValuePairs,
-  getSet2FromSet1,
-  hexToRgbA,
-} from "../../utils/helper";
-import { useNavigate } from "react-router-dom";
+import { getSet2FromSet1, hexToRgbA } from "../../utils/helper";
 import axios from "../../axios";
 import { toast } from "react-toastify";
 import Modal from "../Modal/Modal";
-import EditParametersModal from "../Modal/EditParametersModal/EditParametersModal";
 import AreaActions from "../AreaActions/AreaActions";
 import Tesseract from "tesseract.js";
 import ImageActions from "../ImageActions/ImageActions";
 import { v4 as uuidv4 } from "uuid";
 import { colors } from "../../constants/highlight-color";
-import AddIcon from "@mui/icons-material/Add";
+import SubObjectModal from "../Modal/SubObjectModal/SubObjectModal";
 
 import styles from "./studio.module.scss";
-import { mappedLabels } from "../../config";
+import StudioThumbnails from "./StudioThumbnails/StudioThumbnails";
 
 const Studio = (props) => {
-  const { images } = props;
+  const { images, setImages } = props;
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [areas, setAreas] = React.useState([]);
   // TODO: set areas foreach page.
@@ -43,6 +34,10 @@ const Studio = (props) => {
   const { data: state, setFormState } = useStore();
   const [imageScaleFactor, setImageScaleFactor] = React.useState(1);
   const [output, setOutput] = React.useState(null);
+  // To Extract Sub Object
+  const [showModal, setShowModal] = React.useState(false);
+  const [activeType, setActiveType] = React.useState("");
+  const [activeImage, setActiveImage] = React.useState("");
 
   const onClickImage = (idx) => {
     setActiveIndex(idx);
@@ -76,7 +71,29 @@ const Studio = (props) => {
     setParameters((prevState) => [...prevState.filter((_, id) => idx !== id)]);
   };
 
+  const getTypeOfParameter = (parameter) => {
+    const types = state.types;
+    const selectedType = types.find((type) => type.typeName === state.type);
+    const labels = selectedType.labels;
+    const item = labels.find((label) => {
+      const keys = Object.keys(label);
+      const key = keys[0];
+      return key === parameter;
+    });
+    const values = Object.values(item);
+    return values[0];
+  };
+
+  const handleCloseModal = () => setShowModal(false);
+
+  const openModal = (type) => {
+    setShowModal(true);
+    setActiveType(type);
+  };
+
   const onChangeParameter = (value, idx) => {
+    // state
+    console.log("state= ", state);
     const newParameters = [...parameters];
     newParameters[idx] = value;
     setParameters(newParameters);
@@ -87,7 +104,25 @@ const Studio = (props) => {
     );
     setBoxColors(newBoxColors);
 
-    extract(newParameters);
+    const type = getTypeOfParameter(value);
+    console.log("type= ", type);
+    if (type !== "image" && type !== "text") {
+      // open Modal
+      openModal(type);
+      const activeArea = areas[idx];
+      const image = imageRef.current;
+      const ratio = image.naturalWidth / image.width;
+
+      const x = activeArea.x * ratio;
+      const y = activeArea.y * ratio;
+      const width = activeArea.width * ratio;
+      const height = activeArea.height * ratio;
+      const croppedImage = cropSelectedArea(x, y, width, height);
+
+      setActiveImage(croppedImage);
+    } else {
+      extract(newParameters);
+    }
   };
 
   const constructBoxColors = () => {
@@ -241,18 +276,20 @@ const Studio = (props) => {
 
   return (
     <>
+      <Modal show={showModal} handleClose={handleCloseModal} size="xl">
+        <SubObjectModal
+          handleClose={handleCloseModal}
+          type={activeType}
+          image={activeImage}
+        />
+      </Modal>
       <div className={styles.studio}>
-        <div className={styles.thumbnails}>
-          {images.map((img, idx) => (
-            <img
-              key={idx}
-              src={img}
-              alt={img}
-              width="200"
-              onClick={() => onClickImage(idx)}
-            />
-          ))}
-        </div>
+        <StudioThumbnails
+          images={images}
+          setImages={setImages}
+          activeIndex={activeIndex}
+          onClickImage={onClickImage}
+        />
         <div
           className={styles.editor}
           css={{
@@ -295,6 +332,7 @@ const Studio = (props) => {
               extractedTextList={extractedTextList}
               onEditText={onEditText}
               onClickDeleteArea={() => onClickDeleteArea(idx)}
+              labels={state.labels}
             />
           ))}
           {extractedTextList.length > 0 && (

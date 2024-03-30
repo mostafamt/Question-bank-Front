@@ -4,38 +4,18 @@ import { Link, useNavigate } from "react-router-dom";
 import styles from "./table.module.scss";
 import { Button, IconButton, Radio } from "@mui/material";
 import { RadioButtonCheckedRounded, Delete } from "@mui/icons-material";
-import Modal from "../Modal/Modal";
-import DeleteModalContent from "../Modal/DeleteModalContent/DeleteModalContent";
 import axios from "../../axios";
-import { toast } from "react-toastify";
 
 export default function DataTable(props) {
   const navigate = useNavigate();
   const [rows, setRows] = React.useState([]);
+  const [total, setTotal] = React.useState(0);
   const [loading, setLoading] = React.useState(false);
   const [selectedRowId, setSelectedRowId] = React.useState();
-  const [showModal, setShowModal] = React.useState(false);
-  const [activeQuestion, setActiveQuestion] = React.useState();
-
-  const closeModal = () => setShowModal(false);
-  const openModal = () => setShowModal(true);
-
-  const onDeleteQuestion = (id) => {
-    openModal();
-    setActiveQuestion(id);
-  };
-
-  const onConfirmDelete = async () => {
-    closeModal();
-    try {
-      const res = await axios.delete(`/question/${activeQuestion}`);
-      console.log(res.data);
-      toast.success("Question deleted successfully");
-      await fetchQuestions();
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  const [paginationModel, setPaginationModel] = React.useState({
+    page: 1,
+    pageSize: 5,
+  });
 
   const renderColorStatus = (status) => {
     let color = { backgroundColor: "black" };
@@ -68,7 +48,7 @@ export default function DataTable(props) {
     {
       field: "name",
       headerName: "Title",
-      width: 200,
+      width: 300,
       renderCell: (params) => {
         return <Link to={`/show/${params.id}`}>{params.row.name}</Link>;
       },
@@ -106,27 +86,13 @@ export default function DataTable(props) {
         );
       },
     },
-    {
-      field: "actions",
-      headerName: "Actions",
-      width: 100,
-      renderCell: (params) => {
-        return (
-          <IconButton
-            aria-label="delete"
-            color="error"
-            onClick={() => onDeleteQuestion(params.id)}
-          >
-            <Delete />
-          </IconButton>
-        );
-      },
-    },
   ];
 
   const fetchQuestions = React.useCallback(async () => {
     setLoading(true);
-    const res = await axios.get(`/interactive-objects`);
+    const res = await axios.get(
+      `/interactive-objects?page=${paginationModel.page}&limit=${paginationModel.pageSize}`
+    );
     const data = res.data;
     if (!!data.docs.length) {
       setRows(
@@ -142,7 +108,8 @@ export default function DataTable(props) {
       );
     }
     setLoading(false);
-  }, []);
+    setTotal(res.data.totalDocs);
+  }, [paginationModel.page, paginationModel.pageSize]);
 
   React.useEffect(() => {
     fetchQuestions();
@@ -158,12 +125,6 @@ export default function DataTable(props) {
 
   return (
     <>
-      <Modal show={showModal} handleClose={closeModal}>
-        <DeleteModalContent
-          handleClose={closeModal}
-          onDelete={onConfirmDelete}
-        />
-      </Modal>
       <div className={styles.table}>
         <div className={styles.actions}>
           <Button variant="contained" onClick={onClickAddQuestion}>
@@ -174,17 +135,17 @@ export default function DataTable(props) {
           </Button>
         </div>
         <DataGrid
-          loading={loading}
           rows={rows}
+          rowCount={total}
+          loading={loading}
+          autoHeight
           columns={columns}
-          initialState={{
-            pagination: {
-              paginationModel: { page: 0, pageSize: 5 },
-            },
-          }}
-          pageSizeOptions={[5, 10]}
           baseCheckbox={RadioButtonCheckedRounded}
           slots={{ toolbar: GridToolbar }}
+          pageSizeOptions={[5, 10]}
+          paginationModel={paginationModel}
+          paginationMode="server"
+          onPaginationModelChange={setPaginationModel}
         />
       </div>
     </>
