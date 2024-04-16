@@ -158,21 +158,41 @@ const Studio = (props) => {
     return res.data;
   };
 
+  const getUrlOfImage = async (base64Image) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", base64Image);
+      const res = await axios.post("/upload", formData);
+      console.log("res= ", res);
+      return res.data;
+    } catch (error) {
+      toast.error(error.message);
+      return base64Image;
+    }
+  };
+
   const onClickSubmit = async () => {
     const id = await saveObject();
 
-    const objectElements = results.map((item) => ({
-      [item.parameter]: item.type === "image" ? item.image : item.text,
-    }));
+    const objectElements = await Promise.all(
+      results.map(async (item) => ({
+        [item.parameter]:
+          item.type === "image" ? await getUrlOfImage(item.image) : item.text,
+      }))
+    );
 
-    const res = await axios.post(`saveObject${type}/${id}`, {
-      objectElements,
-    });
+    try {
+      const res = await axios.post(`saveObject${type}/${id}`, {
+        objectElements,
+      });
 
-    toast.success("Question parameters updated successfully!");
-    clear();
-    if (subObject) {
-      handleClose();
+      toast.success("Question parameters updated successfully!");
+      clear();
+      if (subObject) {
+        handleClose();
+      }
+    } catch (error) {
+      toast.error(error.message);
     }
   };
 
