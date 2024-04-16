@@ -17,7 +17,7 @@ const AreaActions = (props) => {
     extractedTextList,
     onEditText,
     onClickDeleteArea,
-    labels,
+    type,
   } = props;
 
   const { data: state } = useStore();
@@ -25,6 +25,9 @@ const AreaActions = (props) => {
   const [types, setTypes] = React.useState({});
 
   const getLabels = React.useCallback(() => {
+    // GET LABELS OF THE SELECTED TYPE
+    const labels = state.types.find((item) => item.typeName === type)?.labels;
+
     const object = labels.reduce((acc, item) => {
       const key = Object.keys(item)?.[0];
       return { ...acc, [key]: item[key] };
@@ -32,10 +35,9 @@ const AreaActions = (props) => {
     setTypes(object);
     const params = labels?.map((item) => Object.keys(item)?.[0]);
     setList(params);
-  }, [labels]);
+  }, [type, state.types]);
 
   React.useEffect(() => {
-    console.log("state= ", state);
     getLabels();
   }, [getLabels]);
 
@@ -58,7 +60,26 @@ const AreaActions = (props) => {
       </div>
 
       <div>
-        {types[parameter] === "image" ? (
+        {types[parameter] === "text" ? (
+          extractedTextList?.[idx] ? (
+            <TextField
+              sx={{
+                width: "100%",
+                mt: 1,
+              }}
+              label=""
+              variant="outlined"
+              type="text"
+              multiline
+              value={extractedTextList?.[idx]?.text}
+              onChange={(e) =>
+                onEditText(extractedTextList[idx]?.id, e.target.value)
+              }
+            />
+          ) : (
+            <></>
+          )
+        ) : extractedTextList?.[idx] ? (
           <img
             src={extractedTextList?.[idx]?.image}
             alt="image1"
@@ -66,21 +87,6 @@ const AreaActions = (props) => {
               width: "100%",
               objectFit: "cover",
             }}
-          />
-        ) : extractedTextList?.[idx] ? (
-          <TextField
-            sx={{
-              width: "100%",
-              mt: 1,
-            }}
-            label=""
-            variant="outlined"
-            type="text"
-            multiline
-            value={extractedTextList?.[idx]?.text}
-            onChange={(e) =>
-              onEditText(extractedTextList[idx]?.id, e.target.value)
-            }
           />
         ) : (
           <></>

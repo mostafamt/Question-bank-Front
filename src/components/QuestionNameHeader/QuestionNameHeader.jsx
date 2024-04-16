@@ -9,6 +9,7 @@ import { IconButton } from "@mui/material";
 
 const QuestionNameHeader = (props) => {
   const [show, setShow] = React.useState(false);
+  const { questionName, type } = props;
 
   const toggleShow = () => {
     setShow((prevState) => !prevState);
@@ -24,11 +25,11 @@ const QuestionNameHeader = (props) => {
       <div className={styles.header}>
         <div>
           <span>Name: </span>
-          <span>{state?.questionName}</span>
+          <span>{questionName || state?.questionName}</span>
         </div>
         <div>
           <span>Type: </span>
-          <span>{state?.type}</span>
+          <span>{type || state?.type}</span>
         </div>
         <div>
           <IconButton aria-label="edit" color="white" onClick={toggleShow}>

@@ -19,7 +19,8 @@ import styles from "./studio.module.scss";
 import StudioThumbnails from "./StudioThumbnails/StudioThumbnails";
 
 const Studio = (props) => {
-  const { images, setImages } = props;
+  const { images, setImages, questionName, type, subObject, handleClose } =
+    props;
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [areas, setAreas] = React.useState([]);
   // TODO: set areas foreach page.
@@ -27,7 +28,7 @@ const Studio = (props) => {
   const [parameters, setParameters] = React.useState([]);
   const [boxColors, setBoxColors] = React.useState([]);
   const [colorIndex, setColorIndex] = React.useState(0);
-  const [extractedTextList, setExtractedTextList] = React.useState([]);
+  const [results, setResults] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const imageRef = React.createRef();
   const canvasRef = React.createRef();
@@ -65,15 +66,13 @@ const Studio = (props) => {
   const onClickDeleteArea = (idx) => {
     setAreas((prevState) => [...prevState.filter((_, id) => idx !== id)]);
     setBoxColors((prevState) => [...prevState.filter((_, id) => idx !== id)]);
-    setExtractedTextList((prevState) => [
-      ...prevState.filter((_, id) => idx !== id),
-    ]);
+    setResults((prevState) => [...prevState.filter((_, id) => idx !== id)]);
     setParameters((prevState) => [...prevState.filter((_, id) => idx !== id)]);
   };
 
   const getTypeOfParameter = (parameter) => {
     const types = state.types;
-    const selectedType = types.find((type) => type.typeName === state.type);
+    const selectedType = types.find((_type) => _type.typeName === type);
     const labels = selectedType.labels;
     const item = labels.find((label) => {
       const keys = Object.keys(label);
@@ -93,6 +92,8 @@ const Studio = (props) => {
 
   const onChangeParameter = (value, idx) => {
     // state
+    console.log("value= ", value);
+    setActiveType(value);
     console.log("state= ", state);
     const newParameters = [...parameters];
     newParameters[idx] = value;
@@ -107,8 +108,6 @@ const Studio = (props) => {
     const type = getTypeOfParameter(value);
     console.log("type= ", type);
     if (type !== "image" && type !== "text") {
-      // open Modal
-      openModal(type);
       const activeArea = areas[idx];
       const image = imageRef.current;
       const ratio = image.naturalWidth / image.width;
@@ -120,6 +119,8 @@ const Studio = (props) => {
       const croppedImage = cropSelectedArea(x, y, width, height);
 
       setActiveImage(croppedImage);
+      // open Modal
+      openModal(type);
     } else {
       extract(newParameters);
     }
@@ -150,6 +151,8 @@ const Studio = (props) => {
       ...data,
       isAnswered: "g", // g, y , r
       parameters: {},
+      questionName,
+      type,
     });
     toast.success("Question created successfully!");
     return res.data;
@@ -158,16 +161,19 @@ const Studio = (props) => {
   const onClickSubmit = async () => {
     const id = await saveObject();
 
-    const objectElements = extractedTextList.map((item) => ({
-      [item.parameter]: item.text,
+    const objectElements = results.map((item) => ({
+      [item.parameter]: item.type === "image" ? item.image : item.text,
     }));
 
-    const res = await axios.post(`saveObject${state.type}/${id}`, {
+    const res = await axios.post(`saveObject${type}/${id}`, {
       objectElements,
     });
 
     toast.success("Question parameters updated successfully!");
     clear();
+    if (subObject) {
+      handleClose();
+    }
   };
 
   const clear = async () => {
@@ -176,30 +182,18 @@ const Studio = (props) => {
     setParameters([]);
     setBoxColors([]);
     setColorIndex(0);
-    setExtractedTextList([]);
+    setResults([]);
     setLoading(false);
-
-    // const data = { ...state, id: "" };
-
-    // // Add a new object
-    // const res = await axios.post("/interactive-objects", {
-    //   ...data,
-    //   isAnswered: "g", // g, y , r
-    //   parameters: {},
-    // });
-
-    // const id = res.data;
-    // setFormState({ ...state, id });
   };
 
   const onEditText = (id, text) => {
-    const newExtractedTextList = extractedTextList.map((item) => {
+    const newExtractedTextList = results.map((item) => {
       if (item.id === id) {
         item.text = text;
       }
       return item;
     });
-    setExtractedTextList(newExtractedTextList);
+    setResults(newExtractedTextList);
   };
 
   const extract = async (newParameters) => {
@@ -208,7 +202,7 @@ const Studio = (props) => {
     const image = imageRef.current;
     const ratio = image.naturalWidth / image.width;
 
-    setExtractedTextList([]);
+    setResults([]);
 
     await Promise.all(
       areas.map(async (area, idx) => {
@@ -218,17 +212,18 @@ const Studio = (props) => {
         const height = area.height * ratio;
         const croppedImage = cropSelectedArea(x, y, width, height);
         const id = uuidv4();
-        setExtractedTextList((prevState) => [
+        setResults((prevState) => [
           ...prevState,
           {
             id,
             image: croppedImage,
             parameter: newParameters[idx],
+            type: getTypeOfParameter(newParameters[idx]),
             y,
           },
         ]);
         const text = await ocr(croppedImage, newParameters[idx], y);
-        setExtractedTextList((prevState) =>
+        setResults((prevState) =>
           prevState.map((item) => {
             if (item.id === id) {
               const newItem = { ...item, text };
@@ -240,9 +235,7 @@ const Studio = (props) => {
       })
     );
     // SORT BY Y COORDINATE
-    setExtractedTextList((prevState) => [
-      ...prevState.sort((a, b) => a.y - b.y),
-    ]);
+    setResults((prevState) => [...prevState.sort((a, b) => a.y - b.y)]);
     setLoading(false);
   };
 
@@ -279,8 +272,12 @@ const Studio = (props) => {
       <Modal show={showModal} handleClose={handleCloseModal} size="xl">
         <SubObjectModal
           handleClose={handleCloseModal}
-          type={activeType}
           image={activeImage}
+          name={`${state.questionName} - ${activeType}`}
+          type={activeType}
+          setResults={setResults}
+          parameter={""}
+          y={""}
         />
       </Modal>
       <div className={styles.studio}>
@@ -329,13 +326,14 @@ const Studio = (props) => {
               boxColors={boxColors}
               onChangeParameter={onChangeParameter}
               loading={loading}
-              extractedTextList={extractedTextList}
+              extractedTextList={results}
               onEditText={onEditText}
               onClickDeleteArea={() => onClickDeleteArea(idx)}
+              type={type}
               labels={state.labels}
             />
           ))}
-          {extractedTextList.length > 0 && (
+          {results.length > 0 && (
             <div>
               <Button
                 variant="contained"

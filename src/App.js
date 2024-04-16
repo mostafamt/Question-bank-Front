@@ -8,6 +8,7 @@ import Footer from "./components/Footer/Footer";
 import { ThemeProvider } from "@mui/material/styles";
 import { theme } from "./theme/theme";
 import routes from "./routes";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
   return (

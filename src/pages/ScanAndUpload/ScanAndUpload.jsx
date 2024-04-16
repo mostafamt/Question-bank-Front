@@ -86,7 +86,12 @@ const ScanAndUpload = () => {
     <div className={`container ${styles["scan-and-upload"]}`}>
       <QuestionNameHeader />
       {!!images.length ? (
-        <Studio images={images} setImages={setImages} />
+        <Studio
+          images={images}
+          setImages={setImages}
+          questionName={state.questionName}
+          type={state.type}
+        />
       ) : (
         <div className={styles["upload-buttons"]}>
           <Button
