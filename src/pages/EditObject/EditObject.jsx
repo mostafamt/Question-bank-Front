@@ -89,11 +89,7 @@ const EditObject = () => {
   const onClickEdit = () => {
     const { type } = watch();
 
-    if (type === "MCQ") {
-      navigate(`/edit-question/${id}`);
-    } else if (type === "fill-in-the-blank") {
-      navigate(`/add-question/filltheblanks/manual/${id}`);
-    }
+    navigate(`/edit-question/${type}/${id}`);
   };
 
   const onSubmit = async (values) => {
@@ -124,7 +120,7 @@ const EditObject = () => {
       <div className={styles["edit-object"]}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <fieldset>
-            <legend>Edit Question Object</legend>
+            <legend>Edit Object</legend>
             <div>
               <Input
                 label="title"

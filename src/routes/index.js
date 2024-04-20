@@ -1,3 +1,4 @@
+import DrawnUI from "../pages/DrawnUI/DrawnUI";
 import ExcelFile from "../components/ExcelFile/ExcelFile";
 import Bulk from "../components/MultipleChoice/Bulk/Bulk";
 import MultipleChoice from "../components/MultipleChoice/MultipleChoice";
@@ -45,6 +46,10 @@ const routes = [
     component: AddObject,
   },
   {
+    path: "/add-question/:type",
+    component: DrawnUI,
+  },
+  {
     path: "/scan-and-upload",
     component: ScanAndUpload,
   },
@@ -89,12 +94,8 @@ const routes = [
     component: EditObject,
   },
   {
-    path: "/edit/:id",
-    component: EditObject,
-  },
-  {
-    path: "/edit-question/:id",
-    component: MultipleChoiceForm,
+    path: "/edit-question/:type/:id",
+    component: DrawnUI,
   },
   {
     path: "/excel-file",

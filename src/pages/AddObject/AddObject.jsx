@@ -55,21 +55,23 @@ const AddObject = () => {
       ...values,
       domainName: getDomainName(values.domainId),
       subDomainName: getSubDomainName(values.domainId, values.subDomainId),
+      objects: interactiveObjectTypes,
     };
     const id = await saveObject(data);
     setFormState({ id, ...data });
     const { type } = values;
-    if (type === "MCQ") {
-      navigate("/add-question/multiple-choice/manual");
-    } else if (type === "true-false") {
-      navigate("/add-question/true-false/manual");
-    } else if (type === "fill-in-the-blank") {
-      navigate("/add-question/fill-in-the-blank/manual");
-    } else if (type === "drag-the-words") {
-      navigate("/add-question/drag-the-words/manual");
-    } else if (values.questionType === "essay-question") {
-      navigate("/add-question/essay-question/manual");
-    }
+    navigate(`/add-question/${type}`);
+    // if (type === "MCQ") {
+    //   navigate("/add-question/multiple-choice/manual");
+    // } else if (type === "true-false") {
+    //   navigate("/add-question/true-false/manual");
+    // } else if (type === "fill-in-the-blank") {
+    //   navigate("/add-question/fill-in-the-blank/manual");
+    // } else if (type === "drag-the-words") {
+    //   navigate("/add-question/drag-the-words/manual");
+    // } else if (values.questionType === "essay-question") {
+    //   navigate("/add-question/essay-question/manual");
+    // }
   };
 
   const onSubmitOcr = async (values) => {
@@ -106,7 +108,7 @@ const AddObject = () => {
     <div className={styles["add-question"]}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <fieldset>
-          <legend>Add Question Object</legend>
+          <legend>Add Object</legend>
           <div>
             <Input
               label="title"
