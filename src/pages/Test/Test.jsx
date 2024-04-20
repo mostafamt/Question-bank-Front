@@ -1,52 +1,75 @@
 import React from "react";
-
-import { DataGrid } from "@mui/x-data-grid";
-import { createFakeServer } from "@mui/x-data-grid-generator";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
 
 import styles from "./test.module.scss";
 
-const SERVER_OPTIONS = {
-  useCursorPagination: false,
-};
-
-const { useQuery, ...data } = createFakeServer({}, SERVER_OPTIONS);
-
-console.log(data);
+const ui = [
+  {
+    element: "image",
+    path: "/assets/cats.jpg",
+    alt: "alt ",
+  },
+  {
+    element: "input",
+    label: "question",
+  },
+  {
+    element: "textarea",
+    label: "description",
+  },
+  {
+    element: "button",
+    label: "ok",
+  },
+];
 
 const Test = () => {
-  const [paginationModel, setPaginationModel] = React.useState({
-    page: 0,
-    pageSize: 5,
-  });
+  const constructUI = (ui) => {
+    const drawnUI = ui.map((item) => {
+      let unit = "";
+      if (item.element === "input") {
+        unit = (
+          <div class="mb-2">
+            <TextField label={item.label} variant="outlined" />
+          </div>
+        );
+      } else if (item.element === "textarea") {
+        unit = (
+          <div class="mb-2">
+            <TextField
+              id="outlined-textarea"
+              label={item.label}
+              placeholder=""
+              multiline
+              rows={4}
+            />
+          </div>
+        );
+      } else if (item.element === "button") {
+        unit = (
+          <div class="mb-2">
+            <Button variant="contained">{item.label}</Button>
+          </div>
+        );
+      } else if (item.element === "image") {
+        unit = (
+          <div class="mb-2">
+            <img src={item.path} alt={item.alt} width="200" />
+          </div>
+        );
+      }
+      return unit;
+    });
 
-  const { isLoading, rows, pageInfo } = useQuery(paginationModel);
-
-  // Some API clients return undefined while loading
-  // Following lines are here to prevent `rowCountState` from being undefined during the loading
-  const [rowCountState, setRowCountState] = React.useState(
-    pageInfo?.totalRowCount || 0
-  );
-  React.useEffect(() => {
-    setRowCountState((prevRowCountState) =>
-      pageInfo?.totalRowCount !== undefined
-        ? pageInfo?.totalRowCount
-        : prevRowCountState
-    );
-  }, [pageInfo?.totalRowCount, setRowCountState]);
+    return drawnUI;
+  };
 
   return (
-    <div style={{ height: 400, width: "100%" }}>
-      <DataGrid
-        rows={rows}
-        {...data}
-        rowCount={rowCountState}
-        loading={isLoading}
-        pageSizeOptions={[5]}
-        paginationModel={paginationModel}
-        paginationMode="server"
-        onPaginationModelChange={setPaginationModel}
-      />
-    </div>
+    <>
+      <h1>Hello world</h1>
+      {constructUI(ui)}
+    </>
   );
 };
 

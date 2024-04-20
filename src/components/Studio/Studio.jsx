@@ -17,6 +17,7 @@ import SubObjectModal from "../Modal/SubObjectModal/SubObjectModal";
 
 import styles from "./studio.module.scss";
 import StudioThumbnails from "./StudioThumbnails/StudioThumbnails";
+import { uploadBase64 } from "../../utils/upload";
 
 const Studio = (props) => {
   const { images, setImages, questionName, type, subObject, handleClose } =
@@ -158,26 +159,13 @@ const Studio = (props) => {
     return res.data;
   };
 
-  const getUrlOfImage = async (base64Image) => {
-    try {
-      const formData = new FormData();
-      formData.append("file", base64Image);
-      const res = await axios.post("/upload", formData);
-      console.log("res= ", res);
-      return res.data;
-    } catch (error) {
-      toast.error(error.message);
-      return base64Image;
-    }
-  };
-
   const onClickSubmit = async () => {
     const id = await saveObject();
 
     const objectElements = await Promise.all(
       results.map(async (item) => ({
         [item.parameter]:
-          item.type === "image" ? await getUrlOfImage(item.image) : item.text,
+          item.type === "image" ? await uploadBase64(item.image) : item.text,
       }))
     );
 

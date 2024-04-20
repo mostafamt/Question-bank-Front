@@ -1,24 +1,40 @@
 import React from "react";
-import { AreaSelector, IArea } from "@bmunozg/react-image-area";
+
+import styles from "./test.module.scss";
 
 const Test2 = () => {
-  const [areas, setAreas] = React.useState([]);
+  const [image, setImage] = React.useState("");
 
-  const onChangeHandler = (areas) => {
-    setAreas(areas);
+  const uploadImage = async () => {
+    const path = "/assets/cats.jpg";
+    const url = "www.google.com";
+    setImage(url);
+    return url;
   };
 
-  const onClick = () => {
-    alert(JSON.stringify(areas));
+  React.useEffect(() => {
+    uploadImage();
+  }, []);
+
+  const onChangeHandler = (file) => {
+    console.log("file= ", file);
   };
 
   return (
     <>
-      <AreaSelector areas={areas} onChange={onChangeHandler}>
-        <img src="/assets/questions.jpg" alt="cats" />
-      </AreaSelector>
+      <h1>Hello world</h1>
+      <img src={"/assets/cats.jpg"} alt="some here" width={200} />
+      <form id="upload">
+        <label for="file">File to upload</label>
+        <input
+          type="file"
+          id="file"
+          accept="image/*"
+          onChange={onChangeHandler}
+        />
 
-      <button onClick={onClick}>Show info</button>
+        <button>Upload</button>
+      </form>
     </>
   );
 };
