@@ -25,7 +25,11 @@ function App() {
           <ToastContainer />
           <Routes>
             {routes.map((route) => (
-              <Route path={route.path} Component={route.component} />
+              <Route
+                key={route.path}
+                path={route.path}
+                Component={route.component}
+              />
             ))}
           </Routes>
           <Footer />

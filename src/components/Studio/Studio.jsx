@@ -93,9 +93,7 @@ const Studio = (props) => {
 
   const onChangeParameter = (value, idx) => {
     // state
-    console.log("value= ", value);
     setActiveType(value);
-    console.log("state= ", state);
     const newParameters = [...parameters];
     newParameters[idx] = value;
     setParameters(newParameters);
@@ -107,7 +105,6 @@ const Studio = (props) => {
     setBoxColors(newBoxColors);
 
     const type = getTypeOfParameter(value);
-    console.log("type= ", type);
     if (type !== "image" && type !== "text") {
       const activeArea = areas[idx];
       const image = imageRef.current;
@@ -263,7 +260,6 @@ const Studio = (props) => {
   const trimText = (text) => text.replaceAll("\n", "");
 
   const ocr = async (dataUrl) => {
-    console.log(state);
     const language = getSet2FromSet1(state.language);
     let text = "";
     try {
@@ -298,7 +294,7 @@ const Studio = (props) => {
         <div
           className={styles.editor}
           css={{
-            "& > div:nth-child(2)": constructBoxColors(),
+            "& > div:nth-of-type(2)": constructBoxColors(),
           }}
         >
           <ImageActions

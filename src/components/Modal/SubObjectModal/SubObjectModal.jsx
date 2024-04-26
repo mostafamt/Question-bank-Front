@@ -44,7 +44,7 @@ const SubObjectModal = (props) => {
   return (
     <div>
       <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title>Modal heading</BootstrapModal.Title>
+        <BootstrapModal.Title></BootstrapModal.Title>
       </BootstrapModal.Header>
       <BootstrapModal.Body>
         <QuestionNameHeader questionName={name} type={type} />
@@ -57,9 +57,7 @@ const SubObjectModal = (props) => {
           handleClose={close}
         />
       </BootstrapModal.Body>
-      <BootstrapModal.Footer>
-        <h1>footer</h1>
-      </BootstrapModal.Footer>
+      <BootstrapModal.Footer></BootstrapModal.Footer>
     </div>
   );
 };

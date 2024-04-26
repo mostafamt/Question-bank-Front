@@ -62,13 +62,10 @@ const DrawnUI = () => {
         newObject = { ...newObject, [key]: value };
       }
     }
-    console.log("newObject= ", newObject);
     setParameters(newObject);
   };
 
-  const onClickRemove = (field) => {};
-
-  const parseParameters = (parameters, space = 4) => {
+  const parseParameters = (parameters, space = 4, level = 1) => {
     let jsx = "";
     for (const [key, value] of Object.entries(parameters)) {
       let item = "";
@@ -90,13 +87,35 @@ const DrawnUI = () => {
       } else if (value === "voice") {
         item = <Sound space={space} />;
       } else if (Array.isArray(value)) {
-        item = value.map((itm) => parseParameters(itm, 2));
+        item = value.map((itm) => (
+          <div
+            style={{
+              border: "1px solid #ccc",
+              padding: "1rem",
+              marginBottom: "1rem",
+              borderRadius: "3px",
+            }}
+          >
+            {parseParameters(itm, space - 2, level + 1)}{" "}
+          </div>
+        ));
         item = (
           <>
-            {item}
-            <div>
-              <Button onClick={() => onChangeArray(key, true)}>add</Button>
-              <Button onClick={() => onChangeArray(key, false)}>remove</Button>
+            <h5>{key}: </h5>
+            <div
+              style={{
+                border: "1px solid #ccc",
+                padding: "1rem",
+                borderRadius: "3px",
+              }}
+            >
+              {item}
+              <div>
+                <Button onClick={() => onChangeArray(key, true)}>add</Button>
+                <Button onClick={() => onChangeArray(key, false)}>
+                  remove
+                </Button>
+              </div>
             </div>
           </>
         );
@@ -123,7 +142,7 @@ const DrawnUI = () => {
 
   return (
     <div className="container">
-      <h1>{type}</h1>
+      <h1 style={{ textAlign: "center", marginBottom: "3rem" }}>{type}</h1>
       <form style={{ marginBottom: "2rem" }}>
         {parameters && parseParameters(parameters)}
         <Box

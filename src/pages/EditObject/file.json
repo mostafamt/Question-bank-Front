@@ -1,0 +1,20 @@
+{
+  "GraphMode": {
+    "type": "drop-list",
+    "data": ["item 1", "item 2"]
+  },
+
+  "Question": {
+    "type": "text"
+  },
+
+  "options": {
+    "type": "array",
+    "data": [
+      {
+        "type": "text"
+      },
+      {}
+    ]
+  }
+}

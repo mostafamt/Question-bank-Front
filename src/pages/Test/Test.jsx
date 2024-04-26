@@ -1,74 +1,77 @@
 import React from "react";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
+import axios from "../../axios";
 
 import styles from "./test.module.scss";
 
-const ui = [
-  {
-    element: "image",
-    path: "/assets/cats.jpg",
-    alt: "alt ",
-  },
-  {
-    element: "input",
-    label: "question",
-  },
-  {
-    element: "textarea",
-    label: "description",
-  },
-  {
-    element: "button",
-    label: "ok",
-  },
-];
+const objectElements = {
+  objectElements: [
+    {
+      question: "what is your name here?",
+    },
+    {
+      optionText: "Ahmed",
+    },
+    {
+      correct: false,
+    },
+    {
+      chosenFeedback: "chosen feedback text",
+    },
+    {
+      notChosenFeedback: "not chosen feedback text",
+    },
+    {
+      tip: "Is your name Ahmed?",
+    },
+    {
+      optionText: "Ali",
+    },
+    {
+      correct: true,
+    },
+    {
+      chosenFeedback: "chosen feedback text2",
+    },
+    {
+      notChosenFeedback: "not chosen feedback text",
+    },
+    {
+      tip: "Is your name Ali?",
+    },
+  ],
+};
 
 const Test = () => {
-  const constructUI = (ui) => {
-    const drawnUI = ui.map((item) => {
-      let unit = "";
-      if (item.element === "input") {
-        unit = (
-          <div class="mb-2">
-            <TextField label={item.label} variant="outlined" />
-          </div>
-        );
-      } else if (item.element === "textarea") {
-        unit = (
-          <div class="mb-2">
-            <TextField
-              id="outlined-textarea"
-              label={item.label}
-              placeholder=""
-              multiline
-              rows={4}
-            />
-          </div>
-        );
-      } else if (item.element === "button") {
-        unit = (
-          <div class="mb-2">
-            <Button variant="contained">{item.label}</Button>
-          </div>
-        );
-      } else if (item.element === "image") {
-        unit = (
-          <div class="mb-2">
-            <img src={item.path} alt={item.alt} width="200" />
-          </div>
-        );
-      }
-      return unit;
-    });
+  const onSubmitHandler = async (event) => {
+    event.preventDefault();
+    console.log("onSubmitHandler");
 
-    return drawnUI;
+    const url1 =
+      "https://questions-api-osxg.onrender.com/api/interactive-objects";
+
+    const res = await axios.post(url1, {
+      questionName: "dummy",
+    });
+    const id = res.data;
+
+    const url2 = `https://questions-api-osxg.onrender.com/api/saveObjectMCQ/${id}`;
+
+    await axios.post(url2, objectElements, {
+      headers: {
+        "Cache-Control": "no-cache",
+        "Content-Type": "application/json",
+        Accept: "*/*",
+        Connection: "keep-alive",
+      },
+    });
   };
 
   return (
     <>
-      <h1>Hello world</h1>
-      {constructUI(ui)}
+      <form onSubmit={onSubmitHandler}>
+        <h1>Just submit form</h1>
+        <button type="submit">submit</button>
+      </form>
     </>
   );
 };

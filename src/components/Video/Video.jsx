@@ -5,12 +5,28 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
 
 import styles from "./video.module.scss";
+import { upload } from "../../utils/upload";
 
 const Video = ({ space }) => {
+  const [url, setUrl] = React.useState("");
+
+  const onChangeHandler = async (event) => {
+    const file = event.target.files[0];
+    const link = await upload(file);
+    setUrl(link);
+  };
+
   return (
     <Box className={styles.image} sx={{ mb: space }}>
       <div className={styles["image-area"]}>
-        <PlayCircleFilledIcon fontSize="large" />
+        {url ? (
+          <video className={styles["scale-video"]} controls>
+            <source src={url} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        ) : (
+          <PlayCircleFilledIcon fontSize="large" />
+        )}
       </div>
       <div className={styles.inputs}>
         <Button
@@ -20,6 +36,7 @@ const Video = ({ space }) => {
           tabIndex={-1}
           startIcon={<CloudUploadIcon />}
           color="secondary"
+          onChange={onChangeHandler}
         >
           Upload Video
           <VisuallyHiddenInput type="file" />
