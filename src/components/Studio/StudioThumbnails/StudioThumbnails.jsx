@@ -38,7 +38,7 @@ const StudioThumbnails = (props) => {
   };
 
   return (
-    <div className={styles.thumbnails}>
+    <div className={styles["studio-thumbnails"]}>
       <div className={styles.actions}>
         <IconButton
           aria-label="delete"

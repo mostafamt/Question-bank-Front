@@ -8,6 +8,7 @@ import Footer from "./components/Footer/Footer";
 import { ThemeProvider } from "@mui/material/styles";
 import { theme } from "./theme/theme";
 import routes from "./routes";
+import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
@@ -23,15 +24,17 @@ function App() {
         >
           <Navbar />
           <ToastContainer />
-          <Routes>
-            {routes.map((route) => (
-              <Route
-                key={route.path}
-                path={route.path}
-                Component={route.component}
-              />
-            ))}
-          </Routes>
+          <ErrorBoundary>
+            <Routes>
+              {routes.map((route) => (
+                <Route
+                  key={route.path}
+                  path={route.path}
+                  Component={route.component}
+                />
+              ))}
+            </Routes>
+          </ErrorBoundary>
           <Footer />
         </div>
       </BrowserRouter>

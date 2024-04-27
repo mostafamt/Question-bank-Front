@@ -15,6 +15,7 @@ import ScanAndUpload from "../pages/ScanAndUpload/ScanAndUpload";
 import SmartInteractive from "../pages/SmartInteractive/SmartInteractive";
 import Test from "../pages/Test/Test";
 import Test2 from "../pages/Test/Test2";
+import NotFound from "../pages/NotFound/NotFound";
 
 const routes = [
   {
@@ -108,6 +109,10 @@ const routes = [
   {
     path: "/test2",
     component: Test2,
+  },
+  {
+    path: "*",
+    component: NotFound,
   },
 ];
 

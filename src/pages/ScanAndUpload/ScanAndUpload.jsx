@@ -1,16 +1,12 @@
 import React from "react";
 import { styled } from "@mui/material/styles";
 import Button from "@mui/material/Button";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import axios from "axios";
 import Loader from "../../components/Loader/Loader";
 import Studio from "../../components/Studio/Studio";
 import { convertPdfToImages } from "../../utils/server";
 import QuestionNameHeader from "../../components/QuestionNameHeader/QuestionNameHeader";
-import { useFormState } from "react-hook-form";
 import { useStore } from "../../store/store";
-import parameters from "../../constants/parameters.json";
 import DescriptionIcon from "@mui/icons-material/Description";
 import CollectionsIcon from "@mui/icons-material/Collections";
 
