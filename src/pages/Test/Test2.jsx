@@ -1,9 +1,12 @@
 import React from "react";
 
 import styles from "./test.module.scss";
+import Modal from "../../components/Modal/Modal";
+import SubObjectModal from "../../components/Modal/SubObjectModal/SubObjectModal";
 
 const Test2 = () => {
   const [image, setImage] = React.useState("");
+  const [showModal, setShowModal] = React.useState(false);
 
   const uploadImage = async () => {
     const path = "/assets/cats.jpg";
@@ -20,21 +23,30 @@ const Test2 = () => {
     console.log("file= ", file);
   };
 
+  const handleCloseModal = () => setShowModal(false);
+
   return (
     <>
-      <h1>Hello world</h1>
-      <img src={"/assets/cats.jpg"} alt="some here" width={200} />
-      <form id="upload">
-        <label for="file">File to upload</label>
-        <input
-          type="file"
-          id="file"
-          accept="image/*"
-          onChange={onChangeHandler}
+      <Modal show={showModal} handleClose={handleCloseModal} size="xl">
+        <SubObjectModal
+          handleClose={handleCloseModal}
+          // image={activeImage}
+          name=""
+          type=""
+          setResults={() => {}}
+          parameter={""}
+          y={""}
         />
+      </Modal>
+      <div>
+        <button onClick={() => setShowModal(true)}>open modal</button>
+      </div>
 
-        <button>Upload</button>
-      </form>
+      {Array(20)
+        .fill(null)
+        .map((_) => (
+          <h1>Hello world</h1>
+        ))}
     </>
   );
 };

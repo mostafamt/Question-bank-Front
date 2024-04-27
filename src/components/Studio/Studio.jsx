@@ -118,14 +118,17 @@ const Studio = (props) => {
 
       setActiveImage(croppedImage);
       // open Modal
-      openModal(type);
+      // Timeout => to solve scroll-hiding problem
+      setTimeout(() => {
+        openModal(type);
+      }, 1000);
     } else {
       extract(newParameters);
     }
   };
 
   const constructBoxColors = () => {
-    const values = boxColors.map((_, idx) => `& > div:nth-child(${idx + 2})`);
+    const values = boxColors.map((_, idx) => `& > div:nth-of-type(${idx + 2})`);
 
     const obj = boxColors.map((color, idx) => {
       if (values[idx]) {

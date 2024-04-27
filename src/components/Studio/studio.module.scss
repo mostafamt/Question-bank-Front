@@ -5,13 +5,14 @@
 .studio {
   display: flex;
   gap: 2rem;
+  overflow: hidden;
 
   & .studio-thumbnails {
     border: 2px solid orange;
   }
 
   & .editor {
-    flex: 0 0 60%;
+    flex: 1 1 auto;
     // border: 1px solid black;
     box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px,
       rgba(0, 0, 0, 0.3) 0px 30px 60px -30px,

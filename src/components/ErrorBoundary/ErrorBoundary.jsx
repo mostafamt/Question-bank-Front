@@ -20,8 +20,8 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="container">
-          <p>Something went wrong.</p>
+        <div className="container text-center mt-4">
+          <h1>Something went wrong.</h1>
           <Link to="/">Go Back Home</Link>
         </div>
       );
