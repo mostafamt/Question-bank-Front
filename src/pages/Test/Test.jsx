@@ -1,23 +1,17 @@
-import React from "react";
-import ErrorBoundary from "../../components/ErrorBoundary/ErrorBoundary";
-
-import styles from "./test.module.scss";
-
-function MyComponent() {
-  // Simulate an error for demonstration purposes
-  if (Math.random() > 0.5) {
-    throw new Error("An error occurred in MyComponent");
-  }
-
-  // Component logic here
-  return <div>This is MyComponent</div>;
-}
+import { useForm } from "react-hook-form";
 
 const Test = () => {
+  const { register, handleSubmit } = useForm();
+
+  const OnSubmit = (data) => {
+    console.log(data);
+  };
+
   return (
-    <ErrorBoundary>
-      <MyComponent />
-    </ErrorBoundary>
+    <form onSubmit={handleSubmit(OnSubmit)}>
+      <input ref={register} type="file" name="picture" />
+      <button>submit</button>
+    </form>
   );
 };
 

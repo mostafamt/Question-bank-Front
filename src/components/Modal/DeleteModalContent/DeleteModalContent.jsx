@@ -6,14 +6,17 @@ import ClearIcon from "@mui/icons-material/Clear";
 import styles from "./deleteModalContent.module.scss";
 
 const DeleteModalContent = (props) => {
-  const { handleClose, onDelete } = props;
+  const { handleClose, onDelete, name } = props;
+
+  const deletedName = name || "name";
+
   return (
     <div className={styles["modal-content"]}>
       <div className={styles["delete-icon"]}>
         <DeleteIcon color="error" fontSize="large" />
       </div>
-      <h4>Delete Question</h4>
-      <p>Are you sure to delete this question?</p>
+      <h4>Delete {deletedName}</h4>
+      <p>Are you sure to delete this {deletedName}?</p>
 
       <div>
         <Button variant="outlined" onClick={handleClose}>
@@ -22,7 +25,7 @@ const DeleteModalContent = (props) => {
         </Button>
         <Button variant="contained" color="error" onClick={onDelete}>
           <DeleteIcon />
-          <span>delete question</span>
+          <span>delete {deletedName}</span>
         </Button>
       </div>
     </div>

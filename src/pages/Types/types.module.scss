@@ -1,0 +1,34 @@
+:global {
+  pre {
+    outline: 1px solid #ccc;
+    padding: 5px;
+    margin: 15px;
+  }
+  .string {
+    color: green;
+  }
+  .number {
+    color: darkorange;
+  }
+  .boolean {
+    color: blue;
+  }
+  .null {
+    color: magenta;
+  }
+  .key {
+    color: rgb(184, 50, 50);
+  }
+}
+
+.line {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin-right: 1rem;
+
+  & .actions {
+    display: flex;
+    gap: 1rem;
+  }
+}

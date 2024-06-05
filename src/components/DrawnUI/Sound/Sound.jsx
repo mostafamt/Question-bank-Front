@@ -1,19 +1,27 @@
 import React from "react";
 import { Box, Button, TextField } from "@mui/material";
-import VisuallyHiddenInput from "../VisuallyHiddenInput/VisuallyHiddenInput";
+import VisuallyHiddenInput from "../../VisuallyHiddenInput/VisuallyHiddenInput";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
 
 import styles from "./sound.module.scss";
-import { upload } from "../../utils/upload";
+import { upload } from "../../../utils/upload";
 
-const Sound = ({ space }) => {
+const Sound = (props) => {
+  const { setValue, param, space } = props;
+
   const [url, setUrl] = React.useState("");
 
   const onChangeHandler = async (event) => {
     const file = event.target.files[0];
     const link = await upload(file);
     setUrl(link);
+    setValue(param, link);
+  };
+
+  const onChangeInput = (event) => {
+    setUrl(event.target.value);
+    setValue(param, event.target.value);
   };
 
   return (
@@ -42,7 +50,13 @@ const Sound = ({ space }) => {
           <VisuallyHiddenInput type="file" />
         </Button>
 
-        <TextField label="Add Url" variant="outlined" fullWidth />
+        <TextField
+          label="Add Url"
+          variant="outlined"
+          fullWidth
+          value={url}
+          onChange={onChangeInput}
+        />
       </div>
     </Box>
   );

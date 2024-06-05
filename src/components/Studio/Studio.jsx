@@ -18,10 +18,18 @@ import SubObjectModal from "../Modal/SubObjectModal/SubObjectModal";
 import styles from "./studio.module.scss";
 import StudioThumbnails from "./StudioThumbnails/StudioThumbnails";
 import { uploadBase64 } from "../../utils/upload";
+import QuestionNameHeader from "../QuestionNameHeader/QuestionNameHeader";
 
 const Studio = (props) => {
-  const { images, setImages, questionName, type, subObject, handleClose } =
-    props;
+  const {
+    images,
+    setImages,
+    questionName,
+    type,
+    subObject,
+    handleClose,
+    objectArea: oArea,
+  } = props;
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [areas, setAreas] = React.useState([]);
   // TODO: set areas foreach page.
@@ -40,6 +48,8 @@ const Studio = (props) => {
   const [showModal, setShowModal] = React.useState(false);
   const [activeType, setActiveType] = React.useState("");
   const [activeImage, setActiveImage] = React.useState("");
+
+  const [objectArea, setObjectArea] = React.useState(oArea);
 
   const onClickImage = (idx) => {
     setActiveIndex(idx);
@@ -116,6 +126,11 @@ const Studio = (props) => {
       const height = activeArea.height * ratio;
       const croppedImage = cropSelectedArea(x, y, width, height);
 
+      // to store coordinates
+      if (!subObject) {
+        setObjectArea({ x, y, width, height });
+      }
+
       setActiveImage(croppedImage);
       // open Modal
       // Timeout => to solve scroll-hiding problem
@@ -146,21 +161,18 @@ const Studio = (props) => {
     return obj;
   };
 
-  const saveObject = async () => {
-    const data = { ...state };
-    const res = await axios.post("/interactive-objects", {
-      ...data,
-      isAnswered: "g", // g, y , r
-      parameters: {},
-      questionName,
-      type,
-    });
-    toast.success("Question created successfully!");
-    return res.data;
-  };
-
   const onClickSubmit = async () => {
-    const id = await saveObject();
+    const {
+      questionName,
+      language,
+      domainId,
+      domainName,
+      subDomainId,
+      subDomainName,
+      topic,
+      objectOwner,
+      type,
+    } = state;
 
     const objectElements = await Promise.all(
       results.map(async (item) => ({
@@ -169,18 +181,32 @@ const Studio = (props) => {
       }))
     );
 
-    try {
-      const res = await axios.post(`saveObject${type}/${id}`, {
-        objectElements,
-      });
+    const data = {
+      questionName,
+      language,
+      domainId,
+      domainName,
+      subDomainId,
+      subDomainName,
+      topic,
+      objectOwner,
+      type: props.type,
+      objectElements,
+      blockCoordinates: objectArea,
+    };
 
-      toast.success("Question parameters updated successfully!");
+    console.log(JSON.stringify(data, null, 2));
+
+    try {
+      const res = await axios.post("/interactive-objects", data);
+
+      toast.success("Object created successfully!");
       clear();
       if (subObject) {
         handleClose();
       }
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error?.message);
     }
   };
 
@@ -285,6 +311,7 @@ const Studio = (props) => {
           setResults={setResults}
           parameter={""}
           y={""}
+          objectArea={objectArea}
         />
       </Modal>
       <div className={styles.studio}>

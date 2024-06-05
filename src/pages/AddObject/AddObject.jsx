@@ -20,6 +20,7 @@ import axios from "../../axios";
 import { toast } from "react-toastify";
 
 import styles from "./addObject.module.scss";
+import { getTypes } from "../../services/api";
 
 const AddObject = () => {
   const navigate = useNavigate();
@@ -36,7 +37,8 @@ const AddObject = () => {
   );
 
   const getQuestionTypes = async () => {
-    const res = await axios.get("interactive-object-types");
+    const res = await getTypes();
+    // const res = await axios.get("interactive-object-types");
     setInteractiveObjectTypes(res.data);
     const types = res.data.map((item) => item.typeName);
     setTypes(types);
@@ -57,8 +59,8 @@ const AddObject = () => {
       subDomainName: getSubDomainName(values.domainId, values.subDomainId),
       objects: interactiveObjectTypes,
     };
-    const id = await saveObject(data);
-    setFormState({ id, ...data });
+    // const id = await saveObject(data);
+    setFormState({ ...data });
     const { type } = values;
     navigate(`/add-question/${type}`);
     // if (type === "MCQ") {

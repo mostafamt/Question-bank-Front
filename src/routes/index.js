@@ -16,6 +16,8 @@ import SmartInteractive from "../pages/SmartInteractive/SmartInteractive";
 import Test from "../pages/Test/Test";
 import Test2 from "../pages/Test/Test2";
 import NotFound from "../pages/NotFound/NotFound";
+import AddType from "../pages/AddType/AddType";
+import Types from "../pages/Types/Types";
 
 const routes = [
   {
@@ -97,6 +99,18 @@ const routes = [
   {
     path: "/edit-question/:type/:id",
     component: DrawnUI,
+  },
+  {
+    path: "/types",
+    component: Types,
+  },
+  {
+    path: "/add-type",
+    component: AddType,
+  },
+  {
+    path: "/edit-type/:id",
+    component: AddType,
   },
   {
     path: "/excel-file",

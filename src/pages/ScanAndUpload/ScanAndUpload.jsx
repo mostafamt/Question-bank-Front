@@ -31,6 +31,7 @@ const ScanAndUpload = () => {
   const [error, setError] = React.useState("");
 
   const { data: state } = useStore();
+  const { questionName, type } = state;
 
   const convertPdfToImage = async (file) => {
     setLoading(true);
@@ -80,13 +81,14 @@ const ScanAndUpload = () => {
 
   return (
     <div className={`container ${styles["scan-and-upload"]}`}>
-      <QuestionNameHeader />
+      <QuestionNameHeader name={questionName} type={type} />
       {!!images.length ? (
         <Studio
           images={images}
           setImages={setImages}
           questionName={state.questionName}
           type={state.type}
+          objectArea={{}}
         />
       ) : (
         <div className={styles["upload-buttons"]}>

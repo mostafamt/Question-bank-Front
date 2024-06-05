@@ -9,7 +9,7 @@ import { IconButton } from "@mui/material";
 
 const QuestionNameHeader = (props) => {
   const [show, setShow] = React.useState(false);
-  const { questionName, type } = props;
+  const { name, type, subObject } = props;
 
   const toggleShow = () => {
     setShow((prevState) => !prevState);
@@ -20,12 +20,17 @@ const QuestionNameHeader = (props) => {
   return (
     <div>
       <Modal show={show} handleClose={toggleShow}>
-        <EditObjectModal handleClose={toggleShow} />
+        <EditObjectModal
+          handleClose={toggleShow}
+          subObject={subObject}
+          name={name}
+          type={type}
+        />
       </Modal>
       <div className={styles.header}>
         <div>
           <span>Name: </span>
-          <span>{questionName || state?.questionName}</span>
+          <span>{name || state?.questionName}</span>
         </div>
         <div>
           <span>Type: </span>

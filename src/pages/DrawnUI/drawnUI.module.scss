@@ -1,0 +1,33 @@
+.array {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 3px;
+}
+
+.item {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 3px;
+}
+
+.submit-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 3rem 0;
+
+  & > button {
+    display: flex;
+    gap: 1rem;
+
+    & > span:nth-child(2) {
+      width: 1rem !important;
+      height: 1rem !important;
+
+      & svg {
+        color: #fff;
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+.loader-box {
+  display: flex;
+  justify-content: center;
+}
+
+.loader {
+  width: 100px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 12px solid lightblue;
+  border-right-color: #0594a9;
+  animation: l2 1s infinite linear;
+  margin: 5rem;
+}
+@keyframes l2 {
+  to {
+    transform: rotate(1turn);
+  }
+}

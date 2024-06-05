@@ -41,6 +41,9 @@ const Navbar = () => {
               </div>
             </Link>
           </Typography>
+          <Button color="inherit" component={Link} to="/types">
+            types
+          </Button>
           <Button color="inherit">Login</Button>
         </Toolbar>
       </AppBar>

@@ -1,0 +1,22 @@
+.array {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 3px;
+}
+
+.item {
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 3px;
+}
+
+.array:hover {
+  background-color: rgba($color: #e8eaf6, $alpha: 0.5);
+  cursor: pointer;
+}
+
+.remove-box {
+  display: flex;
+  justify-content: flex-end;
+}

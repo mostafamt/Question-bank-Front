@@ -1,54 +1,18 @@
-import React from "react";
+import { useForm } from "react-hook-form";
 
-import styles from "./test.module.scss";
-import Modal from "../../components/Modal/Modal";
-import SubObjectModal from "../../components/Modal/SubObjectModal/SubObjectModal";
+import axios from "axios";
 
 const Test2 = () => {
-  const [image, setImage] = React.useState("");
-  const [showModal, setShowModal] = React.useState(false);
+  const { register, handleSubmit } = useForm();
 
-  const uploadImage = async () => {
-    const path = "/assets/cats.jpg";
-    const url = "www.google.com";
-    setImage(url);
-    return url;
+  const OnSubmit = (data) => {
+    console.log(data);
   };
 
-  React.useEffect(() => {
-    uploadImage();
-  }, []);
-
-  const onChangeHandler = (file) => {
-    console.log("file= ", file);
-  };
-
-  const handleCloseModal = () => setShowModal(false);
-
-  return (
-    <>
-      <Modal show={showModal} handleClose={handleCloseModal} size="xl">
-        <SubObjectModal
-          handleClose={handleCloseModal}
-          // image={activeImage}
-          name=""
-          type=""
-          setResults={() => {}}
-          parameter={""}
-          y={""}
-        />
-      </Modal>
-      <div>
-        <button onClick={() => setShowModal(true)}>open modal</button>
-      </div>
-
-      {Array(20)
-        .fill(null)
-        .map((_) => (
-          <h1>Hello world</h1>
-        ))}
-    </>
-  );
+  <form onSubmit={handleSubmit(OnSubmit)}>
+    <input type="file" name="picture" />
+    <button type="submit">submit</button>
+  </form>;
 };
 
 export default Test2;

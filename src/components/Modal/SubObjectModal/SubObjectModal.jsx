@@ -23,11 +23,19 @@ import QuestionNameHeader from "../../QuestionNameHeader/QuestionNameHeader";
 import { v4 as uuidv4 } from "uuid";
 
 const SubObjectModal = (props) => {
-  const { handleClose, image, name, type, setResults, parameter, y } = props;
+  const {
+    handleClose,
+    image,
+    name,
+    type,
+    setResults,
+    parameter,
+    y,
+    objectArea,
+  } = props;
   const { data: state } = useStore();
 
   const close = () => {
-    // setResults((prevState) => [...prevState]);
     const id = uuidv4();
     setResults((prevState) => [
       ...prevState,
@@ -47,14 +55,15 @@ const SubObjectModal = (props) => {
         <BootstrapModal.Title></BootstrapModal.Title>
       </BootstrapModal.Header>
       <BootstrapModal.Body>
-        <QuestionNameHeader questionName={name} type={type} />
+        <QuestionNameHeader name={name} type={type} subObject />
         <Studio
           images={[image]}
           setImages={() => ({})}
-          questionName={name}
+          name={name}
           type={type}
-          subObject
           handleClose={close}
+          subObject
+          objectArea={objectArea}
         />
       </BootstrapModal.Body>
       <BootstrapModal.Footer></BootstrapModal.Footer>
