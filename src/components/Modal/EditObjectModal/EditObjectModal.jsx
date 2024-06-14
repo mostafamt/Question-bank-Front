@@ -11,9 +11,9 @@ import {
 } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import { useStore } from "../../../store/store";
-import axios from "../../../axios";
 
 import styles from "./editObjectModal.module.scss";
+import { getQuestionTypes } from "../../../services/api";
 
 const EditObjectModal = (props) => {
   const {
@@ -28,7 +28,7 @@ const EditObjectModal = (props) => {
   const [list, setList] = React.useState([questionType]);
 
   const getData = async () => {
-    const res = await axios.get("interactive-object-types");
+    const res = await getQuestionTypes();
     const data = res.data;
     console.log("data= ", data);
     const types = data.map((item) => item.typeName);

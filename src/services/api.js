@@ -1,3 +1,4 @@
+import axios from "../axios";
 import { types } from "./data";
 
 const wait = (ms) => {
@@ -9,22 +10,9 @@ export const getTypes = async () => {
   return types;
 };
 
-// export const getInitialProduct = async () => {
-//   await wait(1000);
-//   return products.find((product) => product.id === INITIAL_PRODUCT);
-// };
-
-// export const getInitialProducts = async () => {
-//   await wait(1000);
-//   const result = [];
-//   while (result.length < 6) {
-//     const randomIndex = Math.floor(Math.random(0, 1) * products.length);
-//     const found =
-//       result.some((product) => product.id === randomIndex) ||
-//       randomIndex === INITIAL_PRODUCT;
-//     if (!found) {
-//       result.push(products[randomIndex]);
-//     }
-//   }
-//   return result;
-// };
+export const getQuestionTypes = async () => {
+  await wait(1000);
+  return types;
+  // const res = await axios.get("interactive-object-types");
+  // return res;
+};

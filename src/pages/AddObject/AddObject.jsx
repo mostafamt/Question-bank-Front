@@ -18,9 +18,9 @@ import {
 } from "../../config";
 import axios from "../../axios";
 import { toast } from "react-toastify";
+import { getQuestionTypes } from "../../services/api";
 
 import styles from "./addObject.module.scss";
-import { getTypes } from "../../services/api";
 
 const AddObject = () => {
   const navigate = useNavigate();
@@ -36,16 +36,16 @@ const AddObject = () => {
     []
   );
 
-  const getQuestionTypes = async () => {
-    const res = await getTypes();
-    // const res = await axios.get("interactive-object-types");
+  const getData = async () => {
+    const res = await getQuestionTypes();
+    console.log("res= ", res);
     setInteractiveObjectTypes(res.data);
     const types = res.data.map((item) => item.typeName);
     setTypes(types);
   };
 
   React.useEffect(() => {
-    getQuestionTypes();
+    getData();
   }, []);
 
   const onClickExcelFile = () => {
@@ -59,21 +59,9 @@ const AddObject = () => {
       subDomainName: getSubDomainName(values.domainId, values.subDomainId),
       objects: interactiveObjectTypes,
     };
-    // const id = await saveObject(data);
     setFormState({ ...data });
     const { type } = values;
     navigate(`/add-question/${type}`);
-    // if (type === "MCQ") {
-    //   navigate("/add-question/multiple-choice/manual");
-    // } else if (type === "true-false") {
-    //   navigate("/add-question/true-false/manual");
-    // } else if (type === "fill-in-the-blank") {
-    //   navigate("/add-question/fill-in-the-blank/manual");
-    // } else if (type === "drag-the-words") {
-    //   navigate("/add-question/drag-the-words/manual");
-    // } else if (values.questionType === "essay-question") {
-    //   navigate("/add-question/essay-question/manual");
-    // }
   };
 
   const onSubmitOcr = async (values) => {

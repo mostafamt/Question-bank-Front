@@ -10,16 +10,21 @@ import Text from "../../components/DrawnUI/Text/Text";
 import ArrayUI from "../../components/DrawnUI/ArrayUI/ArrayUI";
 import { default as BooleanComponent } from "../../components/DrawnUI/Boolean/Boolean";
 import { useForm } from "react-hook-form";
-import { emptyValues, fillValues } from "../../utils/data";
+import { emptyValues, isRequired } from "../../utils/data";
 import ObjectUI from "../../components/DrawnUI/ObjectUI/ObjectUI";
 import { useStore } from "../../store/store";
 import { toast } from "react-toastify";
 
 import styles from "./drawnUI.module.scss";
+import { getQuestionTypes } from "../../services/api";
+import Select from "../../components/DrawnUI/Select/Select";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
 const DrawnUI = () => {
   const params = useParams();
   const { type } = params;
+  const [questionTypes, setQuestionTypes] = React.useState([]);
   const [foundAbstractParameters, setFoundAbstractParameters] =
     React.useState(true);
   const [abstractParameters, setAbstractParameters] = React.useState();
@@ -30,6 +35,23 @@ const DrawnUI = () => {
   );
   const { data: state } = useStore();
 
+  const schema = yup
+    .object({
+      option: yup.array().min(2),
+    })
+    .required();
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    formState: { isSubmitting, errors },
+  } = useForm({
+    defaultValues: async () => getData(),
+    // resolver: yupResolver(schema),
+  });
+
   const getParameters = async () => {
     const res = await axios.get(`/interactive-objects/${params.id}`);
     const data = res.data;
@@ -37,31 +59,24 @@ const DrawnUI = () => {
   };
 
   const getData = async () => {
-    const res = await axios.get("interactive-object-types");
+    const res = await getQuestionTypes();
+    setQuestionTypes(res?.data);
     const objects = res.data;
     const selectedType = objects.find(
-      (item) => item.typeName === type
+      (item) => item.typeName.toUpperCase() === type.toUpperCase()
     )?.abstractParameter;
     setAbstractParameters(selectedType);
     setFoundAbstractParameters(Boolean(selectedType));
     if (isEditPage) {
       const parameters = await getParameters();
+      console.log("parameters= ", parameters);
       return parameters;
     } else {
       return emptyValues(selectedType);
     }
   };
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    setValue,
-    formState: { isSubmitting },
-  } = useForm({
-    defaultValues: async () => getData(),
-  });
-
+  console.log("errors= ", errors);
   const onSubmit = async (values) => {
     setValues(values);
     if (isEditPage) {
@@ -119,16 +134,18 @@ const DrawnUI = () => {
     for (const [key, value] of Object.entries(abstractParameters)) {
       let item = "";
       let param = level === 1 ? key : `${arrayName}.${index}.${key}`;
-      console.log("param= ", param);
 
       if (value === "text") {
+        let required = isRequired(questionTypes, type, key);
         item = (
           <Text
             space={space}
             label={key}
             register={register}
-            level={level}
+            required={required}
             value={level === 1 ? key : `${arrayName}.${index}.${key}`}
+            errors={errors}
+            path={level === 1 ? [key] : [arrayName, index, key]}
           />
         );
       } else if (value === "image") {
@@ -174,6 +191,7 @@ const DrawnUI = () => {
             label={key}
             control={control}
             object={object}
+            errors={errors}
           />
         );
       } else if (typeof value === "object") {
@@ -185,6 +203,17 @@ const DrawnUI = () => {
             level={level}
             label={key}
             control={control}
+          />
+        );
+      } else if (value.includes("dropList")) {
+        const options = value.split(":")?.[1]?.split(",");
+        item = (
+          <Select
+            label={key}
+            options={options}
+            space={space}
+            value={level === 1 ? key : `${arrayName}.${index}.${key}`}
+            register={register}
           />
         );
       }

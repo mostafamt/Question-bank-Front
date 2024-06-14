@@ -7,8 +7,16 @@ import styles from "./arrayUI.module.scss";
 import { useFieldArray } from "react-hook-form";
 
 const ArrayUI = (props) => {
-  const { value, parseParameters, space, level, label, control, object } =
-    props;
+  const {
+    value,
+    parseParameters,
+    space,
+    level,
+    label,
+    control,
+    object,
+    errors,
+  } = props;
 
   const { fields, append, remove } = useFieldArray({
     name: label,
@@ -46,14 +54,14 @@ const ArrayUI = (props) => {
 
   const item = fields.map((field, outterIndex) => (
     <div key={field.id}>
-      {value.map((itm, innerIndex) => (
-        <div key={innerIndex} className={styles["array-item"]}>
-          <RemoveButton id={itm.key} index={outterIndex} />
-          <div className={styles.array}>
+      <RemoveButton index={outterIndex} />
+      <div className={styles.array}>
+        {value.map((itm, innerIndex) => (
+          <div key={innerIndex} className={styles["array-item"]}>
             {parseParameters(itm, space - 2, level + 1, outterIndex, label)}
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   ));
 
@@ -65,6 +73,9 @@ const ArrayUI = (props) => {
         {item}
         <AddButton />
       </div>
+      {errors && errors.option && (
+        <p className={styles.error}>{errors?.option?.root?.message}</p>
+      )}
     </>
   );
 };
