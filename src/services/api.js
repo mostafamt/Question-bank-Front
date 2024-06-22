@@ -17,6 +17,11 @@ export const getTypes = async () => {
   return res;
 };
 
+export const getFilteredTypes = async () => {
+  const res = await axios.get("interactive-object-types");
+  return res;
+};
+
 export const saveObject = async (data) => {
   const res = await axios.post("/interactive-objects", data);
   return res;
