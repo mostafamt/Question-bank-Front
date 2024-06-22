@@ -21,6 +21,7 @@ import AreaActions from "../../AreaActions/AreaActions";
 import Studio from "../../Studio/Studio";
 import QuestionNameHeader from "../../QuestionNameHeader/QuestionNameHeader";
 import { v4 as uuidv4 } from "uuid";
+import { getOldTypes } from "../../../services/api";
 
 const SubObjectModal = (props) => {
   const {
@@ -33,7 +34,21 @@ const SubObjectModal = (props) => {
     y,
     objectArea,
   } = props;
-  const { data: state } = useStore();
+  const { data: state, setFormState } = useStore();
+
+  const getTypes = async () => {
+    const res = await getOldTypes();
+    const data = res?.data;
+
+    setFormState({
+      ...state,
+      oldTypes: data,
+    });
+  };
+
+  React.useEffect(() => {
+    getTypes();
+  }, []);
 
   const close = () => {
     const id = uuidv4();

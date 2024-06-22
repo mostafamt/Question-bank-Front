@@ -26,9 +26,14 @@ const AreaActions = (props) => {
 
   const getLabels = React.useCallback(() => {
     // GET LABELS OF THE SELECTED TYPE
-    const labels = state.types.find((item) => item.typeName === type)?.labels;
+    console.log("state= ", state);
+    let labels = state?.types.find((item) => item.typeName === type)?.labels;
 
-    const object = labels.reduce((acc, item) => {
+    if (!labels) {
+      labels = state?.oldTypes.find((item) => item.typeName === type)?.labels;
+    }
+
+    const object = labels?.reduce((acc, item) => {
       const key = Object.keys(item)?.[0];
       return { ...acc, [key]: item[key] };
     }, {});

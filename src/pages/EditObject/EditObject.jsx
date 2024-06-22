@@ -18,6 +18,7 @@ import {
 } from "../../config";
 
 import styles from "./editObject.module.scss";
+import { getTypes } from "../../services/api";
 
 const getCorrectQuestionTypeName = (type) => {
   let correctType = type;
@@ -52,15 +53,15 @@ const EditObject = () => {
     };
   };
 
-  React.useEffect(() => {
-    getQuestionTypes();
-  }, []);
-
   const getQuestionTypes = async () => {
-    const res = await axios.get("interactive-object-types");
+    const res = await getTypes();
     const types = res.data.map((item) => item.typeName);
     setTypes(types);
   };
+
+  React.useEffect(() => {
+    getQuestionTypes();
+  }, []);
 
   const closeModal = () => setShowModal(false);
   const openModal = () => setShowModal(true);

@@ -7,7 +7,7 @@ import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import ScannerIcon from "@mui/icons-material/Scanner";
 import Input from "../../components/Input/Input";
 import Select from "../../components/Select/Select";
-import { Button } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 import {
   ownerList,
   domainList,
@@ -16,11 +16,11 @@ import {
   getDomainName,
   getSubDomainName,
 } from "../../config";
-import axios from "../../axios";
+import { NewInstance as axios } from "../../axios";
 import { toast } from "react-toastify";
 
 import styles from "./addObject.module.scss";
-import { getTypes } from "../../services/api";
+import { getImages, getTypes } from "../../services/api";
 
 const AddObject = () => {
   const navigate = useNavigate();
@@ -32,13 +32,13 @@ const AddObject = () => {
   } = useForm();
   const { setFormState } = useStore();
   const [types, setTypes] = React.useState([]);
+  const [loadingOCR, setLoadingOCR] = React.useState(false);
   const [interactiveObjectTypes, setInteractiveObjectTypes] = React.useState(
     []
   );
 
   const getQuestionTypes = async () => {
     const res = await getTypes();
-    // const res = await axios.get("interactive-object-types");
     setInteractiveObjectTypes(res.data);
     const types = res.data.map((item) => item.typeName);
     setTypes(types);
@@ -53,37 +53,31 @@ const AddObject = () => {
   };
 
   const onSubmit = async (values) => {
+    const domainName = getDomainName(values.domainId);
+    const subDomainName = getSubDomainName(values.domainId, values.subDomainId);
+
     const data = {
       ...values,
-      domainName: getDomainName(values.domainId),
-      subDomainName: getSubDomainName(values.domainId, values.subDomainId),
+      domainName,
+      subDomainName,
       objects: interactiveObjectTypes,
     };
-    // const id = await saveObject(data);
     setFormState({ ...data });
     const { type } = values;
     navigate(`/add-question/${type}`);
-    // if (type === "MCQ") {
-    //   navigate("/add-question/multiple-choice/manual");
-    // } else if (type === "true-false") {
-    //   navigate("/add-question/true-false/manual");
-    // } else if (type === "fill-in-the-blank") {
-    //   navigate("/add-question/fill-in-the-blank/manual");
-    // } else if (type === "drag-the-words") {
-    //   navigate("/add-question/drag-the-words/manual");
-    // } else if (values.questionType === "essay-question") {
-    //   navigate("/add-question/essay-question/manual");
-    // }
   };
 
   const onSubmitOcr = async (values) => {
+    setLoadingOCR(true);
+    const domainName = getDomainName(values.domainId);
+    const subDomainName = getSubDomainName(values.domainId, values.subDomainId);
+
     const data = {
       ...values,
-      domainName: getDomainName(values.domainId),
-      subDomainName: getSubDomainName(values.domainId, values.subDomainId),
+      domainName,
+      subDomainName,
     };
 
-    // const id = await saveObject(data);
     const selectedTypeObject = interactiveObjectTypes.find(
       (item) => item.typeName === values.type
     );
@@ -93,17 +87,9 @@ const AddObject = () => {
       labels: selectedTypeObject.labels,
       types: interactiveObjectTypes,
     });
-    navigate("/scan-and-upload");
-  };
-
-  const saveObject = async (data) => {
-    const res = await axios.post("/interactive-objects", {
-      ...data,
-      isAnswered: "g", // g, y , r
-      parameters: {},
-    });
-    toast.success("Question created successfully!");
-    return res.data;
+    const images = await getImages(domainName, subDomainName);
+    setLoadingOCR(false);
+    navigate("/scan-and-upload", { state: { key: "value", images } });
   };
 
   return (
@@ -183,6 +169,7 @@ const AddObject = () => {
                 name="type"
                 register={register}
                 errors={errors}
+                loading={!types.length}
               >
                 {types.map((type, idx) => (
                   <option key={idx} value={type}>
@@ -210,7 +197,14 @@ const AddObject = () => {
               <Button
                 variant="contained"
                 onClick={handleSubmit(onSubmitOcr)}
-                startIcon={<ScannerIcon />}
+                startIcon={
+                  loadingOCR ? (
+                    <CircularProgress size="1rem" />
+                  ) : (
+                    <ScannerIcon />
+                  )
+                }
+                disabled={loadingOCR}
               >
                 Scan and Upload
               </Button>

@@ -12,6 +12,7 @@ import CollectionsIcon from "@mui/icons-material/Collections";
 
 import styles from "./scanAndUpload.module.scss";
 import { toast } from "react-toastify";
+import { useLocation } from "react-router-dom";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -26,7 +27,8 @@ const VisuallyHiddenInput = styled("input")({
 });
 
 const ScanAndUpload = () => {
-  const [images, setImages] = React.useState([]);
+  const location = useLocation();
+  const [images, setImages] = React.useState(location.state?.images || []);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
 

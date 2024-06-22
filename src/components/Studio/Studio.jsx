@@ -19,6 +19,8 @@ import styles from "./studio.module.scss";
 import StudioThumbnails from "./StudioThumbnails/StudioThumbnails";
 import { uploadBase64 } from "../../utils/upload";
 import QuestionNameHeader from "../QuestionNameHeader/QuestionNameHeader";
+import { saveBlocks } from "../../services/api";
+import { constructBoxColors } from "../../utils/data";
 
 const Studio = (props) => {
   const {
@@ -48,11 +50,13 @@ const Studio = (props) => {
   const [showModal, setShowModal] = React.useState(false);
   const [activeType, setActiveType] = React.useState("");
   const [activeImage, setActiveImage] = React.useState("");
+  const [pageId, setPageId] = React.useState(images?.[0]?._id);
 
   const [objectArea, setObjectArea] = React.useState(oArea);
 
   const onClickImage = (idx) => {
     setActiveIndex(idx);
+    setPageId(images?.[idx]?._id);
   };
 
   const onChangeHandler = (areasParam) => {
@@ -61,7 +65,7 @@ const Studio = (props) => {
       setParameters([...parameters, ""]);
     }
 
-    if (areasParam.length > newAreas[activeIndex].length) {
+    if (areasParam.length > newAreas?.[activeIndex]?.length) {
       setBoxColors([...boxColors, null]);
       setParameters([...parameters, ""]);
     }
@@ -142,65 +146,68 @@ const Studio = (props) => {
     }
   };
 
-  const constructBoxColors = () => {
-    const values = boxColors.map((_, idx) => `& > div:nth-of-type(${idx + 2})`);
+  const onClickSubmit = async () => {
+    // const {
+    //   questionName,
+    //   language,
+    //   domainId,
+    //   domainName,
+    //   subDomainId,
+    //   subDomainName,
+    //   topic,
+    //   objectOwner,
+    //   type,
+    // } = state;
 
-    const obj = boxColors.map((color, idx) => {
-      if (values[idx]) {
+    // const objectElements = await Promise.all(
+    //   results.map(async (item) => ({
+    //     [item.parameter]:
+    //       item.type === "image" ? await uploadBase64(item.image) : item.text,
+    //   }))
+    // );
+
+    // const data = {
+    //   questionName,
+    //   language,
+    //   domainId,
+    //   domainName,
+    //   subDomainId,
+    //   subDomainName,
+    //   topic,
+    //   objectOwner,
+    //   type: props.type,
+    //   objectElements,
+    //   blockCoordinates: objectArea,
+    // };
+
+    // console.log(JSON.stringify(data, null, 2));
+
+    const blocks = await Promise.all(
+      results.map(async (item) => {
+        console.log(item);
         return {
-          [values[idx]]: {
-            border: `2px solid ${color} !important`,
-            backgroundColor: `${hexToRgbA(color)}`,
+          pageId,
+          contentType: item?.parameter,
+          contentValue:
+            item.type === "image"
+              ? await uploadBase64(item?.image)
+              : item?.text,
+          coordinates: {
+            x: item.x,
+            y: item.y,
+            width: item.width,
+            height: item.height,
           },
         };
-      } else {
-        return {};
-      }
-    });
-
-    return obj;
-  };
-
-  const onClickSubmit = async () => {
-    const {
-      questionName,
-      language,
-      domainId,
-      domainName,
-      subDomainId,
-      subDomainName,
-      topic,
-      objectOwner,
-      type,
-    } = state;
-
-    const objectElements = await Promise.all(
-      results.map(async (item) => ({
-        [item.parameter]:
-          item.type === "image" ? await uploadBase64(item.image) : item.text,
-      }))
+      })
     );
 
-    const data = {
-      questionName,
-      language,
-      domainId,
-      domainName,
-      subDomainId,
-      subDomainName,
-      topic,
-      objectOwner,
-      type: props.type,
-      objectElements,
-      blockCoordinates: objectArea,
-    };
-
-    console.log(JSON.stringify(data, null, 2));
+    // return;
 
     try {
-      const res = await axios.post("/interactive-objects", data);
+      await saveBlocks(blocks);
 
-      toast.success("Object created successfully!");
+      toast.success("Blocks saved successfully!");
       clear();
       if (subObject) {
         handleClose();
@@ -253,7 +260,10 @@ const Studio = (props) => {
             image: croppedImage,
             parameter: newParameters[idx],
             type: getTypeOfParameter(newParameters[idx]),
+            x,
             y,
+            width,
+            height,
           },
         ]);
         const text = await ocr(croppedImage, newParameters[idx], y);
@@ -324,7 +334,7 @@ const Studio = (props) => {
         <div
           className={styles.editor}
           css={{
-            "& > div:nth-of-type(2)": constructBoxColors(),
+            "& > div:nth-of-type(2)": constructBoxColors(boxColors),
           }}
         >
           <ImageActions
@@ -335,8 +345,9 @@ const Studio = (props) => {
           />
           <AreaSelector areas={areas} onChange={onChangeHandler}>
             <img
-              src={images[activeIndex]}
-              alt={images[activeIndex]}
+              src={images[activeIndex]?.url || images[activeIndex]}
+              alt={images[activeIndex]?.url || images[activeIndex]}
+              crossOrigin="anonymous"
               ref={imageRef}
               style={{
                 width: `${imageScaleFactor * 100}%`,
