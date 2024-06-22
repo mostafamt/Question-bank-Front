@@ -1,6 +1,8 @@
 import { NewInstance as axios } from "../axios";
 import { default as axios2 } from "../axios";
 
+import newTypes from "./NewTypes.json";
+
 const wait = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
@@ -12,6 +14,11 @@ export const getOldTypes = async () => {
 
 export const getTypes = async () => {
   const res = await axios.get("interactive-object-types");
+  return res;
+};
+
+export const saveObject = async (data) => {
+  const res = await axios.post("/interactive-objects", data);
   return res;
 };
 

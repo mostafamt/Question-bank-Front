@@ -33,22 +33,10 @@ const SubObjectModal = (props) => {
     parameter,
     y,
     objectArea,
+    results,
+    setSubTypeObjects,
   } = props;
   const { data: state, setFormState } = useStore();
-
-  const getTypes = async () => {
-    const res = await getOldTypes();
-    const data = res?.data;
-
-    setFormState({
-      ...state,
-      oldTypes: data,
-    });
-  };
-
-  React.useEffect(() => {
-    getTypes();
-  }, []);
 
   const close = () => {
     const id = uuidv4();
@@ -79,6 +67,8 @@ const SubObjectModal = (props) => {
           handleClose={close}
           subObject
           objectArea={objectArea}
+          results={results}
+          setSubTypeObjects={setSubTypeObjects}
         />
       </BootstrapModal.Body>
       <BootstrapModal.Footer></BootstrapModal.Footer>

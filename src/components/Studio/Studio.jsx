@@ -1,6 +1,6 @@
 import React from "react";
 import { AreaSelector } from "@bmunozg/react-image-area";
-import { Button } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
 import { useStore } from "../../store/store";
@@ -19,8 +19,8 @@ import styles from "./studio.module.scss";
 import StudioThumbnails from "./StudioThumbnails/StudioThumbnails";
 import { uploadBase64 } from "../../utils/upload";
 import QuestionNameHeader from "../QuestionNameHeader/QuestionNameHeader";
-import { saveBlocks } from "../../services/api";
-import { constructBoxColors } from "../../utils/data";
+import { saveBlocks, saveObject } from "../../services/api";
+import { constructBoxColors, trimText } from "../../utils/data";
 
 const Studio = (props) => {
   const {
@@ -51,6 +51,8 @@ const Studio = (props) => {
   const [activeType, setActiveType] = React.useState("");
   const [activeImage, setActiveImage] = React.useState("");
   const [pageId, setPageId] = React.useState(images?.[0]?._id);
+  const [subTypeObjects, setSubTypeObjects] = React.useState([]);
+  const [loadingSubmit, setLoadingSubmit] = React.useState(false);
 
   const [objectArea, setObjectArea] = React.useState(oArea);
 
@@ -146,68 +148,49 @@ const Studio = (props) => {
     }
   };
 
-  const onClickSubmit = async () => {
-    // const {
-    //   questionName,
-    //   language,
-    //   domainId,
-    //   domainName,
-    //   subDomainId,
-    //   subDomainName,
-    //   topic,
-    //   objectOwner,
-    //   type,
-    // } = state;
+  const onSubmitSubType = async () => {
+    const {
+      questionName,
+      language,
+      domainId,
+      domainName,
+      subDomainId,
+      subDomainName,
+      topic,
+      objectOwner,
+      type,
+    } = state;
 
-    // const objectElements = await Promise.all(
-    //   results.map(async (item) => ({
-    //     [item.parameter]:
-    //       item.type === "image" ? await uploadBase64(item.image) : item.text,
-    //   }))
-    // );
-
-    // const data = {
-    //   questionName,
-    //   language,
-    //   domainId,
-    //   domainName,
-    //   subDomainId,
-    //   subDomainName,
-    //   topic,
-    //   objectOwner,
-    //   type: props.type,
-    //   objectElements,
-    //   blockCoordinates: objectArea,
-    // };
-
-    // console.log(JSON.stringify(data, null, 2));
-
-    const blocks = await Promise.all(
-      results.map(async (item) => {
-        console.log(item);
-        return {
-          pageId,
-          contentType: item?.parameter,
-          contentValue:
-            item.type === "image"
-              ? await uploadBase64(item?.image)
-              : item?.text,
-          coordinates: {
-            x: item.x,
-            y: item.y,
-            width: item.width,
-            height: item.height,
-          },
-        };
-      })
+    const objectElements = await Promise.all(
+      results.map(async (item) => ({
+        [item.parameter]:
+          item.type === "image" ? await uploadBase64(item.image) : item.text,
+      }))
     );
 
-    // return;
+    const data = {
+      questionName,
+      language,
+      domainId,
+      domainName,
+      subDomainId,
+      subDomainName,
+      topic,
+      objectOwner,
+      type: props.type,
+      objectElements,
+    };
+    console.log(JSON.stringify(data, null, 2));
 
     try {
-      await saveBlocks(blocks);
+      const res = await saveObject(data);
+      const _data = res?.data;
+      props.setSubTypeObjects((prevState) => [
+        ...prevState,
+        { contentValue: _data, contentType: props.type },
+      ]);
 
-      toast.success("Blocks saved successfully!");
+      toast.success("Object created successfully!");
       clear();
       if (subObject) {
         handleClose();
@@ -215,6 +198,58 @@ const Studio = (props) => {
     } catch (error) {
       toast.error(error?.message);
     }
+  };
+
+  const onClickSubmit = async () => {
+    setLoadingSubmit(true);
+    if (subObject) {
+      await onSubmitSubType();
+    } else {
+      console.log("subTypeObjects= ", subTypeObjects);
+      // return;
+      let idx = 0;
+      const blocks = await Promise.all(
+        results.map(async (item) => {
+          console.log(item);
+          return {
+            pageId,
+            contentType:
+              item.type !== "image" && item.type !== "text"
+                ? subTypeObjects[idx].contentType
+                : item?.parameter,
+            contentValue:
+              item.type === "text"
+                ? item?.text
+                : item.type === "image"
+                ? await uploadBase64(item?.image)
+                : subTypeObjects[idx++].contentValue,
+            // item.type !== "image" && item.type !== "text" ?
+            //   item.type === "image"
+            //     ? await uploadBase64(item?.image)
+            //     : item?.text,
+            coordinates: {
+              x: item.x,
+              y: item.y,
+              width: item.width,
+              height: item.height,
+            },
+          };
+        })
+      );
+
+      try {
+        await saveBlocks(blocks);
+
+        toast.success("Blocks saved successfully!");
+        clear();
+        if (subObject) {
+          handleClose();
+        }
+      } catch (error) {
+        toast.error(error?.message);
+      }
+    }
+    setLoadingSubmit(false);
   };
 
   const clear = async () => {
@@ -253,6 +288,7 @@ const Studio = (props) => {
         const height = area.height * ratio;
         const croppedImage = cropSelectedArea(x, y, width, height);
         const id = uuidv4();
+        const text = await ocr(croppedImage, newParameters[idx], y);
         setResults((prevState) => [
           ...prevState,
           {
@@ -264,18 +300,19 @@ const Studio = (props) => {
             y,
             width,
             height,
+            text,
           },
         ]);
-        const text = await ocr(croppedImage, newParameters[idx], y);
-        setResults((prevState) =>
-          prevState.map((item) => {
-            if (item.id === id) {
-              const newItem = { ...item, text };
-              return newItem;
-            }
-            return item;
-          })
-        );
+        // const text = await ocr(croppedImage, newParameters[idx], y);
+        // setResults((prevState) =>
+        //   prevState.map((item) => {
+        //     if (item.id === id) {
+        //       const newItem = { ...item, text };
+        //       return newItem;
+        //     }
+        //     return item;
+        //   })
+        // );
       })
     );
     // SORT BY Y COORDINATE
@@ -295,8 +332,6 @@ const Studio = (props) => {
     const dataUrl = canvas.toDataURL("image/jpeg");
     return dataUrl;
   };
-
-  const trimText = (text) => text.replaceAll("\n", "");
 
   const ocr = async (dataUrl) => {
     const language = getSet2FromSet1(state.language);
@@ -318,10 +353,12 @@ const Studio = (props) => {
           image={activeImage}
           name={`${state.questionName} - ${activeType}`}
           type={activeType}
+          results={results}
           setResults={setResults}
           parameter={""}
           y={""}
           objectArea={objectArea}
+          setSubTypeObjects={setSubTypeObjects}
         />
       </Modal>
       <div className={styles.studio}>
@@ -384,6 +421,10 @@ const Studio = (props) => {
                 variant="contained"
                 onClick={onClickSubmit}
                 sx={{ width: "100%" }}
+                disabled={loadingSubmit}
+                startIcon={
+                  loadingSubmit ? <CircularProgress size="1rem" /> : <></>
+                }
               >
                 Submit
               </Button>

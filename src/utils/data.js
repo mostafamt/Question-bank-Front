@@ -80,4 +80,6 @@ const constructBoxColors = (boxColors) => {
   return obj;
 };
 
+export const trimText = (text) => text.replaceAll("\n", "");
+
 export { emptyValues, fillValues, syntaxHighlight, constructBoxColors };
