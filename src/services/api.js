@@ -13,7 +13,7 @@ export const getOldTypes = async () => {
 };
 
 export const getTypes = async () => {
-  const res = await axios.get("interactive-object-types");
+  const res = await axios2.get("io-types");
   return res;
 };
 

@@ -37,7 +37,7 @@ const DrawnUI = () => {
   };
 
   const getData = async () => {
-    const res = await axios.get("interactive-object-types");
+    const res = await axios.get("io-types");
     const objects = res.data;
     const selectedType = objects.find(
       (item) => item.typeName === type
