@@ -14,6 +14,8 @@ import styles from "./scanAndUpload.module.scss";
 import { toast } from "react-toastify";
 import { useLocation } from "react-router-dom";
 
+// Some change to update branch
+
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
   clipPath: "inset(50%)",
