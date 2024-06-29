@@ -1,3 +1,5 @@
+import PieChartIcon from "@mui/icons-material/PieChart";
+
 export const types = {
   data: [
     {
@@ -738,7 +740,7 @@ export const types = {
       _id: "65cdff88ff619a00344e8b73",
       typeName: "Charts",
       abstractParameter: {
-        _GraphMode_: "text",
+        _GraphMode_: "dropList:📊 Bar Chart,📉 Pie Chart",
         option: [
           {
             _Text_: "text",
@@ -800,10 +802,10 @@ export const types = {
     {
       labels: [
         {
-          _question_: "text",
+          "*_question_": "text",
         },
         {
-          _option_: "text",
+          "*_option_": "text",
         },
         {
           _chosenFeedback_: "text",
@@ -815,7 +817,7 @@ export const types = {
           _tip_: "text",
         },
         {
-          correct: "text",
+          correct: "Boolean",
         },
       ],
       _id: "65cbac926e0b5c893e0990ac",
@@ -828,7 +830,7 @@ export const types = {
             _tip_: "text",
             _chosenFeedback_: "text",
             _notChosenFeedback_: "text",
-            correct: "text",
+            correct: "Boolean",
           },
         ],
       },

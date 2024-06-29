@@ -18,6 +18,7 @@ import {
 } from "../../config";
 import { NewInstance as axios } from "../../axios";
 import { toast } from "react-toastify";
+import { getQuestionTypes } from "../../services/api";
 
 import styles from "./addObject.module.scss";
 import { getImages, getTypes } from "../../services/api";
@@ -45,7 +46,7 @@ const AddObject = () => {
   };
 
   React.useEffect(() => {
-    getQuestionTypes();
+    getData();
   }, []);
 
   const onClickExcelFile = () => {

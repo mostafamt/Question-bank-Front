@@ -3,6 +3,7 @@ import React from "react";
 import styles from "./objectUI.module.scss";
 
 const ObjectUI = (props) => {
+  console.log("objectuI");
   const { label, value, parseParameters, space, level } = props;
 
   return (

@@ -10,7 +10,7 @@ import Text from "../../components/DrawnUI/Text/Text";
 import ArrayUI from "../../components/DrawnUI/ArrayUI/ArrayUI";
 import { default as BooleanComponent } from "../../components/DrawnUI/Boolean/Boolean";
 import { useForm } from "react-hook-form";
-import { emptyValues, fillValues } from "../../utils/data";
+import { emptyValues, isRequired } from "../../utils/data";
 import ObjectUI from "../../components/DrawnUI/ObjectUI/ObjectUI";
 import { useStore } from "../../store/store";
 import { toast } from "react-toastify";
@@ -18,10 +18,15 @@ import { toast } from "react-toastify";
 import styles from "./drawnUI.module.scss";
 import { getTypeOfKey } from "./data";
 import Select from "../../components/DrawnUI/Select/Select";
+import { getQuestionTypes } from "../../services/api";
+import Select from "../../components/DrawnUI/Select/Select";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
 const DrawnUI = () => {
   const params = useParams();
   const { type } = params;
+  const [questionTypes, setQuestionTypes] = React.useState([]);
   const [foundAbstractParameters, setFoundAbstractParameters] =
     React.useState(true);
   const [abstractParameters, setAbstractParameters] = React.useState();
@@ -32,6 +37,23 @@ const DrawnUI = () => {
   );
   const [labels, setLabels] = React.useState([]);
   const { data: state } = useStore();
+
+  const schema = yup
+    .object({
+      option: yup.array().min(2),
+    })
+    .required();
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    formState: { isSubmitting, errors },
+  } = useForm({
+    defaultValues: async () => getData(),
+    // resolver: yupResolver(schema),
+  });
 
   const getParameters = async () => {
     const res = await axios.get(`/interactive-objects/${params.id}`);
@@ -50,22 +72,14 @@ const DrawnUI = () => {
     setFoundAbstractParameters(Boolean(abstractParameter));
     if (isEditPage) {
       const parameters = await getParameters();
+      console.log("parameters= ", parameters);
       return parameters;
     } else {
       return emptyValues(abstractParameter);
     }
   };
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    setValue,
-    formState: { isSubmitting },
-  } = useForm({
-    defaultValues: async () => getData(),
-  });
-
+  console.log("errors= ", errors);
   const onSubmit = async (values) => {
     setValues(values);
     if (isEditPage) {
@@ -128,6 +142,7 @@ const DrawnUI = () => {
       console.log("type= ", type);
 
       if (type === "text" || type === "number" || type === "color") {
+        let required = isRequired(questionTypes, type, key);
         item = (
           <Text
             space={space}
@@ -182,6 +197,7 @@ const DrawnUI = () => {
             label={key}
             control={control}
             object={object}
+            errors={errors}
           />
         );
       } else if (typeof type === "object") {
