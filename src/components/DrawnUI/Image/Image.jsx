@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, CircularProgress, TextField } from "@mui/material";
 import VisuallyHiddenInput from "../../VisuallyHiddenInput/VisuallyHiddenInput";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import PhotoIcon from "@mui/icons-material/Photo";
@@ -8,27 +8,28 @@ import styles from "./image.module.scss";
 import { upload } from "../../../utils/upload";
 
 const Image = (props) => {
-  const { space, register, setValue, param } = props;
+  const { space, register, setValue, param, getValues } = props;
 
-  const [url, setUrl] = React.useState("");
+  let value = getValues(param);
+  const [loading, setLoading] = React.useState(false);
 
   const onChangeHandler = async (event) => {
+    setLoading(true);
     const file = event.target.files[0];
     const link = await upload(file);
-    setUrl(link);
     setValue(param, link);
+    setLoading(false);
   };
 
   const onChangeInput = (event) => {
-    setUrl(event.target.value);
     setValue(param, event.target.value);
   };
 
   return (
     <Box className={styles.image} sx={{ mb: space }}>
       <div className={styles["image-area"]}>
-        {url ? (
-          <img src={url} alt={url} className={styles["scale-image"]} />
+        {value ? (
+          <img src={value} alt={value} className={styles["scale-image"]} />
         ) : (
           <PhotoIcon fontSize="large" />
         )}
@@ -39,9 +40,12 @@ const Image = (props) => {
           role={undefined}
           variant="contained"
           tabIndex={-1}
-          startIcon={<CloudUploadIcon />}
           color="secondary"
           onChange={onChangeHandler}
+          disabled={loading}
+          startIcon={
+            loading ? <CircularProgress size="1rem" /> : <CloudUploadIcon />
+          }
         >
           Upload Image
           <VisuallyHiddenInput type="file" />
@@ -51,7 +55,7 @@ const Image = (props) => {
           label="Add Url"
           variant="outlined"
           fullWidth
-          value={url}
+          value={value}
           onChange={onChangeInput}
         />
       </div>

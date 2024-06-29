@@ -48,6 +48,7 @@ const DrawnUI = () => {
     handleSubmit,
     control,
     setValue,
+    getValues,
     formState: { isSubmitting, errors },
   } = useForm({
     defaultValues: async () => getData(),
@@ -163,6 +164,7 @@ const DrawnUI = () => {
             setValue={setValue}
             param={param}
             space={space}
+            getValues={getValues}
           />
         );
       } else if (type === "video") {
@@ -172,6 +174,7 @@ const DrawnUI = () => {
             setValue={setValue}
             param={param}
             space={space}
+            getValues={getValues}
           />
         );
       } else if (type === "voice") {
@@ -181,6 +184,7 @@ const DrawnUI = () => {
             setValue={setValue}
             param={param}
             space={space}
+            getValues={getValues}
           />
         );
       } else if (type === "Bool") {
