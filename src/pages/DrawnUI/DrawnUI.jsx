@@ -10,7 +10,7 @@ import Text from "../../components/DrawnUI/Text/Text";
 import ArrayUI from "../../components/DrawnUI/ArrayUI/ArrayUI";
 import { default as BooleanComponent } from "../../components/DrawnUI/Boolean/Boolean";
 import { useForm } from "react-hook-form";
-import { emptyValues, isRequired } from "../../utils/data";
+import { emptyValues, isRequired, searchIfRequired } from "../../utils/data";
 import ObjectUI from "../../components/DrawnUI/ObjectUI/ObjectUI";
 import { useStore } from "../../store/store";
 import { toast } from "react-toastify";
@@ -18,8 +18,7 @@ import { toast } from "react-toastify";
 import styles from "./drawnUI.module.scss";
 import { getTypeOfKey } from "./data";
 import Select from "../../components/DrawnUI/Select/Select";
-import { getQuestionTypes } from "../../services/api";
-import Select from "../../components/DrawnUI/Select/Select";
+import { getQuestionTypes, getTypes } from "../../services/api";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
@@ -62,7 +61,7 @@ const DrawnUI = () => {
   };
 
   const getData = async () => {
-    const res = await axios.get("io-types");
+    const res = await getTypes();
     const objects = res.data;
     const selectedType = objects.find((item) => item.typeName === type);
     const abstractParameter = selectedType?.abstractParameter;
@@ -79,7 +78,6 @@ const DrawnUI = () => {
     }
   };
 
-  console.log("errors= ", errors);
   const onSubmit = async (values) => {
     setValues(values);
     if (isEditPage) {
@@ -139,19 +137,23 @@ const DrawnUI = () => {
       let param = level === 1 ? key : `${arrayName}.${index}.${key}`;
 
       const type = getTypeOfKey(labels, key) || value;
-      console.log("type= ", type);
+      let required = searchIfRequired(labels, key);
+
+      let commonProps = {
+        errors,
+        path: level === 1 ? [key] : [arrayName, index, key],
+        value: level === 1 ? key : `${arrayName}.${index}.${key}`,
+        register: register,
+      };
 
       if (type === "text" || type === "number" || type === "color") {
-        let required = isRequired(questionTypes, type, key);
         item = (
           <Text
             space={space}
             label={key}
-            register={register}
             required={required}
-            value={level === 1 ? key : `${arrayName}.${index}.${key}`}
-            errors={errors}
-            path={level === 1 ? [key] : [arrayName, index, key]}
+            type={type}
+            {...commonProps}
           />
         );
       } else if (type === "image") {
@@ -181,7 +183,7 @@ const DrawnUI = () => {
             space={space}
           />
         );
-      } else if (type === "Boolean") {
+      } else if (type === "Bool") {
         item = (
           <BooleanComponent register={{ ...register(param) }} space={space} />
         );
@@ -213,14 +215,14 @@ const DrawnUI = () => {
         );
       } else if (type.includes("DropList")) {
         const options = type.split(":")?.[1]?.split(",");
-        console.log("options= ", options);
         item = (
           <Select
             label={key}
             options={options}
             space={space}
-            value={level === 1 ? key : `${arrayName}.${index}.${key}`}
-            register={register}
+            required={required}
+            control={control}
+            {...commonProps}
           />
         );
       }

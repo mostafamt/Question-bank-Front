@@ -46,7 +46,7 @@ const AddObject = () => {
   };
 
   React.useEffect(() => {
-    getData();
+    getQuestionTypes();
   }, []);
 
   const onClickExcelFile = () => {

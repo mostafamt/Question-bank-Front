@@ -68,8 +68,7 @@ const getQuestionType = (questionTypes, questionName) => {
   return selectedType;
 };
 
-const searchIfRequired = (questionType, label) => {
-  const labels = questionType?.labels;
+export const searchIfRequired = (labels, label) => {
   let required = false;
   labels.forEach((item) => {
     const key = Object.keys(item)?.[0];
@@ -77,12 +76,6 @@ const searchIfRequired = (questionType, label) => {
       required = true;
     }
   });
-  return required;
-};
-
-const isRequired = (questionTypes, questionName, label) => {
-  const questionObject = getQuestionType(questionTypes, questionName);
-  const required = searchIfRequired(questionObject, label);
   return required;
 };
 
@@ -105,12 +98,7 @@ const constructBoxColors = (boxColors) => {
   return obj;
 };
 
-export const trimText = (text) => text.replaceAll("\n", "").replaceAll("*", "");
+export const trimText = (text) =>
+  text.replaceAll("\n", "").replaceAll("*", "").replaceAll("#", "");
 
-export {
-  emptyValues,
-  fillValues,
-  syntaxHighlight,
-  constructBoxColors,
-  isRequired,
-};
+export { emptyValues, fillValues, syntaxHighlight, constructBoxColors };

@@ -55,7 +55,7 @@ export const saveBlocks = async (blocks) => {
 
 export const getQuestionTypes = async () => {
   await wait(1000);
-  return types;
+  return newTypes;
   // const res = await axios.get("interactive-object-types");
   // return res;
 };

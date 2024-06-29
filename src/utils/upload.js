@@ -1,9 +1,10 @@
 import axios from "../axios";
+import { NewInstance as axios2 } from "../axios";
 
 const upload = async (file) => {
   const data = new FormData();
   data.append("file", file);
-  const res = await axios.post("/upload", data);
+  const res = await axios2.post("/upload", data);
   return res.data;
 };
 

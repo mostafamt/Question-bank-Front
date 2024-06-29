@@ -7,9 +7,8 @@ const Boolean = (props) => {
   const { register } = props;
 
   return (
-    <div>
+    <div style={{ marginBottom: "1rem" }}>
       <span>Correct: </span>
-      {/* <Checkbox {...label} {...register} /> */}
       <input type="checkbox" {...register} />
     </div>
   );

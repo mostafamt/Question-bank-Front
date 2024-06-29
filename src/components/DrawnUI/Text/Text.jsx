@@ -2,16 +2,12 @@ import React from "react";
 import { Box, TextField } from "@mui/material";
 
 import styles from "./text.module.scss";
+import ValidationMessage from "../../ValidationMessage/ValidationMessage";
 
 const Text = (props) => {
   const { space, label, register, value, errors, type, path, required } = props;
 
   const newLabel = label.replaceAll("_", "");
-
-  let error = {};
-  path.forEach((element, idx) => {
-    error = idx === 0 ? errors?.[element] : error?.[element];
-  });
 
   return (
     <Box sx={{ mb: space }} className={styles.text}>
@@ -19,10 +15,10 @@ const Text = (props) => {
         label={newLabel}
         variant="outlined"
         type={type}
-        {...register(value, required)}
+        {...register(value, { required })}
         fullWidth
       />
-      {error && <p>{error?.type}</p>}
+      <ValidationMessage path={path} errors={errors} />
     </Box>
   );
 };
