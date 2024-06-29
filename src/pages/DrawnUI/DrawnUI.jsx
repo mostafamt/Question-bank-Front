@@ -16,6 +16,8 @@ import { useStore } from "../../store/store";
 import { toast } from "react-toastify";
 
 import styles from "./drawnUI.module.scss";
+import { getTypeOfKey } from "./data";
+import Select from "../../components/DrawnUI/Select/Select";
 
 const DrawnUI = () => {
   const params = useParams();
@@ -28,6 +30,7 @@ const DrawnUI = () => {
   const [isEditPage] = React.useState(
     location.pathname.startsWith("/edit-question")
   );
+  const [labels, setLabels] = React.useState([]);
   const { data: state } = useStore();
 
   const getParameters = async () => {
@@ -39,16 +42,17 @@ const DrawnUI = () => {
   const getData = async () => {
     const res = await axios.get("io-types");
     const objects = res.data;
-    const selectedType = objects.find(
-      (item) => item.typeName === type
-    )?.abstractParameter;
-    setAbstractParameters(selectedType);
-    setFoundAbstractParameters(Boolean(selectedType));
+    const selectedType = objects.find((item) => item.typeName === type);
+    const abstractParameter = selectedType?.abstractParameter;
+    const labels = selectedType?.labels;
+    setLabels(labels);
+    setAbstractParameters(abstractParameter);
+    setFoundAbstractParameters(Boolean(abstractParameter));
     if (isEditPage) {
       const parameters = await getParameters();
       return parameters;
     } else {
-      return emptyValues(selectedType);
+      return emptyValues(abstractParameter);
     }
   };
 
@@ -119,20 +123,23 @@ const DrawnUI = () => {
     for (const [key, value] of Object.entries(abstractParameters)) {
       let item = "";
       let param = level === 1 ? key : `${arrayName}.${index}.${key}`;
-      console.log("param= ", param);
 
-      if (value === "text" || value === "number" || value === "color") {
+      const type = getTypeOfKey(labels, key) || value;
+      console.log("type= ", type);
+
+      if (type === "text" || type === "number" || type === "color") {
         item = (
           <Text
             space={space}
             label={key}
             register={register}
-            level={level}
+            required={required}
             value={level === 1 ? key : `${arrayName}.${index}.${key}`}
-            type={value}
+            errors={errors}
+            path={level === 1 ? [key] : [arrayName, index, key]}
           />
         );
-      } else if (value === "image") {
+      } else if (type === "image") {
         item = (
           <Image
             register={{ ...register(param) }}
@@ -141,7 +148,7 @@ const DrawnUI = () => {
             space={space}
           />
         );
-      } else if (value === "video") {
+      } else if (type === "video") {
         item = (
           <Video
             register={{ ...register(param) }}
@@ -150,7 +157,7 @@ const DrawnUI = () => {
             space={space}
           />
         );
-      } else if (value === "voice") {
+      } else if (type === "voice") {
         item = (
           <Sound
             register={{ ...register(param) }}
@@ -159,16 +166,16 @@ const DrawnUI = () => {
             space={space}
           />
         );
-      } else if (value === "Boolean") {
+      } else if (type === "Boolean") {
         item = (
           <BooleanComponent register={{ ...register(param) }} space={space} />
         );
-      } else if (Array.isArray(value)) {
-        const object = emptyValues(value[0]);
+      } else if (Array.isArray(type)) {
+        const object = emptyValues(type[0]);
 
         item = (
           <ArrayUI
-            value={value}
+            value={type}
             parseParameters={parseParameters}
             space={space}
             level={level}
@@ -177,10 +184,10 @@ const DrawnUI = () => {
             object={object}
           />
         );
-      } else if (typeof value === "object") {
+      } else if (typeof type === "object") {
         item = (
           <ObjectUI
-            value={value}
+            type={type}
             parseParameters={parseParameters}
             space={space}
             level={level}
@@ -188,7 +195,20 @@ const DrawnUI = () => {
             control={control}
           />
         );
+      } else if (type.includes("DropList")) {
+        const options = type.split(":")?.[1]?.split(",");
+        console.log("options= ", options);
+        item = (
+          <Select
+            label={key}
+            options={options}
+            space={space}
+            value={level === 1 ? key : `${arrayName}.${index}.${key}`}
+            register={register}
+          />
+        );
       }
+
       jsx = (
         <React.Fragment>
           {jsx}

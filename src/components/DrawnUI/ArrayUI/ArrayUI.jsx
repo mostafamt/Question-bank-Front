@@ -46,7 +46,7 @@ const ArrayUI = (props) => {
 
   const item = fields.map((field, outterIndex) => (
     <div key={field.id}>
-      {value.map((itm, innerIndex) => (
+      {value?.map((itm, innerIndex) => (
         <div key={innerIndex} className={styles["array-item"]}>
           <RemoveButton id={itm.key} index={outterIndex} />
           <div className={styles.array}>
