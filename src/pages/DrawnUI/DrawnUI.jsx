@@ -155,6 +155,7 @@ const DrawnUI = () => {
             required={required}
             type={type}
             {...commonProps}
+            control={control}
           />
         );
       } else if (type === "image") {
