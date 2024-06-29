@@ -121,7 +121,7 @@ const DrawnUI = () => {
       let param = level === 1 ? key : `${arrayName}.${index}.${key}`;
       console.log("param= ", param);
 
-      if (value === "text") {
+      if (value === "text" || value === "number" || value === "color") {
         item = (
           <Text
             space={space}
@@ -129,6 +129,7 @@ const DrawnUI = () => {
             register={register}
             level={level}
             value={level === 1 ? key : `${arrayName}.${index}.${key}`}
+            type={value}
           />
         );
       } else if (value === "image") {

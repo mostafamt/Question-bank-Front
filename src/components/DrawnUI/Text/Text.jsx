@@ -2,7 +2,7 @@ import { Box, TextField } from "@mui/material";
 import React from "react";
 
 const Text = (props) => {
-  const { space, label, register, level, value } = props;
+  const { space, label, register, level, value, type } = props;
 
   const newLabel = label.replaceAll("_", "");
 
@@ -11,6 +11,7 @@ const Text = (props) => {
       <TextField
         label={newLabel}
         variant="outlined"
+        type={type}
         {...register(value)}
         fullWidth
       />
