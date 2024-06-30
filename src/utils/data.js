@@ -1,6 +1,6 @@
 import { hexToRgbA } from "./helper";
 
-const BOOLEAN = "Boolean";
+const BOOLEAN = "Bool";
 
 const emptyValues = (object) => {
   let newObject = {};

@@ -22,13 +22,6 @@ const Text = (props) => {
 
   return (
     <Box sx={{ mb: space }} className={styles.text}>
-      {/* <TextField
-        label={newLabel}
-        variant="outlined"
-        type={type}
-        {...register(value, { required })}
-        fullWidth
-      /> */}
       <Controller
         name={value}
         control={control}

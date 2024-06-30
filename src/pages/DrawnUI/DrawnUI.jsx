@@ -75,6 +75,7 @@ const DrawnUI = () => {
       console.log("parameters= ", parameters);
       return parameters;
     } else {
+      console.log("values= ", emptyValues(abstractParameter));
       return emptyValues(abstractParameter);
     }
   };
@@ -166,6 +167,8 @@ const DrawnUI = () => {
             param={param}
             space={space}
             getValues={getValues}
+            control={control}
+            {...commonProps}
           />
         );
       } else if (type === "video") {
@@ -190,7 +193,13 @@ const DrawnUI = () => {
         );
       } else if (type === "Bool") {
         item = (
-          <BooleanComponent register={{ ...register(param) }} space={space} />
+          <BooleanComponent
+            register={{ ...register(param) }}
+            space={space}
+            control={control}
+            required={required}
+            {...commonProps}
+          />
         );
       } else if (Array.isArray(type)) {
         const object = emptyValues(type[0]);
