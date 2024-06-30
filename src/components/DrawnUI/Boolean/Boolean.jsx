@@ -6,7 +6,22 @@ import ValidationMessage from "../../ValidationMessage/ValidationMessage";
 const label = { inputProps: { "aria-label": "Checkbox demo" } };
 
 const Boolean = (props) => {
-  const { register, value, control, path, errors, required } = props;
+  const {
+    register,
+    value,
+    control,
+    path,
+    errors,
+    required,
+    getValues,
+    setValue,
+    param,
+  } = props;
+
+  const onChange = (e) => {
+    const check = e.target.checked;
+    setValue(param, check);
+  };
 
   return (
     <div style={{ marginBottom: "1rem" }}>
@@ -14,10 +29,17 @@ const Boolean = (props) => {
         name={value}
         control={control}
         rules={{ required }} // Set required rule
-        defaultValue="false"
+        // defaultValue="false"
         render={({ field }) => (
           <div>
-            <input type="checkbox" {...field} />
+            {console.log("field= ", field)}
+            <input
+              type="checkbox"
+              // {...field}
+              value={field.value}
+              checked={field.value}
+              onChange={onChange}
+            />
             {"  "}
             <label htmlFor={value}>Correct</label>
           </div>

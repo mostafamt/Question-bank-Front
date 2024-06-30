@@ -194,10 +194,14 @@ const DrawnUI = () => {
       } else if (type === "Bool") {
         item = (
           <BooleanComponent
+            key={param}
             register={{ ...register(param) }}
             space={space}
             control={control}
             required={required}
+            getValues={getValues}
+            setValue={setValue}
+            param={param}
             {...commonProps}
           />
         );
