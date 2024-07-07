@@ -21,6 +21,7 @@ import Select from "../../components/DrawnUI/Select/Select";
 import { getQuestionTypes, getTypes } from "../../services/api";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { AUTO_UI_TYPES_MAPPING } from "../../constants";
 
 const DrawnUI = () => {
   const params = useParams();
@@ -37,12 +38,6 @@ const DrawnUI = () => {
   const [labels, setLabels] = React.useState([]);
   const { data: state } = useStore();
 
-  const schema = yup
-    .object({
-      option: yup.array().min(2),
-    })
-    .required();
-
   const {
     register,
     handleSubmit,
@@ -52,7 +47,6 @@ const DrawnUI = () => {
     formState: { isSubmitting, errors },
   } = useForm({
     defaultValues: async () => getData(),
-    // resolver: yupResolver(schema),
   });
 
   const getParameters = async () => {
@@ -72,10 +66,8 @@ const DrawnUI = () => {
     setFoundAbstractParameters(Boolean(abstractParameter));
     if (isEditPage) {
       const parameters = await getParameters();
-      console.log("parameters= ", parameters);
       return parameters;
     } else {
-      console.log("values= ", emptyValues(abstractParameter));
       return emptyValues(abstractParameter);
     }
   };
@@ -136,113 +128,43 @@ const DrawnUI = () => {
     let jsx = "";
     for (const [key, value] of Object.entries(abstractParameters)) {
       let item = "";
-      let param = level === 1 ? key : `${arrayName}.${index}.${key}`;
 
-      const type = getTypeOfKey(labels, key) || value;
-      let required = searchIfRequired(labels, key);
-
-      let commonProps = {
+      let properties = {
         errors,
         path: level === 1 ? [key] : [arrayName, index, key],
-        value: level === 1 ? key : `${arrayName}.${index}.${key}`,
+        name: level === 1 ? key : `${arrayName}.${index}.${key}`,
         register: register,
+        space: space,
+        label: key,
+        required: searchIfRequired(labels, key),
+        type: getTypeOfKey(labels, key) || value,
+        control: control,
+        setValue: setValue,
+        getValues: getValues,
+        parseParameters: parseParameters,
       };
 
-      if (type === "text" || type === "number" || type === "color") {
-        item = (
-          <Text
-            space={space}
-            label={key}
-            required={required}
-            type={type}
-            {...commonProps}
-            control={control}
-          />
-        );
-      } else if (type === "image") {
-        item = (
-          <Image
-            register={{ ...register(param) }}
-            setValue={setValue}
-            param={param}
-            space={space}
-            getValues={getValues}
-            control={control}
-            {...commonProps}
-          />
-        );
-      } else if (type === "video") {
-        item = (
-          <Video
-            register={{ ...register(param) }}
-            setValue={setValue}
-            param={param}
-            space={space}
-            getValues={getValues}
-          />
-        );
-      } else if (type === "voice") {
-        item = (
-          <Sound
-            register={{ ...register(param) }}
-            setValue={setValue}
-            param={param}
-            space={space}
-            getValues={getValues}
-          />
-        );
-      } else if (type === "Bool") {
-        item = (
-          <BooleanComponent
-            key={param}
-            register={{ ...register(param) }}
-            space={space}
-            control={control}
-            required={required}
-            getValues={getValues}
-            setValue={setValue}
-            param={param}
-            {...commonProps}
-          />
-        );
-      } else if (Array.isArray(type)) {
-        const object = emptyValues(type[0]);
+      let flag = false;
+      for (const [auto_ui_key, auto_ui_value] of Object.entries(
+        AUTO_UI_TYPES_MAPPING
+      )) {
+        if (auto_ui_key === properties?.type) {
+          flag = true;
+          const comp = React.cloneElement(auto_ui_value, properties);
+          item = comp;
+        }
+      }
 
-        item = (
-          <ArrayUI
-            value={type}
-            parseParameters={parseParameters}
-            space={space}
-            level={level}
-            label={key}
-            control={control}
-            object={object}
-            errors={errors}
-          />
-        );
-      } else if (typeof type === "object") {
-        item = (
-          <ObjectUI
-            type={type}
-            parseParameters={parseParameters}
-            space={space}
-            level={level}
-            label={key}
-            control={control}
-          />
-        );
-      } else if (type.includes("DropList")) {
-        const options = type.split(":")?.[1]?.split(",");
-        item = (
-          <Select
-            label={key}
-            options={options}
-            space={space}
-            required={required}
-            control={control}
-            {...commonProps}
-          />
-        );
+      if (!flag) {
+        if (Array.isArray(properties?.type)) {
+          const object = emptyValues(properties?.type[0]);
+          item = <ArrayUI {...properties} object={object} />;
+        } else if (typeof properties?.type === "object") {
+          item = <ObjectUI {...properties} />;
+        } else if (properties?.type.includes("DropList")) {
+          const options = properties?.type.split(":")?.[1]?.split(",");
+          item = <Select {...properties} options={options} />;
+        }
       }
 
       jsx = (

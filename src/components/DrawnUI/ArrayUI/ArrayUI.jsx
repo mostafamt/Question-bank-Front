@@ -8,7 +8,7 @@ import { useFieldArray } from "react-hook-form";
 
 const ArrayUI = (props) => {
   const {
-    value,
+    type,
     parseParameters,
     space,
     level,
@@ -56,7 +56,7 @@ const ArrayUI = (props) => {
     <div key={field.id}>
       <RemoveButton index={outterIndex} />
       <div className={styles.array}>
-        {value.map((itm, innerIndex) => (
+        {type.map((itm, innerIndex) => (
           <div key={innerIndex} className={styles["array-item"]}>
             {parseParameters(itm, space - 2, level + 1, outterIndex, label)}
           </div>

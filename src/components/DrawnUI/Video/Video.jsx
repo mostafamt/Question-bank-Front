@@ -8,11 +8,11 @@ import { upload } from "../../../utils/upload";
 import styles from "./video.module.scss";
 
 const Video = (props) => {
-  const { setValue, param, space, getValues } = props;
+  const { setValue, name, space, getValues } = props;
 
-  let value = getValues(param);
+  let value = getValues(name);
 
-  const [url, setUrl] = React.useState(getValues(param) || "");
+  const [url, setUrl] = React.useState(getValues(name) || "");
   const [loading, setLoading] = React.useState(false);
 
   const onChangeHandler = async (event) => {
@@ -20,13 +20,13 @@ const Video = (props) => {
     const file = event.target.files[0];
     const link = await upload(file);
     setUrl(link);
-    setValue(param, link);
+    setValue(name, link);
     setLoading(false);
   };
 
   const onChangeInput = (event) => {
     setUrl(event.target.value);
-    setValue(param, event.target.value);
+    setValue(name, event.target.value);
   };
 
   return (

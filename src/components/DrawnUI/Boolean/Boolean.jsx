@@ -3,30 +3,18 @@ import { Checkbox } from "@mui/material";
 import { Controller } from "react-hook-form";
 import ValidationMessage from "../../ValidationMessage/ValidationMessage";
 
-const label = { inputProps: { "aria-label": "Checkbox demo" } };
-
 const Boolean = (props) => {
-  const {
-    register,
-    value,
-    control,
-    path,
-    errors,
-    required,
-    getValues,
-    setValue,
-    param,
-  } = props;
+  const { control, path, errors, required, getValues, setValue, name } = props;
 
   const onChange = (e) => {
     const check = e.target.checked;
-    setValue(param, check);
+    setValue(name, check);
   };
 
   return (
     <div style={{ marginBottom: "1rem" }}>
       <Controller
-        name={value}
+        name={name}
         control={control}
         rules={{ required }} // Set required rule
         // defaultValue="false"
@@ -36,12 +24,13 @@ const Boolean = (props) => {
             <input
               type="checkbox"
               // {...field}
+              name={name}
               value={field.value}
               checked={field.value}
               onChange={onChange}
             />
             {"  "}
-            <label htmlFor={value}>Correct</label>
+            <label htmlFor={name}>Correct</label>
           </div>
         )}
       />

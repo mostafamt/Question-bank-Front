@@ -8,17 +8,8 @@ import ValidationMessage from "../../ValidationMessage/ValidationMessage";
 import { Controller } from "react-hook-form";
 
 const Select = (props) => {
-  const {
-    label,
-    options,
-    space,
-    register,
-    value,
-    required,
-    path,
-    errors,
-    control,
-  } = props;
+  const { label, options, space, name, required, path, errors, control } =
+    props;
 
   const trimmedLabel = label.replaceAll("_", "");
 
@@ -32,7 +23,7 @@ const Select = (props) => {
       <InputLabel>{trimmedLabel}</InputLabel>
       <FormControl fullWidth>
         <Controller
-          name={value}
+          name={name}
           control={control}
           defaultValue=""
           rules={{ required }}

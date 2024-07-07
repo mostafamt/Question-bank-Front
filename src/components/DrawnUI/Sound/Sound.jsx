@@ -8,10 +8,9 @@ import styles from "./sound.module.scss";
 import { upload } from "../../../utils/upload";
 
 const Sound = (props) => {
-  const { setValue, param, space, getValues } = props;
+  const { setValue, name, space, getValues } = props;
 
-  console.log("value= ", getValues(param));
-  let value = getValues(param);
+  let value = getValues(name);
 
   const [loading, setLoading] = React.useState(false);
 
@@ -19,12 +18,12 @@ const Sound = (props) => {
     setLoading(true);
     const file = event.target.files[0];
     const link = await upload(file);
-    setValue(param, link);
+    setValue(name, link);
     setLoading(false);
   };
 
   const onChangeInput = (event) => {
-    setValue(param, event.target.value);
+    setValue(name, event.target.value);
   };
 
   return (
