@@ -1,10 +1,11 @@
 import React from "react";
-import { Checkbox } from "@mui/material";
+import { Checkbox, FormControlLabel } from "@mui/material";
 import { Controller } from "react-hook-form";
 import ValidationMessage from "../../ValidationMessage/ValidationMessage";
 
 const Boolean = (props) => {
-  const { control, path, errors, required, getValues, setValue, name } = props;
+  const { control, path, errors, required, getValues, setValue, name, label } =
+    props;
 
   const onChange = (e) => {
     const check = e.target.checked;
@@ -19,19 +20,17 @@ const Boolean = (props) => {
         rules={{ required }} // Set required rule
         // defaultValue="false"
         render={({ field }) => (
-          <div>
-            {console.log("field= ", field)}
-            <input
-              type="checkbox"
-              // {...field}
-              name={name}
-              value={field.value}
-              checked={field.value}
-              onChange={onChange}
-            />
-            {"  "}
-            <label htmlFor={name}>Correct</label>
-          </div>
+          <FormControlLabel
+            control={
+              <Checkbox
+                name={name}
+                value={field.value}
+                checked={field.value}
+                onChange={onChange}
+              />
+            }
+            label={label}
+          />
         )}
       />
       <ValidationMessage path={path} errors={errors} />

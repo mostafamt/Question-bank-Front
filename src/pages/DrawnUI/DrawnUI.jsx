@@ -3,25 +3,25 @@ import { useLocation, useParams } from "react-router-dom";
 import axios from "../../axios";
 import Alert from "@mui/material/Alert";
 import { Box, Button, CircularProgress } from "@mui/material";
-import Image from "../../components/DrawnUI/Image/Image";
-import Video from "../../components/DrawnUI/Video/Video";
-import Sound from "../../components/DrawnUI/Sound/Sound";
-import Text from "../../components/DrawnUI/Text/Text";
 import ArrayUI from "../../components/DrawnUI/ArrayUI/ArrayUI";
-import { default as BooleanComponent } from "../../components/DrawnUI/Boolean/Boolean";
 import { useForm } from "react-hook-form";
-import { emptyValues, isRequired, searchIfRequired } from "../../utils/data";
+import { emptyValues } from "../../utils/data";
 import ObjectUI from "../../components/DrawnUI/ObjectUI/ObjectUI";
 import { useStore } from "../../store/store";
 import { toast } from "react-toastify";
 
-import styles from "./drawnUI.module.scss";
-import { getTypeOfKey } from "./data";
 import Select from "../../components/DrawnUI/Select/Select";
-import { getQuestionTypes, getTypes } from "../../services/api";
+import { getTypes } from "../../services/api";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { AUTO_UI_TYPES_MAPPING } from "../../constants";
+
+import {
+  AUTO_UI_TYPES_MAPPING,
+  getSchema,
+  getTypeOfKey,
+  searchIfRequired,
+} from "../../utils/auto-ui";
+
+import styles from "./drawnUI.module.scss";
 
 const DrawnUI = () => {
   const params = useParams();
@@ -29,14 +29,17 @@ const DrawnUI = () => {
   const [questionTypes, setQuestionTypes] = React.useState([]);
   const [foundAbstractParameters, setFoundAbstractParameters] =
     React.useState(true);
-  const [abstractParameters, setAbstractParameters] = React.useState();
+  const [abstractParameters, setAbstractParameters] = React.useState([]);
   const [values, setValues] = React.useState({});
   const location = useLocation();
   const [isEditPage] = React.useState(
     location.pathname.startsWith("/edit-question")
   );
+  const [loading, setLoading] = React.useState(false);
   const [labels, setLabels] = React.useState([]);
   const { data: state } = useStore();
+
+  const schema = getSchema(abstractParameters, labels);
 
   const {
     register,
@@ -46,6 +49,7 @@ const DrawnUI = () => {
     getValues,
     formState: { isSubmitting, errors },
   } = useForm({
+    resolver: yupResolver(schema),
     defaultValues: async () => getData(),
   });
 
@@ -56,6 +60,7 @@ const DrawnUI = () => {
   };
 
   const getData = async () => {
+    setLoading(true);
     const res = await getTypes();
     const objects = res.data;
     const selectedType = objects.find((item) => item.typeName === type);
@@ -66,8 +71,10 @@ const DrawnUI = () => {
     setFoundAbstractParameters(Boolean(abstractParameter));
     if (isEditPage) {
       const parameters = await getParameters();
+      setLoading(false);
       return parameters;
     } else {
+      setLoading(false);
       return emptyValues(abstractParameter);
     }
   };
@@ -205,10 +212,18 @@ const DrawnUI = () => {
   return (
     <div className="container">
       <h1 style={{ textAlign: "center", marginBottom: "3rem" }}>{type}</h1>
-      <form className="mb-4" onSubmit={handleSubmit(onSubmit)}>
-        {abstractParameters && parseParameters(abstractParameters)}
-      </form>
-      <pre>{JSON.stringify(values, null, 4)}</pre>
+      {loading ? (
+        <Box sx={{ textAlign: "center", mt: "8rem" }}>
+          <CircularProgress size="4rem" />
+        </Box>
+      ) : (
+        <>
+          <form className="mb-4" onSubmit={handleSubmit(onSubmit)}>
+            {abstractParameters && parseParameters(abstractParameters)}
+          </form>
+          <pre>{JSON.stringify(values, null, 4)}</pre>
+        </>
+      )}
     </div>
   );
 };

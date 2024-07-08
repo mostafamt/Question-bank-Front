@@ -68,17 +68,6 @@ const getQuestionType = (questionTypes, questionName) => {
   return selectedType;
 };
 
-export const searchIfRequired = (labels, label) => {
-  let required = false;
-  labels.forEach((item) => {
-    const key = Object.keys(item)?.[0];
-    if (key.includes(label) && key.includes("*")) {
-      required = true;
-    }
-  });
-  return required;
-};
-
 const constructBoxColors = (boxColors) => {
   const values = boxColors.map((_, idx) => `& > div:nth-of-type(${idx + 2})`);
 

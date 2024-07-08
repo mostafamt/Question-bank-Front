@@ -5,8 +5,6 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import { useStore } from "../../store/store";
-import TypeParameters from "../../constants/parameters.json";
-import axios from "../../axios";
 
 const MuiSelect = (props) => {
   const { value, onChange, color, list } = props;
