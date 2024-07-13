@@ -33,7 +33,8 @@ export const searchIfRequired = (labels, label) => {
   let required = false;
   labels.forEach((item) => {
     const key = Object.keys(item)?.[0];
-    if (key.includes(label) && key.includes("*")) {
+    const trimmedKey = trimText(key);
+    if (trimmedKey === label && key.includes("*")) {
       required = true;
     }
   });
@@ -50,6 +51,7 @@ const searchIfHasMinimumLength = (label) => {
 };
 
 export const getSchema = (abstractParameters, labels, level = 1) => {
+  console.log("getSchema");
   let object = {};
 
   for (let [key, value] of Object.entries(abstractParameters)) {
@@ -64,8 +66,10 @@ export const getSchema = (abstractParameters, labels, level = 1) => {
         [key]: yup.string().required(),
       };
     } else if (Array.isArray(type)) {
+      console.log("here");
       const minimumLength = searchIfHasMinimumLength(key);
       const innerSchema = getSchema(value?.[0], labels, level + 1);
+      console.log("innerSchema= ", innerSchema);
       object = {
         ...object,
         [key]: yup.array().min(minimumLength).of(innerSchema),
