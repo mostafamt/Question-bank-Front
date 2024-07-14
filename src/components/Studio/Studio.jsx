@@ -148,7 +148,7 @@ const Studio = (props) => {
     }
   };
 
-  const onSubmitSubType = async () => {
+  const onClickSubmit = async () => {
     const {
       questionName,
       language,
@@ -179,16 +179,13 @@ const Studio = (props) => {
       objectOwner,
       type: props.type,
       objectElements,
+      blockCoordinates: objectArea,
     };
+
     console.log(JSON.stringify(data, null, 2));
 
     try {
-      const res = await saveObject(data);
-      const _data = res?.data;
-      props.setSubTypeObjects((prevState) => [
-        ...prevState,
-        { contentValue: _data, contentType: props.type },
-      ]);
+      const res = await axios.post("/interactive-objects", data);
 
       toast.success("Object created successfully!");
       clear();
@@ -198,58 +195,6 @@ const Studio = (props) => {
     } catch (error) {
       toast.error(error?.message);
     }
-  };
-
-  const onClickSubmit = async () => {
-    setLoadingSubmit(true);
-    if (subObject) {
-      await onSubmitSubType();
-    } else {
-      console.log("subTypeObjects= ", subTypeObjects);
-      // return;
-      let idx = 0;
-      const blocks = await Promise.all(
-        results.map(async (item) => {
-          console.log(item);
-          return {
-            pageId,
-            contentType:
-              item.type !== "image" && item.type !== "text"
-                ? subTypeObjects[idx].contentType
-                : item?.parameter,
-            contentValue:
-              item.type === "text"
-                ? item?.text
-                : item.type === "image"
-                ? await uploadBase64(item?.image)
-                : subTypeObjects[idx++].contentValue,
-            // item.type !== "image" && item.type !== "text" ?
-            //   item.type === "image"
-            //     ? await uploadBase64(item?.image)
-            //     : item?.text,
-            coordinates: {
-              x: item.x,
-              y: item.y,
-              width: item.width,
-              height: item.height,
-            },
-          };
-        })
-      );
-
-      try {
-        await saveBlocks(blocks);
-
-        toast.success("Blocks saved successfully!");
-        clear();
-        if (subObject) {
-          handleClose();
-        }
-      } catch (error) {
-        toast.error(error?.message);
-      }
-    }
-    setLoadingSubmit(false);
   };
 
   const clear = async () => {
