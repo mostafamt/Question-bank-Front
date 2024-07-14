@@ -18,17 +18,19 @@ import {
   AUTO_UI_TYPES_MAPPING,
   getSchema,
   getTypeOfKey,
+  searchIfHintExist,
   searchIfRequired,
 } from "../../utils/auto-ui";
 
 import styles from "./drawnUI.module.scss";
+import Wrapper from "../../components/DrawnUI/Wrapper/Wrapper";
 
 const DrawnUI = () => {
   const params = useParams();
   const { type } = params;
-  const [questionTypes, setQuestionTypes] = React.useState([]);
   const [foundAbstractParameters, setFoundAbstractParameters] =
     React.useState(true);
+  const [selectedType, setSelectedType] = React.useState(null);
   const [abstractParameters, setAbstractParameters] = React.useState([]);
   const [values, setValues] = React.useState({});
   const location = useLocation();
@@ -64,6 +66,7 @@ const DrawnUI = () => {
     const res = await getTypes();
     const objects = res.data;
     const selectedType = objects.find((item) => item.typeName === type);
+    setSelectedType(selectedType);
     const abstractParameter = selectedType?.abstractParameter;
     const labels = selectedType?.labels;
     setLabels(labels);
@@ -149,6 +152,7 @@ const DrawnUI = () => {
         setValue: setValue,
         getValues: getValues,
         parseParameters: parseParameters,
+        hint: searchIfHintExist(selectedType?.hints, key),
       };
 
       let flag = false;
@@ -157,7 +161,11 @@ const DrawnUI = () => {
       )) {
         if (auto_ui_key === properties?.type) {
           flag = true;
-          const comp = React.cloneElement(auto_ui_value, properties);
+          const comp = (
+            <Wrapper space={properties.space} hint={properties.hint}>
+              {React.cloneElement(auto_ui_value, properties)}
+            </Wrapper>
+          );
           item = comp;
         }
       }
@@ -170,7 +178,11 @@ const DrawnUI = () => {
           item = <ObjectUI {...properties} />;
         } else if (properties?.type.includes("DropList")) {
           const options = properties?.type.split(":")?.[1]?.split(",");
-          item = <Select {...properties} options={options} />;
+          item = (
+            <Wrapper space={properties.space} hint={properties.hint}>
+              <Select {...properties} options={options} />
+            </Wrapper>
+          );
         }
       }
 

@@ -41,6 +41,18 @@ export const searchIfRequired = (labels, label) => {
   return required;
 };
 
+export const searchIfHintExist = (hints, label) => {
+  let hint = "";
+  hints.forEach((item) => {
+    const key = Object.keys(item)?.[0];
+    const trimmedKey = trimText(key);
+    if (trimmedKey === label) {
+      hint = item[key];
+    }
+  });
+  return hint;
+};
+
 const searchIfAtLeastOneCorrect = (labels, label) => {
   return true;
 };
