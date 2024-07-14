@@ -21,6 +21,7 @@ import { uploadBase64 } from "../../utils/upload";
 import QuestionNameHeader from "../QuestionNameHeader/QuestionNameHeader";
 import { saveBlocks, saveObject } from "../../services/api";
 import { constructBoxColors, trimText } from "../../utils/data";
+import { onEditTextField } from "../../utils/ocr";
 
 const Studio = (props) => {
   const {
@@ -34,8 +35,6 @@ const Studio = (props) => {
   } = props;
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [areas, setAreas] = React.useState([]);
-  // TODO: set areas foreach page.
-  const [newAreas, setNewAreas] = React.useState(Array(images.length).fill([]));
   const [parameters, setParameters] = React.useState([]);
   const [boxColors, setBoxColors] = React.useState([]);
   const [colorIndex, setColorIndex] = React.useState(0);
@@ -62,22 +61,19 @@ const Studio = (props) => {
   };
 
   const onChangeHandler = (areasParam) => {
+    console.log("areasParam= ", areasParam);
     if (areasParam.length > areas.length) {
       setBoxColors([...boxColors, null]);
       setParameters([...parameters, ""]);
     }
 
-    if (areasParam.length > newAreas?.[activeIndex]?.length) {
-      setBoxColors([...boxColors, null]);
-      setParameters([...parameters, ""]);
-    }
-
-    setNewAreas((prevState) => {
-      prevState[activeIndex] = areasParam;
-      return [...prevState];
-    });
-
     setAreas(areasParam);
+  };
+
+  const onChange = (areaParam) => {
+    // debounce(() => onChangeHandler());
+    onChangeHandler(areaParam);
+    // _.debounce(onChangeHandler, 300);
   };
 
   const onClickDeleteArea = (idx) => {
@@ -208,13 +204,8 @@ const Studio = (props) => {
   };
 
   const onEditText = (id, text) => {
-    const newExtractedTextList = results.map((item) => {
-      if (item.id === id) {
-        item.text = text;
-      }
-      return item;
-    });
-    setResults(newExtractedTextList);
+    const newResults = onEditTextField(results, id, text);
+    setResults(newResults);
   };
 
   const extract = async (newParameters) => {
@@ -325,7 +316,7 @@ const Studio = (props) => {
             areas={areas}
             setAreas={setAreas}
           />
-          <AreaSelector areas={areas} onChange={onChangeHandler}>
+          <AreaSelector areas={areas} onChange={onChange}>
             <img
               src={images[activeIndex]?.url || images[activeIndex]}
               alt={images[activeIndex]?.url || images[activeIndex]}
