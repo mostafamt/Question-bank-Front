@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import { NewInstance as axios } from "../axios";
 import { default as axios2 } from "../axios";
 
@@ -5,6 +6,17 @@ import newTypes from "./NewTypes.json";
 
 const wait = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+export const fetchObjects = async (page, limit) => {
+  try {
+    const res = await axios2.get(
+      `/interactive-objects?page=${page}&limit=${limit}`
+    );
+    return res;
+  } catch (error) {
+    toast.error(error?.message);
+  }
 };
 
 export const getOldTypes = async () => {

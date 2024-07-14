@@ -5,6 +5,7 @@ import styles from "./table.module.scss";
 import { Button, IconButton, Radio } from "@mui/material";
 import { RadioButtonCheckedRounded, Delete } from "@mui/icons-material";
 import axios from "../../axios";
+import { fetchObjects } from "../../services/api";
 
 export default function DataTable(props) {
   const navigate = useNavigate();
@@ -90,8 +91,9 @@ export default function DataTable(props) {
 
   const fetchQuestions = React.useCallback(async () => {
     setLoading(true);
-    const res = await axios.get(
-      `/interactive-objects?page=${paginationModel.page}&limit=${paginationModel.pageSize}`
+    const res = await fetchObjects(
+      paginationModel.page,
+      paginationModel.pageSize
     );
     const data = res.data;
     if (!!data.docs.length) {
