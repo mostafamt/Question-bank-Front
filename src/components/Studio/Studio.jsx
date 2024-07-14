@@ -23,6 +23,8 @@ import { saveBlocks, saveObject } from "../../services/api";
 import { constructBoxColors, trimText } from "../../utils/data";
 import { onEditTextField } from "../../utils/ocr";
 
+// some comment to redeploy
+
 const Studio = (props) => {
   const {
     images,
