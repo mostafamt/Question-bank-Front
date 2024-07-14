@@ -13,7 +13,7 @@ const Boolean = (props) => {
   };
 
   return (
-    <div style={{ marginBottom: "1rem" }}>
+    <div>
       <Controller
         name={name}
         control={control}

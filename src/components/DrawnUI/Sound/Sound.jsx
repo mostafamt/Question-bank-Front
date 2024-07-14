@@ -27,7 +27,7 @@ const Sound = (props) => {
   };
 
   return (
-    <Box className={styles.image} sx={{ mb: space }}>
+    <Box className={styles.image}>
       <div className={styles["image-area"]}>
         {value ? (
           <audio controls>

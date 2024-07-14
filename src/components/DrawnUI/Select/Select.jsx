@@ -19,7 +19,7 @@ const Select = (props) => {
   });
 
   return (
-    <Box sx={{ mb: space, minWidth: 120 }}>
+    <Box>
       <InputLabel>{trimmedLabel}</InputLabel>
       <FormControl fullWidth>
         <Controller

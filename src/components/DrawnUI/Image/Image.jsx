@@ -52,7 +52,7 @@ const Image = (props) => {
   };
 
   return (
-    <Box sx={{ mb: space }}>
+    <Box>
       <Controller
         name={name}
         control={control}

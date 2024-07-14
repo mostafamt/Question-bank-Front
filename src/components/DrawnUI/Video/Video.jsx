@@ -30,7 +30,7 @@ const Video = (props) => {
   };
 
   return (
-    <Box className={styles.image} sx={{ mb: space }}>
+    <Box className={styles.image}>
       <div className={styles["image-area"]}>
         {value ? (
           <video className={styles["scale-video"]} controls>
