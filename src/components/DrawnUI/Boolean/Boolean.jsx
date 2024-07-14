@@ -2,10 +2,10 @@ import React from "react";
 import { Checkbox, FormControlLabel } from "@mui/material";
 import { Controller } from "react-hook-form";
 import ValidationMessage from "../../ValidationMessage/ValidationMessage";
+import { fullTextTrim } from "../../../utils/data";
 
 const Boolean = (props) => {
-  const { control, path, errors, required, getValues, setValue, name, label } =
-    props;
+  const { control, path, errors, required, setValue, name, label } = props;
 
   const onChange = (e) => {
     const check = e.target.checked;
@@ -23,13 +23,14 @@ const Boolean = (props) => {
           <FormControlLabel
             control={
               <Checkbox
+                label="some label"
                 name={name}
                 value={field.value}
                 checked={field.value}
                 onChange={onChange}
               />
             }
-            label={label}
+            label={fullTextTrim(label)}
           />
         )}
       />

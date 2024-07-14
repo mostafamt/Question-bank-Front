@@ -90,4 +90,6 @@ const constructBoxColors = (boxColors) => {
 export const trimText = (text) =>
   text.replaceAll("\n", "").replaceAll("*", "").replaceAll("#", "");
 
+export const fullTextTrim = (text) => trimText(text).replaceAll("_", "");
+
 export { emptyValues, fillValues, syntaxHighlight, constructBoxColors };
