@@ -1,12 +1,13 @@
 .test {
-  & > img {
-    position: "relative";
-    height: 650px;
-  }
+  font-size: 2rem;
 
-  & > canvas {
-    position: absolute;
-    overflow: auto;
-    border: 2px solid red;
+  & ul {
+    list-style-type: none;
+
+    & li {
+      margin: 1rem 0;
+      background-color: darkkhaki;
+      // color: white;
+    }
   }
 }

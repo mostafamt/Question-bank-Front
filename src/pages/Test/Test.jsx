@@ -1,18 +1,19 @@
-import { useForm } from "react-hook-form";
+import React from "react";
+
+import initialData from "./initial-data";
+
+import styles from "./test.module.scss";
+import Column from "./Column/Column";
 
 const Test = () => {
-  const { register, handleSubmit } = useForm();
+  const [data, setData] = React.useState(initialData);
 
-  const OnSubmit = (data) => {
-    console.log(data);
-  };
+  return data.columnOrder.map((columnId) => {
+    const column = data.columns[columnId];
+    const tasks = column.taskIds.map((taskId) => data.tasks[taskId]);
 
-  return (
-    <form onSubmit={handleSubmit(OnSubmit)}>
-      <input ref={register} type="file" name="picture" />
-      <button>submit</button>
-    </form>
-  );
+    return <Column key={column.id} column={column} tasks={tasks} />;
+  });
 };
 
 export default Test;
