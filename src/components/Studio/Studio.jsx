@@ -336,39 +336,20 @@ const Studio = (props) => {
           </div>
         </div>
         <div className={styles.actions}>
-          {areas.map((area, idx) => (
-            <AreaActions
-              key={area}
-              parameters={parameters}
-              parameter={parameters[idx]}
-              color={boxColors[idx]}
-              idx={idx}
-              boxColors={boxColors}
-              onChangeParameter={onChangeParameter}
-              loading={loading}
-              extractedTextList={results}
-              onEditText={onEditText}
-              onClickDeleteArea={() => onClickDeleteArea(idx)}
-              type={type}
-              labels={state.labels}
-            />
-          ))}
-          {results.length > 0 && (
-            <div>
-              <Button
-                variant="contained"
-                onClick={onClickSubmit}
-                sx={{ width: "100%" }}
-                disabled={loadingSubmit}
-                startIcon={
-                  loadingSubmit ? <CircularProgress size="1rem" /> : <></>
-                }
-              >
-                Submit
-              </Button>
-            </div>
-          )}
-          Num of areas: {areas.length}
+          <AreaActions
+            parameters={parameters}
+            boxColors={boxColors}
+            onChangeParameter={onChangeParameter}
+            loading={loading}
+            extractedTextList={results}
+            onEditText={onEditText}
+            onClickDeleteArea={onClickDeleteArea}
+            type={type}
+            labels={state.labels}
+            onClickSubmit={onClickSubmit}
+            loadingSubmit={loadingSubmit}
+            areas={areas}
+          />
         </div>
       </div>
     </>
