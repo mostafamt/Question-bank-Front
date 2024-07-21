@@ -2,14 +2,15 @@ import React from "react";
 
 import styles from "./areaAction.module.scss";
 import MuiSelect from "../MuiSelect/MuiSelect";
-import { IconButton, TextField } from "@mui/material";
+import { Collapse, IconButton, List, TextField } from "@mui/material";
 import { DeleteForever } from "@mui/icons-material";
 
 import { useStore } from "../../store/store";
+import AreaActionResult from "../AreaActionResult/AreaActionResult";
+import AreaActionHeader from "../AreaActionHeader/AreaActionHeader";
 
 const AreaAction = (props) => {
   const {
-    color,
     parameter,
     onChangeParameter,
     idx,
@@ -17,6 +18,7 @@ const AreaAction = (props) => {
     extractedTextList,
     onEditText,
     type,
+    trialArea,
   } = props;
 
   const { data: state } = useStore();
@@ -28,9 +30,7 @@ const AreaAction = (props) => {
     // GET LABELS OF THE SELECTED TYPE
     let labels = state?.types.find((item) => item.typeName === type)?.labels;
 
-    if (!labels) {
-      labels = state?.oldTypes.find((item) => item.typeName === type)?.labels;
-    }
+    // getTypeOfParameter
 
     const object = labels?.reduce((acc, item) => {
       const key = Object.keys(item)?.[0];
@@ -46,59 +46,22 @@ const AreaAction = (props) => {
   }, [getLabels]);
 
   return (
-    <>
-      <div className={styles.row}>
-        <div
-          className={styles.color}
-          style={{
-            backgroundColor: color ? color : "green",
-          }}
-        ></div>
-        <MuiSelect
-          list={list}
-          value={parameter}
-          color={color}
-          onChange={(e) => onChangeParameter(e.target.value, idx)}
-        />
-        <IconButton aria-label="delete" onClick={() => onClickDeleteArea(idx)}>
-          <DeleteForever color="error" />
-        </IconButton>
-      </div>
+    <div className={styles["area-action"]}>
+      <AreaActionHeader
+        list={list}
+        parameter={parameter}
+        onChangeParameter={onChangeParameter}
+        idx={idx}
+        onClickDeleteArea={onClickDeleteArea}
+        trialArea={trialArea}
+      />
 
-      <div>
-        {types[parameter] === "text" ? (
-          extractedTextList?.[idx] ? (
-            <TextField
-              sx={{
-                width: "100%",
-                mt: 1,
-              }}
-              label=""
-              variant="outlined"
-              type="text"
-              multiline
-              value={extractedTextList?.[idx]?.text}
-              onChange={(e) =>
-                onEditText(extractedTextList[idx]?.id, e.target.value)
-              }
-            />
-          ) : (
-            <></>
-          )
-        ) : extractedTextList?.[idx] ? (
-          <img
-            src={extractedTextList?.[idx]?.image}
-            alt="image1"
-            style={{
-              width: "100%",
-              objectFit: "cover",
-            }}
-          />
-        ) : (
-          <></>
-        )}
-      </div>
-    </>
+      <AreaActionResult
+        type={types[parameter]}
+        result={extractedTextList?.[idx]}
+        onEditText={onEditText}
+      />
+    </div>
   );
 };
 

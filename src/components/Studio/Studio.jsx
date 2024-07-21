@@ -20,10 +20,12 @@ import StudioThumbnails from "./StudioThumbnails/StudioThumbnails";
 import { uploadBase64 } from "../../utils/upload";
 import QuestionNameHeader from "../QuestionNameHeader/QuestionNameHeader";
 import { saveBlocks, saveObject } from "../../services/api";
-import { constructBoxColors, trimText } from "../../utils/data";
-import { onEditTextField } from "../../utils/ocr";
-
-// some comment to redeploy
+import { trimText } from "../../utils/data";
+import {
+  constructBoxColors,
+  getTypeOfParameter,
+  onEditTextField,
+} from "../../utils/ocr";
 
 const Studio = (props) => {
   const {
@@ -38,7 +40,6 @@ const Studio = (props) => {
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [areas, setAreas] = React.useState([]);
   const [parameters, setParameters] = React.useState([]);
-  const [boxColors, setBoxColors] = React.useState([]);
   const [colorIndex, setColorIndex] = React.useState(0);
   const [results, setResults] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
@@ -55,6 +56,8 @@ const Studio = (props) => {
   const [subTypeObjects, setSubTypeObjects] = React.useState([]);
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
 
+  const [trialAreas, setTrialAreas] = React.useState([]);
+
   const [objectArea, setObjectArea] = React.useState(oArea);
 
   const onClickImage = (idx) => {
@@ -64,38 +67,51 @@ const Studio = (props) => {
 
   const onChangeHandler = (areasParam) => {
     console.log("areasParam= ", areasParam);
-    if (areasParam.length > areas.length) {
-      setBoxColors([...boxColors, null]);
-      setParameters([...parameters, ""]);
+
+    let newAreas = [];
+    for (let i = 0; i < trialAreas.length; i++) {
+      newAreas = [
+        ...newAreas,
+        {
+          x: areasParam[i].x,
+          y: areasParam[i].y,
+          width: areasParam[i].width,
+          height: areasParam[i].height,
+
+          id: trialAreas[i].id,
+          color: trialAreas[i].color,
+        },
+      ];
     }
 
-    setAreas(areasParam);
-  };
+    if (areasParam.length > areas.length) {
+      setParameters([...parameters, ""]);
+      setResults((prevState) => [...prevState, {}]);
 
-  const onChange = (areaParam) => {
-    // debounce(() => onChangeHandler());
-    onChangeHandler(areaParam);
-    // _.debounce(onChangeHandler, 300);
+      newAreas = [
+        ...newAreas,
+        {
+          x: areasParam[areasParam.length - 1].x,
+          y: areasParam[areasParam.length - 1].y,
+          width: areasParam[areasParam.length - 1].width,
+          height: areasParam[areasParam.length - 1].height,
+
+          id: uuidv4(),
+          color: null,
+        },
+      ];
+    }
+
+    setTrialAreas([...newAreas]);
+    setAreas(areasParam);
   };
 
   const onClickDeleteArea = (idx) => {
     setAreas((prevState) => [...prevState.filter((_, id) => idx !== id)]);
-    setBoxColors((prevState) => [...prevState.filter((_, id) => idx !== id)]);
     setResults((prevState) => [...prevState.filter((_, id) => idx !== id)]);
     setParameters((prevState) => [...prevState.filter((_, id) => idx !== id)]);
-  };
 
-  const getTypeOfParameter = (parameter) => {
-    const types = state.types;
-    const selectedType = types.find((_type) => _type.typeName === type);
-    const labels = selectedType.labels;
-    const item = labels.find((label) => {
-      const keys = Object.keys(label);
-      const key = keys[0];
-      return key === parameter;
-    });
-    const values = Object.values(item);
-    return values[0];
+    setTrialAreas((prevState) => [...prevState.filter((_, id) => idx !== id)]);
   };
 
   const handleCloseModal = () => setShowModal(false);
@@ -106,20 +122,26 @@ const Studio = (props) => {
   };
 
   const onChangeParameter = (value, idx) => {
+    console.log("value= ", value);
+    console.log("idx= ", idx);
     // state
     setActiveType(value);
     const newParameters = [...parameters];
     newParameters[idx] = value;
     setParameters(newParameters);
-    const newBoxColors = [...boxColors];
-    newBoxColors[idx] = colors[colorIndex];
+
+    //
+    let newTrialAreas = [...trialAreas];
+    newTrialAreas[idx].color = colors[colorIndex];
+    setTrialAreas(newTrialAreas);
+    //
+
     setColorIndex((prevState) =>
       prevState === colors.length - 1 ? 0 : prevState + 1
     );
-    setBoxColors(newBoxColors);
 
-    const type = getTypeOfParameter(value);
-    if (type !== "image" && type !== "text") {
+    const typeOfParameter = getTypeOfParameter(state.types, type, value);
+    if (typeOfParameter !== "image" && typeOfParameter !== "text") {
       const activeArea = areas[idx];
       const image = imageRef.current;
       const ratio = image.naturalWidth / image.width;
@@ -139,11 +161,48 @@ const Studio = (props) => {
       // open Modal
       // Timeout => to solve scroll-hiding problem
       setTimeout(() => {
-        openModal(type);
+        openModal(typeOfParameter);
       }, 1000);
     } else {
-      extract(newParameters);
+      newExtract(newParameters, idx);
     }
+  };
+
+  const newExtract = async (newParameters, idx) => {
+    if (loading) return;
+    setLoading(true);
+    const image = imageRef.current;
+    const ratio = image.naturalWidth / image.width;
+
+    // setResults([]);
+
+    // await Promise.all(
+    //   areas.map(async (area, idx) => {
+    const area = areas[idx];
+    const x = area.x * ratio;
+    const y = area.y * ratio;
+    const width = area.width * ratio;
+    const height = area.height * ratio;
+    const croppedImage = cropSelectedArea(x, y, width, height);
+    const id = uuidv4();
+    const text = await ocr(croppedImage, newParameters[idx], y);
+    const newResults = [...results];
+    newResults[idx] = {
+      id,
+      image: croppedImage,
+      parameter: newParameters[idx],
+      type: getTypeOfParameter(state.types, type, newParameters[idx]),
+      x,
+      y,
+      width,
+      height,
+      text,
+    };
+    setResults(newResults);
+
+    // SORT BY Y COORDINATE
+    // setResults((prevState) => [...prevState.sort((a, b) => a.y - b.y)]);
+    setLoading(false);
   };
 
   const onClickSubmit = async () => {
@@ -199,10 +258,11 @@ const Studio = (props) => {
     // CLEAR STATES
     setAreas([]);
     setParameters([]);
-    setBoxColors([]);
     setColorIndex(0);
     setResults([]);
     setLoading(false);
+
+    setTrialAreas([]);
   };
 
   const onEditText = (id, text) => {
@@ -233,7 +293,7 @@ const Studio = (props) => {
             id,
             image: croppedImage,
             parameter: newParameters[idx],
-            type: getTypeOfParameter(newParameters[idx]),
+            type: getTypeOfParameter(state.types, type, newParameters[idx]),
             x,
             y,
             width,
@@ -309,7 +369,7 @@ const Studio = (props) => {
         <div
           className={styles.editor}
           css={{
-            "& > div:nth-of-type(2)": constructBoxColors(boxColors),
+            "& > div:nth-of-type(2)": constructBoxColors(trialAreas),
           }}
         >
           <ImageActions
@@ -318,7 +378,7 @@ const Studio = (props) => {
             areas={areas}
             setAreas={setAreas}
           />
-          <AreaSelector areas={areas} onChange={onChange}>
+          <AreaSelector areas={areas} onChange={onChangeHandler}>
             <img
               src={images[activeIndex]?.url || images[activeIndex]}
               alt={images[activeIndex]?.url || images[activeIndex]}
@@ -338,10 +398,11 @@ const Studio = (props) => {
         <div className={styles.actions}>
           <AreaActions
             parameters={parameters}
-            boxColors={boxColors}
+            trialAreas={trialAreas}
             onChangeParameter={onChangeParameter}
             loading={loading}
-            extractedTextList={results}
+            results={results}
+            setResults={setResults}
             onEditText={onEditText}
             onClickDeleteArea={onClickDeleteArea}
             type={type}
@@ -349,6 +410,7 @@ const Studio = (props) => {
             onClickSubmit={onClickSubmit}
             loadingSubmit={loadingSubmit}
             areas={areas}
+            setAreas={setAreas}
           />
         </div>
       </div>

@@ -7,7 +7,7 @@ import Select from "@mui/material/Select";
 import { useStore } from "../../store/store";
 
 const MuiSelect = (props) => {
-  const { value, onChange, color, list } = props;
+  const { value, onChange, list } = props;
 
   const [params, setParams] = React.useState([]);
   const { data: state } = useStore();
@@ -34,9 +34,6 @@ const MuiSelect = (props) => {
           value={value}
           onChange={(e) => onChange(e)}
           label="Label"
-          // sx={{
-          //   border: `2px solid ${color}`,
-          // }}
         >
           {list.map((param) => (
             <MenuItem key={param} value={param}>
