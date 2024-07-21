@@ -37,9 +37,9 @@ const QuestionNameHeader = (props) => {
           <span>{type || state?.type}</span>
         </div>
         <div>
-          <IconButton aria-label="edit" color="white" onClick={toggleShow}>
+          {/* <IconButton aria-label="edit" color="white" onClick={toggleShow}>
             <EditIcon />
-          </IconButton>
+          </IconButton> */}
         </div>
       </div>
     </div>
