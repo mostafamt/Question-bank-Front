@@ -9,7 +9,7 @@ import { IconButton } from "@mui/material";
 
 const QuestionNameHeader = (props) => {
   const [show, setShow] = React.useState(false);
-  const { name, type, subObject } = props;
+  const { subObject } = props;
 
   const toggleShow = () => {
     setShow((prevState) => !prevState);
@@ -17,29 +17,34 @@ const QuestionNameHeader = (props) => {
 
   const { data: state } = useStore();
 
+  const getQuestionName = () =>
+    subObject
+      ? `${state?.questionName} - ${state?.type}`
+      : `${state?.questionName}`;
+
   return (
     <div>
       <Modal show={show} handleClose={toggleShow}>
         <EditObjectModal
           handleClose={toggleShow}
           subObject={subObject}
-          name={name}
-          type={type}
+          name={getQuestionName()}
+          type={state?.type}
         />
       </Modal>
       <div className={styles.header}>
         <div>
           <span>Name: </span>
-          <span>{name || state?.questionName}</span>
+          <span>{getQuestionName()}</span>
         </div>
         <div>
           <span>Type: </span>
-          <span>{type || state?.type}</span>
+          <span>{state?.type}</span>
         </div>
         <div>
-          {/* <IconButton aria-label="edit" color="white" onClick={toggleShow}>
+          <IconButton aria-label="edit" color="white" onClick={toggleShow}>
             <EditIcon />
-          </IconButton> */}
+          </IconButton>
         </div>
       </div>
     </div>

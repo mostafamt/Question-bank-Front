@@ -15,7 +15,6 @@ const AreaAction = (props) => {
     onChangeParameter,
     idx,
     onClickDeleteArea,
-    extractedTextList,
     onEditText,
     type,
     trialArea,
@@ -58,8 +57,8 @@ const AreaAction = (props) => {
 
       <AreaActionResult
         type={types[parameter]}
-        result={extractedTextList?.[idx]}
         onEditText={onEditText}
+        trialArea={trialArea}
       />
     </div>
   );

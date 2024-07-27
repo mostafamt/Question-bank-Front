@@ -58,3 +58,28 @@ export const constructBoxColors = (trialAreas) => {
 
   return obj;
 };
+
+export const getSimpleTypes = () => [
+  "Text MCQ",
+  "Mark The Words",
+  "Text Drag Words",
+  "Image Juxtaposition",
+  "Image MCQ",
+  "Fill The Blanks",
+  "Dictation",
+  "Sort Paragraphs",
+  "Image Blinder (Agamotto)",
+  "Accordion",
+  "Image Pairing",
+  "Image Multiple Hotspot Question",
+  "Essay",
+  "Sort Images",
+  "Dialog Cards",
+  "Flash Cards",
+  "Hotspot Image",
+  "Interactive Video",
+  "Image Slider",
+  "Guess Answer",
+  "Chart",
+  "TrueFalse",
+];

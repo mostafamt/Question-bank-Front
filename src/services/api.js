@@ -1,6 +1,7 @@
 import { toast } from "react-toastify";
 import { NewInstance as axios } from "../axios";
 import { default as axios2 } from "../axios";
+import { v4 as uuidv4 } from "uuid";
 
 import newTypes from "./NewTypes.json";
 
@@ -16,6 +17,7 @@ export const fetchObjects = async (page, limit) => {
     return res;
   } catch (error) {
     toast.error(error?.message);
+    return null;
   }
 };
 
@@ -29,9 +31,19 @@ export const getTypes = async () => {
   return res;
 };
 
+export const fakeSaveObject = async (data) => {
+  wait(2000);
+  return uuidv4();
+};
+
 export const saveObject = async (data) => {
-  const res = await axios.post("/interactive-objects", data);
-  return res;
+  try {
+    const res = await axios.post("/interactive-objects", data);
+    return res.data;
+  } catch (error) {
+    toast.error(error?.message);
+    return null;
+  }
 };
 
 export const getImages = async (domain, subDomain) => {

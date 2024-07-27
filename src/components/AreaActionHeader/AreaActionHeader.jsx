@@ -26,7 +26,7 @@ const AreaActionHeader = (props) => {
       ></div>
       <MuiSelect
         list={list}
-        value={parameter}
+        value={trialArea.parameter}
         onChange={(e) => onChangeParameter(e.target.value, idx)}
       />
       <IconButton aria-label="delete" onClick={() => onClickDeleteArea(idx)}>

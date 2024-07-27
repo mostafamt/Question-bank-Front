@@ -92,7 +92,6 @@ const ScanAndUpload = () => {
           setImages={setImages}
           questionName={state.questionName}
           type={state.type}
-          objectArea={{}}
         />
       ) : (
         <div className={styles["upload-buttons"]}>
