@@ -2,12 +2,9 @@ import React from "react";
 import { AreaSelector } from "@bmunozg/react-image-area";
 /** @jsxImportSource @emotion/react */
 import { useStore } from "../../store/store";
-import { getSet2FromSet1 } from "../../utils/helper";
-import axios from "../../axios";
 import { toast } from "react-toastify";
 import Modal from "../Modal/Modal";
 import AreaActions from "../AreaActions/AreaActions";
-import Tesseract from "tesseract.js";
 import ImageActions from "../ImageActions/ImageActions";
 import { v4 as uuidv4 } from "uuid";
 import { colors } from "../../constants/highlight-color";
@@ -15,11 +12,11 @@ import SubObjectModal from "../Modal/SubObjectModal/SubObjectModal";
 
 import StudioThumbnails from "./StudioThumbnails/StudioThumbnails";
 import { uploadBase64 } from "../../utils/upload";
-import { trimText } from "../../utils/data";
 import {
   constructBoxColors,
   getSimpleTypes,
   getTypeOfParameter,
+  ocr,
   onEditTextField,
 } from "../../utils/ocr";
 
@@ -52,8 +49,6 @@ const Studio = (props) => {
   };
 
   const onChangeHandler = (areasParam) => {
-    // console.log("areasParam= ", areasParam);
-
     let newAreas = [];
     for (let i = 0; i < trialAreas.length; i++) {
       newAreas = [
@@ -71,6 +66,7 @@ const Studio = (props) => {
           image: trialAreas[i].image,
           parameter: trialAreas[i].parameter,
           order: trialAreas[i].order,
+          open: trialAreas[i].open,
         },
       ];
     }
@@ -89,8 +85,9 @@ const Studio = (props) => {
           loading: false,
           text: "",
           image: "",
-          parameter: "",
+          parameter: "Select a parameter",
           order: areasParam.length - 1,
+          open: true,
         },
       ];
     }
@@ -114,6 +111,7 @@ const Studio = (props) => {
     //
     let newTrialAreas = [...trialAreas];
     newTrialAreas[idx].color = colors[colorIndex];
+    // newTrialAreas[idx].parameter = value;
     setTrialAreas(newTrialAreas);
     //
 
@@ -154,9 +152,7 @@ const Studio = (props) => {
   };
 
   const exract = async (value, idx) => {
-    let newTrialAreas = [...trialAreas];
-    newTrialAreas[idx] = { ...newTrialAreas[idx], loading: true };
-    setTrialAreas(newTrialAreas);
+    updateTrialAreas(idx, { loading: true });
 
     const image = imageRef.current;
     const ratio = image.naturalWidth / image.width;
@@ -167,15 +163,9 @@ const Studio = (props) => {
     const width = area.width * ratio;
     const height = area.height * ratio;
     const croppedImage = cropSelectedArea(x, y, width, height);
-    const text = await ocr(croppedImage, value, y);
+    const text = await ocr(state.language, croppedImage);
 
-    newTrialAreas = [...trialAreas];
-    newTrialAreas[idx] = {
-      ...newTrialAreas[idx],
-      text,
-      loading: false,
-    };
-    setTrialAreas(newTrialAreas);
+    updateTrialAreas(idx, { text, loading: false });
   };
 
   const handleSubmit = async (questionName, type, areas) => {
@@ -212,7 +202,6 @@ const Studio = (props) => {
     };
 
     const id = await saveObject(data);
-    console.log("before return id, areas= ", trialAreas);
     return id;
   };
 
@@ -235,16 +224,20 @@ const Studio = (props) => {
   };
 
   const updateTrialAreas = (idx, value) => {
-    let newTrialAreas = [...trialAreas];
+    console.log("updateTrialAreas");
+    console.log("value= ", value);
+    setTrialAreas((prevState) => {
+      let newTrialAreas = [...prevState];
 
-    if (idx === -1) {
-      const lastIndex = trialAreas.length - 1;
-      newTrialAreas[lastIndex] = { ...newTrialAreas[lastIndex], ...value };
-    } else {
-      newTrialAreas[idx] = { ...newTrialAreas[idx], ...value };
-    }
+      if (idx === -1) {
+        const lastIndex = trialAreas.length - 1;
+        newTrialAreas[lastIndex] = { ...newTrialAreas[lastIndex], ...value };
+      } else {
+        newTrialAreas[idx] = { ...newTrialAreas[idx], ...value };
+      }
 
-    setTrialAreas(newTrialAreas);
+      return newTrialAreas;
+    });
   };
 
   const clear = async () => {
@@ -271,18 +264,6 @@ const Studio = (props) => {
     ctx.drawImage(image, x, y, width, height, 0, 0, width, height);
     const dataUrl = canvas.toDataURL("image/jpeg");
     return dataUrl;
-  };
-
-  const ocr = async (dataUrl) => {
-    const language = getSet2FromSet1(state.language);
-    let text = "";
-    try {
-      const result = await Tesseract.recognize(dataUrl, language);
-      text = result.data.text;
-    } catch (err) {
-      console.error(err);
-    }
-    return trimText(text);
   };
 
   return (
@@ -346,6 +327,7 @@ const Studio = (props) => {
             labels={state.labels}
             onClickSubmit={onClickSubmit}
             loadingSubmit={loadingSubmit}
+            updateTrialAreas={updateTrialAreas}
           />
         </div>
       </div>

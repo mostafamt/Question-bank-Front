@@ -1,4 +1,28 @@
+import Tesseract from "tesseract.js";
 import { hexToRgbA } from "./helper";
+import { trimText } from "./data";
+
+const getLanguageCodeSet2FromSet1 = (set1) => {
+  let res = "";
+  if (set1 === "en") {
+    res = "eng";
+  } else if (set1 === "ar") {
+    res = "ara";
+  }
+  return res;
+};
+
+export const ocr = async (language, dataUrl) => {
+  const newLanguageCode = getLanguageCodeSet2FromSet1(language);
+  let text = "";
+  try {
+    const result = await Tesseract.recognize(dataUrl, newLanguageCode);
+    text = result.data.text;
+  } catch (err) {
+    console.error(err);
+  }
+  return trimText(text);
+};
 
 export const onEditTextField = (results, id, text) => {
   const newExtractedTextList = results.map((item) => {

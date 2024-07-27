@@ -4,6 +4,8 @@ import { Button, CircularProgress } from "@mui/material";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { reorder } from "../../utils/ocr";
 
+import List from "@mui/material/List";
+
 const AreaActions = (props) => {
   const {
     onChangeParameter,
@@ -14,6 +16,7 @@ const AreaActions = (props) => {
     loadingSubmit,
     trialAreas,
     setTrialAreas,
+    updateTrialAreas,
   } = props;
 
   const onDragEnd = (result) => {
@@ -40,7 +43,7 @@ const AreaActions = (props) => {
   };
 
   return (
-    <>
+    <List sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="droppable-id">
           {(provided, snapshot) => (
@@ -67,6 +70,7 @@ const AreaActions = (props) => {
                           onEditText={onEditText}
                           type={type}
                           trialArea={trialArea}
+                          updateTrialAreas={updateTrialAreas}
                         />
                       </div>
                     )}
@@ -92,7 +96,7 @@ const AreaActions = (props) => {
         </div>
       )}
       <div>Num of areas: {trialAreas.length}</div>
-    </>
+    </List>
   );
 };
 
