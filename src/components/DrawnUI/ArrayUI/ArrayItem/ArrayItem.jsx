@@ -10,6 +10,7 @@ import { Box, IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 import styles from "./arrayItem.module.scss";
+import { fullTextTrim } from "../../../../utils/data";
 
 const ArrayItem = (props) => {
   const {
@@ -37,7 +38,7 @@ const ArrayItem = (props) => {
   return (
     <div className={styles["array-item"]}>
       <ListItemButton onClick={onClickItem}>
-        <ListItemText primary={`Item ${index + 1}`} />
+        <ListItemText primary={`${fullTextTrim(label)} ${index + 1}`} />
         <RemoveButton />
         {open ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
