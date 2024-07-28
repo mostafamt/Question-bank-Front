@@ -1,28 +1,12 @@
 import React from "react";
 import Box from "@mui/material/Box";
-import InputLabel from "@mui/material/InputLabel";
+// import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import { useStore } from "../../store/store";
 
 const MuiSelect = (props) => {
   const { value, onChange, list } = props;
-
-  const [params, setParams] = React.useState([]);
-  const { data: state } = useStore();
-
-  React.useEffect(() => {
-    getLabels();
-  }, []);
-
-  const getLabels = async () => {
-    // const type = state.type;
-    // const res = await axios.get(`objectLabels${type}`);
-    // const params = res.data.map((param) => Object.keys(param)?.[0]);
-    const params = state.labels?.map((item) => Object.keys(item)?.[0]);
-    setParams(params);
-  };
 
   return (
     <Box sx={{ minWidth: 120 }}>

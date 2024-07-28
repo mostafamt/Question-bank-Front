@@ -4,6 +4,7 @@ import { default as axios2 } from "../axios";
 import { v4 as uuidv4 } from "uuid";
 
 import newTypes from "./NewTypes.json";
+import { useStore } from "../store/store";
 
 const wait = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -27,8 +28,13 @@ export const getOldTypes = async () => {
 };
 
 export const getTypes = async () => {
-  const res = await axios2.get("io-types");
-  return res;
+  try {
+    const res = await axios2.get("io-types");
+    return res.data;
+  } catch (error) {
+    toast.error(error.message);
+    return null;
+  }
 };
 
 export const fakeSaveObject = async (data) => {

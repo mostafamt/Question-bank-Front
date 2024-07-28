@@ -130,6 +130,7 @@ const Studio = (props) => {
     const width = activeArea.width * ratio;
     const height = activeArea.height * ratio;
     const croppedImage = cropSelectedArea(x, y, width, height);
+    setActiveImage(croppedImage);
     updateTrialAreas(idx, {
       parameter: value,
       image: croppedImage,

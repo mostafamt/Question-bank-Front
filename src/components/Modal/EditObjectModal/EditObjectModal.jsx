@@ -13,7 +13,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import { useStore } from "../../../store/store";
 
 import styles from "./editObjectModal.module.scss";
-import { getQuestionTypes } from "../../../services/api";
+import { getTypes } from "../../../services/api";
 
 const EditObjectModal = (props) => {
   const {
@@ -28,10 +28,10 @@ const EditObjectModal = (props) => {
   const [list, setList] = React.useState([questionType]);
 
   const getData = async () => {
-    const res = await getQuestionTypes();
-    const data = res.data;
-    console.log("data= ", data);
-    const types = data.map((item) => item.typeName);
+    const questionTypes = state.types || await getTypes();
+    console.log('questionTypes= ', questionTypes);
+    const types = questionTypes.map(item => item.typeName);
+    console.log('types= ', types);
     setList(types);
   };
 

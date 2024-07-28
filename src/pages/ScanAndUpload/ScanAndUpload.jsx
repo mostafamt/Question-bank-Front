@@ -1,5 +1,4 @@
 import React from "react";
-import { styled } from "@mui/material/styles";
 import Button from "@mui/material/Button";
 import axios from "axios";
 import Loader from "../../components/Loader/Loader";
@@ -9,24 +8,12 @@ import QuestionNameHeader from "../../components/QuestionNameHeader/QuestionName
 import { useStore } from "../../store/store";
 import DescriptionIcon from "@mui/icons-material/Description";
 import CollectionsIcon from "@mui/icons-material/Collections";
+import VisuallyHiddenInput from "../../components/VisuallyHiddenInput/VisuallyHiddenInput";
+import { useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import styles from "./scanAndUpload.module.scss";
-import { toast } from "react-toastify";
-import { useLocation } from "react-router-dom";
 
-// update auto-ui branch
-
-const VisuallyHiddenInput = styled("input")({
-  clip: "rect(0 0 0 0)",
-  clipPath: "inset(50%)",
-  height: 1,
-  overflow: "hidden",
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  whiteSpace: "nowrap",
-  width: 1,
-});
 
 const ScanAndUpload = () => {
   const location = useLocation();
