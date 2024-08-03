@@ -1,16 +1,6 @@
-.row {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  width: 100%;
-  overflow: hidden;
-
-  & > *:nth-child(2) {
-    flex-grow: 1;
-  }
-
-  & .color {
-    width: 2rem;
-    height: 2rem;
-  }
+.area-action {
+  margin-bottom: 1rem;
+  border-radius: 2px;
+  border-style: solid;
+  border-radius: 0 0 0.5rem 0.5rem;
 }

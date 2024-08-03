@@ -1,52 +1,38 @@
 import React from "react";
 import { AreaSelector } from "@bmunozg/react-image-area";
-import { Button, CircularProgress } from "@mui/material";
 /** @jsxImportSource @emotion/react */
-import { css } from "@emotion/react";
 import { useStore } from "../../store/store";
-import { getSet2FromSet1, hexToRgbA } from "../../utils/helper";
-import axios from "../../axios";
 import { toast } from "react-toastify";
 import Modal from "../Modal/Modal";
 import AreaActions from "../AreaActions/AreaActions";
-import Tesseract from "tesseract.js";
 import ImageActions from "../ImageActions/ImageActions";
 import { v4 as uuidv4 } from "uuid";
 import { colors } from "../../constants/highlight-color";
 import SubObjectModal from "../Modal/SubObjectModal/SubObjectModal";
 
-import styles from "./studio.module.scss";
 import StudioThumbnails from "./StudioThumbnails/StudioThumbnails";
 import { uploadBase64 } from "../../utils/upload";
-import QuestionNameHeader from "../QuestionNameHeader/QuestionNameHeader";
-import { saveBlocks, saveObject } from "../../services/api";
-import { constructBoxColors, trimText } from "../../utils/data";
-import { onEditTextField } from "../../utils/ocr";
+import {
+  constructBoxColors,
+  getSimpleTypes,
+  getTypeOfParameter,
+  ocr,
+  onEditTextField,
+} from "../../utils/ocr";
 
-// some comment to redeploy
+import styles from "./studio.module.scss";
+import { fakeSaveObject, saveObject } from "../../services/api";
 
 const Studio = (props) => {
-  const {
-    images,
-    setImages,
-    questionName,
-    type,
-    subObject,
-    handleClose,
-    objectArea: oArea,
-  } = props;
+  const { images, setImages, questionName, type, subObject, handleClose } =
+    props;
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [areas, setAreas] = React.useState([]);
-  const [parameters, setParameters] = React.useState([]);
-  const [boxColors, setBoxColors] = React.useState([]);
   const [colorIndex, setColorIndex] = React.useState(0);
-  const [results, setResults] = React.useState([]);
-  const [loading, setLoading] = React.useState(false);
   const imageRef = React.createRef();
   const canvasRef = React.createRef();
-  const { data: state, setFormState } = useStore();
+  const { data: state } = useStore();
   const [imageScaleFactor, setImageScaleFactor] = React.useState(1);
-  const [output, setOutput] = React.useState(null);
   // To Extract Sub Object
   const [showModal, setShowModal] = React.useState(false);
   const [activeType, setActiveType] = React.useState("");
@@ -55,7 +41,7 @@ const Studio = (props) => {
   const [subTypeObjects, setSubTypeObjects] = React.useState([]);
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
 
-  const [objectArea, setObjectArea] = React.useState(oArea);
+  const [trialAreas, setTrialAreas] = React.useState([]);
 
   const onClickImage = (idx) => {
     setActiveIndex(idx);
@@ -63,92 +49,128 @@ const Studio = (props) => {
   };
 
   const onChangeHandler = (areasParam) => {
-    console.log("areasParam= ", areasParam);
-    if (areasParam.length > areas.length) {
-      setBoxColors([...boxColors, null]);
-      setParameters([...parameters, ""]);
+    let newAreas = [];
+    for (let i = 0; i < trialAreas.length; i++) {
+      newAreas = [
+        ...newAreas,
+        {
+          x: areasParam[i].x,
+          y: areasParam[i].y,
+          width: areasParam[i].width,
+          height: areasParam[i].height,
+
+          id: trialAreas[i].id,
+          color: trialAreas[i].color,
+          loading: trialAreas[i].loading,
+          text: trialAreas[i].text,
+          image: trialAreas[i].image,
+          parameter: trialAreas[i].parameter,
+          order: trialAreas[i].order,
+          open: trialAreas[i].open,
+        },
+      ];
     }
 
-    setAreas(areasParam);
-  };
+    if (areasParam.length > trialAreas.length) {
+      newAreas = [
+        ...newAreas,
+        {
+          x: areasParam[areasParam.length - 1].x,
+          y: areasParam[areasParam.length - 1].y,
+          width: areasParam[areasParam.length - 1].width,
+          height: areasParam[areasParam.length - 1].height,
 
-  const onChange = (areaParam) => {
-    // debounce(() => onChangeHandler());
-    onChangeHandler(areaParam);
-    // _.debounce(onChangeHandler, 300);
+          id: uuidv4(),
+          color: null,
+          loading: false,
+          text: "",
+          image: "",
+          parameter: "Select a parameter",
+          order: areasParam.length - 1,
+          open: true,
+        },
+      ];
+    }
+
+    setTrialAreas([...newAreas]);
+    setAreas(areasParam);
   };
 
   const onClickDeleteArea = (idx) => {
     setAreas((prevState) => [...prevState.filter((_, id) => idx !== id)]);
-    setBoxColors((prevState) => [...prevState.filter((_, id) => idx !== id)]);
-    setResults((prevState) => [...prevState.filter((_, id) => idx !== id)]);
-    setParameters((prevState) => [...prevState.filter((_, id) => idx !== id)]);
-  };
-
-  const getTypeOfParameter = (parameter) => {
-    const types = state.types;
-    const selectedType = types.find((_type) => _type.typeName === type);
-    const labels = selectedType.labels;
-    const item = labels.find((label) => {
-      const keys = Object.keys(label);
-      const key = keys[0];
-      return key === parameter;
-    });
-    const values = Object.values(item);
-    return values[0];
+    setTrialAreas((prevState) => [...prevState.filter((_, id) => idx !== id)]);
   };
 
   const handleCloseModal = () => setShowModal(false);
-
-  const openModal = (type) => {
-    setShowModal(true);
-    setActiveType(type);
-  };
+  const openModal = () => setShowModal(true);
 
   const onChangeParameter = (value, idx) => {
     // state
     setActiveType(value);
-    const newParameters = [...parameters];
-    newParameters[idx] = value;
-    setParameters(newParameters);
-    const newBoxColors = [...boxColors];
-    newBoxColors[idx] = colors[colorIndex];
+
+    //
+    let newTrialAreas = [...trialAreas];
+    newTrialAreas[idx].color = colors[colorIndex];
+    // newTrialAreas[idx].parameter = value;
+    setTrialAreas(newTrialAreas);
+    //
+
     setColorIndex((prevState) =>
       prevState === colors.length - 1 ? 0 : prevState + 1
     );
-    setBoxColors(newBoxColors);
 
-    const type = getTypeOfParameter(value);
-    if (type !== "image" && type !== "text") {
-      const activeArea = areas[idx];
-      const image = imageRef.current;
-      const ratio = image.naturalWidth / image.width;
+    const typeOfParameter = getTypeOfParameter(state.types, type, value);
 
-      const x = activeArea.x * ratio;
-      const y = activeArea.y * ratio;
-      const width = activeArea.width * ratio;
-      const height = activeArea.height * ratio;
-      const croppedImage = cropSelectedArea(x, y, width, height);
+    const activeArea = areas[idx];
+    const image = imageRef.current;
+    const ratio = image.naturalWidth / image.width;
 
-      // to store coordinates
-      if (!subObject) {
-        setObjectArea({ x, y, width, height });
-      }
+    const x = activeArea.x * ratio;
+    const y = activeArea.y * ratio;
+    const width = activeArea.width * ratio;
+    const height = activeArea.height * ratio;
+    const croppedImage = cropSelectedArea(x, y, width, height);
+    setActiveImage(croppedImage);
+    updateTrialAreas(idx, {
+      parameter: value,
+      image: croppedImage,
+      type: getTypeOfParameter(state.types, type, value),
+    });
 
-      setActiveImage(croppedImage);
-      // open Modal
-      // Timeout => to solve scroll-hiding problem
-      setTimeout(() => {
-        openModal(type);
-      }, 1000);
+    if (typeOfParameter === "text") {
+      exract(value, idx);
     } else {
-      extract(newParameters);
+      // open modal if it has a supported type
+      const simpleTypes = getSimpleTypes();
+      let found = simpleTypes.find((type) => type === typeOfParameter);
+      if (found) {
+        // timeout to solve scrollbar hiding
+        setTimeout(() => {
+          openModal();
+        }, 1000);
+      }
     }
   };
 
-  const onClickSubmit = async () => {
+  const exract = async (value, idx) => {
+    updateTrialAreas(idx, { loading: true });
+
+    const image = imageRef.current;
+    const ratio = image.naturalWidth / image.width;
+
+    const area = areas[idx];
+    const x = area.x * ratio;
+    const y = area.y * ratio;
+    const width = area.width * ratio;
+    const height = area.height * ratio;
+    const croppedImage = cropSelectedArea(x, y, width, height);
+    const text = await ocr(state.language, croppedImage);
+
+    updateTrialAreas(idx, { text, loading: false });
+  };
+
+  const handleSubmit = async (questionName, type, areas) => {
     const {
-      questionName,
       language,
       domainId,
       domainName,
@@ -156,14 +178,15 @@ const Studio = (props) => {
       subDomainName,
       topic,
       objectOwner,
-      type,
     } = state;
 
     const objectElements = await Promise.all(
-      results.map(async (item) => ({
-        [item.parameter]:
-          item.type === "image" ? await uploadBase64(item.image) : item.text,
-      }))
+      [...areas]
+        .sort((a, b) => a.order - b.order)
+        .map(async (item) => ({
+          [item.parameter]:
+            item.type === "image" ? await uploadBase64(item.image) : item.text,
+        }))
     );
 
     const data = {
@@ -175,87 +198,60 @@ const Studio = (props) => {
       subDomainName,
       topic,
       objectOwner,
-      type: props.type,
+      type,
       objectElements,
-      blockCoordinates: objectArea,
     };
 
-    console.log(JSON.stringify(data, null, 2));
+    const id = await saveObject(data);
+    return id;
+  };
 
-    try {
-      const res = await axios.post("/interactive-objects", data);
-
-      toast.success("Object created successfully!");
-      clear();
-      if (subObject) {
-        handleClose();
-      }
-    } catch (error) {
-      toast.error(error?.message);
+  const onClickSubmit = async () => {
+    setLoadingSubmit(true);
+    if (subObject) {
+      const { questionName } = state;
+      const name = `${questionName} - ${props.type}`;
+      const id = await props.handleSubmit(name, type, trialAreas);
+      props.updateTrialAreas(-1, { text: id });
+      id && toast.success("Sub-Object created successfully!");
+      handleClose();
+    } else {
+      const { questionName, type } = state;
+      const id = await handleSubmit(questionName, type, trialAreas);
+      id && toast.success("Object created successfully!");
     }
+    clear();
+    setLoadingSubmit(false);
+  };
+
+  const updateTrialAreas = (idx, value) => {
+    console.log("updateTrialAreas");
+    console.log("value= ", value);
+    setTrialAreas((prevState) => {
+      let newTrialAreas = [...prevState];
+
+      if (idx === -1) {
+        const lastIndex = trialAreas.length - 1;
+        newTrialAreas[lastIndex] = { ...newTrialAreas[lastIndex], ...value };
+      } else {
+        newTrialAreas[idx] = { ...newTrialAreas[idx], ...value };
+      }
+
+      return newTrialAreas;
+    });
   };
 
   const clear = async () => {
     // CLEAR STATES
     setAreas([]);
-    setParameters([]);
-    setBoxColors([]);
     setColorIndex(0);
-    setResults([]);
-    setLoading(false);
+
+    setTrialAreas([]);
   };
 
   const onEditText = (id, text) => {
-    const newResults = onEditTextField(results, id, text);
-    setResults(newResults);
-  };
-
-  const extract = async (newParameters) => {
-    if (loading) return;
-    setLoading(true);
-    const image = imageRef.current;
-    const ratio = image.naturalWidth / image.width;
-
-    setResults([]);
-
-    await Promise.all(
-      areas.map(async (area, idx) => {
-        const x = area.x * ratio;
-        const y = area.y * ratio;
-        const width = area.width * ratio;
-        const height = area.height * ratio;
-        const croppedImage = cropSelectedArea(x, y, width, height);
-        const id = uuidv4();
-        const text = await ocr(croppedImage, newParameters[idx], y);
-        setResults((prevState) => [
-          ...prevState,
-          {
-            id,
-            image: croppedImage,
-            parameter: newParameters[idx],
-            type: getTypeOfParameter(newParameters[idx]),
-            x,
-            y,
-            width,
-            height,
-            text,
-          },
-        ]);
-        // const text = await ocr(croppedImage, newParameters[idx], y);
-        // setResults((prevState) =>
-        //   prevState.map((item) => {
-        //     if (item.id === id) {
-        //       const newItem = { ...item, text };
-        //       return newItem;
-        //     }
-        //     return item;
-        //   })
-        // );
-      })
-    );
-    // SORT BY Y COORDINATE
-    setResults((prevState) => [...prevState.sort((a, b) => a.y - b.y)]);
-    setLoading(false);
+    const newResults = onEditTextField(trialAreas, id, text);
+    setTrialAreas(newResults);
   };
 
   const cropSelectedArea = (x, y, width, height) => {
@@ -271,18 +267,6 @@ const Studio = (props) => {
     return dataUrl;
   };
 
-  const ocr = async (dataUrl) => {
-    const language = getSet2FromSet1(state.language);
-    let text = "";
-    try {
-      const result = await Tesseract.recognize(dataUrl, language);
-      text = result.data.text;
-    } catch (err) {
-      console.error(err);
-    }
-    return trimText(text);
-  };
-
   return (
     <>
       <Modal show={showModal} handleClose={handleCloseModal} size="xl">
@@ -291,12 +275,10 @@ const Studio = (props) => {
           image={activeImage}
           name={`${state.questionName} - ${activeType}`}
           type={activeType}
-          results={results}
-          setResults={setResults}
-          parameter={""}
-          y={""}
-          objectArea={objectArea}
+          results={trialAreas}
           setSubTypeObjects={setSubTypeObjects}
+          handleSubmit={handleSubmit}
+          updateTrialAreas={updateTrialAreas}
         />
       </Modal>
       <div className={styles.studio}>
@@ -309,7 +291,7 @@ const Studio = (props) => {
         <div
           className={styles.editor}
           css={{
-            "& > div:nth-of-type(2)": constructBoxColors(boxColors),
+            "& > div:nth-of-type(2)": constructBoxColors(trialAreas),
           }}
         >
           <ImageActions
@@ -318,7 +300,7 @@ const Studio = (props) => {
             areas={areas}
             setAreas={setAreas}
           />
-          <AreaSelector areas={areas} onChange={onChange}>
+          <AreaSelector areas={areas} onChange={onChangeHandler}>
             <img
               src={images[activeIndex]?.url || images[activeIndex]}
               alt={images[activeIndex]?.url || images[activeIndex]}
@@ -337,18 +319,16 @@ const Studio = (props) => {
         </div>
         <div className={styles.actions}>
           <AreaActions
-            parameters={parameters}
-            boxColors={boxColors}
+            trialAreas={trialAreas}
+            setTrialAreas={setTrialAreas}
             onChangeParameter={onChangeParameter}
-            loading={loading}
-            extractedTextList={results}
             onEditText={onEditText}
             onClickDeleteArea={onClickDeleteArea}
             type={type}
             labels={state.labels}
             onClickSubmit={onClickSubmit}
             loadingSubmit={loadingSubmit}
-            areas={areas}
+            updateTrialAreas={updateTrialAreas}
           />
         </div>
       </div>

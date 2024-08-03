@@ -1,22 +1,28 @@
 import React from "react";
 
-import styles from "./areaAction.module.scss";
-import MuiSelect from "../MuiSelect/MuiSelect";
-import { IconButton, TextField } from "@mui/material";
+import { Box, Collapse, IconButton, List, TextField } from "@mui/material";
 import { DeleteForever } from "@mui/icons-material";
-
 import { useStore } from "../../store/store";
+import AreaActionResult from "../AreaActionResult/AreaActionResult";
+import AreaActionHeader from "../AreaActionHeader/AreaActionHeader";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemText from "@mui/material/ListItemText";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
+import { hexToRgbA } from "../../utils/helper";
+
+import styles from "./areaAction.module.scss";
 
 const AreaAction = (props) => {
   const {
-    color,
     parameter,
     onChangeParameter,
     idx,
     onClickDeleteArea,
-    extractedTextList,
     onEditText,
     type,
+    trialArea,
+    updateTrialAreas,
   } = props;
 
   const { data: state } = useStore();
@@ -28,9 +34,7 @@ const AreaAction = (props) => {
     // GET LABELS OF THE SELECTED TYPE
     let labels = state?.types.find((item) => item.typeName === type)?.labels;
 
-    if (!labels) {
-      labels = state?.oldTypes.find((item) => item.typeName === type)?.labels;
-    }
+    // getTypeOfParameter
 
     const object = labels?.reduce((acc, item) => {
       const key = Object.keys(item)?.[0];
@@ -45,60 +49,60 @@ const AreaAction = (props) => {
     getLabels();
   }, [getLabels]);
 
+  const onClick = () => {
+    updateTrialAreas(idx, { open: !trialArea.open });
+  };
+
+  const onClickDelete = (event) => {
+    event.stopPropagation();
+    onClickDeleteArea(idx);
+  };
+
   return (
-    <>
-      <div className={styles.row}>
-        <div
-          className={styles.color}
-          style={{
-            backgroundColor: color ? color : "green",
-          }}
-        ></div>
-        <MuiSelect
-          list={list}
-          value={parameter}
-          color={color}
-          onChange={(e) => onChangeParameter(e.target.value, idx)}
-        />
-        <IconButton aria-label="delete" onClick={() => onClickDeleteArea(idx)}>
+    <div
+      className={styles["area-action"]}
+      style={{
+        borderColor: hexToRgbA(trialArea.color),
+      }}
+    >
+      <ListItemButton
+        onClick={onClick}
+        sx={{ padding: "0 0.5rem", background: hexToRgbA(trialArea.color) }}
+      >
+        <ListItemText primary={parameter} />
+        <IconButton aria-label="delete" onClick={onClickDelete}>
           <DeleteForever color="error" />
         </IconButton>
-      </div>
+        {trialArea.open ? <AddIcon /> : <RemoveIcon />}
+      </ListItemButton>
 
-      <div>
-        {types[parameter] === "text" ? (
-          extractedTextList?.[idx] ? (
-            <TextField
-              sx={{
-                width: "100%",
-                mt: 1,
-              }}
-              label=""
-              variant="outlined"
-              type="text"
-              multiline
-              value={extractedTextList?.[idx]?.text}
-              onChange={(e) =>
-                onEditText(extractedTextList[idx]?.id, e.target.value)
-              }
-            />
-          ) : (
-            <></>
-          )
-        ) : extractedTextList?.[idx] ? (
-          <img
-            src={extractedTextList?.[idx]?.image}
-            alt="image1"
-            style={{
-              width: "100%",
-              objectFit: "cover",
+      <Collapse in={trialArea.open} timeout="auto" unmountOnExit>
+        <List component="div" disablePadding>
+          <Box
+            sx={{
+              // backgroundColor: "#eee",
+              borderRadius: "3px",
+              p: "1rem 0.5rem",
             }}
-          />
-        ) : (
-          <></>
-        )}
-      </div>
-    </>
+          >
+            <AreaActionHeader
+              list={list}
+              parameter={parameter}
+              onChangeParameter={onChangeParameter}
+              idx={idx}
+              onClickDeleteArea={onClickDeleteArea}
+              trialArea={trialArea}
+            />
+
+            <AreaActionResult
+              type={types[parameter]}
+              onEditText={onEditText}
+              trialArea={trialArea}
+            />
+          </Box>
+        </List>
+      </Collapse>
+    </div>
   );
 };
 

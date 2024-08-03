@@ -1,5 +1,3 @@
-import { hexToRgbA } from "./helper";
-
 const BOOLEAN = "Bool";
 
 const emptyValues = (object) => {
@@ -68,28 +66,12 @@ const getQuestionType = (questionTypes, questionName) => {
   return selectedType;
 };
 
-const constructBoxColors = (boxColors) => {
-  const values = boxColors.map((_, idx) => `& > div:nth-of-type(${idx + 2})`);
-
-  const obj = boxColors.map((color, idx) => {
-    if (values[idx]) {
-      return {
-        [values[idx]]: {
-          border: `2px solid ${color} !important`,
-          backgroundColor: `${hexToRgbA(color)}`,
-        },
-      };
-    } else {
-      return {};
-    }
-  });
-
-  return obj;
-};
-
 export const trimText = (text) =>
   text.replaceAll("\n", "").replaceAll("*", "").replaceAll("#", "");
 
-export const fullTextTrim = (text) => trimText(text).replaceAll("_", "");
+export const fullTextTrim = (text) => {
+  let newText = trimText(text).replaceAll("_", "");
+  return newText.split(" ")?.[0];
+};
 
-export { emptyValues, fillValues, syntaxHighlight, constructBoxColors };
+export { emptyValues, fillValues, syntaxHighlight };
