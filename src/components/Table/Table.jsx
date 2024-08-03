@@ -95,8 +95,8 @@ export default function DataTable(props) {
       paginationModel.page,
       paginationModel.pageSize
     );
-    const data = res.data;
-    if (!!data.docs.length) {
+    const data = res?.data;
+    if (!!data?.docs.length) {
       setRows(
         data.docs.map((item) => ({
           id: item._id,

@@ -63,8 +63,7 @@ const DrawnUI = () => {
 
   const getData = async () => {
     setLoading(true);
-    const res = await getTypes();
-    const objects = res.data;
+    const objects = await getTypes();
     const selectedType = objects.find((item) => item.typeName === type);
     setSelectedType(selectedType);
     const abstractParameter = selectedType?.abstractParameter;

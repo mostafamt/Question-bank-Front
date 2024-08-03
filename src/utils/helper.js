@@ -30,14 +30,4 @@ function hexToRgbA(hex) {
   // throw new Error("Bad Hex");
 }
 
-function getSet2FromSet1(set1) {
-  let res = "";
-  if (set1 === "en") {
-    res = "eng";
-  } else if (set1 === "ar") {
-    res = "ara";
-  }
-  return res;
-}
-
-export { constructMCQParametersFromKeyValuePairs, hexToRgbA, getSet2FromSet1 };
+export { constructMCQParametersFromKeyValuePairs, hexToRgbA };

@@ -1,39 +1,88 @@
 import React from "react";
 import AreaAction from "../AreaAction/AreaAction";
-import { Button, CircularProgress, IconButton, TextField } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
+import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
+import { reorder } from "../../utils/ocr";
+
+import List from "@mui/material/List";
 
 const AreaActions = (props) => {
   const {
-    parameters,
-    boxColors,
     onChangeParameter,
-    loading,
-    extractedTextList,
     onEditText,
     onClickDeleteArea,
     type,
     onClickSubmit,
     loadingSubmit,
-    areas,
+    trialAreas,
+    setTrialAreas,
+    updateTrialAreas,
   } = props;
 
-  return (
-    <>
-      {areas.map((area, idx) => (
-        <AreaAction
-          key={idx}
-          color={boxColors[idx]}
-          parameter={parameters[idx]}
-          onChangeParameter={onChangeParameter}
-          idx={idx}
-          onClickDeleteArea={onClickDeleteArea}
-          extractedTextList={extractedTextList}
-          onEditText={onEditText}
-          type={type}
-        />
-      ))}
+  const onDragEnd = (result) => {
+    if (!result.destination) {
+      return;
+    }
 
-      {extractedTextList.length > 0 && (
+    const orderArray = trialAreas.map((area) => area.order);
+
+    console.log("orderArray= ", orderArray);
+
+    const newOrderArray = reorder(
+      orderArray,
+      result.source.index,
+      result.destination.index
+    );
+
+    const mergedOrderArray = trialAreas.map((item, idx) => ({
+      ...item,
+      order: newOrderArray[idx],
+    }));
+
+    setTrialAreas(mergedOrderArray);
+  };
+
+  return (
+    <List sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="droppable-id">
+          {(provided, snapshot) => (
+            <div {...provided.droppableProps} ref={provided.innerRef}>
+              {[...trialAreas]
+                .sort((a, b) => a.order - b.order)
+                .map((trialArea, idx) => (
+                  <Draggable
+                    key={trialArea.id}
+                    draggableId={trialArea.id}
+                    index={idx}
+                  >
+                    {(provided, snaphost) => (
+                      <div
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        ref={provided.innerRef}
+                      >
+                        <AreaAction
+                          parameter={trialArea.parameter}
+                          onChangeParameter={onChangeParameter}
+                          idx={idx}
+                          onClickDeleteArea={onClickDeleteArea}
+                          onEditText={onEditText}
+                          type={type}
+                          trialArea={trialArea}
+                          updateTrialAreas={updateTrialAreas}
+                        />
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
+
+      {trialAreas.length > 0 && (
         <div>
           <Button
             variant="contained"
@@ -46,8 +95,8 @@ const AreaActions = (props) => {
           </Button>
         </div>
       )}
-      <div>Num of areas: {areas.length}</div>
-    </>
+      <div>Num of areas: {trialAreas.length}</div>
+    </List>
   );
 };
 
