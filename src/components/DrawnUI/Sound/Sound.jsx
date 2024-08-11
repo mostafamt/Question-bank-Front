@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, CircularProgress, TextField } from "@mui/material";
 import VisuallyHiddenInput from "../../VisuallyHiddenInput/VisuallyHiddenInput";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
@@ -8,28 +8,30 @@ import styles from "./sound.module.scss";
 import { upload } from "../../../utils/upload";
 
 const Sound = (props) => {
-  const { setValue, param, space } = props;
+  const { setValue, name, space, getValues } = props;
 
-  const [url, setUrl] = React.useState("");
+  let value = getValues(name);
+
+  const [loading, setLoading] = React.useState(false);
 
   const onChangeHandler = async (event) => {
+    setLoading(true);
     const file = event.target.files[0];
     const link = await upload(file);
-    setUrl(link);
-    setValue(param, link);
+    setValue(name, link);
+    setLoading(false);
   };
 
   const onChangeInput = (event) => {
-    setUrl(event.target.value);
-    setValue(param, event.target.value);
+    setValue(name, event.target.value);
   };
 
   return (
-    <Box className={styles.image} sx={{ mb: space }}>
+    <Box className={styles.image}>
       <div className={styles["image-area"]}>
-        {url ? (
+        {value ? (
           <audio controls>
-            <source src={url} type="audio/mp3" />
+            <source src={value} type="audio/mp3" />
             Your browser does not support the audio element.
           </audio>
         ) : (
@@ -42,19 +44,22 @@ const Sound = (props) => {
           role={undefined}
           variant="contained"
           tabIndex={-1}
-          startIcon={<CloudUploadIcon />}
           color="secondary"
           onChange={onChangeHandler}
+          disabled={loading}
+          startIcon={
+            loading ? <CircularProgress size="1rem" /> : <CloudUploadIcon />
+          }
         >
           Upload Sound
-          <VisuallyHiddenInput type="file" />
+          <VisuallyHiddenInput type="file" accept="audio/*" />
         </Button>
 
         <TextField
           label="Add Url"
           variant="outlined"
           fullWidth
-          value={url}
+          value={value}
           onChange={onChangeInput}
         />
       </div>

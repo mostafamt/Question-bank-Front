@@ -18,6 +18,7 @@ import {
 } from "../../config";
 import { NewInstance as axios } from "../../axios";
 import { toast } from "react-toastify";
+import { getQuestionTypes } from "../../services/api";
 
 import styles from "./addObject.module.scss";
 import { getImages, getTypes } from "../../services/api";
@@ -69,16 +70,13 @@ const AddObject = () => {
   };
 
   const onSubmitOcr = async (values) => {
-    setLoadingOCR(true);
-    const domainName = getDomainName(values.domainId);
-    const subDomainName = getSubDomainName(values.domainId, values.subDomainId);
-
     const data = {
       ...values,
-      domainName,
-      subDomainName,
+      domainName: getDomainName(values.domainId),
+      subDomainName: getSubDomainName(values.domainId, values.subDomainId),
     };
 
+    // const id = await saveObject(data);
     const selectedTypeObject = interactiveObjectTypes.find(
       (item) => item.typeName === values.type
     );
@@ -88,9 +86,7 @@ const AddObject = () => {
       labels: selectedTypeObject.labels,
       types: interactiveObjectTypes,
     });
-    const images = await getImages(domainName, subDomainName);
-    setLoadingOCR(false);
-    navigate("/scan-and-upload", { state: { key: "value", images } });
+    navigate("/scan-and-upload");
   };
 
   return (
