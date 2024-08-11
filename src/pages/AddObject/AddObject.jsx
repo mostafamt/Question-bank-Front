@@ -40,8 +40,9 @@ const AddObject = () => {
 
   const getQuestionTypes = async () => {
     const res = await getTypes();
-    setInteractiveObjectTypes(res);
-    const types = res.map((item) => item.typeName);
+    setInteractiveObjectTypes(res.data);
+    let types = res.data.filter((item) => item.typeCategory === "B");
+    types = types.map((item) => item.typeName);
     setTypes(types);
   };
 
@@ -161,7 +162,7 @@ const AddObject = () => {
                 ))}
               </Select>
               <Select
-                label="question type"
+                label="object type"
                 name="type"
                 register={register}
                 errors={errors}
