@@ -2,7 +2,7 @@ import DrawnUI from "../pages/DrawnUI/DrawnUI";
 import ExcelFile from "../components/ExcelFile/ExcelFile";
 import Bulk from "../components/MultipleChoice/Bulk/Bulk";
 import MultipleChoice from "../components/MultipleChoice/MultipleChoice";
-import Show from "../pages/Show/Show";
+import Book from "../pages/Book/Book";
 import TrueFalse from "../components/TrueFalse/TrueFalse";
 import AddObject from "../pages/AddObject/AddObject";
 import DragTheWords from "../pages/DragTheWords/DragTheWords";
@@ -39,7 +39,7 @@ const routes = [
   },
   {
     path: "/show/:id",
-    component: Show,
+    component: Book,
   },
   {
     path: "/bulk",

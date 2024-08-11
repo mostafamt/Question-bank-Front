@@ -1,0 +1,31 @@
+.book-viewer {
+  position: relative;
+  flex: 0 1 auto;
+  overflow: hidden;
+
+  & img {
+    width: 100%;
+  }
+
+  & .actions {
+    border-bottom: 2px solid #ccc;
+  }
+
+  & .viewer-box {
+    position: relative;
+
+    & .area-button {
+      position: absolute;
+      background-color: transparent;
+      border: 0;
+
+      &:hover {
+        // border: 1px solid black;
+        // box-shadow: rgba(0, 0, 0, 0.56) 0px 22px 70px 4px;
+        box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px,
+          rgba(0, 0, 0, 0.24) 0px 1px 2px;
+        background-color: rgba(#eee, 0.2);
+      }
+    }
+  }
+}
