@@ -1,10 +1,25 @@
+import { toast } from "react-toastify";
 import { NewInstance as axios } from "../axios";
 import { default as axios2 } from "../axios";
+import { v4 as uuidv4 } from "uuid";
 
 import newTypes from "./NewTypes.json";
+import { useStore } from "../store/store";
 
 const wait = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+export const fetchObjects = async (page, limit) => {
+  try {
+    const res = await axios2.get(
+      `/interactive-objects?page=${page}&limit=${limit}`
+    );
+    return res;
+  } catch (error) {
+    toast.error(error?.message);
+    return null;
+  }
 };
 
 export const getOldTypes = async () => {
@@ -23,8 +38,13 @@ export const getFilteredTypes = async () => {
 };
 
 export const saveObject = async (data) => {
-  const res = await axios.post("/interactive-objects", data);
-  return res;
+  try {
+    const res = await axios.post("/interactive-objects", data);
+    return res.data;
+  } catch (error) {
+    toast.error(error?.message);
+    return null;
+  }
 };
 
 export const getImages = async (domain, subDomain) => {
@@ -58,22 +78,9 @@ export const saveBlocks = async (blocks) => {
   });
 };
 
-// export const getInitialProduct = async () => {
-//   await wait(1000);
-//   return products.find((product) => product.id === INITIAL_PRODUCT);
-// };
-
-// export const getInitialProducts = async () => {
-//   await wait(1000);
-//   const result = [];
-//   while (result.length < 6) {
-//     const randomIndex = Math.floor(Math.random(0, 1) * products.length);
-//     const found =
-//       result.some((product) => product.id === randomIndex) ||
-//       randomIndex === INITIAL_PRODUCT;
-//     if (!found) {
-//       result.push(products[randomIndex]);
-//     }
-//   }
-//   return result;
-// };
+export const getQuestionTypes = async () => {
+  await wait(1000);
+  return newTypes;
+  // const res = await axios.get("interactive-object-types");
+  // return res;
+};

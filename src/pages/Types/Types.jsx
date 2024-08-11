@@ -17,6 +17,7 @@ import Modal from "../../components/Modal/Modal";
 import DeleteModalContent from "../../components/Modal/DeleteModalContent/DeleteModalContent";
 
 import styles from "./types.module.scss";
+import { getQuestionTypes } from "../../services/api";
 
 const Types = () => {
   const [types, setTypes] = React.useState([]);
@@ -27,7 +28,7 @@ const Types = () => {
 
   const getData = async () => {
     try {
-      const res = await axios.get("/interactive-object-types");
+      const res = await getQuestionTypes();
       const data = res.data;
       setTypes(data);
       setLoading(false);

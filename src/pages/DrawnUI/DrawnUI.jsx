@@ -3,32 +3,57 @@ import { useLocation, useParams } from "react-router-dom";
 import axios from "../../axios";
 import Alert from "@mui/material/Alert";
 import { Box, Button, CircularProgress } from "@mui/material";
-import Image from "../../components/DrawnUI/Image/Image";
-import Video from "../../components/DrawnUI/Video/Video";
-import Sound from "../../components/DrawnUI/Sound/Sound";
-import Text from "../../components/DrawnUI/Text/Text";
 import ArrayUI from "../../components/DrawnUI/ArrayUI/ArrayUI";
-import { default as BooleanComponent } from "../../components/DrawnUI/Boolean/Boolean";
 import { useForm } from "react-hook-form";
-import { emptyValues, fillValues } from "../../utils/data";
+import { emptyValues } from "../../utils/data";
 import ObjectUI from "../../components/DrawnUI/ObjectUI/ObjectUI";
 import { useStore } from "../../store/store";
 import { toast } from "react-toastify";
 
+import Select from "../../components/DrawnUI/Select/Select";
+import { getTypes } from "../../services/api";
+import { yupResolver } from "@hookform/resolvers/yup";
+
+import {
+  AUTO_UI_TYPES_MAPPING,
+  getSchema,
+  getTypeOfKey,
+  searchIfHintExist,
+  searchIfRequired,
+} from "../../utils/auto-ui";
+
 import styles from "./drawnUI.module.scss";
+import Wrapper from "../../components/DrawnUI/Wrapper/Wrapper";
 
 const DrawnUI = () => {
   const params = useParams();
   const { type } = params;
   const [foundAbstractParameters, setFoundAbstractParameters] =
     React.useState(true);
-  const [abstractParameters, setAbstractParameters] = React.useState();
+  const [selectedType, setSelectedType] = React.useState(null);
+  const [abstractParameters, setAbstractParameters] = React.useState([]);
   const [values, setValues] = React.useState({});
   const location = useLocation();
   const [isEditPage] = React.useState(
     location.pathname.startsWith("/edit-question")
   );
+  const [loading, setLoading] = React.useState(false);
+  const [labels, setLabels] = React.useState([]);
   const { data: state } = useStore();
+
+  const schema = getSchema(abstractParameters, labels);
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    setValue,
+    getValues,
+    formState: { isSubmitting, errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: async () => getData(),
+  });
 
   const getParameters = async () => {
     const res = await axios.get(`/interactive-objects/${params.id}`);
@@ -37,30 +62,24 @@ const DrawnUI = () => {
   };
 
   const getData = async () => {
-    const res = await axios.get("io-types");
-    const objects = res.data;
-    const selectedType = objects.find(
-      (item) => item.typeName === type
-    )?.abstractParameter;
-    setAbstractParameters(selectedType);
-    setFoundAbstractParameters(Boolean(selectedType));
+    setLoading(true);
+    const objects = await getTypes();
+    const selectedType = objects.find((item) => item.typeName === type);
+    setSelectedType(selectedType);
+    const abstractParameter = selectedType?.abstractParameter;
+    const labels = selectedType?.labels;
+    setLabels(labels);
+    setAbstractParameters(abstractParameter);
+    setFoundAbstractParameters(Boolean(abstractParameter));
     if (isEditPage) {
       const parameters = await getParameters();
+      setLoading(false);
       return parameters;
     } else {
-      return emptyValues(selectedType);
+      setLoading(false);
+      return emptyValues(abstractParameter);
     }
   };
-
-  const {
-    register,
-    handleSubmit,
-    control,
-    setValue,
-    formState: { isSubmitting },
-  } = useForm({
-    defaultValues: async () => getData(),
-  });
 
   const onSubmit = async (values) => {
     setValues(values);
@@ -118,76 +137,54 @@ const DrawnUI = () => {
     let jsx = "";
     for (const [key, value] of Object.entries(abstractParameters)) {
       let item = "";
-      let param = level === 1 ? key : `${arrayName}.${index}.${key}`;
-      console.log("param= ", param);
 
-      if (value === "text") {
-        item = (
-          <Text
-            space={space}
-            label={key}
-            register={register}
-            level={level}
-            value={level === 1 ? key : `${arrayName}.${index}.${key}`}
-          />
-        );
-      } else if (value === "image") {
-        item = (
-          <Image
-            register={{ ...register(param) }}
-            setValue={setValue}
-            param={param}
-            space={space}
-          />
-        );
-      } else if (value === "video") {
-        item = (
-          <Video
-            register={{ ...register(param) }}
-            setValue={setValue}
-            param={param}
-            space={space}
-          />
-        );
-      } else if (value === "voice") {
-        item = (
-          <Sound
-            register={{ ...register(param) }}
-            setValue={setValue}
-            param={param}
-            space={space}
-          />
-        );
-      } else if (value === "Boolean") {
-        item = (
-          <BooleanComponent register={{ ...register(param) }} space={space} />
-        );
-      } else if (Array.isArray(value)) {
-        const object = emptyValues(value[0]);
+      let properties = {
+        errors,
+        path: level === 1 ? [key] : [arrayName, index, key],
+        name: level === 1 ? key : `${arrayName}.${index}.${key}`,
+        register: register,
+        space: space,
+        label: key,
+        required: searchIfRequired(labels, key),
+        type: getTypeOfKey(labels, key) || value,
+        control: control,
+        setValue: setValue,
+        getValues: getValues,
+        parseParameters: parseParameters,
+        hint: searchIfHintExist(selectedType?.hints, key),
+      };
 
-        item = (
-          <ArrayUI
-            value={value}
-            parseParameters={parseParameters}
-            space={space}
-            level={level}
-            label={key}
-            control={control}
-            object={object}
-          />
-        );
-      } else if (typeof value === "object") {
-        item = (
-          <ObjectUI
-            value={value}
-            parseParameters={parseParameters}
-            space={space}
-            level={level}
-            label={key}
-            control={control}
-          />
-        );
+      let flag = false;
+      for (const [auto_ui_key, auto_ui_value] of Object.entries(
+        AUTO_UI_TYPES_MAPPING
+      )) {
+        if (auto_ui_key === properties?.type) {
+          flag = true;
+          const comp = (
+            <Wrapper space={properties.space} hint={properties.hint}>
+              {React.cloneElement(auto_ui_value, properties)}
+            </Wrapper>
+          );
+          item = comp;
+        }
       }
+
+      if (!flag) {
+        if (Array.isArray(properties?.type)) {
+          const object = emptyValues(properties?.type[0]);
+          item = <ArrayUI {...properties} object={object} />;
+        } else if (typeof properties?.type === "object") {
+          item = <ObjectUI {...properties} />;
+        } else if (properties?.type.includes("DropList")) {
+          const options = properties?.type.split(":")?.[1]?.split(",");
+          item = (
+            <Wrapper space={properties.space} hint={properties.hint}>
+              <Select {...properties} options={options} />
+            </Wrapper>
+          );
+        }
+      }
+
       jsx = (
         <React.Fragment>
           {jsx}
@@ -226,10 +223,18 @@ const DrawnUI = () => {
   return (
     <div className="container">
       <h1 style={{ textAlign: "center", marginBottom: "3rem" }}>{type}</h1>
-      <form className="mb-4" onSubmit={handleSubmit(onSubmit)}>
-        {abstractParameters && parseParameters(abstractParameters)}
-      </form>
-      <pre>{JSON.stringify(values, null, 4)}</pre>
+      {loading ? (
+        <Box sx={{ textAlign: "center", mt: "8rem" }}>
+          <CircularProgress size="4rem" />
+        </Box>
+      ) : (
+        <>
+          <form className="mb-4" onSubmit={handleSubmit(onSubmit)}>
+            {abstractParameters && parseParameters(abstractParameters)}
+          </form>
+          <pre>{JSON.stringify(values, null, 4)}</pre>
+        </>
+      )}
     </div>
   );
 };
