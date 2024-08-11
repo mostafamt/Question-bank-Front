@@ -1,0 +1,17 @@
+.book-thumbnails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  & button {
+    padding: 0.5rem;
+    outline: 0;
+    border: 0;
+    background-color: transparent;
+
+    &:hover,
+    &.active {
+      background-color: #9ca99b;
+    }
+  }
+}

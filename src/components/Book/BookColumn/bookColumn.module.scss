@@ -1,0 +1,34 @@
+.book-column {
+  & p {
+    margin: 0;
+    padding: 0;
+  }
+
+  & .minimized {
+    & .rotated-button {
+      writing-mode: tb-rl;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+  }
+
+  & .opened {
+    & .action {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 2px solid #ccc;
+      margin-bottom: 1rem;
+
+      & > button {
+        border-color: transparent;
+        background-color: transparent;
+
+        &:hover {
+          background-color: #ddd;
+        }
+      }
+    }
+  }
+}
