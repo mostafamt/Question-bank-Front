@@ -28,18 +28,13 @@ export const getOldTypes = async () => {
 };
 
 export const getTypes = async () => {
-  try {
-    const res = await axios2.get("io-types");
-    return res.data;
-  } catch (error) {
-    toast.error(error.message);
-    return null;
-  }
+  const res = await axios.get("interactive-object-types");
+  return res;
 };
 
-export const fakeSaveObject = async (data) => {
-  wait(2000);
-  return uuidv4();
+export const getFilteredTypes = async () => {
+  const res = await axios.get("interactive-object-types");
+  return res;
 };
 
 export const saveObject = async (data) => {

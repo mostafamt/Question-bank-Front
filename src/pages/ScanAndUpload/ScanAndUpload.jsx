@@ -14,7 +14,6 @@ import { toast } from "react-toastify";
 
 import styles from "./scanAndUpload.module.scss";
 
-
 const ScanAndUpload = () => {
   const location = useLocation();
   const [images, setImages] = React.useState(location.state?.images || []);
