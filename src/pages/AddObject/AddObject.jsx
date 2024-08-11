@@ -40,9 +40,8 @@ const AddObject = () => {
 
   const getQuestionTypes = async () => {
     const res = await getTypes();
-    setInteractiveObjectTypes(res.data);
-    let types = res.data.filter((item) => item.typeCategory === "B");
-    types = types.map((item) => item.typeName);
+    setInteractiveObjectTypes(res);
+    const types = res.map((item) => item.typeName);
     setTypes(types);
   };
 
