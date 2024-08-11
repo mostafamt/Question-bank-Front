@@ -18,6 +18,7 @@ import Test2 from "../pages/Test/Test2";
 import NotFound from "../pages/NotFound/NotFound";
 import AddType from "../pages/AddType/AddType";
 import Types from "../pages/Types/Types";
+import Error from "../pages/Error/Error";
 
 const routes = [
   {
@@ -123,6 +124,10 @@ const routes = [
   {
     path: "/test2",
     component: Test2,
+  },
+  {
+    path: "/error",
+    component: Error,
   },
   {
     path: "*",

@@ -1,10 +1,28 @@
+import { toast } from "react-toastify";
 import axios from "../axios";
+import { NewInstance as axios2 } from "../axios";
+
+function newAbortSignal(timeoutMs) {
+  const abortController = new AbortController();
+  setTimeout(() => abortController.abort(), timeoutMs || 0);
+
+  return abortController.signal;
+}
 
 const upload = async (file) => {
   const data = new FormData();
   data.append("file", file);
-  const res = await axios.post("/upload", data);
-  return res.data;
+  try {
+    const res = await axios.post("/upload", {
+      ...data,
+      timeout: 10000,
+      signal: newAbortSignal(10000),
+    });
+    return res.data;
+  } catch (error) {
+    console.log("error= ", error);
+    toast.error(error?.message);
+  }
 };
 
 const uploadBase64 = async (base64Data) => {

@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, CircularProgress, TextField } from "@mui/material";
 import VisuallyHiddenInput from "../../VisuallyHiddenInput/VisuallyHiddenInput";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
@@ -8,28 +8,33 @@ import { upload } from "../../../utils/upload";
 import styles from "./video.module.scss";
 
 const Video = (props) => {
-  const { setValue, param, space } = props;
+  const { setValue, name, space, getValues } = props;
 
-  const [url, setUrl] = React.useState("");
+  let value = getValues(name);
+
+  const [url, setUrl] = React.useState(getValues(name) || "");
+  const [loading, setLoading] = React.useState(false);
 
   const onChangeHandler = async (event) => {
+    setLoading(true);
     const file = event.target.files[0];
     const link = await upload(file);
     setUrl(link);
-    setValue(param, link);
+    setValue(name, link);
+    setLoading(false);
   };
 
   const onChangeInput = (event) => {
     setUrl(event.target.value);
-    setValue(param, event.target.value);
+    setValue(name, event.target.value);
   };
 
   return (
-    <Box className={styles.image} sx={{ mb: space }}>
+    <Box className={styles.image}>
       <div className={styles["image-area"]}>
-        {url ? (
+        {value ? (
           <video className={styles["scale-video"]} controls>
-            <source src={url} type="video/mp4" />
+            <source src={value} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         ) : (
@@ -42,18 +47,22 @@ const Video = (props) => {
           role={undefined}
           variant="contained"
           tabIndex={-1}
-          startIcon={<CloudUploadIcon />}
           color="secondary"
           onChange={onChangeHandler}
+          disabled={loading}
+          startIcon={
+            loading ? <CircularProgress size="1rem" /> : <CloudUploadIcon />
+          }
         >
           Upload Video
-          <VisuallyHiddenInput type="file" />
+          <VisuallyHiddenInput type="file" accept="video/*" />
         </Button>
 
         <TextField
           label="Add Url"
           variant="outlined"
-          value={url}
+          value={value}
+          defaultValue={value || ""}
           onChange={onChangeInput}
           fullWidth
         />

@@ -1,98 +1,102 @@
 import React from "react";
-import MuiSelect from "../MuiSelect/MuiSelect";
-import { IconButton, TextField } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import DeleteForever from "@mui/icons-material/DeleteForever";
+import AreaAction from "../AreaAction/AreaAction";
+import { Button, CircularProgress } from "@mui/material";
+import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
+import { reorder } from "../../utils/ocr";
 
-import styles from "./areaActions.module.scss";
-import { useStore } from "../../store/store";
+import List from "@mui/material/List";
 
 const AreaActions = (props) => {
   const {
-    parameter,
-    idx,
-    color,
     onChangeParameter,
-    loading,
-    extractedTextList,
     onEditText,
     onClickDeleteArea,
     type,
+    onClickSubmit,
+    loadingSubmit,
+    trialAreas,
+    setTrialAreas,
+    updateTrialAreas,
   } = props;
 
-  const { data: state } = useStore();
-  const [list, setList] = React.useState([]);
-  const [types, setTypes] = React.useState({});
+  const onDragEnd = (result) => {
+    if (!result.destination) {
+      return;
+    }
 
-  const getLabels = React.useCallback(() => {
-    // GET LABELS OF THE SELECTED TYPE
-    const labels = state.types.find((item) => item.typeName === type)?.labels;
+    const orderArray = trialAreas.map((area) => area.order);
 
-    const object = labels.reduce((acc, item) => {
-      const key = Object.keys(item)?.[0];
-      return { ...acc, [key]: item[key] };
-    }, {});
-    setTypes(object);
-    const params = labels?.map((item) => Object.keys(item)?.[0]);
-    setList(params);
-  }, [type, state.types]);
+    console.log("orderArray= ", orderArray);
 
-  React.useEffect(() => {
-    getLabels();
-  }, [getLabels]);
+    const newOrderArray = reorder(
+      orderArray,
+      result.source.index,
+      result.destination.index
+    );
+
+    const mergedOrderArray = trialAreas.map((item, idx) => ({
+      ...item,
+      order: newOrderArray[idx],
+    }));
+
+    setTrialAreas(mergedOrderArray);
+  };
 
   return (
-    <>
-      <div className={styles.row}>
-        <div
-          className={styles.color}
-          style={{ backgroundColor: color ? color : "green" }}
-        ></div>
-        <MuiSelect
-          list={list}
-          value={parameter}
-          color={color}
-          onChange={(e) => onChangeParameter(e.target.value, idx)}
-        />
-        <IconButton aria-label="delete" onClick={onClickDeleteArea}>
-          <DeleteForever color="error" />
-        </IconButton>
-      </div>
+    <List sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="droppable-id">
+          {(provided, snapshot) => (
+            <div {...provided.droppableProps} ref={provided.innerRef}>
+              {[...trialAreas]
+                .sort((a, b) => a.order - b.order)
+                .map((trialArea, idx) => (
+                  <Draggable
+                    key={trialArea.id}
+                    draggableId={trialArea.id}
+                    index={idx}
+                  >
+                    {(provided, snaphost) => (
+                      <div
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        ref={provided.innerRef}
+                      >
+                        <AreaAction
+                          parameter={trialArea.parameter}
+                          onChangeParameter={onChangeParameter}
+                          idx={idx}
+                          onClickDeleteArea={onClickDeleteArea}
+                          onEditText={onEditText}
+                          type={type}
+                          trialArea={trialArea}
+                          updateTrialAreas={updateTrialAreas}
+                        />
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
 
-      <div>
-        {types[parameter] === "text" ? (
-          extractedTextList?.[idx] ? (
-            <TextField
-              sx={{
-                width: "100%",
-                mt: 1,
-              }}
-              label=""
-              variant="outlined"
-              type="text"
-              multiline
-              value={extractedTextList?.[idx]?.text}
-              onChange={(e) =>
-                onEditText(extractedTextList[idx]?.id, e.target.value)
-              }
-            />
-          ) : (
-            <></>
-          )
-        ) : extractedTextList?.[idx] ? (
-          <img
-            src={extractedTextList?.[idx]?.image}
-            alt="image1"
-            style={{
-              width: "100%",
-              objectFit: "cover",
-            }}
-          />
-        ) : (
-          <></>
-        )}
-      </div>
-    </>
+      {trialAreas.length > 0 && (
+        <div>
+          <Button
+            variant="contained"
+            onClick={onClickSubmit}
+            sx={{ width: "100%" }}
+            disabled={loadingSubmit}
+            startIcon={loadingSubmit ? <CircularProgress size="1rem" /> : <></>}
+          >
+            Submit
+          </Button>
+        </div>
+      )}
+      <div>Num of areas: {trialAreas.length}</div>
+    </List>
   );
 };
 
