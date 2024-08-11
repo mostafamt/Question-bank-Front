@@ -6,9 +6,11 @@
   display: flex;
   gap: 2rem;
   overflow: hidden;
+  height: 65rem;
 
   & .studio-thumbnails {
     border: 2px solid orange;
+    overflow: scroll;
   }
 
   & .editor {

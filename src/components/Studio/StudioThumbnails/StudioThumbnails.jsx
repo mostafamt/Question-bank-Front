@@ -57,8 +57,8 @@ const StudioThumbnails = (props) => {
       {images.map((img, idx) => (
         <img
           key={idx}
-          src={img}
-          alt={img}
+          src={img?.url || img}
+          alt={img?.url || img}
           width="100%"
           onClick={() => onClickImage(idx)}
           style={{

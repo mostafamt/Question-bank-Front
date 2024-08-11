@@ -14,8 +14,8 @@ const Show = () => {
     if (!id) return;
     setLoading(true);
     try {
-      const res = await axios.get(`createObject/${id}`);
-      setUrl(res.data);
+      const res = await axios.get(`/interactive-objects/${id}`);
+      setUrl(res.data?.url);
     } catch (error) {
       console.log(error);
       toast.error(`${error?.message}, please try again later!`);

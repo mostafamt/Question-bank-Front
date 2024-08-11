@@ -1,4 +1,4 @@
-const BOOLEAN = "Boolean";
+const BOOLEAN = "Bool";
 
 const emptyValues = (object) => {
   let newObject = {};
@@ -66,22 +66,12 @@ const getQuestionType = (questionTypes, questionName) => {
   return selectedType;
 };
 
-const searchIfRequired = (questionType, label) => {
-  const labels = questionType?.labels;
-  let required = false;
-  labels.forEach((item) => {
-    const key = Object.keys(item)?.[0];
-    if (key.includes(label) && key.includes("*")) {
-      required = true;
-    }
-  });
-  return required;
+export const trimText = (text) =>
+  text.replaceAll("\n", "").replaceAll("*", "").replaceAll("#", "");
+
+export const fullTextTrim = (text) => {
+  let newText = trimText(text).replaceAll("_", "");
+  return newText.split(" ")?.[0];
 };
 
-const isRequired = (questionTypes, questionName, label) => {
-  const questionObject = getQuestionType(questionTypes, questionName);
-  const required = searchIfRequired(questionObject, label);
-  return required;
-};
-
-export { emptyValues, fillValues, syntaxHighlight, isRequired };
+export { emptyValues, fillValues, syntaxHighlight };

@@ -1,26 +1,9 @@
 import React from "react";
-import {
-  Box,
-  Button,
-  FormControl,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
-} from "@mui/material";
-import { AreaSelector } from "@bmunozg/react-image-area";
-import ClearIcon from "@mui/icons-material/Clear";
-import { useStore } from "../../../store/store";
-import Grid from "@mui/material/Grid";
-
 import { default as BootstrapModal } from "react-bootstrap/Modal";
-
-import styles from "./subObjectModal.module.scss";
-import AreaActions from "../../AreaActions/AreaActions";
 import Studio from "../../Studio/Studio";
 import QuestionNameHeader from "../../QuestionNameHeader/QuestionNameHeader";
-import { v4 as uuidv4 } from "uuid";
+
+import styles from "./subObjectModal.module.scss";
 
 const SubObjectModal = (props) => {
   const {
@@ -28,26 +11,11 @@ const SubObjectModal = (props) => {
     image,
     name,
     type,
-    setResults,
-    parameter,
-    y,
-    objectArea,
+    results,
+    setSubTypeObjects,
+    handleSubmit,
+    updateTrialAreas,
   } = props;
-  const { data: state } = useStore();
-
-  const close = () => {
-    const id = uuidv4();
-    setResults((prevState) => [
-      ...prevState,
-      {
-        id,
-        image: image,
-        parameter: parameter,
-        y,
-      },
-    ]);
-    handleClose();
-  };
 
   return (
     <div>
@@ -55,15 +23,18 @@ const SubObjectModal = (props) => {
         <BootstrapModal.Title></BootstrapModal.Title>
       </BootstrapModal.Header>
       <BootstrapModal.Body>
-        <QuestionNameHeader name={name} type={type} subObject />
+        <QuestionNameHeader subObject />
         <Studio
           images={[image]}
           setImages={() => ({})}
           name={name}
           type={type}
-          handleClose={close}
+          handleClose={handleClose}
           subObject
-          objectArea={objectArea}
+          results={results}
+          setSubTypeObjects={setSubTypeObjects}
+          handleSubmit={handleSubmit}
+          updateTrialAreas={updateTrialAreas}
         />
       </BootstrapModal.Body>
       <BootstrapModal.Footer></BootstrapModal.Footer>

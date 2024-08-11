@@ -1,0 +1,275 @@
+[
+  {
+    "typeName": "Simple item",
+    "typeCategory": "B",
+    "labels": [
+      {
+        "Objective": "text"
+      },
+      {
+        "Paragraph": "text"
+      },
+      {
+        "Picture": "image"
+      },
+      {
+        "Voice": "audio"
+      },
+      {
+        "Video": "video"
+      }
+    ]
+  },
+  {
+    "typeName": "Interactive object",
+    "typeCategory": "B",
+    "labels": [
+      {
+        "BarChart": "Chart"
+      },
+      {
+        "PieChart": "Chart"
+      },
+      {
+        "NumericTable": "Chart"
+      },
+      {
+        "Analytics": "Chart"
+      },
+      {
+        "Classification": "ImageSlider"
+      },
+      {
+        "DifferentCases": "ImageSlider"
+      },
+      {
+        "Phases": "Agamotto"
+      },
+      {
+        "Cycles": "Agamotto"
+      },
+      {
+        "Lifecycles": "Agamotto"
+      },
+      {
+        "ChemicalReaction": "Agamotto"
+      },
+      {
+        "ChemicalEquation": "Agamotto"
+      },
+      {
+        "BeforeAndAfter": "Juxtaposition"
+      },
+      {
+        "TwoEvents": "Juxtaposition"
+      },
+      {
+        "TwoStepExperiment": "Juxtaposition"
+      },
+      {
+        "DialogCards": "Dialog Cards"
+      },
+      {
+        "FlashCards": "Flash Cards"
+      },
+      {
+        "HotspotImage": "Hotspot Image"
+      },
+      {
+        "InteractiveVideo": "Interactive Video"
+      },
+      {
+        "Accordion": "Accordion"
+      },
+      {
+        "GuessAnswer": "Guess Answer"
+      },
+      {
+        "Chart": "Chart"
+      },
+      {
+        "ImageJuxtaposition": "Image Juxtaposition"
+      },
+      {
+        "ImageSlider": "Image Slider"
+      },
+      {
+        "ImageBlinder": "Agamotto"
+      }
+    ]
+  },
+  {
+    "typeName": "Question",
+    "typeCategory": "B",
+    "labels": [
+      {
+        "GuessTheImage": "Guess Answer"
+      },
+      {
+        "WhatHappensWhen": "Guess Answer"
+      },
+      {
+        "HowItMightHappen": "Guess Answer"
+      },
+      {
+        "WhyItHappens": "Guess Answer"
+      },
+      {
+        "Justify": "Guess Answer"
+      },
+      {
+        "TrueFalse": "TrueFalse"
+      },
+      {
+        "TextMCQ": "Text MCQ"
+      },
+      {
+        "FillTheBlanks": "Fill The Blanks"
+      },
+      {
+        "TextDragWords": "Text Drag Words"
+      },
+      {
+        "Dictation": "Dictation"
+      },
+      {
+        "MarkTheWords": "Mark The Words"
+      },
+      {
+        "ImageHotspotQuestion": "Image Hotspot Question"
+      },
+      {
+        "ImageMultipleHotspotQuestion": "Image Multiple Hotspot Question"
+      },
+      {
+        "SpeakTheWords": "Speak the words"
+      },
+      {
+        "ImageMCQ": "Image MCQ"
+      },
+      {
+        "Essay": "Essay"
+      },
+      {
+        "SortParagraphs": "Sort Paragraphs"
+      },
+      {
+        "SortImages": "Sort Images"
+      }
+    ]
+  },
+  {
+    "typeName": "TOC",
+    "typeCategory": "B",
+    "labels": [
+      {
+        "TOC_Level1": "text"
+      },
+      {
+        "TOC_Level2": "text"
+      },
+      {
+        "TOC_Level3": "text"
+      },
+      {
+        "Section": "text"
+      },
+      {
+        "SubSection": "text"
+      },
+      {
+        "SubSubSection": "text"
+      },
+      {
+        "SideHeader": "text"
+      }
+    ]
+  },
+  {
+    "typeName": "Keyword",
+    "typeCategory": "B",
+    "labels": [
+      {
+        "KeywordText": "text"
+      },
+      {
+        "KeywordDefinition": "text"
+      },
+      {
+        "KeywordIllustration": "image"
+      },
+      {
+        "KeywordExplanation": "text"
+      },
+      {
+        "Acronym": "text"
+      }
+    ]
+  },
+  {
+    "typeName": "SI",
+    "typeCategory": "B",
+    "labels": [
+      {
+        "Paragraph": "text"
+      },
+      {
+        "Picture": "image"
+      },
+      {
+        "DialogCards": "Dialog Cards"
+      },
+      {
+        "FlashCards": "Flash Cards"
+      },
+      {
+        "HotspotImage": "Hotspot Image"
+      },
+      {
+        "InteractiveVideo": "Interactive Video"
+      },
+      {
+        "Accordion": "Accordion"
+      },
+      {
+        "GuessAnswer": "Guess Answer"
+      },
+      {
+        "Chart": "Chart"
+      },
+      {
+        "ImageJuxtaposition": "Image Juxtaposition"
+      },
+      {
+        "ImageSlider": "Image Slider"
+      },
+      {
+        "ImageBlinder": "Agamotto"
+      }
+    ]
+  },
+  {
+    "typeName": "Text MCQ",
+    "typeCategory": "Q",
+    "labels": [
+      {
+        "*_Question_": "text"
+      },
+      {
+        "*_OptionText_": "text"
+      },
+      {
+        "_ChosenFeedback_": "text"
+      },
+      {
+        "_notChosenFeedback_": "text"
+      },
+      {
+        "_Tip_": "text"
+      },
+      {
+        "#_Correct_": "Bool"
+      }
+    ]
+  }
+]
