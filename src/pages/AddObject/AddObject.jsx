@@ -16,9 +16,6 @@ import {
   getDomainName,
   getSubDomainName,
 } from "../../config";
-import { NewInstance as axios } from "../../axios";
-import { toast } from "react-toastify";
-import { getQuestionTypes } from "../../services/api";
 
 import styles from "./addObject.module.scss";
 import { getImages, getTypes } from "../../services/api";
@@ -39,9 +36,11 @@ const AddObject = () => {
   );
 
   const getQuestionTypes = async () => {
-    const res = await getTypes();
-    setInteractiveObjectTypes(res);
-    const types = res.map((item) => item.typeName);
+    const data = await getTypes();
+    let types = data
+      .filter((item) => item.typeCategory === "B")
+      .map((item) => item.typeName);
+    setInteractiveObjectTypes(data);
     setTypes(types);
   };
 
@@ -69,13 +68,15 @@ const AddObject = () => {
   };
 
   const onSubmitOcr = async (values) => {
+    setLoadingOCR(true);
+    const domainName = getDomainName(values.domainId);
+    const subDomainName = getSubDomainName(values.domainId, values.subDomainId);
     const data = {
       ...values,
-      domainName: getDomainName(values.domainId),
-      subDomainName: getSubDomainName(values.domainId, values.subDomainId),
+      domainName,
+      subDomainName,
     };
 
-    // const id = await saveObject(data);
     const selectedTypeObject = interactiveObjectTypes.find(
       (item) => item.typeName === values.type
     );
@@ -85,7 +86,9 @@ const AddObject = () => {
       labels: selectedTypeObject.labels,
       types: interactiveObjectTypes,
     });
-    navigate("/scan-and-upload");
+    const images = await getImages(domainName, subDomainName);
+    setLoadingOCR(false);
+    navigate("/scan-and-upload", { state: { key: "value", images } });
   };
 
   return (
@@ -180,6 +183,7 @@ const AddObject = () => {
                 variant="contained"
                 startIcon={<DesignServicesIcon />}
                 type="submit"
+                disabled
               >
                 Manual Form
               </Button>
@@ -187,6 +191,7 @@ const AddObject = () => {
                 variant="contained"
                 onClick={onClickExcelFile}
                 startIcon={<InsertDriveFileIcon />}
+                disabled
               >
                 Excel File
               </Button>
