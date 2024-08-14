@@ -28,10 +28,15 @@ const EditObjectModal = (props) => {
   const [list, setList] = React.useState([questionType]);
 
   const getData = async () => {
-    const questionTypes = state.types || await getTypes();
-    console.log('questionTypes= ', questionTypes);
-    const types = questionTypes.map(item => item.typeName);
-    console.log('types= ', types);
+    let data = [];
+    if (state.types) {
+      data = state.types;
+    } else {
+      data = await getTypes();
+    }
+    const types = data
+      .filter((item) => item.typeCategory === "B")
+      .map((item) => item.typeName);
     setList(types);
   };
 

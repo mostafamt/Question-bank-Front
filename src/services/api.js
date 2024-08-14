@@ -29,7 +29,7 @@ export const getOldTypes = async () => {
 
 export const getTypes = async () => {
   try {
-    const res = await axios2.get("io-types");
+    const res = await axios.get("interactive-object-types");
     return res.data;
   } catch (error) {
     toast.error(error.message);

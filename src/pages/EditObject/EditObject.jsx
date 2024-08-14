@@ -54,8 +54,10 @@ const EditObject = () => {
   };
 
   const getQuestionTypes = async () => {
-    const res = await getTypes();
-    const types = res.map((item) => item.typeName);
+    const data = await getTypes();
+    let types = data
+      .filter((item) => item.typeCategory === "B")
+      .map((item) => item.typeName);
     setTypes(types);
   };
 
