@@ -85,6 +85,10 @@ export const changePage = (pages, currentPage, state = "next") => {
     indexOfCurrentPage++;
   } else if (state === "previous") {
     indexOfCurrentPage--;
+  } else if (state === "first") {
+    indexOfCurrentPage = 0;
+  } else if (state === "last") {
+    indexOfCurrentPage = pages.length - 1;
   }
   indexOfCurrentPage = fixArrayBoundaries(pages.length, indexOfCurrentPage);
 
