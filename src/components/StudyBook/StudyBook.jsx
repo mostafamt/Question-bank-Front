@@ -14,9 +14,9 @@ import PlayObjectModal from "../Modal/PlayObjectModal/PlayObjectModal";
 import styles from "./studyBook.module.scss";
 
 const StudyBook = (props) => {
-  //   const { pages, activePage, setActivePage } = props;
-  const [pages, setPages] = React.useState(PAGES);
-  const [activePage, setActivePage] = React.useState(INITIAL_PAGE);
+  const { pages, activePage, setActivePage } = props;
+  // const [pages, setPages] = React.useState(PAGES);
+  // const [activePage, setActivePage] = React.useState(INITIAL_PAGE);
   const [showModal, setShowModal] = React.useState(false);
 
   const onChangePage = (state = "next") => {

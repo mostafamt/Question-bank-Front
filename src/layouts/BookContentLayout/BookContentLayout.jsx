@@ -25,8 +25,6 @@ const BookContentLayout = (props) => {
     setColumns((prevState) => toggleColumn(prevState, id));
   };
 
-  const element = <div>{children}</div>;
-
   const clonedElement = React.cloneElement(children, {
     pages,
     activePage,
@@ -42,7 +40,7 @@ const BookContentLayout = (props) => {
           setActivePage={setActivePage}
         />
       </BookColumn>
-      <div>{children}</div>
+      <div>{clonedElement}</div>
       <BookColumn column={columns[1]} onClickMinimize={onClickMinimize}>
         <div>Column Content</div>
       </BookColumn>
