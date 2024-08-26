@@ -39,6 +39,7 @@ export const PAGES = Array(20)
   .fill(null)
   .map((_, index) => ({
     id: uuidv4(),
+    order: index + 1,
     src: `/assets/biology book/page-${(index + 1)
       .toString()
       .padStart(2, "0")}.jpg`,
@@ -58,6 +59,8 @@ export const PAGES = Array(20)
 //   },
 // ];
 export const INITIAL_PAGE = PAGES[INITIAL_PAGE_INDEX];
+
+export const getTotalPages = () => PAGES.length;
 
 export const toggleColumn = (columns, id) => {
   return columns.map((item) => {

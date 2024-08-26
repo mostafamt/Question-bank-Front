@@ -1,14 +1,15 @@
 import React from "react";
-import { IconButton } from "@mui/material";
+import { IconButton, Typography } from "@mui/material";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
 
 import styles from "./bookViewerTopBar.module.scss";
+import { getTotalPages } from "../../../utils/book";
 
 const BookViewerTopBar = (props) => {
-  const { onChangePage } = props;
+  const { activePage, onChangePage } = props;
 
   const onClickNextPage = () => {
     onChangePage("next");
@@ -27,6 +28,10 @@ const BookViewerTopBar = (props) => {
 
   return (
     <div className={styles.bookViewerTopBar}>
+      <Typography variant="caption" component="h5">
+        Page {activePage.order} of {getTotalPages()}
+      </Typography>
+
       <IconButton aria-label="first" onClick={onClickFirstPage}>
         <FirstPageIcon />
       </IconButton>
