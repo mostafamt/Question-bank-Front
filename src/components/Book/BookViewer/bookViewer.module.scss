@@ -9,6 +9,9 @@
 
   & .actions {
     border-bottom: 2px solid #ccc;
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem;
   }
 
   & .viewer-box {
