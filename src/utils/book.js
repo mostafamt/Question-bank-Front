@@ -3,47 +3,60 @@ import { v4 as uuidv4 } from "uuid";
 export const COLUMN_PERCENTAGE_MINIMIZED = 1;
 export const COLUMN_PERCENTAGE_OPENED = 15;
 export const INITIAL_PAGE_INDEX = 0;
-export const PAGES = [
-  {
+
+// areas: [
+//   {
+//     id: uuidv4(),
+//     x: 14,
+//     y: 25,
+//     width: 75,
+//     height: 16.5,
+//   },
+//   {
+//     id: uuidv4(),
+//     x: 14,
+//     y: 43,
+//     width: 75,
+//     height: 16.5,
+//   },
+//   {
+//     id: uuidv4(),
+//     x: 14,
+//     y: 60,
+//     width: 75,
+//     height: 16.5,
+//   },
+//   {
+//     id: uuidv4(),
+//     x: 14,
+//     y: 78,
+//     width: 75,
+//     height: 9,
+//   },
+// ],
+
+export const PAGES = Array(20)
+  .fill(null)
+  .map((_, index) => ({
     id: uuidv4(),
-    src: "/assets/page1.jpg",
-    areas: [
-      {
-        id: uuidv4(),
-        x: 14,
-        y: 25,
-        width: 75,
-        height: 16.5,
-      },
-      {
-        id: uuidv4(),
-        x: 14,
-        y: 43,
-        width: 75,
-        height: 16.5,
-      },
-      {
-        id: uuidv4(),
-        x: 14,
-        y: 60,
-        width: 75,
-        height: 16.5,
-      },
-      {
-        id: uuidv4(),
-        x: 14,
-        y: 78,
-        width: 75,
-        height: 9,
-      },
-    ],
-  },
-  {
-    id: uuidv4(),
-    src: "/assets/page2.jpg",
+    src: `/assets/biology book/page-${(index + 1)
+      .toString()
+      .padStart(2, "0")}.jpg`,
     areas: [],
-  },
-];
+  }));
+
+// export const PAGES = [
+//   {
+//     id: uuidv4(),
+//     src: "/assets/biology book/page-01.jpg",
+//     areas: [],
+//   },
+//   {
+//     id: uuidv4(),
+//     src: "/assets/biology book/page-02.jpg",
+//     areas: [],
+//   },
+// ];
 export const INITIAL_PAGE = PAGES[INITIAL_PAGE_INDEX];
 
 export const toggleColumn = (columns, id) => {

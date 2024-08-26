@@ -33,7 +33,11 @@ const BookContentLayout = (props) => {
 
   return (
     <div className={styles["book-content-layout"]}>
-      <BookColumn column={columns[0]} onClickMinimize={onClickMinimize}>
+      <BookColumn
+        column={columns[0]}
+        onClickMinimize={onClickMinimize}
+        classNameOpened={styles.try}
+      >
         <BookThumnails
           pages={pages}
           activePage={activePage}

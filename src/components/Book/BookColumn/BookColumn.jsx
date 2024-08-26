@@ -3,9 +3,10 @@ import MinimizeIcon from "@mui/icons-material/Minimize";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 import styles from "./bookColumn.module.scss";
+import clsx from "clsx";
 
 const BookColumn = (props) => {
-  const { column, onClickMinimize, children } = props;
+  const { column, onClickMinimize, children, classNameOpened } = props;
 
   return (
     <div
@@ -27,7 +28,7 @@ const BookColumn = (props) => {
           </div>
         </div>
       ) : (
-        <div className={styles.opened}>
+        <div className={clsx(styles.opened, classNameOpened)}>
           <div className={styles.action}>
             <p>{column.label}</p>
             <button onClick={() => onClickMinimize(column.id)}>

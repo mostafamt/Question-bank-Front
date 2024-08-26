@@ -2,7 +2,8 @@
   margin-bottom: 4rem;
   display: flex;
   gap: 3%;
-  min-height: 100vh;
+  min-height: 135vh;
+  height: 135vh;
   padding: 1rem 0;
 
   & > div {
@@ -15,4 +16,8 @@
       flex: 0 0 15%;
     }
   }
+}
+
+.try {
+  overflow-y: scroll !important;
 }
