@@ -12,7 +12,7 @@ const BookViewer = (props) => {
 
   return (
     <div className={styles["book-viewer"]}>
-      <BookViewerTopBar onChangePage={onChangePage} />
+      <BookViewerTopBar activePage={activePage} onChangePage={onChangePage} />
       <div className={styles["viewer-box"]}>
         {activePage && <img src={activePage.src} alt={activePage.src} />}
         {areas.map((area) => (
