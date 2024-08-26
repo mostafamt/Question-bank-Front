@@ -27,6 +27,42 @@ const appBarStyle = {
   color: "#000",
 };
 
+const tabs = [
+  {
+    label: "The Book",
+    icon: <MenuBookIcon />,
+    children: {
+      labels: ["Study Book", "Work Book", "Activity Book"],
+      items: [<StudyBook />, <div>Work Book</div>, <div>Activity Book</div>],
+    },
+  },
+  {
+    label: "Review Book",
+    icon: <BookIcon />,
+    children: {
+      labels: [
+        "Review Booklet",
+        "Exam Style Questions",
+        "Check Yourself",
+        "Headlights Booklet",
+      ],
+      items: [
+        <div>Review Booklet</div>,
+        <div>Exam Style Questions</div>,
+        <div>Check Yourself</div>,
+        <div>Headlights Booklet</div>,
+      ],
+    },
+  },
+];
+
+function a11yProps(index) {
+  return {
+    id: `simple-tab-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
+  };
+}
+
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -38,11 +74,7 @@ function TabPanel(props) {
       aria-labelledby={`full-width-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box sx={{ p: 0 }}>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
+      {value === index && <div>{children}</div>}
     </div>
   );
 }
@@ -53,13 +85,6 @@ TabPanel.propTypes = {
   value: PropTypes.number.isRequired,
 };
 
-function a11yProps(index) {
-  return {
-    id: `simple-tab-${index}`,
-    "aria-controls": `simple-tabpanel-${index}`,
-  };
-}
-
 const InnerTabs = (props) => {
   const { tabs, items } = props;
   const [value, setValue] = React.useState(0);
@@ -69,12 +94,7 @@ const InnerTabs = (props) => {
   };
 
   return (
-    <Box
-      sx={{
-        bgcolor: "background.paper",
-        width: "100%",
-      }}
-    >
+    <>
       <AppBar position="static" sx={appBarStyle}>
         <Tabs
           value={value}
@@ -94,38 +114,9 @@ const InnerTabs = (props) => {
           <BookContentLayout>{items[index]}</BookContentLayout>
         </TabPanel>
       ))}
-    </Box>
+    </>
   );
 };
-
-const tabs = [
-  {
-    label: "The Book",
-    icon: <MenuBookIcon />,
-    children: {
-      labels: ["Study Book", "Work Book", "Activity Book"],
-      items: [<StudyBook />, "Work Book", "Activity Book"],
-    },
-  },
-  {
-    label: "Review Book",
-    icon: <BookIcon />,
-    children: {
-      labels: [
-        "Review Booklet",
-        "Exam Style Questions",
-        "Check Yourself",
-        "Headlights Booklet",
-      ],
-      items: [
-        "Review Booklet",
-        "Exam Style Questions",
-        "Check Yourself",
-        "Headlights Booklet",
-      ],
-    },
-  },
-];
 
 const Book = () => {
   const [value, setValue] = React.useState(0);
@@ -136,35 +127,35 @@ const Book = () => {
 
   return (
     <div className="container">
-      <Box sx={{ bgcolor: "background.paper", width: "100%" }}>
-        <AppBar position="static" sx={appBarStyle}>
-          <Tabs
-            value={value}
-            onChange={handleChange}
-            textColor="inherit"
-            variant="fullWidth"
-            aria-label="full width tabs example"
-            sx={tabsStyle}
-          >
-            {tabs.map((tab, index) => (
-              <Tab
-                icon={<MenuBookIcon />}
-                iconPosition="start"
-                label={tab.label}
-                {...a11yProps(index)}
-              />
-            ))}
-          </Tabs>
-        </AppBar>
-        {tabs.map((item, index) => (
+      <AppBar position="static" sx={appBarStyle}>
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          textColor="inherit"
+          variant="fullWidth"
+          aria-label="full width tabs example"
+          sx={tabsStyle}
+        >
+          {tabs.map((tab, index) => (
+            <Tab
+              icon={<MenuBookIcon />}
+              iconPosition="start"
+              label={tab.label}
+              {...a11yProps(index)}
+            />
+          ))}
+        </Tabs>
+      </AppBar>
+      {tabs.map((item, index) => (
+        <>
           <TabPanel value={value} index={index}>
             <InnerTabs
               tabs={item.children?.labels}
               items={item.children?.items}
             />
           </TabPanel>
-        ))}
-      </Box>
+        </>
+      ))}
     </div>
   );
 };
