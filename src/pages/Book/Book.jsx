@@ -86,19 +86,14 @@ TabPanel.propTypes = {
 };
 
 const InnerTabs = (props) => {
-  const { tabs, items } = props;
-  const [value, setValue] = React.useState(0);
-
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
+  const { tabs, items, value, handleChange } = props;
 
   return (
     <>
       <AppBar position="static" sx={appBarStyle}>
         <Tabs
           value={value}
-          onChange={handleChange}
+          onChange={(event, newValue) => handleChange("inner", event, newValue)}
           textColor="inherit"
           variant="fullWidth"
           aria-label="full width tabs example"
@@ -109,28 +104,39 @@ const InnerTabs = (props) => {
           ))}
         </Tabs>
       </AppBar>
-      {tabs.map((_, index) => (
-        <TabPanel value={value} index={index}>
-          <BookContentLayout>{items[index]}</BookContentLayout>
-        </TabPanel>
-      ))}
+      <Layout value={value} tabs={tabs} items={items} />
     </>
   );
 };
 
-const Book = () => {
-  const [value, setValue] = React.useState(0);
+const Layout = (props) => {
+  const { value, tabs, items } = props;
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
+  return tabs.map((_, index) => (
+    <TabPanel value={value} index={index}>
+      <BookContentLayout>{items[index]}</BookContentLayout>
+    </TabPanel>
+  ));
+};
+
+const Book = () => {
+  const [value1, setValue1] = React.useState(0);
+  const [value2, setValue2] = React.useState(0);
+
+  const handleChange = (variant, event, newValue) => {
+    if (variant === "outer") {
+      setValue1(newValue);
+    } else {
+      setValue2(newValue);
+    }
   };
 
   return (
     <div className="container">
       <AppBar position="static" sx={appBarStyle}>
         <Tabs
-          value={value}
-          onChange={handleChange}
+          value={value1}
+          onChange={(event, newValue) => handleChange("outer", event, newValue)}
           textColor="inherit"
           variant="fullWidth"
           aria-label="full width tabs example"
@@ -148,8 +154,10 @@ const Book = () => {
       </AppBar>
       {tabs.map((item, index) => (
         <>
-          <TabPanel value={value} index={index}>
+          <TabPanel value={value1} index={index}>
             <InnerTabs
+              value={value2}
+              handleChange={handleChange}
               tabs={item.children?.labels}
               items={item.children?.items}
             />
