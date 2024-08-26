@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 // import SwipeableViews from "react-swipeable-views";
-import { useTheme } from "@mui/material/styles";
 import AppBar from "@mui/material/AppBar";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
@@ -11,6 +10,22 @@ import MenuBookIcon from "@mui/icons-material/MenuBook";
 import BookIcon from "@mui/icons-material/Book";
 import StudyBook from "../../components/StudyBook/StudyBook";
 import BookContentLayout from "../../layouts/BookContentLayout/BookContentLayout";
+
+const tabsStyle = {
+  width: "100%",
+  "& .MuiTabs-indicator": {
+    backgroundColor: "transparent",
+  },
+  "& .MuiTab-root.Mui-selected": {
+    backgroundColor: "primary.main",
+    color: "#fff",
+  },
+};
+
+const appBarStyle = {
+  bgcolor: "#eee",
+  color: "#000",
+};
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -60,17 +75,14 @@ const InnerTabs = (props) => {
         width: "100%",
       }}
     >
-      <AppBar position="static">
+      <AppBar position="static" sx={appBarStyle}>
         <Tabs
           value={value}
           onChange={handleChange}
-          indicatorColor="secondary"
           textColor="inherit"
           variant="fullWidth"
           aria-label="full width tabs example"
-          sx={{
-            width: "100%",
-          }}
+          sx={tabsStyle}
         >
           {tabs.map((item, index) => (
             <Tab label={item} {...a11yProps(index)} />
@@ -125,14 +137,14 @@ const Book = () => {
   return (
     <div className="container">
       <Box sx={{ bgcolor: "background.paper", width: "100%" }}>
-        <AppBar position="static">
+        <AppBar position="static" sx={appBarStyle}>
           <Tabs
             value={value}
             onChange={handleChange}
-            indicatorColor="secondary"
             textColor="inherit"
             variant="fullWidth"
             aria-label="full width tabs example"
+            sx={tabsStyle}
           >
             {tabs.map((tab, index) => (
               <Tab
