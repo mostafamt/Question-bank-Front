@@ -10,12 +10,13 @@ import {
 } from "../../utils/book";
 
 import styles from "./bookContentLayout.module.scss";
+import TableOfContents from "../../components/Book/TableOfContents/TableOfContents";
 
 const BookContentLayout = (props) => {
   const { children } = props;
   const [columns, setColumns] = React.useState([
     getColumn("Thumbnails"),
-    getColumn("Action"),
+    getColumn("Table Of Contents"),
   ]);
   const [pages, setPages] = React.useState(PAGES);
   const [activePage, setActivePage] = React.useState(INITIAL_PAGE);
@@ -46,7 +47,7 @@ const BookContentLayout = (props) => {
       </BookColumn>
       <div>{clonedElement}</div>
       <BookColumn column={columns[1]} onClickMinimize={onClickMinimize}>
-        <div>Column Content</div>
+        <TableOfContents setActivePage={setActivePage} />
       </BookColumn>
     </div>
   );
