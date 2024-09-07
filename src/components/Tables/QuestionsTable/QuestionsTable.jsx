@@ -1,13 +1,14 @@
 import * as React from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { Link, useNavigate } from "react-router-dom";
-import styles from "./table.module.scss";
-import { Button, IconButton, Radio } from "@mui/material";
+import { Button, Radio } from "@mui/material";
 import { RadioButtonCheckedRounded, Delete } from "@mui/icons-material";
-import axios from "../../axios";
-import { fetchObjects } from "../../services/api";
+import { fetchObjects } from "../../../services/api";
+import CategoryIcon from "@mui/icons-material/Category";
 
-export default function DataTable(props) {
+import styles from "./questionsTable.module.scss";
+
+const QuestionsTable = (props) => {
   const navigate = useNavigate();
   const [rows, setRows] = React.useState([]);
   const [total, setTotal] = React.useState(0);
@@ -127,10 +128,14 @@ export default function DataTable(props) {
 
   return (
     <>
+      <div className={styles.title}>
+        <CategoryIcon />
+        <h3>Objects</h3>
+      </div>
       <div className={styles.table}>
         <div className={styles.actions}>
           <Button variant="contained" onClick={onClickAddQuestion}>
-            Add Question
+            Add Object
           </Button>
           <Button variant="contained" onClick={onClickEditQuestion}>
             Edit
@@ -152,4 +157,6 @@ export default function DataTable(props) {
       </div>
     </>
   );
-}
+};
+
+export default QuestionsTable;
