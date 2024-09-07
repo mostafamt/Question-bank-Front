@@ -26,16 +26,6 @@ const AddBook = () => {
     queryFn: getBooks,
   });
 
-  const {
-    data: chapters,
-    isError: isErrorChapters,
-    isLoading: isLoadingChapters,
-    isSuccess: isSuccessChapters,
-    isFetching,
-  } = useQuery({
-    queryKey: [`chapters-${watch("book")}`],
-    queryFn: () => getChapters(watch("book")),
-  });
   //   const {
   //     data: chapters,
   //     isError: isErrorChapters,
@@ -44,8 +34,18 @@ const AddBook = () => {
   //     isFetching,
   //   } = useQuery({
   //     queryKey: [`chapters-${watch("book")}`],
-  //     queryFn: () => getTestChapters(watch("book")),
+  //     queryFn: () => getChapters(watch("book")),
   //   });
+  const {
+    data: chapters,
+    isError: isErrorChapters,
+    isLoading: isLoadingChapters,
+    isSuccess: isSuccessChapters,
+    isFetching,
+  } = useQuery({
+    queryKey: [`chapters-${watch("book")}`],
+    queryFn: () => getTestChapters(watch("book")),
+  });
 
   console.log("chapters= ", chapters);
 
