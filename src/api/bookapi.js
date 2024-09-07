@@ -1,5 +1,5 @@
 import axios from "../axios";
-import { chapters } from "./test-data";
+import { chapters, pages } from "./test-data";
 
 export const wait = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -20,7 +20,13 @@ export const getTestChapters = async (id) => {
   return chapters;
 };
 
-export const getChapterPages = async () => {};
+export const getChapterPages = async (id) => {};
+
+export const getTestChapterPages = async () => {
+  await wait(1000);
+  console.log("pages here= ", pages);
+  return pages;
+};
 
 export const submitBlock = async () => {};
 
