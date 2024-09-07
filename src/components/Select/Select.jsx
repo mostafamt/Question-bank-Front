@@ -5,6 +5,14 @@ import { CircularProgress } from "@mui/material";
 const Select = (props) => {
   const { children, register, name, label, errors, disabled, loading } = props;
 
+  const renderStatus = () => {
+    if (loading) {
+      return <CircularProgress />;
+    } else if (!children) {
+      return <div>No data available...</div>;
+    }
+  };
+
   return (
     <label className={styles.select}>
       <span>{label}</span>

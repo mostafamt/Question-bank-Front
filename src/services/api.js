@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import newTypes from "./NewTypes.json";
 import { useStore } from "../store/store";
 
-const wait = (ms) => {
+export const wait = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 

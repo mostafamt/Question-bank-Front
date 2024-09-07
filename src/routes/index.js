@@ -19,6 +19,7 @@ import NotFound from "../pages/NotFound/NotFound";
 import AddType from "../pages/AddType/AddType";
 import Types from "../pages/Types/Types";
 import Error from "../pages/Error/Error";
+import AddBook from "../pages/AddBook/AddBook";
 
 const routes = [
   {
@@ -48,6 +49,10 @@ const routes = [
   {
     path: "/add-question",
     component: AddObject,
+  },
+  {
+    path: "/add-book",
+    component: AddBook,
   },
   {
     path: "/add-question/:type",
