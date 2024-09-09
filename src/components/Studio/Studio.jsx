@@ -22,6 +22,7 @@ import {
 
 import styles from "./studio.module.scss";
 import { fakeSaveObject, saveObject } from "../../services/api";
+import { submitBlock } from "../../api/bookapi";
 
 const Studio = (props) => {
   const { images, setImages, questionName, type, subObject, handleClose } =
@@ -208,6 +209,7 @@ const Studio = (props) => {
 
   const onClickSubmit = async () => {
     setLoadingSubmit(true);
+
     if (subObject) {
       const { questionName } = state;
       const name = `${questionName} - ${props.type}`;
@@ -216,9 +218,16 @@ const Studio = (props) => {
       id && toast.success("Sub-Object created successfully!");
       handleClose();
     } else {
-      const { questionName, type } = state;
-      const id = await handleSubmit(questionName, type, trialAreas);
-      id && toast.success("Object created successfully!");
+      try {
+        await submitBlock();
+        toast.success("Block created successfully!");
+      } catch (error) {
+        toast.error("Some error happened!");
+      }
+
+      // const { questionName, type } = state;
+      // const id = await handleSubmit(questionName, type, trialAreas);
+      // id && toast.success("Object created successfully!");
     }
     clear();
     setLoadingSubmit(false);

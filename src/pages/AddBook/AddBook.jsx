@@ -13,9 +13,23 @@ import ScannerIcon from "@mui/icons-material/Scanner";
 
 import styles from "./addBook.module.scss";
 import { useNavigate } from "react-router-dom";
+import { PAGES } from "../../utils/book";
+import { getTypes } from "../../services/api";
+import { useStore } from "../../store/store";
+import { data } from "../../api/data";
 
 const AddBook = () => {
   const navigate = useNavigate();
+  const { data: state, setFormState } = useStore();
+
+  const getQuestionTypes = async () => {
+    setFormState({ ...data });
+  };
+
+  React.useEffect(() => {
+    getQuestionTypes();
+  }, []);
+
   const {
     register,
     formState: { errors },
@@ -73,10 +87,13 @@ const AddBook = () => {
     console.log("values= ", values);
     console.log("pages= ", pages);
 
-    const urls = pages.map((page) => page.url);
+    // const urls = pages.map((page) => page.url);
 
-    navigate("/scan-and-upload", { state: { images: [...urls] } });
-    // state={}
+    const newPages = PAGES?.map((item) => item.src);
+    console.log("newPages= ", newPages);
+    navigate("/scan-and-upload", {
+      state: { images: [...newPages] },
+    });
   };
 
   return (
