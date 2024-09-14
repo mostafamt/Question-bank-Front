@@ -24,7 +24,7 @@ import AddBook from "../pages/AddBook/AddBook";
 const routes = [
   {
     path: "/",
-    component: Home,
+    component: AddBook,
   },
   {
     path: "/true-false",
