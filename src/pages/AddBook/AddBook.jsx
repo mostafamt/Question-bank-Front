@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 
 const AddBook = () => {
   const navigate = useNavigate();
-  const [chapterId, setChapterId] = React.useState("");
+  const [loadingScan, setLoadingScan] = React.useState(false);
   const {
     register,
     formState: { errors },
@@ -48,8 +48,20 @@ const AddBook = () => {
 
   const onSubmit = async (values) => {
     const { chapter } = values;
+    setLoadingScan(true);
     const data = await getChapterPages(chapter);
-    const images = data.map((item) => item.url);
+    setLoadingScan(false);
+    let images = data.map((item) => item.url);
+
+    if (process.env.NODE_ENV === "development") {
+      images = [
+        "/assets/Biology for Cambridge Internationa/page-01.png",
+        "/assets/Biology for Cambridge Internationa/page-02.png",
+        "/assets/Biology for Cambridge Internationa/page-03.png",
+        "/assets/Biology for Cambridge Internationa/page-04.png",
+        "/assets/Biology for Cambridge Internationa/page-05.png",
+      ];
+    }
 
     navigate("/scan-and-upload", { state: { key: "value", images } });
   };
@@ -90,7 +102,14 @@ const AddBook = () => {
             </div>
 
             <div className={styles.actions}>
-              <Button variant="contained" type="submit">
+              <Button
+                variant="contained"
+                type="submit"
+                disabled={loadingScan}
+                startIcon={
+                  loadingScan ? <CircularProgress size="1rem" /> : <></>
+                }
+              >
                 Scan and Upload
               </Button>
             </div>
