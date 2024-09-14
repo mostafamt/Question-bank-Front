@@ -3,8 +3,8 @@ import { useForm } from "react-hook-form";
 import Select from "../../components/Select/Select";
 import {
   getBooks,
+  getChapterPages,
   getChapters,
-  getTestChapterPages,
   getTestChapters,
 } from "../../api/bookapi";
 import { useQuery } from "@tanstack/react-query";
@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 
 const AddBook = () => {
   const navigate = useNavigate();
+  const [chapterId, setChapterId] = React.useState("");
   const {
     register,
     formState: { errors },
@@ -25,26 +26,14 @@ const AddBook = () => {
 
   const {
     data: books,
-    isError,
-    isLoading,
-    isSuccess,
+    isError: isErrorBooks,
+    isLoading: isLoadingBooks,
+    isSuccess: isSuccessBooks,
   } = useQuery({
     queryKey: ["books"],
     queryFn: getBooks,
   });
 
-  //   const {
-  //     data: chapters,
-  //     isError: isErrorChapters,
-  //     isLoading: isLoadingChapters,
-  //     isSuccess: isSuccessChapters,
-  //     isFetching,
-  //   } = useQuery({
-  //     queryKey: [`chapters-${watch("book")}`],
-  //     queryFn: () => getChapters(watch("book")),
-  //   });
-
-  // TEST
   const {
     data: chapters,
     isError: isErrorChapters,
@@ -53,37 +42,23 @@ const AddBook = () => {
     isFetching,
   } = useQuery({
     queryKey: [`chapters-${watch("book")}`],
-    queryFn: () => getTestChapters(watch("book")),
+    queryFn: () => getChapters(watch("book")),
+    enabled: !!watch("book"), // Disable auto-fetch
   });
 
-  console.log("chapters= ", chapters);
+  const onSubmit = async (values) => {
+    const { chapter } = values;
+    const data = await getChapterPages(chapter);
+    const images = data.map((item) => item.url);
 
-  const {
-    data: pages,
-    isError: isErrorPages,
-    isLoading: isLoadingPages,
-    isSuccess: isSuccessPages,
-    isFetching: isFetchingPages,
-  } = useQuery({
-    queryKey: [`pages-${watch("chapter")}`],
-    queryFn: () => getTestChapterPages(watch("chapter")),
-  });
-
-  const onSubmit = (values) => {
-    console.log("values= ", values);
-    console.log("pages= ", pages);
-
-    const urls = pages.map((page) => page.url);
-
-    navigate("/scan-and-upload", { state: { images: [...urls] } });
-    // state={}
+    navigate("/scan-and-upload", { state: { key: "value", images } });
   };
 
   return (
     <div className={styles["add-book"]}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <fieldset>
-          <legend>Add Book</legend>
+          <legend>Define Blocks</legend>
           <div>
             <div className={styles.row}>
               <Select

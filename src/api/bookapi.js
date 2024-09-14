@@ -20,12 +20,9 @@ export const getTestChapters = async (id) => {
   return chapters;
 };
 
-export const getChapterPages = async (id) => {};
-
-export const getTestChapterPages = async () => {
-  await wait(1000);
-  console.log("pages here= ", pages);
-  return pages;
+export const getChapterPages = async (id) => {
+  const res = await axios.get(`/pages?chapterId=${id}`);
+  return res.data;
 };
 
 export const submitBlock = async () => {};
