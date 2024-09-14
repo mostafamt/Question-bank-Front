@@ -23,7 +23,10 @@ export const getTestChapters = async (id) => {
   return res.json();
 };
 
-export const getChapterPages = async () => {};
+export const getChapterPages = async (id) => {
+  const res = await axios.get(`/pages?chapterId=${id}`);
+  return res.data;
+};
 
 export const submitBlock = async () => {};
 
