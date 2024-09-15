@@ -202,13 +202,16 @@ const Studio = (props) => {
         .map(async (item) => ({
           pageId: "66684e63e4163f0056e5fc29",
           coordinates: {
-            x: 12.5,
-            y: 12.5,
-            width: 10,
-            height: 20,
+            x: item.x,
+            y: item.y,
+            width: item.width,
+            height: item.height,
           },
-          contentType: "Any Type",
-          contentValue: "some text",
+          contentType: item.label,
+          contentValue:
+            item.typeOfLabel === "image"
+              ? await uploadBase64(item.image)
+              : item.text,
 
           // [item.parameter]:
           //   item.type === "image" ? await uploadBase64(item.image) : item.text,
