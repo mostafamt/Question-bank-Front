@@ -42,6 +42,16 @@ export const getFilteredTypes = async () => {
   return res;
 };
 
+export const saveBlocks = async (data) => {
+  try {
+    const res = await axios.post("/save-blocks", data);
+    return res.data;
+  } catch (error) {
+    toast.error(error?.message);
+    return null;
+  }
+};
+
 export const saveObject = async (data) => {
   try {
     const res = await axios.post("/interactive-objects", data);
@@ -75,12 +85,6 @@ export const getImages = async (domain, subDomain) => {
     url: item.url,
   }));
   return images;
-};
-
-export const saveBlocks = async (blocks) => {
-  const res = await axios.post("/save-blocks", {
-    blocks,
-  });
 };
 
 export const getQuestionTypes = async () => {

@@ -71,7 +71,7 @@ const ScanAndUpload = () => {
 
   return (
     <div className={`container ${styles["scan-and-upload"]}`}>
-      <QuestionNameHeader name={questionName} type={type} />
+      {/* <QuestionNameHeader name={questionName} type={type} /> */}
       {!!images.length ? (
         <Studio
           images={images}

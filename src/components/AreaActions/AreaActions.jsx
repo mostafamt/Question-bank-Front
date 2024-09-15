@@ -8,7 +8,6 @@ import List from "@mui/material/List";
 
 const AreaActions = (props) => {
   const {
-    onChangeParameter,
     onEditText,
     onClickDeleteArea,
     type,
@@ -17,6 +16,9 @@ const AreaActions = (props) => {
     trialAreas,
     setTrialAreas,
     updateTrialAreas,
+    types,
+    onChangeAreaItem,
+    onChangeLabel,
   } = props;
 
   const onDragEnd = (result) => {
@@ -64,13 +66,15 @@ const AreaActions = (props) => {
                       >
                         <AreaAction
                           parameter={trialArea.parameter}
-                          onChangeParameter={onChangeParameter}
                           idx={idx}
                           onClickDeleteArea={onClickDeleteArea}
                           onEditText={onEditText}
                           type={type}
                           trialArea={trialArea}
                           updateTrialAreas={updateTrialAreas}
+                          types={types}
+                          onChangeAreaItem={onChangeAreaItem}
+                          onChangeLabel={onChangeLabel}
                         />
                       </div>
                     )}

@@ -16,7 +16,7 @@ const AreaActionResult = (props) => {
 
   return (
     <div>
-      {trialArea?.text ? (
+      {trialArea?.typeOfLabel === "text" ? (
         <TextField
           sx={{
             width: "100%",
