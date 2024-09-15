@@ -23,7 +23,7 @@ const SubObjectModal = (props) => {
         <BootstrapModal.Title></BootstrapModal.Title>
       </BootstrapModal.Header>
       <BootstrapModal.Body>
-        <QuestionNameHeader subObject />
+        {/* <QuestionNameHeader subObject /> */}
         <Studio
           images={[image]}
           setImages={() => ({})}

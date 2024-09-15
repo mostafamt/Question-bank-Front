@@ -13,9 +13,12 @@ import ScannerIcon from "@mui/icons-material/Scanner";
 
 import styles from "./addBook.module.scss";
 import { useNavigate } from "react-router-dom";
+import { useStore } from "../../store/store";
+import { getTypes } from "../../services/api";
 
 const AddBook = () => {
   const navigate = useNavigate();
+  const { setFormState } = useStore();
   const [loadingScan, setLoadingScan] = React.useState(false);
   const {
     register,
@@ -50,18 +53,21 @@ const AddBook = () => {
     const { chapter } = values;
     setLoadingScan(true);
     const data = await getChapterPages(chapter);
+
+    const types = await getTypes();
+
+    const selectedTypeObject = types.find((item) => item.typeName === "SI");
+
+    console.log("types= ", types);
+    console.log("labels= ", selectedTypeObject.labels);
+
+    setFormState({
+      type: selectedTypeObject,
+      labels: selectedTypeObject.labels,
+      types,
+    });
     setLoadingScan(false);
     let images = data.map((item) => item.url);
-
-    if (process.env.NODE_ENV === "development") {
-      images = [
-        "/assets/Biology for Cambridge Internationa/page-01.png",
-        "/assets/Biology for Cambridge Internationa/page-02.png",
-        "/assets/Biology for Cambridge Internationa/page-03.png",
-        "/assets/Biology for Cambridge Internationa/page-04.png",
-        "/assets/Biology for Cambridge Internationa/page-05.png",
-      ];
-    }
 
     navigate("/scan-and-upload", { state: { key: "value", images } });
   };
@@ -78,6 +84,7 @@ const AddBook = () => {
                 name="book"
                 register={register}
                 errors={errors}
+                loading={isLoadingBooks}
               >
                 {books?.map((book) => (
                   <option key={book._id} value={book._id}>

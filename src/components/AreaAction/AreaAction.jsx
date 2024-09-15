@@ -16,33 +16,34 @@ import styles from "./areaAction.module.scss";
 const AreaAction = (props) => {
   const {
     parameter,
-    onChangeParameter,
     idx,
     onClickDeleteArea,
     onEditText,
     type,
     trialArea,
     updateTrialAreas,
+    types,
+    onChangeAreaItem,
+    onChangeLabel,
   } = props;
 
   const { data: state } = useStore();
 
   const [list, setList] = React.useState([]);
-  const [types, setTypes] = React.useState({});
+  // const [types, setTypes] = React.useState({});
 
   const getLabels = React.useCallback(() => {
-    // GET LABELS OF THE SELECTED TYPE
-    let labels = state?.types.find((item) => item.typeName === type)?.labels;
-
-    // getTypeOfParameter
-
-    const object = labels?.reduce((acc, item) => {
-      const key = Object.keys(item)?.[0];
-      return { ...acc, [key]: item[key] };
-    }, {});
-    setTypes(object);
-    const params = labels?.map((item) => Object.keys(item)?.[0]);
-    setList(params);
+    // console.log("state?.types= ", state?.types);
+    // // GET LABELS OF THE SELECTED TYPE
+    // let labels = state?.types.find((item) => item.typeName === "SI")?.labels;
+    // // getTypeOfParameter
+    // const object = labels?.reduce((acc, item) => {
+    //   const key = Object.keys(item)?.[0];
+    //   return { ...acc, [key]: item[key] };
+    // }, {});
+    // setTypes(object);
+    // const params = labels?.map((item) => Object.keys(item)?.[0]);
+    // setList(params);
   }, [type, state.types]);
 
   React.useEffect(() => {
@@ -69,7 +70,7 @@ const AreaAction = (props) => {
         onClick={onClick}
         sx={{ padding: "0 0.5rem", background: hexToRgbA(trialArea.color) }}
       >
-        <ListItemText primary={parameter} />
+        <ListItemText primary={trialArea.label} />
         <IconButton aria-label="delete" onClick={onClickDelete}>
           <DeleteForever color="error" />
         </IconButton>
@@ -88,10 +89,13 @@ const AreaAction = (props) => {
             <AreaActionHeader
               list={list}
               parameter={parameter}
-              onChangeParameter={onChangeParameter}
               idx={idx}
               onClickDeleteArea={onClickDeleteArea}
               trialArea={trialArea}
+              types={types}
+              onChangeAreaItem={onChangeAreaItem}
+              onChangeLabel={onChangeLabel}
+              updateTrialAreas={updateTrialAreas}
             />
 
             <AreaActionResult

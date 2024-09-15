@@ -1,6 +1,7 @@
 import Tesseract from "tesseract.js";
 import { hexToRgbA } from "./helper";
 import { trimText } from "./data";
+import { useStore } from "../store/store";
 
 const getLanguageCodeSet2FromSet1 = (set1) => {
   let res = "";
@@ -12,7 +13,7 @@ const getLanguageCodeSet2FromSet1 = (set1) => {
   return res;
 };
 
-export const ocr = async (language, dataUrl) => {
+export const ocr = async (language = "en", dataUrl) => {
   const newLanguageCode = getLanguageCodeSet2FromSet1(language);
   let text = "";
   try {
@@ -53,7 +54,9 @@ export const reorder = (list, startIndex, endIndex) => {
 };
 
 export const getTypeOfParameter = (types, type, parameter) => {
-  const selectedType = types.find((_type) => _type.typeName === type);
+  const selectedType = types.find((_type) => _type.typeName === type.typeName);
+  // console.log("selectedType= ", selectedType);
+  // return;
   const labels = selectedType.labels;
   const item = labels.find((label) => {
     const keys = Object.keys(label);
@@ -62,6 +65,14 @@ export const getTypeOfParameter = (types, type, parameter) => {
   });
   const values = Object.values(item);
   return values[0];
+};
+
+export const getTypeOfLabel = (types, type, label) => {
+  const selectedType = types.find((item) => item.typeName === type);
+  const labels = selectedType.labels;
+
+  const selectedLabel = labels.find((item) => Object.keys(item)[0] === label);
+  return Object.values(selectedLabel)[0];
 };
 
 export const constructBoxColors = (trialAreas) => {
@@ -81,6 +92,24 @@ export const constructBoxColors = (trialAreas) => {
   });
 
   return obj;
+};
+
+export const useTypes = () => {
+  const { data: state } = useStore();
+  const types = state?.types
+    .filter((item) => item.typeCategory === "B")
+    .map((item) => item.typeName);
+
+  return types;
+};
+
+export const useLabels = (typeName) => {
+  const { data: state } = useStore();
+  let labels =
+    state?.types.find((item) => item.typeName === typeName)?.labels || [];
+  labels = labels.map((item) => Object.keys(item)?.[0]);
+
+  return labels;
 };
 
 export const getSimpleTypes = () => [
