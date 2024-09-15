@@ -32,12 +32,12 @@ const SubObjectModal = (props) => {
     const data = {
       questionName: "question",
       language: "en",
-      domainId: "12547",
-      domainName: "domainName",
-      subDomainId: "124578",
-      subDomainName: "subDomainName",
+      domainId: "2711ca97c3a47af8c82925e8cd233d0e",
+      domainName: "Science",
+      subDomainId: "d7c8da80d67227affcb50494c1a9cfa7",
+      subDomainName: "Chemistry",
       topic: "topic",
-      objectOwner: "objectOwner",
+      objectOwner: "me",
       type,
       objectElements,
     };

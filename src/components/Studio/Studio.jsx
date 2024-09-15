@@ -18,6 +18,7 @@ import {
   getTypeOfLabel,
   getTypeOfLabel2,
   getTypeOfParameter,
+  getValue,
   ocr,
   onEditTextField,
   useLabels,
@@ -26,6 +27,7 @@ import {
 
 import styles from "./studio.module.scss";
 import { fakeSaveObject, saveBlocks, saveObject } from "../../services/api";
+import { Box } from "@mui/material";
 
 const Studio = (props) => {
   const {
@@ -43,7 +45,7 @@ const Studio = (props) => {
   const [colorIndex, setColorIndex] = React.useState(0);
   const imageRef = React.createRef();
   const canvasRef = React.createRef();
-  const { data: state } = useStore();
+  const { data: state, setFormState } = useStore();
   const [imageScaleFactor, setImageScaleFactor] = React.useState(1);
   // To Extract Sub Object
   const [showModal, setShowModal] = React.useState(false);
@@ -163,6 +165,8 @@ const Studio = (props) => {
 
     updateTrialAreas(idx, area);
 
+    console.log("state.types= ", state.types);
+
     if (typeOfLabel === "text") {
       updateTrialAreas(idx, { loading: true });
       const text = await ocr(state.language, img);
@@ -173,7 +177,9 @@ const Studio = (props) => {
       let found = simpleTypes.find((type) => type === typeOfLabel);
       if (found) {
         // timeout to solve scrollbar hiding
-        setActiveType(label);
+        const newLabel = getValue(state.types, trialAreas[idx].type, label);
+        console.log("newLabel= ", newLabel);
+        setActiveType(newLabel);
         setTimeout(() => {
           openModal();
         }, 1000);
@@ -299,6 +305,24 @@ const Studio = (props) => {
           updateTrialAreas={updateTrialAreas}
         />
       </Modal>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+        <button
+          style={{ backgroundColor: "#eee", border: 0 }}
+          onClick={() => {
+            setFormState({ ...state, language: "en" });
+          }}
+        >
+          EN
+        </button>
+        <button
+          style={{ backgroundColor: "#eee", border: 0 }}
+          onClick={() => {
+            setFormState({ ...state, language: "ar" });
+          }}
+        >
+          AR
+        </button>
+      </Box>
       <div className={styles.studio}>
         <StudioThumbnails
           images={images}

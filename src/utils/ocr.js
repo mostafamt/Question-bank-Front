@@ -135,6 +135,19 @@ export const useLabels = (typeName) => {
   return labels;
 };
 
+export const getValue = (types, type, label) => {
+  console.log("getValue");
+  console.log("type= ", type);
+  console.log("label= ", label);
+  let labels =
+    types.find((item) => compareStringsIgnoreSpaces(item.typeName, type))
+      ?.labels || [];
+
+  let lab = labels.find((item) => Object.keys(item)?.[0] === label);
+
+  return Object.values(lab)[0];
+};
+
 export const getSimpleTypes = () => [
   "Text MCQ",
   "Mark The Words",
