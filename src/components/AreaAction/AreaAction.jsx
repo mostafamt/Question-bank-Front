@@ -30,25 +30,6 @@ const AreaAction = (props) => {
   const { data: state } = useStore();
 
   const [list, setList] = React.useState([]);
-  // const [types, setTypes] = React.useState({});
-
-  const getLabels = React.useCallback(() => {
-    // console.log("state?.types= ", state?.types);
-    // // GET LABELS OF THE SELECTED TYPE
-    // let labels = state?.types.find((item) => item.typeName === "SI")?.labels;
-    // // getTypeOfParameter
-    // const object = labels?.reduce((acc, item) => {
-    //   const key = Object.keys(item)?.[0];
-    //   return { ...acc, [key]: item[key] };
-    // }, {});
-    // setTypes(object);
-    // const params = labels?.map((item) => Object.keys(item)?.[0]);
-    // setList(params);
-  }, [type, state.types]);
-
-  React.useEffect(() => {
-    getLabels();
-  }, [getLabels]);
 
   const onClick = () => {
     updateTrialAreas(idx, { open: !trialArea.open });
