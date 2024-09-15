@@ -16,6 +16,7 @@ import {
   constructBoxColors,
   getSimpleTypes,
   getTypeOfLabel,
+  getTypeOfLabel2,
   getTypeOfParameter,
   ocr,
   onEditTextField,
@@ -27,8 +28,16 @@ import styles from "./studio.module.scss";
 import { fakeSaveObject, saveBlocks, saveObject } from "../../services/api";
 
 const Studio = (props) => {
-  const { images, setImages, questionName, type, subObject, handleClose } =
-    props;
+  const {
+    images,
+    setImages,
+    questionName,
+    type,
+    subObject,
+    handleClose,
+    types,
+    handleSubmit,
+  } = props;
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [areas, setAreas] = React.useState([]);
   const [colorIndex, setColorIndex] = React.useState(0);
@@ -45,7 +54,6 @@ const Studio = (props) => {
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
 
   const [trialAreas, setTrialAreas] = React.useState([]);
-  const types = useTypes();
 
   const onClickImage = (idx) => {
     setActiveIndex(idx);
@@ -92,7 +100,7 @@ const Studio = (props) => {
           loading: false,
           text: "",
           image: "",
-          type: "",
+          type: subObject ? type : "",
           parameter: "",
           label: "",
           typeOfLabel: "",
@@ -140,13 +148,16 @@ const Studio = (props) => {
       prevState === colors.length - 1 ? 0 : prevState + 1
     );
 
-    const typeOfLabel = getTypeOfLabel(
-      state.types,
-      trialAreas[idx].type,
-      label
-    );
+    let typeOfLabel = "";
+
+    if (subObject) {
+      typeOfLabel = getTypeOfLabel2(state.types, trialAreas[idx].type, label);
+    } else {
+      typeOfLabel = getTypeOfLabel(state.types, trialAreas[idx].type, label);
+    }
 
     const img = extractImage(id);
+    setActiveImage(img);
 
     area = { ...area, label, typeOfLabel: typeOfLabel, image: img };
 
@@ -162,6 +173,7 @@ const Studio = (props) => {
       let found = simpleTypes.find((type) => type === typeOfLabel);
       if (found) {
         // timeout to solve scrollbar hiding
+        setActiveType(label);
         setTimeout(() => {
           openModal();
         }, 1000);
@@ -185,53 +197,42 @@ const Studio = (props) => {
     return croppedImage;
   };
 
-  const handleSubmit = async (questionName, type, areas) => {
-    const {
-      language,
-      domainId,
-      domainName,
-      subDomainId,
-      subDomainName,
-      topic,
-      objectOwner,
-    } = state;
+  // const handleSubmit = async (questionName, type, areas) => {
+  //   const blocks = await Promise.all(
+  //     [...areas]
+  //       .sort((a, b) => a.order - b.order)
+  //       .map(async (item) => ({
+  //         pageId: "66684e63e4163f0056e5fc29",
+  //         coordinates: {
+  //           x: item.x,
+  //           y: item.y,
+  //           width: item.width,
+  //           height: item.height,
+  //         },
+  //         contentType: item.label,
+  //         contentValue:
+  //           item.typeOfLabel === "image"
+  //             ? await uploadBase64(item.image)
+  //             : item.text,
+  //       }))
+  //   );
 
-    const blocks = await Promise.all(
-      [...areas]
-        .sort((a, b) => a.order - b.order)
-        .map(async (item) => ({
-          pageId: "66684e63e4163f0056e5fc29",
-          coordinates: {
-            x: item.x,
-            y: item.y,
-            width: item.width,
-            height: item.height,
-          },
-          contentType: item.label,
-          contentValue:
-            item.typeOfLabel === "image"
-              ? await uploadBase64(item.image)
-              : item.text,
+  //   const data = {
+  //     blocks,
+  //   };
 
-          // [item.parameter]:
-          //   item.type === "image" ? await uploadBase64(item.image) : item.text,
-        }))
-    );
-
-    const data = {
-      blocks,
-    };
-
-    const id = await saveBlocks(data);
-    return id;
-  };
+  //   const id = await saveBlocks(data);
+  //   return id;
+  // };
 
   const onClickSubmit = async () => {
     setLoadingSubmit(true);
     if (subObject) {
-      const { questionName } = state;
-      const name = `${questionName} - ${props.type}`;
-      const id = await props.handleSubmit(name, type, trialAreas);
+      const id = await props.handleSubmit(
+        `question - ${type}`,
+        type,
+        trialAreas
+      );
       props.updateTrialAreas(-1, { text: id });
       id && toast.success("Sub-Object created successfully!");
       handleClose();
@@ -252,12 +253,9 @@ const Studio = (props) => {
         const lastIndex = trialAreas.length - 1;
         newTrialAreas[lastIndex] = { ...newTrialAreas[lastIndex], ...value };
       } else {
-        console.log("newTrialAreas[idx]= ", newTrialAreas[idx]);
-        console.log("value= ", value);
         newTrialAreas[idx] = { ...newTrialAreas[idx], ...value };
       }
 
-      console.log("newTrialAreas= ", newTrialAreas);
       return newTrialAreas;
     });
   };
@@ -298,7 +296,6 @@ const Studio = (props) => {
           type={activeType}
           results={trialAreas}
           setSubTypeObjects={setSubTypeObjects}
-          handleSubmit={handleSubmit}
           updateTrialAreas={updateTrialAreas}
         />
       </Modal>

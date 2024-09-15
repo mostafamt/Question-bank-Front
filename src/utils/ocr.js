@@ -75,6 +75,18 @@ export const getTypeOfLabel = (types, type, label) => {
   return Object.values(selectedLabel)[0];
 };
 
+export const getTypeOfLabel2 = (types, type, label) => {
+  const selectedType = types.find((item) =>
+    compareStringsIgnoreSpaces(item.typeName, type)
+  );
+  const labels = selectedType.labels;
+
+  console.log("labels= ", labels);
+
+  const selectedLabel = labels.find((item) => Object.keys(item)[0] === label);
+  return Object.values(selectedLabel)[0];
+};
+
 export const constructBoxColors = (trialAreas) => {
   const values = trialAreas.map((_, idx) => `& > div:nth-of-type(${idx + 2})`);
 
@@ -103,10 +115,21 @@ export const useTypes = () => {
   return types;
 };
 
+function compareStringsIgnoreSpaces(str1, str2) {
+  // Remove all spaces from both strings
+  const cleanStr1 = str1.replace(/\s+/g, "");
+  const cleanStr2 = str2.replace(/\s+/g, "");
+
+  // Compare the cleaned strings
+  return cleanStr1 === cleanStr2;
+}
+
 export const useLabels = (typeName) => {
   const { data: state } = useStore();
   let labels =
-    state?.types.find((item) => item.typeName === typeName)?.labels || [];
+    state?.types.find((item) =>
+      compareStringsIgnoreSpaces(item.typeName, typeName)
+    )?.labels || [];
   labels = labels.map((item) => Object.keys(item)?.[0]);
 
   return labels;

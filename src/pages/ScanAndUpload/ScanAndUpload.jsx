@@ -13,15 +13,47 @@ import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import styles from "./scanAndUpload.module.scss";
+import { useTypes } from "../../utils/ocr";
+import { uploadBase64 } from "../../utils/upload";
+import { saveBlocks } from "../../services/api";
 
 const ScanAndUpload = () => {
   const location = useLocation();
   const [images, setImages] = React.useState(location.state?.images || []);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
+  const types = useTypes();
 
   const { data: state } = useStore();
   const { questionName, type } = state;
+
+  const handleSubmit = async (questionName, type, areas) => {
+    const blocks = await Promise.all(
+      [...areas]
+        .sort((a, b) => a.order - b.order)
+        .map(async (item) => ({
+          pageId: "66684e63e4163f0056e5fc29",
+          coordinates: {
+            x: item.x,
+            y: item.y,
+            width: item.width,
+            height: item.height,
+          },
+          contentType: item.label,
+          contentValue:
+            item.typeOfLabel === "image"
+              ? await uploadBase64(item.image)
+              : item.text,
+        }))
+    );
+
+    const data = {
+      blocks,
+    };
+
+    const id = await saveBlocks(data);
+    return id;
+  };
 
   const convertPdfToImage = async (file) => {
     setLoading(true);
@@ -78,6 +110,8 @@ const ScanAndUpload = () => {
           setImages={setImages}
           questionName={state.questionName}
           type={state.type}
+          types={types}
+          handleSubmit={handleSubmit}
         />
       ) : (
         <div className={styles["upload-buttons"]}>
