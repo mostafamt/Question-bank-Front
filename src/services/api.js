@@ -29,7 +29,7 @@ export const getOldTypes = async () => {
 
 export const getTypes = async () => {
   try {
-    const res = await axios.get("interactive-object-types");
+    const res = await axios2.get("interactive-object-types");
     return res.data;
   } catch (error) {
     toast.error(error.message);
@@ -44,7 +44,7 @@ export const getFilteredTypes = async () => {
 
 export const saveBlocks = async (data) => {
   try {
-    const res = await axios.post("/save-blocks", data);
+    const res = await axios2.post("/save-blocks", data);
     return res.data;
   } catch (error) {
     toast.error(error?.message);

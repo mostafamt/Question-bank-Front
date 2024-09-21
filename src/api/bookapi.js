@@ -1,8 +1,13 @@
-import axios from "../axios";
+import { default as axios } from "../axios";
 import { chapters, pages } from "./test-data";
 
 export const wait = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+export const getTypes = async () => {
+  const res = await axios.get("/interactive-object-types");
+  return res.data;
 };
 
 export const getBooks = async () => {
@@ -24,14 +29,11 @@ export const getChapterPages = async (id) => {
   const res = await axios.get(`/pages?chapterId=${id}`);
 
   if (process.env.NODE_ENV === "development") {
-    const data = [
-      { url: "/assets/Biology for Cambridge Internationa/page-01.png" },
-      { url: "/assets/Biology for Cambridge Internationa/page-02.png" },
-      { url: "/assets/Biology for Cambridge Internationa/page-03.png" },
-      { url: "/assets/Biology for Cambridge Internationa/page-04.png" },
-      { url: "/assets/Biology for Cambridge Internationa/page-05.png" },
-    ];
-
+    let data = res.data;
+    data = data.map((item, idx) => ({
+      ...item,
+      url: `/assets/Biology for Cambridge Internationa/page-0${idx + 1}.png`,
+    }));
     return data;
   }
 
