@@ -28,6 +28,8 @@ import {
 import styles from "./studio.module.scss";
 import { fakeSaveObject, saveBlocks, saveObject } from "../../services/api";
 import { Box } from "@mui/material";
+import { getTypes } from "../../api/bookapi";
+import { useQuery } from "@tanstack/react-query";
 
 const Studio = (props) => {
   const {
@@ -40,7 +42,7 @@ const Studio = (props) => {
     types,
     handleSubmit,
   } = props;
-  const [activeIndex, setActiveIndex] = React.useState(0);
+  const [activePage, setActivePage] = React.useState(0);
   const [areas, setAreas] = React.useState([]);
   const [colorIndex, setColorIndex] = React.useState(0);
   const imageRef = React.createRef();
@@ -58,7 +60,7 @@ const Studio = (props) => {
   const [trialAreas, setTrialAreas] = React.useState([]);
 
   const onClickImage = (idx) => {
-    setActiveIndex(idx);
+    setActivePage(idx);
     setPageId(images?.[idx]?._id);
   };
 
@@ -165,7 +167,7 @@ const Studio = (props) => {
 
     updateTrialAreas(idx, area);
 
-    console.log("state.types= ", state.types);
+    console.log("types= ", types);
 
     if (typeOfLabel === "text") {
       updateTrialAreas(idx, { loading: true });
@@ -177,7 +179,7 @@ const Studio = (props) => {
       let found = simpleTypes.find((type) => type === typeOfLabel);
       if (found) {
         // timeout to solve scrollbar hiding
-        const newLabel = getValue(state.types, trialAreas[idx].type, label);
+        const newLabel = getValue(types, trialAreas[idx].type, label);
         console.log("newLabel= ", newLabel);
         setActiveType(newLabel);
         setTimeout(() => {
@@ -327,7 +329,7 @@ const Studio = (props) => {
         <StudioThumbnails
           images={images}
           setImages={setImages}
-          activeIndex={activeIndex}
+          activePage={activePage}
           onClickImage={onClickImage}
         />
         <div
@@ -344,8 +346,8 @@ const Studio = (props) => {
           />
           <AreaSelector areas={areas} onChange={onChangeHandler}>
             <img
-              src={images[activeIndex]?.url || images[activeIndex]}
-              alt={images[activeIndex]?.url || images[activeIndex]}
+              src={images[activePage]?.url || images[activePage]}
+              alt={images[activePage]?.url || images[activePage]}
               crossOrigin="anonymous"
               ref={imageRef}
               style={{

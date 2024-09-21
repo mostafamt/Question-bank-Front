@@ -9,30 +9,45 @@ import { useStore } from "../../store/store";
 import DescriptionIcon from "@mui/icons-material/Description";
 import CollectionsIcon from "@mui/icons-material/Collections";
 import VisuallyHiddenInput from "../../components/VisuallyHiddenInput/VisuallyHiddenInput";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import styles from "./scanAndUpload.module.scss";
 import { useTypes } from "../../utils/ocr";
 import { uploadBase64 } from "../../utils/upload";
 import { saveBlocks } from "../../services/api";
+import { getChapterPages, getTypes } from "../../api/bookapi";
+import { useQuery } from "@tanstack/react-query";
+import { Box, CircularProgress } from "@mui/material";
 
 const ScanAndUpload = () => {
-  const location = useLocation();
-  const [images, setImages] = React.useState(location.state?.images || []);
+  const { bookId, chapterId } = useParams();
+  const [images, setImages] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
+  const { data: state, setFormState } = useStore();
   const types = useTypes();
 
-  const { data: state } = useStore();
-  const { questionName, type } = state;
+  // const { data: state } = useStore();
+  // const { questionName, type } = state;
+
+  const {
+    data: pages,
+    isError: isErrorPages,
+    isLoading: isLoadingPages,
+    isSuccess: isSuccessPages,
+    isFetching: isFetchingPages,
+  } = useQuery({
+    queryKey: [`book-${bookId}-chapter-${chapterId}`],
+    queryFn: () => getChapterPages(chapterId),
+  });
 
   const handleSubmit = async (questionName, type, areas) => {
     const blocks = await Promise.all(
       [...areas]
         .sort((a, b) => a.order - b.order)
         .map(async (item) => ({
-          pageId: "66684e63e4163f0056e5fc29",
+          pageId: "66e45a62435fef004a665159",
           coordinates: {
             x: item.x,
             y: item.y,
@@ -92,54 +107,22 @@ const ScanAndUpload = () => {
     setImages(urls);
   };
 
-  if (loading) {
-    return (
-      <div className="container">
-        <QuestionNameHeader>{state.type}</QuestionNameHeader>
-        <Loader text="Converting pdf to images" />
-      </div>
-    );
-  }
-
   return (
     <div className={`container ${styles["scan-and-upload"]}`}>
       {/* <QuestionNameHeader name={questionName} type={type} /> */}
-      {!!images.length ? (
+      {isFetchingPages ? (
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
+          <CircularProgress size="2rem" />
+        </Box>
+      ) : (
         <Studio
-          images={images}
+          images={pages.map((item) => item.url)}
           setImages={setImages}
-          questionName={state.questionName}
-          type={state.type}
+          questionName={"state.questionName"}
+          type={"state.type"}
           types={types}
           handleSubmit={handleSubmit}
         />
-      ) : (
-        <div className={styles["upload-buttons"]}>
-          <Button
-            component="label"
-            variant="outlined"
-            startIcon={<DescriptionIcon />}
-            onChange={onChangePdf}
-            color="warning"
-          >
-            Upload PDF
-            <VisuallyHiddenInput type="file" accept="application/pdf" />
-          </Button>
-          <Button
-            component="label"
-            variant="outlined"
-            startIcon={<CollectionsIcon />}
-            onChange={onChangeImages}
-            color="success"
-          >
-            Upload images
-            <VisuallyHiddenInput
-              type="file"
-              accept="image/png, image/jpeg"
-              multiple
-            />
-          </Button>
-        </div>
       )}
     </div>
   );

@@ -50,16 +50,17 @@ const AddBook = () => {
   });
 
   const onSubmit = async (values) => {
-    const { chapter } = values;
+    const { book, chapter } = values;
+
     setLoadingScan(true);
-    const data = await getChapterPages(chapter);
+    // const data = await getChapterPages(chapter);
 
     const types = await getTypes();
 
     const selectedTypeObject = types.find((item) => item.typeName === "SI");
 
-    console.log("types= ", types);
-    console.log("labels= ", selectedTypeObject.labels);
+    // console.log("types= ", types);
+    // console.log("labels= ", selectedTypeObject.labels);
 
     setFormState({
       type: selectedTypeObject,
@@ -67,9 +68,8 @@ const AddBook = () => {
       types,
     });
     setLoadingScan(false);
-    let images = data.map((item) => item.url);
-
-    navigate("/scan-and-upload", { state: { key: "value", images } });
+    // let images = data.map((item) => item.url);
+    navigate(`/book/${book}/chapter/${chapter}`);
   };
 
   return (

@@ -27,16 +27,8 @@ const routes = [
     component: AddBook,
   },
   {
-    path: "/true-false",
-    component: TrueFalse,
-  },
-  {
-    path: "/fill-blank",
-    component: FillBlankForm,
-  },
-  {
-    path: "/multiple-choice",
-    component: MultipleChoice,
+    path: "/book/:bookId/chapter/:chapterId",
+    component: ScanAndUpload,
   },
   {
     path: "/show/:id",

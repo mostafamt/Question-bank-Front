@@ -21,7 +21,7 @@ const VisuallyHiddenInput = styled("input")({
 });
 
 const StudioThumbnails = (props) => {
-  const { images, onClickImage, setImages, activeIndex } = props;
+  const { images, onClickImage, setImages, activePage } = props;
 
   const onChange = (event) => {
     const files = event.target.files;
@@ -31,7 +31,7 @@ const StudioThumbnails = (props) => {
   };
 
   const onDeleteThumbnail = () => {
-    const newImages = images.filter((_, idx) => idx !== activeIndex);
+    const newImages = images.filter((_, idx) => idx !== activePage);
     console.log("newImages= ", newImages);
     setImages(newImages);
     // console.log("onDeleteThumbnail");
@@ -63,9 +63,7 @@ const StudioThumbnails = (props) => {
           onClick={() => onClickImage(idx)}
           style={{
             border:
-              activeIndex === idx
-                ? "1rem solid #ccc"
-                : "1rem solid transparent",
+              activePage === idx ? "1rem solid #ccc" : "1rem solid transparent",
           }}
         />
       ))}

@@ -68,6 +68,7 @@ export const getTypeOfParameter = (types, type, parameter) => {
 };
 
 export const getTypeOfLabel = (types, type, label) => {
+  console.log("types= ", types);
   const selectedType = types.find((item) => item.typeName === type);
   const labels = selectedType.labels;
 
