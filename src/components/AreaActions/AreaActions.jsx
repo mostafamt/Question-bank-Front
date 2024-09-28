@@ -19,6 +19,7 @@ const AreaActions = (props) => {
     types,
     onChangeAreaItem,
     onChangeLabel,
+    subObject,
   } = props;
 
   const onDragEnd = (result) => {
@@ -75,6 +76,7 @@ const AreaActions = (props) => {
                           types={types}
                           onChangeAreaItem={onChangeAreaItem}
                           onChangeLabel={onChangeLabel}
+                          subObject={subObject}
                         />
                       </div>
                     )}

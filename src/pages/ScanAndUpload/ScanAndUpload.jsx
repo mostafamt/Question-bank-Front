@@ -13,7 +13,6 @@ import { useLocation, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import styles from "./scanAndUpload.module.scss";
-import { useTypes } from "../../utils/ocr";
 import { uploadBase64 } from "../../utils/upload";
 import { saveBlocks } from "../../services/api";
 import { getChapterPages, getTypes } from "../../api/bookapi";
@@ -26,10 +25,17 @@ const ScanAndUpload = () => {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
   const { data: state, setFormState } = useStore();
-  const types = useTypes();
 
-  // const { data: state } = useStore();
-  // const { questionName, type } = state;
+  const {
+    data: types,
+    isError: isErrorTypes,
+    isLoading: isLoadingTypes,
+    isSuccess: isSuccessTypes,
+    isFetching: isFetchingTypes,
+  } = useQuery({
+    queryKey: ["types"],
+    queryFn: () => getTypes(),
+  });
 
   const {
     data: pages,
@@ -42,12 +48,13 @@ const ScanAndUpload = () => {
     queryFn: () => getChapterPages(chapterId),
   });
 
-  const handleSubmit = async (questionName, type, areas) => {
+  const handleSubmit = async (pageIndex, areas) => {
+    const pageId = pages[pageIndex]._id;
     const blocks = await Promise.all(
       [...areas]
         .sort((a, b) => a.order - b.order)
         .map(async (item) => ({
-          pageId: "66e45a62435fef004a665159",
+          pageId,
           coordinates: {
             x: item.x,
             y: item.y,
@@ -70,56 +77,27 @@ const ScanAndUpload = () => {
     return id;
   };
 
-  const convertPdfToImage = async (file) => {
-    setLoading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const res = await axios.post(
-        "http://34.246.140.123:5000/api/pdf2img",
-        formData
-      );
-      setLoading(false);
-      return res.data?.images;
-    } catch (error) {
-      toast.error("This service isn't available at the moment !");
-      setLoading(false);
-    }
-  };
-
-  const convertPdfToImage2 = async (file) => {
-    setLoading(true);
-    const res = await convertPdfToImages(file);
-    setLoading(false);
-    return res;
-  };
-
-  const onChangePdf = async (event) => {
-    const file = event.target.files[0];
-    const images = await convertPdfToImage(file);
-    setImages(images ? images : []);
-  };
-
-  const onChangeImages = async (event) => {
-    const files = event.target.files;
-    const urls = [...files].map((file) => URL.createObjectURL(file));
-    setImages(urls);
-  };
+  // if (isSuccessTypes) {
+  //   setFormState({ ...state, types });
+  // }
 
   return (
     <div className={`container ${styles["scan-and-upload"]}`}>
       {/* <QuestionNameHeader name={questionName} type={type} /> */}
-      {isFetchingPages ? (
+      {isFetchingPages || isFetchingTypes ? (
         <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
           <CircularProgress size="2rem" />
         </Box>
       ) : (
         <Studio
           images={pages.map((item) => item.url)}
+          blocks={pages[0].blocks}
           setImages={setImages}
           questionName={"state.questionName"}
           type={"state.type"}
+          // types={types
+          //   ?.filter((item) => item.typeCategory === "B")
+          //   .map((item) => item.typeName)}
           types={types}
           handleSubmit={handleSubmit}
         />

@@ -2,6 +2,7 @@ import React from "react";
 
 import styles from "./areaActionResult.module.scss";
 import { CircularProgress, TextField } from "@mui/material";
+import { getSimpleTypes } from "../../utils/ocr";
 
 const AreaActionResult = (props) => {
   const { type, onEditText, trialArea } = props;
@@ -14,9 +15,13 @@ const AreaActionResult = (props) => {
     );
   }
 
+  const foundComplexType = getSimpleTypes().find(
+    (item) => item === trialArea?.typeOfLabel
+  );
+
   return (
     <div>
-      {trialArea?.typeOfLabel === "text" ? (
+      {trialArea?.typeOfLabel === "text" || foundComplexType ? (
         <TextField
           sx={{
             width: "100%",

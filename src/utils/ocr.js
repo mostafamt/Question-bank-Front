@@ -55,8 +55,6 @@ export const reorder = (list, startIndex, endIndex) => {
 
 export const getTypeOfParameter = (types, type, parameter) => {
   const selectedType = types.find((_type) => _type.typeName === type.typeName);
-  // console.log("selectedType= ", selectedType);
-  // return;
   const labels = selectedType.labels;
   const item = labels.find((label) => {
     const keys = Object.keys(label);
@@ -68,8 +66,14 @@ export const getTypeOfParameter = (types, type, parameter) => {
 };
 
 export const getTypeOfLabel = (types, type, label) => {
-  console.log("types= ", types);
-  const selectedType = types.find((item) => item.typeName === type);
+  let filteredTypes = types.filter((item) => item.typeCategory === "B");
+
+  const selectedType = filteredTypes.find((item) =>
+    compareStringsIgnoreSpaces(item.typeName, type)
+  );
+  if (!selectedType) {
+    return "";
+  }
   const labels = selectedType.labels;
 
   const selectedLabel = labels.find((item) => Object.keys(item)[0] === label);
@@ -81,8 +85,6 @@ export const getTypeOfLabel2 = (types, type, label) => {
     compareStringsIgnoreSpaces(item.typeName, type)
   );
   const labels = selectedType.labels;
-
-  console.log("labels= ", labels);
 
   const selectedLabel = labels.find((item) => Object.keys(item)[0] === label);
   return Object.values(selectedLabel)[0];
@@ -109,8 +111,8 @@ export const constructBoxColors = (trialAreas) => {
 
 export const useTypes = () => {
   const { data: state } = useStore();
-  const types = state?.types
-    .filter((item) => item.typeCategory === "B")
+  const types = state.types
+    ?.filter((item) => item.typeCategory === "B")
     .map((item) => item.typeName);
 
   return types;
@@ -118,28 +120,46 @@ export const useTypes = () => {
 
 function compareStringsIgnoreSpaces(str1, str2) {
   // Remove all spaces from both strings
-  const cleanStr1 = str1.replace(/\s+/g, "");
-  const cleanStr2 = str2.replace(/\s+/g, "");
+  // console.log("str1 =", str1);
+  // console.log("str2 =", str2);
+  const cleanStr1 = str1?.replace(/\s+/g, "");
+  const cleanStr2 = str2?.replace(/\s+/g, "");
 
   // Compare the cleaned strings
   return cleanStr1 === cleanStr2;
 }
 
-export const useLabels = (typeName) => {
-  const { data: state } = useStore();
+export const getLabels = (types, typeName) => {
   let labels =
-    state?.types.find((item) =>
-      compareStringsIgnoreSpaces(item.typeName, typeName)
-    )?.labels || [];
+    types?.find((item) => compareStringsIgnoreSpaces(item.typeName, typeName))
+      ?.labels || [];
   labels = labels.map((item) => Object.keys(item)?.[0]);
 
   return labels;
 };
 
+export const getTypeNameOfLabelKey = (types, labelKey) => {
+  let filteredTypes = types.filter((item) => item.typeCategory === "B");
+
+  let typeName = "";
+
+  filteredTypes.forEach((item) => {
+    if (typeName) return;
+    const labels = item.labels;
+    labels.forEach((it) => {
+      const key = Object.keys(it)[0];
+      if (compareStringsIgnoreSpaces(key, labelKey)) {
+        typeName = item.typeName;
+      }
+    });
+  });
+
+  return typeName;
+};
+
 export const getValue = (types, type, label) => {
-  console.log("getValue");
+  console.log("types= ", types);
   console.log("type= ", type);
-  console.log("label= ", label);
   let labels =
     types.find((item) => compareStringsIgnoreSpaces(item.typeName, type))
       ?.labels || [];
@@ -148,6 +168,41 @@ export const getValue = (types, type, label) => {
 
   return Object.values(lab)[0];
 };
+
+export const instructionalRoles = [
+  "introduction",
+  "overview",
+  "definition",
+  "fact",
+  "remark",
+  "example",
+  "explanation",
+  "description",
+  "illustration",
+  "comparison",
+  "summary",
+  "conclusion",
+  "theory",
+  "rule",
+  "formula",
+  "procedure",
+  "algorithm",
+  "exercises",
+  "casestudy",
+  "real_world_problem",
+  "question",
+  "answer_to_question",
+  "exam",
+  "recall",
+  "test",
+  "quiz",
+  "vocabulary",
+  "reading",
+  "pre_reading",
+  "review",
+  "related_topics",
+  "identify",
+];
 
 export const getSimpleTypes = () => [
   "Text MCQ",

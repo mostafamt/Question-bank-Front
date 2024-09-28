@@ -54,7 +54,7 @@ export const saveBlocks = async (data) => {
 
 export const saveObject = async (data) => {
   try {
-    const res = await axios.post("/interactive-objects", data);
+    const res = await axios2.post("/interactive-objects", data);
     return res.data;
   } catch (error) {
     toast.error(error?.message);
