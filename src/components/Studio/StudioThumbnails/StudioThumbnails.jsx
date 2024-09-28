@@ -45,12 +45,13 @@ const StudioThumbnails = (props) => {
           component="label"
           sx={{ padding: 0 }}
           onChange={onChange}
+          disabled
         >
           <AddPhotoAlternateIcon />
           <VisuallyHiddenInput type="file" />
         </IconButton>
 
-        <IconButton aria-label="delete" onClick={onDeleteThumbnail}>
+        <IconButton aria-label="delete" onClick={onDeleteThumbnail} disabled>
           <DeleteIcon />
         </IconButton>
       </div>

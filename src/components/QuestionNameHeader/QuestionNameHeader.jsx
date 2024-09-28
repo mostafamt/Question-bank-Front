@@ -5,48 +5,68 @@ import EditObjectModal from "../Modal/EditObjectModal/EditObjectModal";
 import EditIcon from "@mui/icons-material/Edit";
 
 import styles from "./questionNameHeader.module.scss";
-import { IconButton } from "@mui/material";
+import {
+  FormControl,
+  Grid,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+} from "@mui/material";
+import MuiSelect from "../MuiSelect/MuiSelect";
 
 const QuestionNameHeader = (props) => {
   const [show, setShow] = React.useState(false);
-  const { subObject } = props;
+  const {
+    subObject,
+    name,
+    setName,
+    type,
+    instructionalRole,
+    setInstructionalRole,
+    instructionalRoles,
+  } = props;
 
   const toggleShow = () => {
     setShow((prevState) => !prevState);
   };
 
-  const { data: state } = useStore();
-
-  const getQuestionName = () =>
-    subObject
-      ? `${state?.questionName} - ${state?.type}`
-      : `${state?.questionName}`;
-
   return (
-    <div>
-      <Modal show={show} handleClose={toggleShow}>
-        <EditObjectModal
-          handleClose={toggleShow}
-          subObject={subObject}
-          name={getQuestionName()}
-          type={state?.type}
-        />
-      </Modal>
-      <div className={styles.header}>
-        <div>
-          <span>Name: </span>
-          <span>{getQuestionName()}</span>
-        </div>
-        <div>
-          <span>Type: </span>
-          <span>{state?.type}</span>
-        </div>
-        <div>
-          <IconButton aria-label="edit" color="white" onClick={toggleShow}>
-            <EditIcon />
-          </IconButton>
-        </div>
-      </div>
+    <div className={styles.header}>
+      <Grid container spacing={4}>
+        <Grid item xs={4}>
+          <TextField
+            label="Name"
+            variant="outlined"
+            fullWidth
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </Grid>
+        <Grid item xs={4}>
+          <FormControl fullWidth>
+            <InputLabel>Instructional Role</InputLabel>
+            <Select
+              label="Instructional Role"
+              value={instructionalRole}
+              onChange={(e) => setInstructionalRole(e.target.value)}
+            >
+              {instructionalRoles.map((item) => (
+                <MenuItem value={item}>{item}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={4}>
+          <FormControl fullWidth>
+            <InputLabel>Type</InputLabel>
+            <Select value={1} label="Type" onChange={() => {}} disabled>
+              <MenuItem value={1}>{type}</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+      </Grid>
     </div>
   );
 };

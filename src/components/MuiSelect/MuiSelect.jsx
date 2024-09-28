@@ -19,7 +19,7 @@ const MuiSelect = (props) => {
           onChange={(e) => onChange(e)}
           label="Label"
         >
-          {list.map((param) => (
+          {list?.map((param) => (
             <MenuItem key={param} value={param}>
               {param}
             </MenuItem>

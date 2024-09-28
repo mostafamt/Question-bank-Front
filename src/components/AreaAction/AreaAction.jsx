@@ -25,6 +25,7 @@ const AreaAction = (props) => {
     types,
     onChangeAreaItem,
     onChangeLabel,
+    subObject,
   } = props;
 
   const { data: state } = useStore();
@@ -77,13 +78,11 @@ const AreaAction = (props) => {
               onChangeAreaItem={onChangeAreaItem}
               onChangeLabel={onChangeLabel}
               updateTrialAreas={updateTrialAreas}
+              subObject={subObject}
+              type={type}
             />
 
-            <AreaActionResult
-              type={types[parameter]}
-              onEditText={onEditText}
-              trialArea={trialArea}
-            />
+            <AreaActionResult onEditText={onEditText} trialArea={trialArea} />
           </Box>
         </List>
       </Collapse>

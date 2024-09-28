@@ -53,18 +53,10 @@ const AddBook = () => {
     const { book, chapter } = values;
 
     setLoadingScan(true);
-    // const data = await getChapterPages(chapter);
 
     const types = await getTypes();
 
-    const selectedTypeObject = types.find((item) => item.typeName === "SI");
-
-    // console.log("types= ", types);
-    // console.log("labels= ", selectedTypeObject.labels);
-
     setFormState({
-      type: selectedTypeObject,
-      labels: selectedTypeObject.labels,
       types,
     });
     setLoadingScan(false);

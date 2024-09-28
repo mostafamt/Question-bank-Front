@@ -6,18 +6,24 @@ import QuestionNameHeader from "../../QuestionNameHeader/QuestionNameHeader";
 import styles from "./subObjectModal.module.scss";
 import { saveObject } from "../../../services/api";
 import { uploadBase64 } from "../../../utils/upload";
+import { instructionalRoles } from "../../../utils/ocr";
+import { v4 as uuidv4 } from "uuid";
 
 const SubObjectModal = (props) => {
   const {
     handleClose,
     image,
-    name,
     type,
+    types,
     results,
     setSubTypeObjects,
-    // handleSubmit,
     updateTrialAreas,
   } = props;
+
+  const [name, setName] = React.useState(`Question - ${uuidv4()}`);
+  const [instructionalRole, setInstructionalRole] = React.useState(
+    instructionalRoles[0]
+  );
 
   const handleSubmit = async (questionName, type, areas) => {
     const objectElements = await Promise.all(
@@ -30,7 +36,8 @@ const SubObjectModal = (props) => {
     );
 
     const data = {
-      questionName: "question",
+      questionName: name,
+      instructionalRole: instructionalRole,
       language: "en",
       domainId: "2711ca97c3a47af8c82925e8cd233d0e",
       domainName: "Science",
@@ -52,7 +59,15 @@ const SubObjectModal = (props) => {
         <BootstrapModal.Title></BootstrapModal.Title>
       </BootstrapModal.Header>
       <BootstrapModal.Body>
-        {/* <QuestionNameHeader subObject /> */}
+        <QuestionNameHeader
+          subObject
+          name={name}
+          setName={setName}
+          instructionalRoles={instructionalRoles}
+          instructionalRole={instructionalRole}
+          setInstructionalRole={setInstructionalRole}
+          type={type}
+        />
         <Studio
           images={[image]}
           setImages={() => ({})}
@@ -64,7 +79,7 @@ const SubObjectModal = (props) => {
           setSubTypeObjects={setSubTypeObjects}
           handleSubmit={handleSubmit}
           updateTrialAreas={updateTrialAreas}
-          types={[type]}
+          types={types}
         />
       </BootstrapModal.Body>
       <BootstrapModal.Footer></BootstrapModal.Footer>

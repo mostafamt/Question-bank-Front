@@ -11,25 +11,18 @@ import { colors } from "../../constants/highlight-color";
 import SubObjectModal from "../Modal/SubObjectModal/SubObjectModal";
 
 import StudioThumbnails from "./StudioThumbnails/StudioThumbnails";
-import { uploadBase64 } from "../../utils/upload";
 import {
   constructBoxColors,
   getSimpleTypes,
+  getTypeNameOfLabelKey,
   getTypeOfLabel,
   getTypeOfLabel2,
-  getTypeOfParameter,
-  getValue,
   ocr,
   onEditTextField,
-  useLabels,
-  useTypes,
 } from "../../utils/ocr";
 
 import styles from "./studio.module.scss";
-import { fakeSaveObject, saveBlocks, saveObject } from "../../services/api";
 import { Box } from "@mui/material";
-import { getTypes } from "../../api/bookapi";
-import { useQuery } from "@tanstack/react-query";
 
 const Studio = (props) => {
   const {
@@ -41,9 +34,45 @@ const Studio = (props) => {
     handleClose,
     types,
     handleSubmit,
+    blocks,
   } = props;
   const [activePage, setActivePage] = React.useState(0);
-  const [areas, setAreas] = React.useState([]);
+  const [areas, setAreas] = React.useState(
+    blocks?.map((item) => ({
+      x: item.coordinates.x,
+      y: item.coordinates.y,
+      width: item.coordinates.width,
+      height: item.coordinates.height,
+      unit: "px",
+      isChanging: true,
+      isNew: true,
+    })) || []
+  );
+  const [drawnAreas, setDrawnAreas] = React.useState(
+    blocks?.map((item, idx) => {
+      let typeName = getTypeNameOfLabelKey(types, item.contentType);
+
+      return {
+        x: item.coordinates.x,
+        y: item.coordinates.y,
+        width: item.coordinates.width,
+        height: item.coordinates.height,
+        id: uuidv4(),
+        color: colors[idx % colors.length],
+        loading: false,
+        text: item.contentValue,
+        image: item.contentValue,
+        // type: "Simple item",
+        type: typeName,
+        parameter: "",
+        label: item.contentType,
+        typeOfLabel: getTypeOfLabel(types, typeName, item.contentType),
+        order: 0,
+        open: true,
+      };
+    }) || []
+  );
+
   const [colorIndex, setColorIndex] = React.useState(0);
   const imageRef = React.createRef();
   const canvasRef = React.createRef();
@@ -57,8 +86,6 @@ const Studio = (props) => {
   const [subTypeObjects, setSubTypeObjects] = React.useState([]);
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
 
-  const [trialAreas, setTrialAreas] = React.useState([]);
-
   const onClickImage = (idx) => {
     setActivePage(idx);
     setPageId(images?.[idx]?._id);
@@ -66,7 +93,7 @@ const Studio = (props) => {
 
   const onChangeHandler = (areasParam) => {
     let newAreas = [];
-    for (let i = 0; i < trialAreas.length; i++) {
+    for (let i = 0; i < drawnAreas.length; i++) {
       newAreas = [
         ...newAreas,
         {
@@ -75,22 +102,22 @@ const Studio = (props) => {
           width: areasParam[i].width,
           height: areasParam[i].height,
 
-          id: trialAreas[i].id,
-          color: trialAreas[i].color,
-          loading: trialAreas[i].loading,
-          text: trialAreas[i].text,
-          image: trialAreas[i].image,
-          type: trialAreas[i].type,
-          label: trialAreas[i].label,
-          typeOfLabel: trialAreas[i].typeOfLabel,
-          parameter: trialAreas[i].parameter,
-          order: trialAreas[i].order,
-          open: trialAreas[i].open,
+          id: drawnAreas[i].id,
+          color: drawnAreas[i].color,
+          loading: drawnAreas[i].loading,
+          text: drawnAreas[i].text,
+          image: drawnAreas[i].image,
+          type: drawnAreas[i].type,
+          label: drawnAreas[i].label,
+          typeOfLabel: drawnAreas[i].typeOfLabel,
+          parameter: drawnAreas[i].parameter,
+          order: drawnAreas[i].order,
+          open: drawnAreas[i].open,
         },
       ];
     }
 
-    if (areasParam.length > trialAreas.length) {
+    if (areasParam.length > drawnAreas.length) {
       newAreas = [
         ...newAreas,
         {
@@ -114,20 +141,20 @@ const Studio = (props) => {
       ];
     }
 
-    setTrialAreas([...newAreas]);
+    setDrawnAreas([...newAreas]);
     setAreas(areasParam);
   };
 
   const onClickDeleteArea = (idx) => {
     setAreas((prevState) => [...prevState.filter((_, id) => idx !== id)]);
-    setTrialAreas((prevState) => [...prevState.filter((_, id) => idx !== id)]);
+    setDrawnAreas((prevState) => [...prevState.filter((_, id) => idx !== id)]);
   };
 
   const handleCloseModal = () => setShowModal(false);
   const openModal = () => setShowModal(true);
 
   const onChangeAreaItem = (id, key, value) => {
-    const newAreas = trialAreas.map((item, idx) => {
+    const newAreas = drawnAreas.map((item, idx) => {
       if (item.id === id) {
         if (key === "label") {
           onChangeLabel(idx, value);
@@ -141,11 +168,11 @@ const Studio = (props) => {
       return item;
     });
 
-    setTrialAreas(newAreas);
+    setDrawnAreas(newAreas);
   };
 
   const onChangeLabel = async (id, label) => {
-    const idx = trialAreas.findIndex((area) => area.id === id);
+    const idx = drawnAreas.findIndex((area) => area.id === id);
 
     let area = { color: colors[colorIndex] };
     setColorIndex((prevState) =>
@@ -155,9 +182,9 @@ const Studio = (props) => {
     let typeOfLabel = "";
 
     if (subObject) {
-      typeOfLabel = getTypeOfLabel2(state.types, trialAreas[idx].type, label);
+      typeOfLabel = getTypeOfLabel2(types, drawnAreas[idx].type, label);
     } else {
-      typeOfLabel = getTypeOfLabel(state.types, trialAreas[idx].type, label);
+      typeOfLabel = getTypeOfLabel(types, drawnAreas[idx].type, label);
     }
 
     const img = extractImage(id);
@@ -166,8 +193,6 @@ const Studio = (props) => {
     area = { ...area, label, typeOfLabel: typeOfLabel, image: img };
 
     updateTrialAreas(idx, area);
-
-    console.log("types= ", types);
 
     if (typeOfLabel === "text") {
       updateTrialAreas(idx, { loading: true });
@@ -178,10 +203,7 @@ const Studio = (props) => {
       const simpleTypes = getSimpleTypes();
       let found = simpleTypes.find((type) => type === typeOfLabel);
       if (found) {
-        // timeout to solve scrollbar hiding
-        const newLabel = getValue(types, trialAreas[idx].type, label);
-        console.log("newLabel= ", newLabel);
-        setActiveType(newLabel);
+        setActiveType(label);
         setTimeout(() => {
           openModal();
         }, 1000);
@@ -190,7 +212,7 @@ const Studio = (props) => {
   };
 
   const extractImage = (id) => {
-    const idx = trialAreas.findIndex((item) => item.id === id);
+    const idx = drawnAreas.findIndex((item) => item.id === id);
 
     const activeArea = areas[idx];
     const image = imageRef.current;
@@ -205,48 +227,20 @@ const Studio = (props) => {
     return croppedImage;
   };
 
-  // const handleSubmit = async (questionName, type, areas) => {
-  //   const blocks = await Promise.all(
-  //     [...areas]
-  //       .sort((a, b) => a.order - b.order)
-  //       .map(async (item) => ({
-  //         pageId: "66684e63e4163f0056e5fc29",
-  //         coordinates: {
-  //           x: item.x,
-  //           y: item.y,
-  //           width: item.width,
-  //           height: item.height,
-  //         },
-  //         contentType: item.label,
-  //         contentValue:
-  //           item.typeOfLabel === "image"
-  //             ? await uploadBase64(item.image)
-  //             : item.text,
-  //       }))
-  //   );
-
-  //   const data = {
-  //     blocks,
-  //   };
-
-  //   const id = await saveBlocks(data);
-  //   return id;
-  // };
-
   const onClickSubmit = async () => {
     setLoadingSubmit(true);
     if (subObject) {
       const id = await props.handleSubmit(
         `question - ${type}`,
         type,
-        trialAreas
+        drawnAreas
       );
       props.updateTrialAreas(-1, { text: id });
       id && toast.success("Sub-Object created successfully!");
       handleClose();
     } else {
-      const { questionName, type } = state;
-      const id = await handleSubmit(questionName, type, trialAreas);
+      // Need page_id
+      const id = await handleSubmit(activePage, drawnAreas);
       id && toast.success("Object created successfully!");
     }
     clear();
@@ -254,11 +248,11 @@ const Studio = (props) => {
   };
 
   const updateTrialAreas = (idx, value) => {
-    setTrialAreas((prevState) => {
+    setDrawnAreas((prevState) => {
       let newTrialAreas = [...prevState];
 
       if (idx === -1) {
-        const lastIndex = trialAreas.length - 1;
+        const lastIndex = drawnAreas.length - 1;
         newTrialAreas[lastIndex] = { ...newTrialAreas[lastIndex], ...value };
       } else {
         newTrialAreas[idx] = { ...newTrialAreas[idx], ...value };
@@ -273,12 +267,12 @@ const Studio = (props) => {
     setAreas([]);
     setColorIndex(0);
 
-    setTrialAreas([]);
+    setDrawnAreas([]);
   };
 
   const onEditText = (id, text) => {
-    const newResults = onEditTextField(trialAreas, id, text);
-    setTrialAreas(newResults);
+    const newResults = onEditTextField(drawnAreas, id, text);
+    setDrawnAreas(newResults);
   };
 
   const cropSelectedArea = (x, y, width, height) => {
@@ -300,9 +294,9 @@ const Studio = (props) => {
         <SubObjectModal
           handleClose={handleCloseModal}
           image={activeImage}
-          name={`${state.questionName} - ${activeType}`}
           type={activeType}
-          results={trialAreas}
+          types={types}
+          results={drawnAreas}
           setSubTypeObjects={setSubTypeObjects}
           updateTrialAreas={updateTrialAreas}
         />
@@ -335,7 +329,7 @@ const Studio = (props) => {
         <div
           className={styles.editor}
           css={{
-            "& > div:nth-of-type(2)": constructBoxColors(trialAreas),
+            "& > div:nth-of-type(2)": constructBoxColors(drawnAreas),
           }}
         >
           <ImageActions
@@ -363,18 +357,18 @@ const Studio = (props) => {
         </div>
         <div className={styles.actions}>
           <AreaActions
-            trialAreas={trialAreas}
-            setTrialAreas={setTrialAreas}
+            trialAreas={drawnAreas}
+            setTrialAreas={setDrawnAreas}
             onEditText={onEditText}
             onClickDeleteArea={onClickDeleteArea}
             type={type}
-            labels={state.labels}
             onClickSubmit={onClickSubmit}
             loadingSubmit={loadingSubmit}
             updateTrialAreas={updateTrialAreas}
             types={types}
             onChangeAreaItem={onChangeAreaItem}
             onChangeLabel={onChangeLabel}
+            subObject={subObject}
           />
         </div>
       </div>

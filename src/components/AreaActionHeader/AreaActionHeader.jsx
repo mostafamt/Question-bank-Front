@@ -2,7 +2,7 @@ import React from "react";
 import MuiSelect from "../MuiSelect/MuiSelect";
 
 import styles from "./areaActionHeader.module.scss";
-import { useLabels } from "../../utils/ocr";
+import { getLabels } from "../../utils/ocr";
 import { Box } from "@mui/material";
 
 const AreaActionHeader = (props) => {
@@ -16,9 +16,11 @@ const AreaActionHeader = (props) => {
     onChangeAreaItem,
     updateTrialAreas,
     onChangeLabel,
+    subObject,
+    type,
   } = props;
 
-  const labels = useLabels(trialArea.type);
+  const labels = getLabels(types, trialArea.type);
 
   return (
     <div className={styles["area-action-header"]}>
@@ -31,7 +33,13 @@ const AreaActionHeader = (props) => {
       <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
         <div>
           <MuiSelect
-            list={types}
+            list={
+              subObject
+                ? [type]
+                : types
+                    ?.filter((item) => item.typeCategory === "B")
+                    .map((item) => item.typeName)
+            }
             value={trialArea.type}
             onChange={(event) =>
               onChangeAreaItem(trialArea.id, "type", event.target.value)
