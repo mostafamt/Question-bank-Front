@@ -25,21 +25,11 @@ import styles from "./studio.module.scss";
 import { Box } from "@mui/material";
 
 const Studio = (props) => {
-  const {
-    pages,
-    setImages,
-    questionName,
-    type,
-    subObject,
-    handleClose,
-    types,
-    handleSubmit,
-    blocks,
-  } = props;
+  const { pages, type, subObject, handleClose, types, handleSubmit } = props;
   const [activePage, setActivePage] = React.useState(0);
   const [areas, setAreas] = React.useState(
-    pages.map((page) =>
-      page.blocks.map((block) => ({
+    pages?.map((page) =>
+      page.blocks?.map((block) => ({
         x: block.coordinates.x,
         y: block.coordinates.y,
         width: block.coordinates.width,
@@ -48,36 +38,38 @@ const Studio = (props) => {
         isChanging: true,
         isNew: true,
       }))
-    ) || Array(pages.length).fill([])
+    ) || Array(pages?.length || 1).fill([])
   );
 
-  // const [drawnAreas, setDrawnAreas] = React.useState(
-  //   // pages.map(page => )
-  //   blocks?.map((item, idx) => {
-  //     let typeName = getTypeNameOfLabelKey(types, item.contentType);
+  const [drawnAreas, setDrawnAreas] = React.useState(
+    pages?.map(
+      (page) =>
+        page.blocks?.map((block, idx) => {
+          let typeName = getTypeNameOfLabelKey(types, block.contentType);
+          return {
+            x: block.coordinates.x,
+            y: block.coordinates.y,
+            width: block.coordinates.width,
+            height: block.coordinates.height,
+            id: uuidv4(),
+            color: colors[idx % colors.length],
+            loading: false,
+            text: block.contentValue,
+            image: block.contentValue,
+            type: typeName,
+            parameter: "",
+            label: block.contentType,
+            typeOfLabel: getTypeOfLabel(types, typeName, block.contentType),
+            order: 0,
+            open: true,
+          };
+        }) || []
+    ) || Array(pages?.length || 1).fill([])
+  );
 
-  //     return {
-  //       x: item.coordinates.x,
-  //       y: item.coordinates.y,
-  //       width: item.coordinates.width,
-  //       height: item.coordinates.height,
-  //       id: uuidv4(),
-  //       color: colors[idx % colors.length],
-  //       loading: false,
-  //       text: item.contentValue,
-  //       image: item.contentValue,
-  //       // type: "Simple item",
-  //       type: typeName,
-  //       parameter: "",
-  //       label: item.contentType,
-  //       typeOfLabel: getTypeOfLabel(types, typeName, item.contentType),
-  //       order: 0,
-  //       open: true,
-  //     };
-  //   }) || []
-  // );
-
-  const [colorIndex, setColorIndex] = React.useState(0);
+  const [colorIndex, setColorIndex] = React.useState(
+    Array(pages?.length || 1).fill(0)
+  );
   const imageRef = React.createRef();
   const canvasRef = React.createRef();
   const { data: state, setFormState } = useStore();
@@ -95,178 +87,215 @@ const Studio = (props) => {
     setPageId(pages?.[idx]?._id);
   };
 
-  console.log("activePage= ", activePage);
+  const syncDrawnAreas = () => {
+    let newAreas = [];
+
+    for (let block = 0; block < drawnAreas[activePage].length; block++) {
+      newAreas = [
+        ...newAreas,
+        {
+          x: areas[activePage][block].x,
+          y: areas[activePage][block].y,
+          width: areas[activePage][block].width,
+          height: areas[activePage][block].height,
+          id: drawnAreas[activePage][block].id,
+          color: drawnAreas[activePage][block].color,
+          loading: drawnAreas[activePage][block].loading,
+          text: drawnAreas[activePage][block].text,
+          image: drawnAreas[activePage][block].image,
+          type: drawnAreas[activePage][block].type,
+          label: drawnAreas[activePage][block].label,
+          typeOfLabel: drawnAreas[activePage][block].typeOfLabel,
+          parameter: drawnAreas[activePage][block].parameter,
+          order: drawnAreas[activePage][block].order,
+          open: drawnAreas[activePage][block].open,
+        },
+      ];
+    }
+
+    if (areas[activePage].length > drawnAreas[activePage].length) {
+      newAreas = [
+        ...newAreas,
+        {
+          x: areas[areas.length - 1].x,
+          y: areas[areas.length - 1].y,
+          width: areas[areas.length - 1].width,
+          height: areas[areas.length - 1].height,
+          id: uuidv4(),
+          color: null,
+          loading: false,
+          text: "",
+          image: "",
+          type: subObject ? type : "",
+          parameter: "",
+          label: "",
+          typeOfLabel: "",
+          order: areas.length - 1,
+          open: true,
+        },
+      ];
+    }
+
+    const newDrawnAreas = [...drawnAreas];
+    newDrawnAreas[activePage] = newAreas;
+    setDrawnAreas(newDrawnAreas);
+  };
 
   const onChangeHandler = (areasParam) => {
-    console.log("areasParam= ", areasParam);
-    const newAreas = [...areas];
+    if (areasParam.length > drawnAreas[activePage].length) {
+      syncDrawnAreas();
+    }
 
-    newAreas[activePage] = areasParam;
-    setAreas(newAreas);
-    // let newAreas = [];
-    // for (let page = 0; page < pages.length; page++) {
-    //   for (let i = 0; i < drawnAreas.length; i++) {
-    //     newAreas[page] = [
-    //       ...newAreas,
-    //       {
-    //         x: areasParam[i].x,
-    //         y: areasParam[i].y,
-    //         width: areasParam[i].width,
-    //         height: areasParam[i].height,
-    //         id: drawnAreas[i].id,
-    //         color: drawnAreas[i].color,
-    //         loading: drawnAreas[i].loading,
-    //         text: drawnAreas[i].text,
-    //         image: drawnAreas[i].image,
-    //         type: drawnAreas[i].type,
-    //         label: drawnAreas[i].label,
-    //         typeOfLabel: drawnAreas[i].typeOfLabel,
-    //         parameter: drawnAreas[i].parameter,
-    //         order: drawnAreas[i].order,
-    //         open: drawnAreas[i].open,
-    //       },
-    //     ];
-    //   }
-    // }
-    // if (areasParam[activePage].length > drawnAreas[activePage].length) {
-    //   newAreas[activePage] = [
-    //     ...newAreas,
-    //     {
-    //       x: areasParam[areasParam.length - 1].x,
-    //       y: areasParam[areasParam.length - 1].y,
-    //       width: areasParam[areasParam.length - 1].width,
-    //       height: areasParam[areasParam.length - 1].height,
-    //       id: uuidv4(),
-    //       color: null,
-    //       loading: false,
-    //       text: "",
-    //       image: "",
-    //       type: subObject ? type : "",
-    //       parameter: "",
-    //       label: "",
-    //       typeOfLabel: "",
-    //       order: areasParam.length - 1,
-    //       open: true,
-    //     },
-    //   ];
-    // }
-    // setDrawnAreas([...newAreas]);
-    // setAreas(areasParam);
+    const newAreasParam = [...areas];
+    newAreasParam[activePage] = areasParam;
+    setAreas(newAreasParam);
   };
 
   const onClickDeleteArea = (idx) => {
-    setAreas((prevState) => [...prevState.filter((_, id) => idx !== id)]);
-    // setDrawnAreas((prevState) => [...prevState.filter((_, id) => idx !== id)]);
+    setAreas((prevState) => {
+      const newAreas = [...prevState];
+      newAreas[activePage] = newAreas[activePage].filter((_, id) => idx !== id);
+      return newAreas;
+    });
+
+    setDrawnAreas((prevState) => {
+      const newDrawnAreas = [...prevState];
+      newDrawnAreas[activePage] = newDrawnAreas[activePage].filter(
+        (_, id) => idx !== id
+      );
+      return newDrawnAreas;
+    });
   };
 
   const handleCloseModal = () => setShowModal(false);
   const openModal = () => setShowModal(true);
 
   const onChangeAreaItem = (id, key, value) => {
-    // const newAreas = drawnAreas.map((item, idx) => {
-    //   if (item.id === id) {
-    //     if (key === "label") {
-    //       onChangeLabel(idx, value);
-    //     }
-    //     return {
-    //       ...item,
-    //       [key]: value,
-    //     };
-    //   }
-    //   return item;
-    // });
-    // setDrawnAreas(newAreas);
+    syncDrawnAreas();
+    const newAreas = drawnAreas[activePage].map((item, idx) => {
+      if (item.id === id) {
+        if (key === "label") {
+          onChangeLabel(idx, value);
+        }
+        return {
+          ...item,
+          [key]: value,
+        };
+      }
+      return item;
+    });
+    const newDrawnAreas = [...drawnAreas];
+    newDrawnAreas[activePage] = newAreas;
+    setDrawnAreas(newDrawnAreas);
   };
 
   const onChangeLabel = async (id, label) => {
-    // const idx = drawnAreas.findIndex((area) => area.id === id);
-    // let area = { color: colors[colorIndex] };
-    // setColorIndex((prevState) =>
-    //   prevState === colors.length - 1 ? 0 : prevState + 1
-    // );
-    // let typeOfLabel = "";
-    // if (subObject) {
-    //   typeOfLabel = getTypeOfLabel2(types, drawnAreas[idx].type, label);
-    // } else {
-    //   typeOfLabel = getTypeOfLabel(types, drawnAreas[idx].type, label);
-    // }
-    // const img = extractImage(id);
-    // setActiveImage(img);
-    // area = { ...area, label, typeOfLabel: typeOfLabel, image: img };
-    // updateTrialAreas(idx, area);
-    // if (typeOfLabel === "text") {
-    //   updateTrialAreas(idx, { loading: true });
-    //   const text = await ocr(state.language, img);
-    //   updateTrialAreas(idx, { text, loading: false });
-    // } else {
-    //   // open modal if it has a supported type
-    //   const simpleTypes = getSimpleTypes();
-    //   let found = simpleTypes.find((type) => type === typeOfLabel);
-    //   if (found) {
-    //     setActiveType(label);
-    //     setTimeout(() => {
-    //       openModal();
-    //     }, 1000);
-    //   }
-    // }
+    syncDrawnAreas();
+    const idx = drawnAreas[activePage].findIndex((area) => area.id === id);
+    let area = {
+      color: colors[colorIndex[activePage] % colors.length],
+    };
+    setColorIndex((prevState) => {
+      prevState[activePage]++;
+      return prevState;
+    });
+    let typeOfLabel = "";
+    if (subObject) {
+      typeOfLabel = getTypeOfLabel2(
+        types,
+        drawnAreas[activePage][idx].type,
+        label
+      );
+    } else {
+      typeOfLabel = getTypeOfLabel(
+        types,
+        drawnAreas[activePage][idx].type,
+        label
+      );
+    }
+    const img = extractImage(id);
+    setActiveImage(img);
+    area = { ...area, label, typeOfLabel: typeOfLabel, image: img };
+
+    updateTrialAreas(idx, area);
+    if (typeOfLabel === "text") {
+      updateTrialAreas(idx, { loading: true });
+      const text = await ocr(state.language, img);
+      updateTrialAreas(idx, { text, loading: false });
+    } else {
+      // open modal if it has a supported type
+      const simpleTypes = getSimpleTypes();
+      let found = simpleTypes.find((type) => type === typeOfLabel);
+      if (found) {
+        setActiveType(label);
+        setTimeout(() => {
+          openModal();
+        }, 1000);
+      }
+    }
   };
 
   const extractImage = (id) => {
-    // const idx = drawnAreas.findIndex((item) => item.id === id);
-    // const activeArea = areas[idx];
-    // const image = imageRef.current;
-    // const ratio = image.naturalWidth / image.width;
-    // const x = activeArea.x * ratio;
-    // const y = activeArea.y * ratio;
-    // const width = activeArea.width * ratio;
-    // const height = activeArea.height * ratio;
-    // const croppedImage = cropSelectedArea(x, y, width, height);
-    // return croppedImage;
+    const idx = drawnAreas[activePage].findIndex((item) => item.id === id);
+    const activeArea = areas[activePage][idx];
+    const image = imageRef.current;
+    const ratio = image.naturalWidth / image.width;
+    const x = activeArea.x * ratio;
+    const y = activeArea.y * ratio;
+    const width = activeArea.width * ratio;
+    const height = activeArea.height * ratio;
+    const croppedImage = cropSelectedArea(x, y, width, height);
+    return croppedImage;
   };
 
   const onClickSubmit = async () => {
-    // setLoadingSubmit(true);
-    // if (subObject) {
-    //   const id = await props.handleSubmit(
-    //     `question - ${type}`,
-    //     type,
-    //     drawnAreas
-    //   );
-    //   props.updateTrialAreas(-1, { text: id });
-    //   id && toast.success("Sub-Object created successfully!");
-    //   handleClose();
-    // } else {
-    //   // Need page_id
-    //   const id = await handleSubmit(activePage, drawnAreas);
-    //   id && toast.success("Object created successfully!");
-    // }
+    setLoadingSubmit(true);
+    if (subObject) {
+      const id = await props.handleSubmit(drawnAreas[activePage]);
+      props.updateTrialAreas(-1, { text: id });
+      id && toast.success("Sub-Object created successfully!");
+      handleClose();
+    } else {
+      // Need page_id
+      const id = await handleSubmit(pageId, drawnAreas[activePage]);
+      id && toast.success("Object created successfully!");
+    }
     // clear();
-    // setLoadingSubmit(false);
+    setLoadingSubmit(false);
   };
 
   const updateTrialAreas = (idx, value) => {
-    // setDrawnAreas((prevState) => {
-    //   let newTrialAreas = [...prevState];
-    //   if (idx === -1) {
-    //     const lastIndex = drawnAreas.length - 1;
-    //     newTrialAreas[lastIndex] = { ...newTrialAreas[lastIndex], ...value };
-    //   } else {
-    //     newTrialAreas[idx] = { ...newTrialAreas[idx], ...value };
-    //   }
-    //   return newTrialAreas;
-    // });
+    setDrawnAreas((prevState) => {
+      let newTrialAreas = [...prevState];
+      if (idx === -1) {
+        const lastIndex = drawnAreas[activePage].length - 1;
+        newTrialAreas[activePage][lastIndex] = {
+          ...newTrialAreas[activePage][lastIndex],
+          ...value,
+        };
+      } else {
+        newTrialAreas[activePage][idx] = {
+          ...newTrialAreas[activePage][idx],
+          ...value,
+        };
+      }
+      return newTrialAreas;
+    });
   };
 
-  const clear = async () => {
-    // CLEAR STATES
-    // setAreas([]);
-    // setColorIndex(0);
-    // setDrawnAreas([]);
-  };
+  // const clear = async () => {
+  //   // CLEAR STATES
+  //   setAreas(Array(pages.length).fill([]) );
+  //   setColorIndex(Array(pages.length).fill(0));
+  //   setDrawnAreas([]);
+  // };
 
   const onEditText = (id, text) => {
-    // const newResults = onEditTextField(drawnAreas, id, text);
-    // setDrawnAreas(newResults);
+    const newResults = onEditTextField(drawnAreas[activePage], id, text);
+    setDrawnAreas((prevState) => {
+      prevState[activePage] = newResults;
+      return prevState;
+    });
   };
 
   const cropSelectedArea = (x, y, width, height) => {
@@ -284,6 +313,16 @@ const Studio = (props) => {
 
   return (
     <>
+      <Modal show={showModal} handleClose={handleCloseModal} size="xl">
+        <SubObjectModal
+          handleClose={handleCloseModal}
+          image={activeImage}
+          type={activeType}
+          types={types}
+          setSubTypeObjects={setSubTypeObjects}
+          updateTrialAreas={updateTrialAreas}
+        />
+      </Modal>
       <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
         <button
           style={{ backgroundColor: "#eee", border: 0 }}
@@ -304,16 +343,17 @@ const Studio = (props) => {
       </Box>
       <div className={styles.studio}>
         <StudioThumbnails
-          images={pages}
-          setImages={setImages}
+          pages={pages}
           activePage={activePage}
           onClickImage={onClickImage}
         />
         <div
           className={styles.editor}
-          // css={{
-          //   "& > div:nth-of-type(2)": constructBoxColors(drawnAreas),
-          // }}
+          css={{
+            "& > div:nth-of-type(2)": constructBoxColors(
+              drawnAreas[activePage]
+            ),
+          }}
         >
           <ImageActions
             imageScaleFactor={imageScaleFactor}
@@ -323,7 +363,7 @@ const Studio = (props) => {
           />
           <AreaSelector areas={areas[activePage]} onChange={onChangeHandler}>
             <img
-              src={pages.find((item) => item._id === pageId).url}
+              src={pages[activePage].url}
               alt={pages[activePage]?.url || pages[activePage]}
               crossOrigin="anonymous"
               ref={imageRef}
@@ -339,8 +379,8 @@ const Studio = (props) => {
           </div>
         </div>
         <div className={styles.actions}>
-          {/* <AreaActions
-            trialAreas={drawnAreas}
+          <AreaActions
+            trialAreas={drawnAreas[activePage]}
             setTrialAreas={setDrawnAreas}
             onEditText={onEditText}
             onClickDeleteArea={onClickDeleteArea}
@@ -352,7 +392,7 @@ const Studio = (props) => {
             onChangeAreaItem={onChangeAreaItem}
             onChangeLabel={onChangeLabel}
             subObject={subObject}
-          /> */}
+          />
         </div>
       </div>
     </>

@@ -33,6 +33,7 @@ const AreaActionResult = (props) => {
           multiline
           value={trialArea?.text}
           onChange={(e) => onEditText(trialArea?.id, e.target.value)}
+          disabled={Boolean(foundComplexType)}
         />
       ) : trialArea?.image ? (
         <img

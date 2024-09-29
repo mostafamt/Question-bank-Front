@@ -27,17 +27,7 @@ export const getTestChapters = async (id) => {
 
 export const getChapterPages = async (id) => {
   const res = await axios.get(`/pages?chapterId=${id}`);
-
-  // if (process.env.NODE_ENV === "development") {
-  let data = res.data;
-  data = data.map((item, idx) => ({
-    ...item,
-    url: `/assets/Biology for Cambridge Internationa/page-0${idx + 1}.png`,
-  }));
-  return data;
-  // }
-
-  // return res.data;
+  return res.data;
 };
 
 export const submitBlock = async () => {};

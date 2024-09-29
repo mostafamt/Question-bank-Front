@@ -27,6 +27,8 @@ const AreaActions = (props) => {
       return;
     }
 
+    return trialAreas;
+
     const orderArray = trialAreas.map((area) => area.order);
 
     console.log("orderArray= ", orderArray);
