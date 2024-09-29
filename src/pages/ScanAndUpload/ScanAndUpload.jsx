@@ -90,7 +90,7 @@ const ScanAndUpload = () => {
         </Box>
       ) : (
         <Studio
-          images={pages.map((item) => item.url)}
+          pages={pages}
           blocks={pages[0].blocks}
           setImages={setImages}
           questionName={"state.questionName"}
