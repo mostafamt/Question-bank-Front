@@ -15,7 +15,6 @@ const SubObjectModal = (props) => {
     image,
     type,
     types,
-    results,
     setSubTypeObjects,
     updateTrialAreas,
   } = props;
@@ -25,7 +24,7 @@ const SubObjectModal = (props) => {
     instructionalRoles[0]
   );
 
-  const handleSubmit = async (questionName, type, areas) => {
+  const handleSubmit = async (areas) => {
     const objectElements = await Promise.all(
       [...areas]
         .sort((a, b) => a.order - b.order)
@@ -69,17 +68,15 @@ const SubObjectModal = (props) => {
           type={type}
         />
         <Studio
-          images={[image]}
-          setImages={() => ({})}
-          name={name}
+          types={types}
+          pages={[{ _id: uuidv4(), url: image, blocks: [] }]}
           type={type}
+          images={[image]}
+          handleSubmit={handleSubmit}
           handleClose={handleClose}
           subObject
-          results={results}
           setSubTypeObjects={setSubTypeObjects}
-          handleSubmit={handleSubmit}
           updateTrialAreas={updateTrialAreas}
-          types={types}
         />
       </BootstrapModal.Body>
       <BootstrapModal.Footer></BootstrapModal.Footer>

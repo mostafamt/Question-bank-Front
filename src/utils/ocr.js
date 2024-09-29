@@ -91,9 +91,9 @@ export const getTypeOfLabel2 = (types, type, label) => {
 };
 
 export const constructBoxColors = (trialAreas) => {
-  const values = trialAreas.map((_, idx) => `& > div:nth-of-type(${idx + 2})`);
+  const values = trialAreas?.map((_, idx) => `& > div:nth-of-type(${idx + 2})`);
 
-  const obj = trialAreas.map((trialArea, idx) => {
+  const obj = trialAreas?.map((trialArea, idx) => {
     if (values[idx]) {
       return {
         [values[idx]]: {

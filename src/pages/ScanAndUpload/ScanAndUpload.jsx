@@ -48,8 +48,7 @@ const ScanAndUpload = () => {
     queryFn: () => getChapterPages(chapterId),
   });
 
-  const handleSubmit = async (pageIndex, areas) => {
-    const pageId = pages[pageIndex]._id;
+  const handleSubmit = async (pageId, areas) => {
     const blocks = await Promise.all(
       [...areas]
         .sort((a, b) => a.order - b.order)
@@ -90,15 +89,9 @@ const ScanAndUpload = () => {
         </Box>
       ) : (
         <Studio
-          pages={pages}
-          blocks={pages[0].blocks}
-          setImages={setImages}
-          questionName={"state.questionName"}
-          type={"state.type"}
-          // types={types
-          //   ?.filter((item) => item.typeCategory === "B")
-          //   .map((item) => item.typeName)}
           types={types}
+          pages={pages}
+          type={"state.type"}
           handleSubmit={handleSubmit}
         />
       )}

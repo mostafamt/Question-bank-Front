@@ -2,7 +2,6 @@ import React from "react";
 
 import { Box, Collapse, IconButton, List, TextField } from "@mui/material";
 import { DeleteForever } from "@mui/icons-material";
-import { useStore } from "../../store/store";
 import AreaActionResult from "../AreaActionResult/AreaActionResult";
 import AreaActionHeader from "../AreaActionHeader/AreaActionHeader";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -27,8 +26,6 @@ const AreaAction = (props) => {
     onChangeLabel,
     subObject,
   } = props;
-
-  const { data: state } = useStore();
 
   const [list, setList] = React.useState([]);
 

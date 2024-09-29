@@ -2,38 +2,26 @@ import React from "react";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
-// CloudUploadIcon
 import { styled } from "@mui/material/styles";
 import { Button, IconButton } from "@mui/material";
 
 import styles from "./studioThumbnails.module.scss";
-
-const VisuallyHiddenInput = styled("input")({
-  clip: "rect(0 0 0 0)",
-  clipPath: "inset(50%)",
-  height: 1,
-  overflow: "hidden",
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  whiteSpace: "nowrap",
-  width: 1,
-});
+import VisuallyHiddenInput from "../../VisuallyHiddenInput/VisuallyHiddenInput";
 
 const StudioThumbnails = (props) => {
-  const { images, onClickImage, setImages, activePage } = props;
+  const { pages, onClickImage, activePage } = props;
 
   const onChange = (event) => {
-    const files = event.target.files;
-    const urls = [...files].map((file) => URL.createObjectURL(file));
-    console.log("urls= ", urls);
-    setImages((prevState) => [...prevState, ...urls]);
+    // const files = event.target.files;
+    // const urls = [...files].map((file) => URL.createObjectURL(file));
+    // console.log("urls= ", urls);
+    // setImages((prevState) => [...prevState, ...urls]);
   };
 
   const onDeleteThumbnail = () => {
-    const newImages = images.filter((_, idx) => idx !== activePage);
-    console.log("newImages= ", newImages);
-    setImages(newImages);
+    // const newImages = pages.filter((_, idx) => idx !== activePage);
+    // console.log("newImages= ", newImages);
+    // setImages(newImages);
     // console.log("onDeleteThumbnail");
   };
 
@@ -55,7 +43,7 @@ const StudioThumbnails = (props) => {
           <DeleteIcon />
         </IconButton>
       </div>
-      {images.map((img, idx) => (
+      {pages.map((img, idx) => (
         <img
           key={idx}
           src={img?.url || img}
