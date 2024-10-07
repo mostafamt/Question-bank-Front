@@ -2,6 +2,7 @@ import Tesseract from "tesseract.js";
 import { hexToRgbA } from "./helper";
 import { trimText } from "./data";
 import { useStore } from "../store/store";
+import { v4 as uuidv4 } from "uuid";
 
 const getLanguageCodeSet2FromSet1 = (set1) => {
   let res = "";
@@ -25,14 +26,20 @@ export const ocr = async (language = "en", dataUrl) => {
   return trimText(text);
 };
 
-export const onEditTextField = (results, id, text) => {
-  const newExtractedTextList = results.map((item) => {
-    if (item.id === id) {
-      item.text = text;
+export const onEditTextField = (areasProperties, activePage, id, text) => {
+  const newAreasProperties = [...areasProperties];
+  newAreasProperties[activePage] = newAreasProperties[activePage].map(
+    (item) => {
+      if (item.id === id) {
+        item.text = text;
+        if (item.status !== CREATED) {
+          item.status = UPDATED;
+        }
+      }
+      return item;
     }
-    return item;
-  });
-  return newExtractedTextList;
+  );
+  return newAreasProperties;
 };
 
 export function debounce(func, timeout = 300) {
@@ -95,18 +102,154 @@ export const constructBoxColors = (trialAreas) => {
 
   const obj = trialAreas?.map((trialArea, idx) => {
     if (values[idx]) {
-      return {
-        [values[idx]]: {
-          border: `2px solid ${trialArea.color} !important`,
-          backgroundColor: `${hexToRgbA(trialArea.color)}`,
-        },
-      };
+      if (trialArea.status === DELETED) {
+        return {
+          [values[idx]]: {
+            border: `2px solid #000 !important`,
+            backgroundColor: `rgba(0, 0, 0, 0.5)`,
+          },
+        };
+      } else {
+        return {
+          [values[idx]]: {
+            border: `2px solid ${trialArea.color} !important`,
+            backgroundColor: `${hexToRgbA(trialArea.color)}`,
+          },
+        };
+      }
     } else {
       return {};
     }
   });
 
   return obj;
+};
+
+export const cropSelectedArea = (canvasRef, imageRef, x, y, width, height) => {
+  const canvas = canvasRef.current;
+  const image = imageRef.current;
+
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+
+  ctx.drawImage(image, x, y, width, height, 0, 0, width, height);
+  const dataUrl = canvas.toDataURL("image/jpeg");
+  return dataUrl;
+};
+
+export const deleteAreaByIndex = (areas, activePage, index) => {
+  const newAreas = [...areas];
+  newAreas[activePage] = newAreas[activePage].filter((_, idx) => idx !== index);
+  return newAreas;
+};
+
+export const deleteAreaPropertyByIndex = (
+  areasProperties,
+  activePage,
+  index
+) => {
+  const newAreasProperties = [...areasProperties];
+  newAreasProperties[activePage] = newAreasProperties[activePage].filter(
+    (_, idx) => idx !== index
+  );
+  return newAreasProperties;
+};
+
+export const extractImage = (
+  canvasRef,
+  imageRef,
+  areasProperties,
+  activePage,
+  areas,
+  id
+) => {
+  const idx = areasProperties[activePage].findIndex((item) => item.id === id);
+  const activeArea = areas[activePage][idx];
+  const image = imageRef.current;
+  const ratio = image.naturalWidth / image.width;
+  const x = activeArea.x * ratio;
+  const y = activeArea.y * ratio;
+  const width = activeArea.width * ratio;
+  const height = activeArea.height * ratio;
+  const croppedImage = cropSelectedArea(
+    canvasRef,
+    imageRef,
+    x,
+    y,
+    width,
+    height
+  );
+  return croppedImage;
+};
+
+export const updateAreasProperties = (
+  areasProperties,
+  activePage,
+  areas,
+  subObject,
+  type
+) => {
+  let newAreas = [];
+
+  console.log("updateAreasProperties");
+
+  for (let block = 0; block < areasProperties[activePage].length; block++) {
+    const { isServer, status } = areasProperties[activePage][block];
+
+    newAreas = [
+      ...newAreas,
+      {
+        x: areas[activePage][block].x,
+        y: areas[activePage][block].y,
+        width: areas[activePage][block].width,
+        height: areas[activePage][block].height,
+        id: areasProperties[activePage][block].id,
+        color: areasProperties[activePage][block].color,
+        loading: areasProperties[activePage][block].loading,
+        text: areasProperties[activePage][block].text,
+        image: areasProperties[activePage][block].image,
+        type: areasProperties[activePage][block].type,
+        label: areasProperties[activePage][block].label,
+        typeOfLabel: areasProperties[activePage][block].typeOfLabel,
+        parameter: areasProperties[activePage][block].parameter,
+        order: areasProperties[activePage][block].order,
+        open: areasProperties[activePage][block].open,
+        status: status === DELETED ? status : isServer ? UPDATED : CREATED,
+        isServer,
+      },
+    ];
+  }
+
+  if (areas[activePage].length > areasProperties[activePage].length) {
+    newAreas = [
+      ...newAreas,
+      {
+        x: areas[areas.length - 1].x,
+        y: areas[areas.length - 1].y,
+        width: areas[areas.length - 1].width,
+        height: areas[areas.length - 1].height,
+        id: uuidv4(),
+        color: null,
+        loading: false,
+        text: "",
+        image: "",
+        type: subObject ? type : "",
+        parameter: "",
+        label: "",
+        typeOfLabel: "",
+        order: areas.length - 1,
+        open: true,
+        status: CREATED,
+        isServer: false,
+      },
+    ];
+  }
+
+  const newDrawnAreas = [...areasProperties];
+  newDrawnAreas[activePage] = newAreas;
+
+  return newDrawnAreas;
 };
 
 export const useTypes = () => {
@@ -168,6 +311,10 @@ export const getValue = (types, type, label) => {
 
   return Object.values(lab)[0];
 };
+
+export const DELETED = "deleted";
+export const UPDATED = "upated";
+export const CREATED = "new";
 
 export const instructionalRoles = [
   "introduction",

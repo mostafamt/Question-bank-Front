@@ -7,17 +7,13 @@ import { Box } from "@mui/material";
 
 const AreaActionHeader = (props) => {
   const {
-    list,
-    parameter,
-    idx,
-    onClickDeleteArea,
     trialArea,
     types,
-    onChangeAreaItem,
-    updateTrialAreas,
     onChangeLabel,
     subObject,
     type,
+    updateAreaProperty,
+    updateAreaPropertyById,
   } = props;
 
   const labels = getLabels(types, trialArea.type);
@@ -42,7 +38,9 @@ const AreaActionHeader = (props) => {
             }
             value={trialArea.type}
             onChange={(event) =>
-              onChangeAreaItem(trialArea.id, "type", event.target.value)
+              updateAreaPropertyById(trialArea.id, {
+                type: event.target.value,
+              })
             }
           />
         </div>

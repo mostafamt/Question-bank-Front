@@ -10,14 +10,7 @@ import { instructionalRoles } from "../../../utils/ocr";
 import { v4 as uuidv4 } from "uuid";
 
 const SubObjectModal = (props) => {
-  const {
-    handleClose,
-    image,
-    type,
-    types,
-    setSubTypeObjects,
-    updateTrialAreas,
-  } = props;
+  const { handleClose, image, type, types, updateAreaProperty } = props;
 
   const [name, setName] = React.useState(`Question - ${uuidv4()}`);
   const [instructionalRole, setInstructionalRole] = React.useState(
@@ -75,8 +68,7 @@ const SubObjectModal = (props) => {
           handleSubmit={handleSubmit}
           handleClose={handleClose}
           subObject
-          setSubTypeObjects={setSubTypeObjects}
-          updateTrialAreas={updateTrialAreas}
+          updateAreaProperty={updateAreaProperty}
         />
       </BootstrapModal.Body>
       <BootstrapModal.Footer></BootstrapModal.Footer>

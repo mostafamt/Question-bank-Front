@@ -1,28 +1,33 @@
 import React from "react";
-import { AreaSelector } from "@bmunozg/react-image-area";
-/** @jsxImportSource @emotion/react */
 import { useStore } from "../../store/store";
 import { toast } from "react-toastify";
 import Modal from "../Modal/Modal";
-import AreaActions from "../AreaActions/AreaActions";
-import ImageActions from "../ImageActions/ImageActions";
 import { v4 as uuidv4 } from "uuid";
 import { colors } from "../../constants/highlight-color";
 import SubObjectModal from "../Modal/SubObjectModal/SubObjectModal";
 
 import StudioThumbnails from "./StudioThumbnails/StudioThumbnails";
+import StudioEditor from "./StudioEditor/StudioEditor";
+import { Alert } from "@mui/material";
 import {
-  constructBoxColors,
+  DELETED,
+  cropSelectedArea,
+  deleteAreaByIndex,
+  extractImage,
   getSimpleTypes,
   getTypeNameOfLabelKey,
   getTypeOfLabel,
   getTypeOfLabel2,
   ocr,
   onEditTextField,
+  updateAreasProperties,
 } from "../../utils/ocr";
 
 import styles from "./studio.module.scss";
-import { Box } from "@mui/material";
+import StudioActions from "./StudioActions/StudioActions";
+import LanguageSwitcher from "./LanguageSwitcher/LanguageSwitcher";
+// import { debounce } from "lodash";
+import _ from "lodash";
 
 const Studio = (props) => {
   const { pages, type, subObject, handleClose, types, handleSubmit } = props;
@@ -41,7 +46,7 @@ const Studio = (props) => {
     ) || Array(pages?.length || 1).fill([])
   );
 
-  const [drawnAreas, setDrawnAreas] = React.useState(
+  const [areasProperties, setAreasProperties] = React.useState(
     pages?.map(
       (page) =>
         page.blocks?.map((block, idx) => {
@@ -60,8 +65,10 @@ const Studio = (props) => {
             parameter: "",
             label: block.contentType,
             typeOfLabel: getTypeOfLabel(types, typeName, block.contentType),
-            order: 0,
-            open: true,
+            order: idx,
+            open: false,
+            isServer: "true",
+            blockId: block.blockId,
           };
         }) || []
     ) || Array(pages?.length || 1).fill([])
@@ -72,14 +79,13 @@ const Studio = (props) => {
   );
   const imageRef = React.createRef();
   const canvasRef = React.createRef();
-  const { data: state, setFormState } = useStore();
+  const { data: state } = useStore();
   const [imageScaleFactor, setImageScaleFactor] = React.useState(1);
   // To Extract Sub Object
   const [showModal, setShowModal] = React.useState(false);
   const [activeType, setActiveType] = React.useState("");
   const [activeImage, setActiveImage] = React.useState("");
   const [pageId, setPageId] = React.useState(pages?.[0]?._id);
-  const [subTypeObjects, setSubTypeObjects] = React.useState([]);
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
 
   const onClickImage = (idx) => {
@@ -87,63 +93,25 @@ const Studio = (props) => {
     setPageId(pages?.[idx]?._id);
   };
 
-  const syncDrawnAreas = () => {
-    let newAreas = [];
-
-    for (let block = 0; block < drawnAreas[activePage].length; block++) {
-      newAreas = [
-        ...newAreas,
-        {
-          x: areas[activePage][block].x,
-          y: areas[activePage][block].y,
-          width: areas[activePage][block].width,
-          height: areas[activePage][block].height,
-          id: drawnAreas[activePage][block].id,
-          color: drawnAreas[activePage][block].color,
-          loading: drawnAreas[activePage][block].loading,
-          text: drawnAreas[activePage][block].text,
-          image: drawnAreas[activePage][block].image,
-          type: drawnAreas[activePage][block].type,
-          label: drawnAreas[activePage][block].label,
-          typeOfLabel: drawnAreas[activePage][block].typeOfLabel,
-          parameter: drawnAreas[activePage][block].parameter,
-          order: drawnAreas[activePage][block].order,
-          open: drawnAreas[activePage][block].open,
-        },
-      ];
-    }
-
-    if (areas[activePage].length > drawnAreas[activePage].length) {
-      newAreas = [
-        ...newAreas,
-        {
-          x: areas[areas.length - 1].x,
-          y: areas[areas.length - 1].y,
-          width: areas[areas.length - 1].width,
-          height: areas[areas.length - 1].height,
-          id: uuidv4(),
-          color: null,
-          loading: false,
-          text: "",
-          image: "",
-          type: subObject ? type : "",
-          parameter: "",
-          label: "",
-          typeOfLabel: "",
-          order: areas.length - 1,
-          open: true,
-        },
-      ];
-    }
-
-    const newDrawnAreas = [...drawnAreas];
-    newDrawnAreas[activePage] = newAreas;
-    setDrawnAreas(newDrawnAreas);
+  const syncAreasProperties = () => {
+    const newAreasProperties = updateAreasProperties(
+      areasProperties,
+      activePage,
+      areas,
+      subObject,
+      type
+    );
+    setAreasProperties(newAreasProperties);
   };
 
+  const functionDebounce = _.debounce(() => console.log("yo"), 300);
+
   const onChangeHandler = (areasParam) => {
-    if (areasParam.length > drawnAreas[activePage].length) {
-      syncDrawnAreas();
+    // syncAreasProperties();
+    // debounce(() => syncAreasProperties(), 1000);
+    // _.debounce(() => console.log("yo"), 300);
+    if (areasParam.length > areasProperties[activePage].length) {
+      syncAreasProperties();
     }
 
     const newAreasParam = [...areas];
@@ -152,46 +120,28 @@ const Studio = (props) => {
   };
 
   const onClickDeleteArea = (idx) => {
-    setAreas((prevState) => {
-      const newAreas = [...prevState];
-      newAreas[activePage] = newAreas[activePage].filter((_, id) => idx !== id);
-      return newAreas;
-    });
+    const { isServer } = areasProperties[activePage][idx];
+    if (isServer) {
+      updateAreaProperty(idx, { status: DELETED });
+    } else {
+      const newAreas = deleteAreaByIndex(areas, activePage, idx);
+      setAreas(newAreas);
 
-    setDrawnAreas((prevState) => {
-      const newDrawnAreas = [...prevState];
-      newDrawnAreas[activePage] = newDrawnAreas[activePage].filter(
-        (_, id) => idx !== id
+      const newAreasProperties = deleteAreaByIndex(
+        areasProperties,
+        activePage,
+        idx
       );
-      return newDrawnAreas;
-    });
+      setAreasProperties(newAreasProperties);
+    }
   };
 
   const handleCloseModal = () => setShowModal(false);
   const openModal = () => setShowModal(true);
 
-  const onChangeAreaItem = (id, key, value) => {
-    syncDrawnAreas();
-    const newAreas = drawnAreas[activePage].map((item, idx) => {
-      if (item.id === id) {
-        if (key === "label") {
-          onChangeLabel(idx, value);
-        }
-        return {
-          ...item,
-          [key]: value,
-        };
-      }
-      return item;
-    });
-    const newDrawnAreas = [...drawnAreas];
-    newDrawnAreas[activePage] = newAreas;
-    setDrawnAreas(newDrawnAreas);
-  };
-
   const onChangeLabel = async (id, label) => {
-    syncDrawnAreas();
-    const idx = drawnAreas[activePage].findIndex((area) => area.id === id);
+    syncAreasProperties();
+    const idx = areasProperties[activePage].findIndex((area) => area.id === id);
     let area = {
       color: colors[colorIndex[activePage] % colors.length],
     };
@@ -203,25 +153,32 @@ const Studio = (props) => {
     if (subObject) {
       typeOfLabel = getTypeOfLabel2(
         types,
-        drawnAreas[activePage][idx].type,
+        areasProperties[activePage][idx].type,
         label
       );
     } else {
       typeOfLabel = getTypeOfLabel(
         types,
-        drawnAreas[activePage][idx].type,
+        areasProperties[activePage][idx].type,
         label
       );
     }
-    const img = extractImage(id);
+    const img = extractImage(
+      canvasRef,
+      imageRef,
+      areasProperties,
+      activePage,
+      areas,
+      id
+    );
     setActiveImage(img);
     area = { ...area, label, typeOfLabel: typeOfLabel, image: img };
 
-    updateTrialAreas(idx, area);
+    updateAreaProperty(idx, area);
     if (typeOfLabel === "text") {
-      updateTrialAreas(idx, { loading: true });
+      updateAreaProperty(idx, { loading: true });
       const text = await ocr(state.language, img);
-      updateTrialAreas(idx, { text, loading: false });
+      updateAreaProperty(idx, { text, loading: false });
     } else {
       // open modal if it has a supported type
       const simpleTypes = getSimpleTypes();
@@ -235,81 +192,69 @@ const Studio = (props) => {
     }
   };
 
-  const extractImage = (id) => {
-    const idx = drawnAreas[activePage].findIndex((item) => item.id === id);
-    const activeArea = areas[activePage][idx];
-    const image = imageRef.current;
-    const ratio = image.naturalWidth / image.width;
-    const x = activeArea.x * ratio;
-    const y = activeArea.y * ratio;
-    const width = activeArea.width * ratio;
-    const height = activeArea.height * ratio;
-    const croppedImage = cropSelectedArea(x, y, width, height);
-    return croppedImage;
-  };
-
   const onClickSubmit = async () => {
     setLoadingSubmit(true);
     if (subObject) {
-      const id = await props.handleSubmit(drawnAreas[activePage]);
-      props.updateTrialAreas(-1, { text: id });
+      const id = await handleSubmit(areasProperties[activePage]);
+      props.updateAreaProperty(-1, { text: id });
       id && toast.success("Sub-Object created successfully!");
       handleClose();
     } else {
-      // Need page_id
-      const id = await handleSubmit(pageId, drawnAreas[activePage]);
+      const id = await handleSubmit(pageId, areasProperties[activePage]);
       id && toast.success("Object created successfully!");
     }
     // clear();
     setLoadingSubmit(false);
   };
 
-  const updateTrialAreas = (idx, value) => {
-    setDrawnAreas((prevState) => {
+  const updateAreaProperty = (idx, property) => {
+    setAreasProperties((prevState) => {
       let newTrialAreas = [...prevState];
       if (idx === -1) {
-        const lastIndex = drawnAreas[activePage].length - 1;
+        const lastIndex = idx + areasProperties[activePage].length;
         newTrialAreas[activePage][lastIndex] = {
           ...newTrialAreas[activePage][lastIndex],
-          ...value,
+          ...property,
         };
       } else {
         newTrialAreas[activePage][idx] = {
           ...newTrialAreas[activePage][idx],
-          ...value,
+          ...property,
         };
       }
       return newTrialAreas;
     });
   };
 
-  // const clear = async () => {
-  //   // CLEAR STATES
-  //   setAreas(Array(pages.length).fill([]) );
-  //   setColorIndex(Array(pages.length).fill(0));
-  //   setDrawnAreas([]);
-  // };
+  const updateAreaPropertyById = (id, property) => {
+    const newAreasProperties = [...areasProperties];
+    newAreasProperties[activePage] = newAreasProperties[activePage].map(
+      (area) => {
+        if (area.id === id) {
+          return {
+            ...area,
+            ...property,
+          };
+        }
+        return area;
+      }
+    );
+    setAreasProperties(newAreasProperties);
+  };
 
   const onEditText = (id, text) => {
-    const newResults = onEditTextField(drawnAreas[activePage], id, text);
-    setDrawnAreas((prevState) => {
-      prevState[activePage] = newResults;
-      return prevState;
-    });
+    const newAreasProperties = onEditTextField(
+      areasProperties,
+      activePage,
+      id,
+      text
+    );
+    setAreasProperties(newAreasProperties);
   };
 
-  const cropSelectedArea = (x, y, width, height) => {
-    const canvas = canvasRef.current;
-    const image = imageRef.current;
-
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext("2d");
-
-    ctx.drawImage(image, x, y, width, height, 0, 0, width, height);
-    const dataUrl = canvas.toDataURL("image/jpeg");
-    return dataUrl;
-  };
+  if (!pages.length) {
+    return <Alert severity="error">No pages available.</Alert>;
+  }
 
   return (
     <>
@@ -319,81 +264,46 @@ const Studio = (props) => {
           image={activeImage}
           type={activeType}
           types={types}
-          setSubTypeObjects={setSubTypeObjects}
-          updateTrialAreas={updateTrialAreas}
+          updateAreaProperty={updateAreaProperty}
         />
       </Modal>
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
-        <button
-          style={{ backgroundColor: "#eee", border: 0 }}
-          onClick={() => {
-            setFormState({ ...state, language: "en" });
-          }}
-        >
-          EN
-        </button>
-        <button
-          style={{ backgroundColor: "#eee", border: 0 }}
-          onClick={() => {
-            setFormState({ ...state, language: "ar" });
-          }}
-        >
-          AR
-        </button>
-      </Box>
+      <LanguageSwitcher />
       <div className={styles.studio}>
         <StudioThumbnails
           pages={pages}
           activePage={activePage}
           onClickImage={onClickImage}
         />
-        <div
-          className={styles.editor}
-          css={{
-            "& > div:nth-of-type(2)": constructBoxColors(
-              drawnAreas[activePage]
-            ),
-          }}
-        >
-          <ImageActions
-            imageScaleFactor={imageScaleFactor}
-            setImageScaleFactor={setImageScaleFactor}
-            areas={areas}
-            setAreas={setAreas}
-          />
-          <AreaSelector areas={areas[activePage]} onChange={onChangeHandler}>
-            <img
-              src={pages[activePage].url}
-              alt={pages[activePage]?.url || pages[activePage]}
-              crossOrigin="anonymous"
-              ref={imageRef}
-              style={{
-                width: `${imageScaleFactor * 100}%`,
-                overflow: "scroll",
-              }}
-            />
-          </AreaSelector>
-
-          <div>
-            <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
-          </div>
-        </div>
-        <div className={styles.actions}>
-          <AreaActions
-            trialAreas={drawnAreas[activePage]}
-            setTrialAreas={setDrawnAreas}
-            onEditText={onEditText}
-            onClickDeleteArea={onClickDeleteArea}
-            type={type}
-            onClickSubmit={onClickSubmit}
-            loadingSubmit={loadingSubmit}
-            updateTrialAreas={updateTrialAreas}
-            types={types}
-            onChangeAreaItem={onChangeAreaItem}
-            onChangeLabel={onChangeLabel}
-            subObject={subObject}
-          />
-        </div>
+        <StudioEditor
+          areasProperties={areasProperties}
+          setAreasProperties={setAreasProperties}
+          activePage={activePage}
+          imageScaleFactor={imageScaleFactor}
+          setImageScaleFactor={setImageScaleFactor}
+          areas={areas}
+          setAreas={setAreas}
+          onChangeHandler={onChangeHandler}
+          pages={pages}
+          imageRef={imageRef}
+        />
+        <StudioActions
+          areasProperties={areasProperties}
+          setAreasProperties={setAreasProperties}
+          activePage={activePage}
+          onEditText={onEditText}
+          onClickDeleteArea={onClickDeleteArea}
+          type={type}
+          onClickSubmit={onClickSubmit}
+          loadingSubmit={loadingSubmit}
+          updateAreaProperty={updateAreaProperty}
+          updateAreaPropertyById={updateAreaPropertyById}
+          types={types}
+          onChangeLabel={onChangeLabel}
+          subObject={subObject}
+        />
+      </div>
+      <div>
+        <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
       </div>
     </>
   );
