@@ -20,9 +20,9 @@ const AreaAction = (props) => {
     onEditText,
     type,
     trialArea,
-    updateTrialAreas,
+    updateAreaProperty,
+    updateAreaPropertyById,
     types,
-    onChangeAreaItem,
     onChangeLabel,
     subObject,
   } = props;
@@ -30,7 +30,7 @@ const AreaAction = (props) => {
   const [list, setList] = React.useState([]);
 
   const onClick = () => {
-    updateTrialAreas(idx, { open: !trialArea.open });
+    updateAreaProperty(idx, { open: !trialArea.open });
   };
 
   const onClickDelete = (event) => {
@@ -72,11 +72,11 @@ const AreaAction = (props) => {
               onClickDeleteArea={onClickDeleteArea}
               trialArea={trialArea}
               types={types}
-              onChangeAreaItem={onChangeAreaItem}
               onChangeLabel={onChangeLabel}
-              updateTrialAreas={updateTrialAreas}
               subObject={subObject}
               type={type}
+              updateAreaProperty={updateAreaProperty}
+              updateAreaPropertyById={updateAreaPropertyById}
             />
 
             <AreaActionResult onEditText={onEditText} trialArea={trialArea} />
