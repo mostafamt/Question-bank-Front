@@ -21,6 +21,9 @@ const StudioActions = (props) => {
     types,
     onChangeLabel,
     subObject,
+    setModalName,
+    openModal,
+    setWorkingArea,
   } = props;
 
   const onDragEnd = (result) => {
@@ -64,32 +67,34 @@ const StudioActions = (props) => {
               <div {...provided.droppableProps} ref={provided.innerRef}>
                 {[...areasProperties[activePage]]
                   ?.sort((a, b) => a.order - b.order)
-                  .filter((item) => item.status !== DELETED)
-                  .map((trialArea, idx) => (
-                    <Draggable
-                      key={trialArea.id}
-                      draggableId={trialArea.id}
-                      index={idx}
-                    >
+                  // .filter((item) => item.status !== DELETED)
+                  .map((area, idx) => (
+                    <Draggable key={area.id} draggableId={area.id} index={idx}>
                       {(provided, snaphost) => (
                         <div
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
                           ref={provided.innerRef}
-                          key={trialArea.id}
+                          key={area.id}
+                          style={{
+                            display: area.status === DELETED ? "none" : "block",
+                          }}
                         >
                           <AreaAction
-                            parameter={trialArea.parameter}
+                            parameter={area.parameter}
                             idx={idx}
                             onClickDeleteArea={onClickDeleteArea}
                             onEditText={onEditText}
                             type={type}
-                            trialArea={trialArea}
+                            area={area}
                             updateAreaProperty={updateAreaProperty}
                             updateAreaPropertyById={updateAreaPropertyById}
                             types={types}
                             onChangeLabel={onChangeLabel}
                             subObject={subObject}
+                            setModalName={setModalName}
+                            openModal={openModal}
+                            setWorkingArea={setWorkingArea}
                           />
                         </div>
                       )}

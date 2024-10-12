@@ -25,9 +25,12 @@ import {
 import styles from "./drawnUI.module.scss";
 import Wrapper from "../../components/DrawnUI/Wrapper/Wrapper";
 
-const DrawnUI = () => {
+const DrawnUI = (props) => {
+  // id, type, fromOCR
   const params = useParams();
-  const { type } = params;
+  const id = params.id || props.id;
+  const type = params.type || props.type;
+
   const [foundAbstractParameters, setFoundAbstractParameters] =
     React.useState(true);
   const [selectedType, setSelectedType] = React.useState(null);
@@ -35,7 +38,7 @@ const DrawnUI = () => {
   const [values, setValues] = React.useState({});
   const location = useLocation();
   const [isEditPage] = React.useState(
-    location.pathname.startsWith("/edit-question")
+    location.pathname.startsWith("/edit-question") || props.fromOCR
   );
   const [loading, setLoading] = React.useState(false);
   const [labels, setLabels] = React.useState([]);
@@ -56,7 +59,7 @@ const DrawnUI = () => {
   });
 
   const getParameters = async () => {
-    const res = await axios.get(`/interactive-objects/${params.id}`);
+    const res = await axios.get(`/interactive-objects/${id}`);
     const data = res.data;
     return data.parameters;
   };
@@ -120,7 +123,7 @@ const DrawnUI = () => {
       },
     };
     try {
-      const res = await axios.patch(`/interactive-objects/${params.id}`, data);
+      const res = await axios.patch(`/interactive-objects/${id}`, data);
       toast.success(`Object updated successfully`);
     } catch (error) {
       toast.error(error?.message);
