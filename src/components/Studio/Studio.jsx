@@ -10,11 +10,11 @@ import StudioThumbnails from "./StudioThumbnails/StudioThumbnails";
 import StudioEditor from "./StudioEditor/StudioEditor";
 import { Alert } from "@mui/material";
 import {
+  COMPLEX_TYPES,
   DELETED,
   cropSelectedArea,
   deleteAreaByIndex,
   extractImage,
-  getSimpleTypes,
   getTypeNameOfLabelKey,
   getTypeOfLabel,
   getTypeOfLabel2,
@@ -28,6 +28,7 @@ import StudioActions from "./StudioActions/StudioActions";
 import LanguageSwitcher from "./LanguageSwitcher/LanguageSwitcher";
 // import { debounce } from "lodash";
 import _ from "lodash";
+import StudioModals from "./StudioModals/StudioModals";
 
 const Studio = (props) => {
   const { pages, type, subObject, handleClose, types, handleSubmit } = props;
@@ -87,6 +88,8 @@ const Studio = (props) => {
   const [activeImage, setActiveImage] = React.useState("");
   const [pageId, setPageId] = React.useState(pages?.[0]?._id);
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
+  const [modalName, setModalName] = React.useState("");
+  const [workingArea, setWorkingArea] = React.useState();
 
   const onClickImage = (idx) => {
     setActivePage(idx);
@@ -181,8 +184,7 @@ const Studio = (props) => {
       updateAreaProperty(idx, { text, loading: false });
     } else {
       // open modal if it has a supported type
-      const simpleTypes = getSimpleTypes();
-      let found = simpleTypes.find((type) => type === typeOfLabel);
+      let found = COMPLEX_TYPES.find((type) => type === typeOfLabel);
       if (found) {
         setActiveType(label);
         setTimeout(() => {
@@ -258,15 +260,17 @@ const Studio = (props) => {
 
   return (
     <>
-      <Modal show={showModal} handleClose={handleCloseModal} size="xl">
-        <SubObjectModal
-          handleClose={handleCloseModal}
-          image={activeImage}
-          type={activeType}
-          types={types}
-          updateAreaProperty={updateAreaProperty}
-        />
-      </Modal>
+      <StudioModals
+        showModal={showModal}
+        handleCloseModal={handleCloseModal}
+        activeImage={activeImage}
+        activeType={activeType}
+        types={types}
+        updateAreaProperty={updateAreaProperty}
+        modalName={modalName}
+        workingArea={workingArea}
+        updateAreaPropertyById={updateAreaPropertyById}
+      />
       <LanguageSwitcher />
       <div className={styles.studio}>
         <StudioThumbnails
@@ -300,6 +304,9 @@ const Studio = (props) => {
           types={types}
           onChangeLabel={onChangeLabel}
           subObject={subObject}
+          setModalName={setModalName}
+          openModal={openModal}
+          setWorkingArea={setWorkingArea}
         />
       </div>
       <div>

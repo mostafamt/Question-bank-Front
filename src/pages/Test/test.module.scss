@@ -1,12 +1,13 @@
-.test {
-  & > img {
-    position: "relative";
-    height: 650px;
-  }
+.wrapper {
+  padding: 2rem 3rem;
+}
 
-  & > canvas {
-    position: absolute;
-    overflow: auto;
-    border: 2px solid red;
-  }
+.label {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.editor {
+  margin-top: 1rem;
+  height: 500px;
 }

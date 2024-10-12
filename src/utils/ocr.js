@@ -351,7 +351,7 @@ export const instructionalRoles = [
   "identify",
 ];
 
-export const getSimpleTypes = () => [
+export const COMPLEX_TYPES = [
   "Text MCQ",
   "Mark The Words",
   "Text Drag Words",
@@ -375,3 +375,9 @@ export const getSimpleTypes = () => [
   "Chart",
   "TrueFalse",
 ];
+
+export const isComplexType = (type) => {
+  let isComplex = COMPLEX_TYPES.includes(type);
+
+  return isComplex;
+};
