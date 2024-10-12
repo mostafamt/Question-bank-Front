@@ -12,9 +12,9 @@ function newAbortSignal(timeoutMs) {
 const upload = async (file) => {
   const data = new FormData();
   data.append("file", file);
+  console.log("file= ", file);
   try {
-    const res = await axios.post("/upload", {
-      ...data,
+    const res = await axios.post("/upload", data, {
       timeout: 10000,
       signal: newAbortSignal(10000),
     });
