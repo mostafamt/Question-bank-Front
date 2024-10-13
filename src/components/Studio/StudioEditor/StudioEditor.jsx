@@ -25,6 +25,17 @@ const StudioEditor = (props) => {
       (_, idx) => areasProperties[activePage][idx]?.status !== DELETED
     ) || [];
 
+  const customRender = (areaProps) => {
+    if (!areaProps.isChanging) {
+      return (
+        <div key={areaProps.areaNumber} className={styles.type}>
+          {areasProperties[activePage][areaProps.areaNumber - 1]?.type} -
+          {areasProperties[activePage][areaProps.areaNumber - 1]?.label}
+        </div>
+      );
+    }
+  };
+
   return (
     <div
       className={styles["studio-editor"]}
@@ -32,6 +43,9 @@ const StudioEditor = (props) => {
         "& > div:nth-of-type(2)": constructBoxColors(
           areasProperties[activePage]
         ),
+        // "&::before": {
+        //   content: '"Before from jsx - "',
+        // },
       }}
     >
       <ImageActions
@@ -50,6 +64,7 @@ const StudioEditor = (props) => {
           height: "95%",
           overflow: "scroll",
         }}
+        customAreaRenderer={customRender}
       >
         <img
           src={pages[activePage]?.url}

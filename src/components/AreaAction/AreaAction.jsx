@@ -10,6 +10,7 @@ import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { hexToRgbA } from "../../utils/helper";
 import EditIcon from "@mui/icons-material/Edit";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 
 import styles from "./areaAction.module.scss";
 import { grey } from "@mui/material/colors";
@@ -33,8 +34,6 @@ const AreaAction = (props) => {
     setWorkingArea,
   } = props;
 
-  const [list, setList] = React.useState([]);
-
   const onClick = () => {
     updateAreaProperty(idx, { open: !area.open });
   };
@@ -57,6 +56,13 @@ const AreaAction = (props) => {
     openModal();
   };
 
+  const onClickPlay = (event) => {
+    event.stopPropagation();
+    setModalName("play-object");
+    setWorkingArea(area);
+    openModal();
+  };
+
   return (
     <div
       className={styles["area-action"]}
@@ -66,24 +72,48 @@ const AreaAction = (props) => {
     >
       <ListItemButton
         onClick={onClick}
-        sx={{ padding: "0 0.5rem", background: hexToRgbA(area.color) }}
+        sx={{
+          padding: "0 0.5rem",
+          background: hexToRgbA(area.color),
+          display: "flex",
+          flexDirection: "column",
+        }}
       >
-        <ListItemText primary={area.label} />
-        <IconButton
-          aria-label="edit"
-          onClick={onClickEdit}
-          sx={{ padding: "0.5rem 0" }}
+        <div
+          style={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "space-between",
+          }}
         >
-          <EditIcon sx={{ color: grey[700] }} />
-        </IconButton>
-        <IconButton
-          aria-label="delete"
-          onClick={onClickDelete}
-          sx={{ padding: "0.5rem 0" }}
+          <ListItemText primary={area.label} />
+
+          {area.open ? <RemoveIcon /> : <AddIcon />}
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            // padding: "1rem",
+            width: "100%",
+          }}
         >
-          <DeleteForever color="error" />
-        </IconButton>
-        {area.open ? <RemoveIcon /> : <AddIcon />}
+          {area.isServer && isComplexType(area.label) ? (
+            <IconButton aria-label="edit" onClick={onClickPlay}>
+              <PlayArrowIcon sx={{ color: grey[700] }} />
+            </IconButton>
+          ) : (
+            <div style={{ width: "3.25rem" }}></div>
+          )}
+          <IconButton aria-label="edit" onClick={onClickEdit}>
+            <EditIcon sx={{ color: grey[700] }} />
+          </IconButton>
+          <IconButton aria-label="delete" onClick={onClickDelete}>
+            <DeleteForever color="error" />
+          </IconButton>
+        </div>
       </ListItemButton>
 
       <Collapse in={area.open} timeout="auto" unmountOnExit>
@@ -96,7 +126,6 @@ const AreaAction = (props) => {
             }}
           >
             <AreaActionHeader
-              list={list}
               parameter={parameter}
               idx={idx}
               onClickDeleteArea={onClickDeleteArea}

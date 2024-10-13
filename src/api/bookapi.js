@@ -35,3 +35,9 @@ export const submitBlock = async () => {};
 export const getChapterTOC = async () => {};
 
 export const getBlocksByChapter = async () => {};
+
+export const getObject = async (id) => {
+  const url = `/interactive-objects/${id}`;
+  const res = await axios.get(url);
+  return res.data;
+};

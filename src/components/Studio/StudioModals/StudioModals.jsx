@@ -3,6 +3,7 @@ import Modal from "../../Modal/Modal";
 import SubObjectModal from "../../Modal/SubObjectModal/SubObjectModal";
 import QuillModal from "../../Modal/QuillModal/QuillModal";
 import AutoUiModal from "../../Modal/AutoUiModal/AutoUiModal";
+import PlayObjectModal from "../../Modal/PlayObjectModal/PlayObjectModal";
 
 const StudioModals = (props) => {
   const {
@@ -27,6 +28,8 @@ const StudioModals = (props) => {
     );
   } else if (modalName === "auto-ui") {
     rendererModal = <AutoUiModal workingArea={workingArea} />;
+  } else if (modalName === "play-object") {
+    rendererModal = <PlayObjectModal workingArea={workingArea} />;
   } else {
     rendererModal = (
       <SubObjectModal
