@@ -15,8 +15,8 @@ const upload = async (file) => {
   console.log("file= ", file);
   try {
     const res = await axios.post("/upload", data, {
-      timeout: 10000,
-      signal: newAbortSignal(10000),
+      timeout: 20000,
+      signal: newAbortSignal(20000),
     });
     return res.data;
   } catch (error) {
