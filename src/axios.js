@@ -7,8 +7,9 @@ const instance = axios.create({
   baseURL: process.env.REACT_APP_REMOTE_URL || BACKEND_URL,
 });
 
+// some comment to trigger build
 const NewInstance = axios.create({
-  baseURL: process.env.REACT_APP_NEW_REMOTE_URL || BACKEND_URL,
+  baseURL: process.env.REACT_APP_REMOTE_URL || BACKEND_URL,
 });
 
 axios.interceptors.response.use(
