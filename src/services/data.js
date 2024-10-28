@@ -1,5 +1,7 @@
 import PieChartIcon from "@mui/icons-material/PieChart";
 
+// some comment
+
 export const types = {
   data: [
     {
