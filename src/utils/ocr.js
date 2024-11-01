@@ -4,21 +4,10 @@ import { trimText } from "./data";
 import { useStore } from "../store/store";
 import { v4 as uuidv4 } from "uuid";
 
-const getLanguageCodeSet2FromSet1 = (set1) => {
-  let res = "";
-  if (set1 === "en") {
-    res = "eng";
-  } else if (set1 === "ar") {
-    res = "ara";
-  }
-  return res;
-};
-
-export const ocr = async (language = "en", dataUrl) => {
-  const newLanguageCode = getLanguageCodeSet2FromSet1(language);
+export const ocr = async (language = "eng", dataUrl) => {
   let text = "";
   try {
-    const result = await Tesseract.recognize(dataUrl, newLanguageCode);
+    const result = await Tesseract.recognize(dataUrl, language);
     text = result.data.text;
   } catch (err) {
     console.error(err);
@@ -375,6 +364,9 @@ export const COMPLEX_TYPES = [
   "Chart",
   "TrueFalse",
 ];
+
+export const ARABIC = "ara";
+export const ENGLISH = "eng";
 
 export const isComplexType = (type) => {
   let isComplex = COMPLEX_TYPES.includes(type);

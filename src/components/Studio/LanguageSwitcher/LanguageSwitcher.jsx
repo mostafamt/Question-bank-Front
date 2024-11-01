@@ -1,29 +1,33 @@
-import { Box } from "@mui/material";
 import React from "react";
-import { useStore } from "../../../store/store";
+import { ARABIC, ENGLISH } from "../../../utils/ocr";
 
-const LanguageSwitcher = () => {
-  const { data: state, setFormState } = useStore();
+import styles from "./languageSwitcher.module.scss";
+
+const LanguageSwitcher = (props) => {
+  const { language, setLanguage } = props;
+
+  const onChangeLanguage = (event) => {
+    const value = event.target.value;
+    setLanguage(value);
+  };
+
+  const buttons = [
+    { show: "EN", code: ENGLISH },
+    { show: "AR", code: ARABIC },
+  ];
 
   return (
-    <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
-      <button
-        style={{ backgroundColor: "#eee", border: 0 }}
-        onClick={() => {
-          setFormState({ ...state, language: "en" });
-        }}
-      >
-        EN
-      </button>
-      <button
-        style={{ backgroundColor: "#eee", border: 0 }}
-        onClick={() => {
-          setFormState({ ...state, language: "ar" });
-        }}
-      >
-        AR
-      </button>
-    </Box>
+    <div className={styles["language-switcher"]}>
+      {buttons.map((button) => (
+        <button
+          value={button.code}
+          onClick={onChangeLanguage}
+          className={language === button.code ? styles.active : ""}
+        >
+          {button.show}
+        </button>
+      ))}
+    </div>
   );
 };
 

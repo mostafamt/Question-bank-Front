@@ -60,8 +60,11 @@ const AddBook = () => {
       types,
     });
     setLoadingScan(false);
-    // let images = data.map((item) => item.url);
-    navigate(`/book/${book}/chapter/${chapter}`);
+    const chapterDetails = chapters.find((item) => item._id === chapter);
+    const language = chapterDetails?.language || "en";
+    navigate(`/book/${book}/chapter/${chapter}`, {
+      state: { language },
+    });
   };
 
   return (
