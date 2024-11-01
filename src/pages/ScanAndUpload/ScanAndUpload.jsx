@@ -1,6 +1,6 @@
 import React from "react";
 import Studio from "../../components/Studio/Studio";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { uploadBase64 } from "../../utils/upload";
 import { saveBlocks } from "../../services/api";
 import { getChapterPages, getTypes } from "../../api/bookapi";
@@ -12,6 +12,8 @@ import { CREATED, DELETED } from "../../utils/ocr";
 
 const ScanAndUpload = () => {
   const { bookId, chapterId } = useParams();
+  const location = useLocation();
+  const language = location.state?.language;
 
   const { data: types, isFetching: isFetchingTypes } = useQuery({
     queryKey: ["types"],
@@ -102,6 +104,7 @@ const ScanAndUpload = () => {
           pages={pages}
           type={"state.type"}
           handleSubmit={handleSubmit}
+          language={language}
         />
       )}
     </div>

@@ -10,8 +10,10 @@ import StudioThumbnails from "./StudioThumbnails/StudioThumbnails";
 import StudioEditor from "./StudioEditor/StudioEditor";
 import { Alert } from "@mui/material";
 import {
+  ARABIC,
   COMPLEX_TYPES,
   DELETED,
+  ENGLISH,
   cropSelectedArea,
   deleteAreaByIndex,
   extractImage,
@@ -31,7 +33,15 @@ import _ from "lodash";
 import StudioModals from "./StudioModals/StudioModals";
 
 const Studio = (props) => {
-  const { pages, type, subObject, handleClose, types, handleSubmit } = props;
+  const {
+    pages,
+    type,
+    subObject,
+    handleClose,
+    types,
+    handleSubmit,
+    language: lang,
+  } = props;
   const [activePage, setActivePage] = React.useState(0);
   const [areas, setAreas] = React.useState(
     pages?.map((page) =>
@@ -90,6 +100,10 @@ const Studio = (props) => {
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
   const [modalName, setModalName] = React.useState("");
   const [workingArea, setWorkingArea] = React.useState();
+  console.log("lang= ", lang);
+  const [language, setLanguage] = React.useState(
+    lang === "en" ? ENGLISH : ARABIC
+  );
 
   const onClickImage = (idx) => {
     setActivePage(idx);
@@ -180,7 +194,7 @@ const Studio = (props) => {
     updateAreaProperty(idx, area);
     if (typeOfLabel === "text") {
       updateAreaProperty(idx, { loading: true });
-      const text = await ocr(state.language, img);
+      const text = await ocr(language, img);
       updateAreaProperty(idx, { text, loading: false });
     } else {
       // open modal if it has a supported type
@@ -271,7 +285,7 @@ const Studio = (props) => {
         workingArea={workingArea}
         updateAreaPropertyById={updateAreaPropertyById}
       />
-      <LanguageSwitcher />
+      <LanguageSwitcher language={language} setLanguage={setLanguage} />
       <div className={styles.studio}>
         <StudioThumbnails
           pages={pages}
