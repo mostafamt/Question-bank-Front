@@ -20,6 +20,7 @@ const LanguageSwitcher = (props) => {
     <div className={styles["language-switcher"]}>
       {buttons.map((button) => (
         <button
+          key={button.code}
           value={button.code}
           onClick={onChangeLanguage}
           className={language === button.code ? styles.active : ""}
