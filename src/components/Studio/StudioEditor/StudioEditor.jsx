@@ -29,6 +29,7 @@ const StudioEditor = (props) => {
     ) || [];
 
   const onClickExistedArea = (areaProps) => {
+    console.log("areaProps= ", areaProps);
     const newAreasProperties = [...areasProperties];
     const idx = areaProps.areaNumber - 1;
     newAreasProperties[activePage][idx].open =
