@@ -1,9 +1,12 @@
 import React from "react";
 import ImageActions from "../../ImageActions/ImageActions";
+// import { ImageArea, AreaSelector } from "@bmunozg/react-image-area";
 import { AreaSelector } from "@bmunozg/react-image-area";
 import { DELETED, constructBoxColors } from "../../../utils/ocr";
+
 /** @jsxImportSource @emotion/react */
 
+// import { ImageArea, AreaSelector } from '@bmunozg/react-image-area';
 import styles from "./studioEditor.module.scss";
 
 const StudioEditor = (props) => {
@@ -25,12 +28,25 @@ const StudioEditor = (props) => {
       (_, idx) => areasProperties[activePage][idx]?.status !== DELETED
     ) || [];
 
+  const onClickExistedArea = (areaProps) => {
+    const newAreasProperties = [...areasProperties];
+    const idx = areaProps.areaNumber - 1;
+    newAreasProperties[activePage][idx].open =
+      !newAreasProperties[activePage][idx].open;
+    setAreasProperties(newAreasProperties);
+  };
+
   const customRender = (areaProps) => {
     if (!areaProps.isChanging) {
       return (
-        <div key={areaProps.areaNumber} className={styles.type}>
-          {areasProperties[activePage][areaProps.areaNumber - 1]?.type} -
-          {areasProperties[activePage][areaProps.areaNumber - 1]?.label}
+        <div
+          key={areaProps.areaNumber}
+          onClick={() => onClickExistedArea(areaProps)}
+        >
+          <div className={styles.type}>
+            {areasProperties[activePage][areaProps.areaNumber - 1]?.type} -
+            {areasProperties[activePage][areaProps.areaNumber - 1]?.label}
+          </div>
         </div>
       );
     }
@@ -65,6 +81,11 @@ const StudioEditor = (props) => {
           overflow: "scroll",
         }}
         customAreaRenderer={customRender}
+        areaProps={{
+          onClick: (event, area) => {
+            console.log("here");
+          },
+        }}
       >
         <img
           src={pages[activePage]?.url}
