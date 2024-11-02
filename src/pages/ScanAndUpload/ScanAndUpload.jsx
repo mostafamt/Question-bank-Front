@@ -18,11 +18,13 @@ const ScanAndUpload = () => {
   const { data: types, isFetching: isFetchingTypes } = useQuery({
     queryKey: ["types"],
     queryFn: () => getTypes(),
+    refetchOnWindowFocus: false,
   });
 
   const { data: pages, isFetching: isFetchingPages } = useQuery({
     queryKey: [`book-${bookId}-chapter-${chapterId}`],
     queryFn: () => getChapterPages(chapterId),
+    refetchOnWindowFocus: false,
   });
 
   const handleSubmit = async (pageId, areas) => {
