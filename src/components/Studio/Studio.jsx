@@ -1,10 +1,8 @@
 import React from "react";
 import { useStore } from "../../store/store";
 import { toast } from "react-toastify";
-import Modal from "../Modal/Modal";
 import { v4 as uuidv4 } from "uuid";
 import { colors } from "../../constants/highlight-color";
-import SubObjectModal from "../Modal/SubObjectModal/SubObjectModal";
 
 import StudioThumbnails from "./StudioThumbnails/StudioThumbnails";
 import StudioEditor from "./StudioEditor/StudioEditor";
@@ -14,7 +12,6 @@ import {
   COMPLEX_TYPES,
   DELETED,
   ENGLISH,
-  cropSelectedArea,
   deleteAreaByIndex,
   extractImage,
   getTypeNameOfLabelKey,
@@ -100,7 +97,6 @@ const Studio = (props) => {
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
   const [modalName, setModalName] = React.useState("");
   const [workingArea, setWorkingArea] = React.useState();
-  console.log("lang= ", lang);
   const [language, setLanguage] = React.useState(
     lang === "en" ? ENGLISH : ARABIC
   );
