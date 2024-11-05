@@ -23,7 +23,9 @@ const SubObjectModal = (props) => {
         .sort((a, b) => a.order - b.order)
         .map(async (item) => ({
           [item.label]:
-            item.type === "image" ? await uploadBase64(item.image) : item.text,
+            item.typeOfLabel === "image"
+              ? await uploadBase64(item.image)
+              : item.text,
         }))
     );
 
