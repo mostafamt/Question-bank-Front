@@ -32,6 +32,7 @@ const AreaAction = (props) => {
     setModalName,
     openModal,
     setWorkingArea,
+    typeOfActiveType,
   } = props;
 
   const onClick = () => {
@@ -136,6 +137,7 @@ const AreaAction = (props) => {
               type={type}
               updateAreaProperty={updateAreaProperty}
               updateAreaPropertyById={updateAreaPropertyById}
+              typeOfActiveType={typeOfActiveType}
             />
 
             <AreaActionResult onEditText={onEditText} trialArea={area} />

@@ -16,6 +16,7 @@ const StudioModals = (props) => {
     modalName,
     workingArea,
     updateAreaPropertyById,
+    typeOfActiveType,
   } = props;
 
   let rendererModal = <></>;
@@ -38,6 +39,7 @@ const StudioModals = (props) => {
         type={activeType}
         types={types}
         updateAreaProperty={updateAreaProperty}
+        typeOfActiveType={typeOfActiveType}
       />
     );
   }
