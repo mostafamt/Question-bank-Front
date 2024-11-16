@@ -10,9 +10,10 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { Button, CircularProgress } from "@mui/material";
 import ScannerIcon from "@mui/icons-material/Scanner";
+import ClassIcon from "@mui/icons-material/Class";
 
 import styles from "./addBook.module.scss";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useStore } from "../../store/store";
 import { getTypes } from "../../services/api";
 
@@ -115,6 +116,25 @@ const AddBook = () => {
                 Scan and Upload
               </Button>
             </div>
+          </div>
+        </fieldset>
+      </form>
+      <form>
+        <fieldset>
+          <legend></legend>
+          <div className="row">
+            {books?.map((book) => (
+              <Link
+                to={`/show/${book._id}`}
+                key={book._id}
+                className="col-md-4"
+              >
+                <span>
+                  <ClassIcon />
+                </span>
+                <span>{book.title}</span>
+              </Link>
+            ))}
           </div>
         </fieldset>
       </form>
