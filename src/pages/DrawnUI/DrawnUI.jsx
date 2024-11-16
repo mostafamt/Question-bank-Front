@@ -11,7 +11,7 @@ import { useStore } from "../../store/store";
 import { toast } from "react-toastify";
 
 import Select from "../../components/DrawnUI/Select/Select";
-import { getTypes } from "../../services/api";
+import { getAllTypes, getObject } from "../../services/api";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import {
@@ -24,10 +24,11 @@ import {
 
 import styles from "./drawnUI.module.scss";
 import Wrapper from "../../components/DrawnUI/Wrapper/Wrapper";
+import { useQuery } from "@tanstack/react-query";
 
 const DrawnUI = () => {
   const params = useParams();
-  const { type } = params;
+  const { type, id } = params;
   const [foundAbstractParameters, setFoundAbstractParameters] =
     React.useState(true);
   const [selectedType, setSelectedType] = React.useState(null);
@@ -61,9 +62,16 @@ const DrawnUI = () => {
     return data.parameters;
   };
 
+  const { data: object, isFetching: isFetchingObject } = useQuery({
+    queryKey: [`object`],
+    queryFn: () => getObject(id),
+    refetchOnWindowFocus: false,
+    enabled: isEditPage && Boolean(id), // Disable auto-fetch
+  });
+
   const getData = async () => {
     setLoading(true);
-    const objects = await getTypes();
+    const objects = await getAllTypes();
     const selectedType = objects.find((item) => item.typeName === type);
     setSelectedType(selectedType);
     const abstractParameter = selectedType?.abstractParameter;
@@ -222,7 +230,9 @@ const DrawnUI = () => {
 
   return (
     <div className="container">
-      <h1 style={{ textAlign: "center", marginBottom: "3rem" }}>{type}</h1>
+      <h1 style={{ textAlign: "center", marginBottom: "3rem" }}>
+        {object?.type}
+      </h1>
       {loading ? (
         <Box sx={{ textAlign: "center", mt: "8rem" }}>
           <CircularProgress size="4rem" />
