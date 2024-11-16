@@ -6,6 +6,7 @@ import { Button, IconButton, Radio } from "@mui/material";
 import { RadioButtonCheckedRounded, Delete } from "@mui/icons-material";
 import axios from "../../axios";
 import { fetchObjects } from "../../services/api";
+import { v4 as uuidv4 } from "uuid";
 
 export default function DataTable(props) {
   const navigate = useNavigate();
@@ -98,9 +99,13 @@ export default function DataTable(props) {
     const data = res?.data;
     if (!!data?.docs.length) {
       setRows(
-        data.docs.map((item) => ({
-          id: item._id,
-          name: item.questionName,
+        data.docs.map((item, idx) => ({
+          id: item._id || uuidv4(),
+          name:
+            item.questionName ||
+            `Untitled ${
+              paginationModel.page * paginationModel.pageSize + idx + 1
+            }`,
           type: item.type,
           domain: item.domainName,
           subDomain: item.subDomainName,
