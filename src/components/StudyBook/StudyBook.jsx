@@ -34,7 +34,7 @@ const StudyBook = (props) => {
   return (
     <>
       <Modal show={showModal} handleClose={toggleShowModal}>
-        <PlayObjectModal />
+        <PlayObjectModal workingArea={{ text: "6738a55f506fbe0003100cca" }} />
       </Modal>
       <BookViewer
         activePage={activePage}

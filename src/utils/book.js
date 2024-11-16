@@ -43,7 +43,36 @@ export const PAGES = Array(20)
     src: `/assets/biology book/page-${(index + 1)
       .toString()
       .padStart(2, "0")}.jpg`,
-    areas: [],
+    areas: [
+      {
+        id: uuidv4(),
+        x: 14,
+        y: 25,
+        width: 75,
+        height: 16.5,
+      },
+      {
+        id: uuidv4(),
+        x: 14,
+        y: 43,
+        width: 75,
+        height: 16.5,
+      },
+      {
+        id: uuidv4(),
+        x: 14,
+        y: 60,
+        width: 75,
+        height: 16.5,
+      },
+      {
+        id: uuidv4(),
+        x: 14,
+        y: 78,
+        width: 75,
+        height: 9,
+      },
+    ],
   }));
 
 export const TABLES_OF_CONTENTS = [
