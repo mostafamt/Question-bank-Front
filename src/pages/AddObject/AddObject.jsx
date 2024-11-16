@@ -16,12 +16,13 @@ import {
   getDomainName,
   getSubDomainName,
 } from "../../config";
+import { useQuery } from "@tanstack/react-query";
 import { NewInstance as axios } from "../../axios";
 import { toast } from "react-toastify";
-import { getQuestionTypes } from "../../services/api";
+import { getCategories, getQuestionTypes, getTypes } from "../../services/api";
 
 import styles from "./addObject.module.scss";
-import { getImages, getTypes } from "../../services/api";
+import { getImages, getAllTypes } from "../../services/api";
 
 const AddObject = () => {
   const navigate = useNavigate();
@@ -32,22 +33,35 @@ const AddObject = () => {
     watch,
   } = useForm();
   const { setFormState } = useStore();
-  const [types, setTypes] = React.useState([]);
+  // const [types, setTypes] = React.useState([]);
   const [loadingOCR, setLoadingOCR] = React.useState(false);
   const [interactiveObjectTypes, setInteractiveObjectTypes] = React.useState(
     []
   );
 
   const getQuestionTypes = async () => {
-    const res = await getTypes();
+    const res = await getAllTypes();
     setInteractiveObjectTypes(res);
     const types = res.map((item) => item.typeName);
-    setTypes(types);
+    // setTypes(types);
   };
 
   React.useEffect(() => {
     getQuestionTypes();
   }, []);
+
+  const { data: categories, isFetching: isFetchingCategories } = useQuery({
+    queryKey: [`categories`],
+    queryFn: getCategories,
+    refetchOnWindowFocus: false,
+  });
+
+  const { data: types, isFetching: isFetchingTypes } = useQuery({
+    queryKey: [`types-${watch("category")}`],
+    queryFn: () => getTypes(watch("category") === "Question" ? "Q" : "X"),
+    refetchOnWindowFocus: false,
+    enabled: !!watch("category"), // Disable auto-fetch
+  });
 
   const onClickExcelFile = () => {
     window.open("/excel-file", "_blank");
@@ -161,15 +175,30 @@ const AddObject = () => {
                 ))}
               </Select>
               <Select
-                label="question type"
+                label="Category"
+                name="category"
+                register={register}
+                errors={errors}
+                loading={isFetchingCategories}
+              >
+                {categories?.map((category, idx) => (
+                  <option key={idx} value={category.typeName}>
+                    {category.typeName}
+                  </option>
+                ))}
+              </Select>
+            </div>
+            <div className={styles.row}>
+              <Select
+                label="type"
                 name="type"
                 register={register}
                 errors={errors}
-                loading={!types.length}
+                loading={isFetchingTypes}
               >
-                {types.map((type, idx) => (
-                  <option key={idx} value={type}>
-                    {type}
+                {types?.map((type, idx) => (
+                  <option key={idx} value={type.typeName}>
+                    {type.typeName}
                   </option>
                 ))}
               </Select>

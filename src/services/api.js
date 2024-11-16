@@ -27,10 +27,43 @@ export const getOldTypes = async () => {
   return res;
 };
 
-export const getTypes = async () => {
+export const getAllTypes = async () => {
   try {
     const res = await axios2.get("io-types");
     return res.data;
+  } catch (error) {
+    toast.error(error.message);
+    return null;
+  }
+};
+
+export const getCategories = async () => {
+  try {
+    const res = await axios2.get("io-types");
+    const data = res.data.filter((type) => type.typeCategory === "B");
+    return data;
+  } catch (error) {
+    toast.error(error.message);
+    return null;
+  }
+};
+
+export const getTypes = async (category) => {
+  try {
+    const res = await axios2.get("io-types");
+    const data = res.data.filter((type) => type.category === category);
+    return data;
+  } catch (error) {
+    toast.error(error.message);
+    return null;
+  }
+};
+
+export const getObject = async (id) => {
+  try {
+    const res = await axios2.get(`/interactive-objects/${id}`);
+    const data = res.data;
+    return data;
   } catch (error) {
     toast.error(error.message);
     return null;

@@ -9,7 +9,10 @@ import { ThemeProvider } from "@mui/material/styles";
 import { theme } from "./theme/theme";
 import routes from "./routes";
 import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "bootstrap/dist/css/bootstrap.min.css";
+
+const queryClient = new QueryClient();
 
 function App() {
   return (
@@ -25,15 +28,17 @@ function App() {
           <Navbar />
           <ToastContainer />
           <ErrorBoundary>
-            <Routes>
-              {routes.map((route) => (
-                <Route
-                  key={route.path}
-                  path={route.path}
-                  Component={route.component}
-                />
-              ))}
-            </Routes>
+            <QueryClientProvider client={queryClient}>
+              <Routes>
+                {routes.map((route) => (
+                  <Route
+                    key={route.path}
+                    path={route.path}
+                    Component={route.component}
+                  />
+                ))}
+              </Routes>
+            </QueryClientProvider>
           </ErrorBoundary>
           <Footer />
         </div>

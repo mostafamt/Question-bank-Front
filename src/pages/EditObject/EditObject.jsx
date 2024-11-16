@@ -18,7 +18,7 @@ import {
 } from "../../config";
 
 import styles from "./editObject.module.scss";
-import { getTypes } from "../../services/api";
+import { getAllTypes } from "../../services/api";
 
 const getCorrectQuestionTypeName = (type) => {
   let correctType = type;
@@ -54,7 +54,7 @@ const EditObject = () => {
   };
 
   const getQuestionTypes = async () => {
-    const res = await getTypes();
+    const res = await getAllTypes();
     const types = res.map((item) => item.typeName);
     setTypes(types);
   };
@@ -88,9 +88,9 @@ const EditObject = () => {
   };
 
   const onClickEdit = () => {
-    const { type } = watch();
+    const { baseType } = watch();
 
-    navigate(`/edit-question/${type}/${id}`);
+    navigate(`/edit-question/${baseType}/${id}`);
   };
 
   const onSubmit = async (values) => {
@@ -201,6 +201,7 @@ const EditObject = () => {
                       {type}
                     </option>
                   ))}
+                  <option value={watch("type")}>{watch("type")}</option>
                 </Select>
               </div>
 
