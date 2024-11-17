@@ -88,9 +88,9 @@ const EditObject = () => {
   };
 
   const onClickEdit = () => {
-    const { baseType, type } = watch();
+    const { type, baseType } = watch();
 
-    navigate(`/edit-question/${baseType || type}/${id}`);
+    navigate(`/edit-question/${type}/${baseType}/${id}`);
   };
 
   const onSubmit = async (values) => {
