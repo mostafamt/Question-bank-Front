@@ -28,7 +28,7 @@ import { useQuery } from "@tanstack/react-query";
 
 const DrawnUI = () => {
   const params = useParams();
-  const { type, id } = params;
+  const { type, baseType, id } = params;
   const [foundAbstractParameters, setFoundAbstractParameters] =
     React.useState(true);
   const [selectedType, setSelectedType] = React.useState(null);
@@ -72,7 +72,7 @@ const DrawnUI = () => {
   const getData = async () => {
     setLoading(true);
     const objects = await getAllTypes();
-    const selectedType = objects.find((item) => item.typeName === type);
+    const selectedType = objects.find((item) => item.typeName === baseType);
     setSelectedType(selectedType);
     const abstractParameter = selectedType?.abstractParameter;
     const labels = selectedType?.labels;
@@ -230,9 +230,7 @@ const DrawnUI = () => {
 
   return (
     <div className="container">
-      <h1 style={{ textAlign: "center", marginBottom: "3rem" }}>
-        {object?.type}
-      </h1>
+      <h1 style={{ textAlign: "center", marginBottom: "3rem" }}>{type}</h1>
       {loading ? (
         <Box sx={{ textAlign: "center", mt: "8rem" }}>
           <CircularProgress size="4rem" />

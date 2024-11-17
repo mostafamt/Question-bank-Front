@@ -30,4 +30,60 @@ function hexToRgbA(hex) {
   // throw new Error("Bad Hex");
 }
 
-export { constructMCQParametersFromKeyValuePairs, hexToRgbA };
+const getBaseTypeFromType = (categories, categoryName, type) => {
+  let baseType = "";
+  if (categories) {
+    const category = categories.find((item) => item.typeName === categoryName);
+    const selectedObj = category?.labels?.find((item) => {
+      const [key, _] = Object.entries(item)?.[0];
+      return key === type;
+    });
+    if (selectedObj) {
+      const [_, value] = Object.entries(selectedObj)?.[0];
+      baseType = value;
+    }
+  }
+  return baseType;
+};
+
+const instructionalRoles = [
+  "introduction",
+  "overview",
+  "definition",
+  "fact",
+  "remark",
+  "example",
+  "explanation",
+  "description",
+  "illustration",
+  "comparison",
+  "summary",
+  "conclusion",
+  "theory",
+  "rule",
+  "formula",
+  "procedure",
+  "algorithm",
+  "exercises",
+  "casestudy",
+  "real_world_problem",
+  "question",
+  "answer_to_question",
+  "exam",
+  "recall",
+  "test",
+  "quiz",
+  "vocabulary",
+  "reading",
+  "pre_reading",
+  "review",
+  "related_topics",
+  "identify",
+];
+
+export {
+  constructMCQParametersFromKeyValuePairs,
+  hexToRgbA,
+  getBaseTypeFromType,
+  instructionalRoles,
+};

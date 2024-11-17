@@ -23,6 +23,7 @@ import { getCategories, getQuestionTypes, getTypes } from "../../services/api";
 
 import styles from "./addObject.module.scss";
 import { getImages, getAllTypes } from "../../services/api";
+import { getBaseTypeFromType, instructionalRoles } from "../../utils/helper";
 
 const AddObject = () => {
   const navigate = useNavigate();
@@ -79,19 +80,23 @@ const AddObject = () => {
     };
     setFormState({ ...data });
     const { type } = values;
-    navigate(`/add-question/${type}`);
+
+    const baseType = getBaseTypeFromType(categories, watch("category"), type);
+    navigate(`/add-question/${watch("type")}/${baseType}`);
   };
 
   const onSubmitOcr = async (values) => {
-    const data = {
+    let data = {
       ...values,
       domainName: getDomainName(values.domainId),
       subDomainName: getSubDomainName(values.domainId, values.subDomainId),
     };
 
-    // const id = await saveObject(data);
+    const { type } = values;
+    const baseType = getBaseTypeFromType(categories, watch("category"), type);
+    data = { ...data, type: baseType };
     const selectedTypeObject = interactiveObjectTypes.find(
-      (item) => item.typeName === values.type
+      (item) => item.typeName === baseType
     );
     setFormState({
       // id,
@@ -101,6 +106,14 @@ const AddObject = () => {
     });
     navigate("/scan-and-upload");
   };
+
+  let labels = [];
+  if (categories) {
+    const category = categories.find(
+      (category) => category.typeName === watch("category")
+    );
+    labels = category?.labels;
+  }
 
   return (
     <div className={styles["add-question"]}>
@@ -190,15 +203,26 @@ const AddObject = () => {
             </div>
             <div className={styles.row}>
               <Select
+                label="Instructional Role"
+                name="IR"
+                register={register}
+                errors={errors}
+              >
+                {instructionalRoles?.map((item, idx) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </Select>
+              <Select
                 label="type"
                 name="type"
                 register={register}
                 errors={errors}
-                loading={isFetchingTypes}
               >
-                {types?.map((type, idx) => (
-                  <option key={idx} value={type.typeName}>
-                    {type.typeName}
+                {labels?.map((item, idx) => (
+                  <option key={idx} value={Object.keys(item)?.[0]}>
+                    {Object.keys(item)?.[0]}
                   </option>
                 ))}
               </Select>

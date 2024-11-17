@@ -50,7 +50,7 @@ const routes = [
     component: AddObject,
   },
   {
-    path: "/add-question/:type",
+    path: "/add-question/:type/:baseType",
     component: DrawnUI,
   },
   {
@@ -98,7 +98,7 @@ const routes = [
     component: EditObject,
   },
   {
-    path: "/edit-question/:type/:id",
+    path: "/edit-question/:type/:baseType/:id",
     component: DrawnUI,
   },
   {
