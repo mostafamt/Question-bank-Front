@@ -31,7 +31,7 @@ const routes = [
     component: ScanAndUpload,
   },
   {
-    path: "/show/:id",
+    path: "/read/book/:bookId/chapter/:chapterId",
     component: Book,
   },
   {

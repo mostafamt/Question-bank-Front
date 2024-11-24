@@ -6,10 +6,10 @@ import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
 
 import styles from "./bookViewerTopBar.module.scss";
-import { getTotalPages } from "../../../utils/book";
+import { getPageOrderByPageId, getTotalPages } from "../../../utils/book";
 
 const BookViewerTopBar = (props) => {
-  const { activePage, onChangePage } = props;
+  const { activePage, onChangePage, pages } = props;
 
   const onClickNextPage = () => {
     onChangePage("next");
@@ -29,7 +29,8 @@ const BookViewerTopBar = (props) => {
   return (
     <div className={styles.bookViewerTopBar}>
       <Typography variant="caption" component="h5">
-        Page {activePage.order} of {getTotalPages()}
+        Page {getPageOrderByPageId(pages, activePage?._id)} of{" "}
+        {getTotalPages(pages)}
       </Typography>
 
       <IconButton aria-label="first" onClick={onClickFirstPage}>

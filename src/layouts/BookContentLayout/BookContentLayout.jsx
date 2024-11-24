@@ -5,6 +5,7 @@ import {
   changePage,
   getColumn,
   INITIAL_PAGE,
+  INITIAL_PAGE_INDEX,
   PAGES,
   toggleColumn,
 } from "../../utils/book";
@@ -13,23 +14,33 @@ import styles from "./bookContentLayout.module.scss";
 import TableOfContents from "../../components/Book/TableOfContents/TableOfContents";
 
 const BookContentLayout = (props) => {
-  const { children } = props;
+  const { children, pages: newPages } = props;
   const [columns, setColumns] = React.useState([
     getColumn("Thumbnails"),
     getColumn("Table Of Contents"),
   ]);
   const [pages, setPages] = React.useState(PAGES);
-  const [activePage, setActivePage] = React.useState(INITIAL_PAGE);
+  const [activePage, setActivePage] = React.useState(
+    newPages?.[INITIAL_PAGE_INDEX] || ""
+  );
   const [showModal, setShowModal] = React.useState(false);
 
   const onClickMinimize = (id) => {
     setColumns((prevState) => toggleColumn(prevState, id));
   };
 
+  console.log("activePage= ", newPages?.[INITIAL_PAGE_INDEX]);
+  console.log("activePage= ", activePage);
+
+  React.useEffect(() => {
+    setActivePage(newPages?.[INITIAL_PAGE_INDEX]);
+  }, [newPages]);
+
   const clonedElement = React.cloneElement(children, {
     pages,
     activePage,
     setActivePage,
+    newPages,
   });
 
   return (
@@ -40,7 +51,7 @@ const BookContentLayout = (props) => {
         classNameOpened={styles.try}
       >
         <BookThumnails
-          pages={pages}
+          pages={newPages}
           activePage={activePage}
           setActivePage={setActivePage}
         />

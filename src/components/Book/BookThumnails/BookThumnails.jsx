@@ -13,13 +13,13 @@ const BookThumnails = (props) => {
 
   return (
     <div className={styles["book-thumbnails"]}>
-      {pages.map((page) => (
+      {pages?.map((page) => (
         <button
-          key={page.id}
+          key={page._id}
           onClick={() => onClickButton(page)}
-          className={activePage.id === page.id ? styles.active : ""}
+          className={activePage?._id === page?._id ? styles.active : ""}
         >
-          <img style={{ width: "100%" }} src={page.src} alt={page.src} />
+          <img style={{ width: "100%" }} src={page.url} alt={page.url} />
         </button>
       ))}
     </div>
