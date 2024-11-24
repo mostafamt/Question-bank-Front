@@ -137,7 +137,10 @@ export const TABLES_OF_CONTENTS = [
 // ];
 export const INITIAL_PAGE = PAGES[INITIAL_PAGE_INDEX];
 
-export const getTotalPages = () => PAGES.length;
+export const getTotalPages = (pages) => pages?.length || 0;
+
+export const getPageOrderByPageId = (pages, id) =>
+  pages?.findIndex((page) => page._id === id) + 1;
 
 export const toggleColumn = (columns, id) => {
   return columns.map((item) => {
@@ -171,7 +174,7 @@ const fixArrayBoundaries = (length, index) => {
 
 export const changePage = (pages, currentPage, state = "next") => {
   let indexOfCurrentPage = pages.findIndex(
-    (page) => page.id === currentPage.id
+    (page) => page._id === currentPage._id
   );
 
   if (state === "next") {

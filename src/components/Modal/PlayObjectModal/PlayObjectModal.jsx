@@ -7,6 +7,7 @@ import { getObject } from "../../../api/bookapi";
 
 const PlayObjectModal = (props) => {
   const { workingArea } = props;
+  const [shouldFetch, setShouldFetch] = React.useState(false);
 
   const {
     data: object,
@@ -16,14 +17,24 @@ const PlayObjectModal = (props) => {
     isFetching,
   } = useQuery({
     queryKey: [`get-object`],
-    queryFn: () => getObject(workingArea.text),
+    queryFn: () => getObject(workingArea.contentValue),
+    // enabled: shouldFetch,
   });
 
   let renderer = <></>;
-  if (isLoadingObject) {
-    renderer = <p>Loading</p>;
+  if (workingArea.contentType === "Paragraph") {
+    renderer = workingArea.contentValue;
   } else {
-    renderer = <iframe src={object.url} frameborder="0"></iframe>;
+    if (isLoadingObject) {
+      renderer = <p>Loading</p>;
+    } else {
+      setShouldFetch(true);
+      renderer = isFetching ? (
+        <p>Loading...</p>
+      ) : (
+        <iframe src={object?.url} frameborder="0"></iframe>
+      );
+    }
   }
 
   return (
