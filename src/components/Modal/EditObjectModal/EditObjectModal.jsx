@@ -11,9 +11,14 @@ import {
 } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import { useStore } from "../../../store/store";
+import { v4 as uuidv4 } from "uuid";
 
 import styles from "./editObjectModal.module.scss";
-import { getAllTypes } from "../../../services/api";
+import { getAllTypes, getCategories } from "../../../services/api";
+import { useQuery } from "@tanstack/react-query";
+import Input from "../../Input/Input";
+import { useForm } from "react-hook-form";
+import { getBaseTypeFromType } from "../../../utils/helper";
 
 const EditObjectModal = (props) => {
   const {
@@ -23,49 +28,51 @@ const EditObjectModal = (props) => {
     type: questionType,
   } = props;
   const { data: state, setFormState } = useStore();
-  const [name, setName] = React.useState(questionName);
-  const [type, setType] = React.useState(questionType);
-  const [list, setList] = React.useState([questionType]);
+  const [name, setName] = React.useState(state?.questionName);
+  const [category, setCategory] = React.useState(state?.category);
+  const [type, setType] = React.useState(state?.higherType);
 
-  const getData = async () => {
-    const questionTypes = state.types || (await getAllTypes());
-    console.log("questionTypes= ", questionTypes);
-    const types = questionTypes.map((item) => item.typeName);
-    console.log("types= ", types);
-    setList(types);
-  };
+  const { data: categories, isFetching: isFetchingCategories } = useQuery({
+    queryKey: [`categories`],
+    queryFn: getCategories,
+    refetchOnWindowFocus: false,
+  });
 
-  React.useEffect(() => {
-    if (!subObject) {
-      getData();
-    }
-  }, []);
-
-  const handleChangeName = (event) => {
+  const onChangeName = (event) => {
     setName(event.target.value);
   };
 
-  const handleChange = (event) => {
+  const onChangeCategory = (event) => {
+    setCategory(event.target.value);
+  };
+
+  const onChangeType = (event) => {
     setType(event.target.value);
   };
 
   const onSubmit = (event) => {
     event.preventDefault();
-    console.log("state= ", state);
-    const selectedTypeObject = state?.types.find(
-      (item) => item.typeName === type
-    );
-    console.log("selectedTypeObject= ", selectedTypeObject);
+    const name = event.target["name"].value;
+    const category = event.target["category"].value;
+    const type = event.target["type"].value;
+    const baseType = getBaseTypeFromType(categories, category, type);
     setFormState({
       ...state,
       questionName: name,
-      type,
-      // types: selectedTypeObject,
-      labels: selectedTypeObject?.labels,
+      category,
+      higherType: type,
+      type: baseType,
     });
-    console.log(state);
     handleClose();
   };
+
+  let labels = [];
+  if (categories) {
+    const selectedCategory = categories.find(
+      (cat) => cat.typeName === category
+    );
+    labels = selectedCategory?.labels;
+  }
 
   return (
     <div className={styles["modal-content"]}>
@@ -81,29 +88,67 @@ const EditObjectModal = (props) => {
           id="outlined-basic"
           label="Name"
           variant="outlined"
+          name="name"
           value={name}
-          onChange={handleChangeName}
+          onChange={onChangeName}
         />
 
-        {!subObject && (
+        {isFetchingCategories ? (
+          <p>Loading...</p>
+        ) : (
+          <Box sx={{ minWidth: 120 }}>
+            <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label">Category</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                label="Category"
+                name="category"
+                value={category}
+                onChange={onChangeCategory}
+              >
+                {categories?.map((category) => (
+                  <MenuItem key={category.typeName} value={category.typeName}>
+                    {category.typeName}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        )}
+
+        {/* <input
+          onClick={() => {
+            reset({
+              name: `some name ${uuidv4()}`,
+              category: "Question",
+            });
+          }}
+          value="reset"
+        /> */}
+
+        {labels ? (
           <Box sx={{ minWidth: 120 }}>
             <FormControl fullWidth>
               <InputLabel id="demo-simple-select-label">Type</InputLabel>
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
-                value={type}
                 label="Type"
-                onChange={handleChange}
+                name="type"
+                value={type}
+                onChange={onChangeType}
               >
-                {list?.map((item) => (
-                  <MenuItem key={item} value={item}>
-                    {item}
+                {labels?.map((item, idx) => (
+                  <MenuItem key={idx} value={Object.keys(item)?.[0]}>
+                    {Object.keys(item)?.[0]}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
           </Box>
+        ) : (
+          <p>Loading</p>
         )}
 
         <div className={styles.submit}>
