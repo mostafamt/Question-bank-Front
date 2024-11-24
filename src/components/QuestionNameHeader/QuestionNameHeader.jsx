@@ -19,7 +19,7 @@ const QuestionNameHeader = (props) => {
 
   const getQuestionName = () =>
     subObject
-      ? `${state?.questionName} - ${state?.type}`
+      ? `${state?.questionName} - ${state?.higherType}`
       : `${state?.questionName}`;
 
   return (
@@ -39,7 +39,7 @@ const QuestionNameHeader = (props) => {
         </div>
         <div>
           <span>Type: </span>
-          <span>{state?.type}</span>
+          <span>{state?.higherType}</span>
         </div>
         <div>
           <IconButton aria-label="edit" color="white" onClick={toggleShow}>

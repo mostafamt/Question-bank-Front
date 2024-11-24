@@ -90,6 +90,7 @@ const AddObject = () => {
       ...values,
       domainName: getDomainName(values.domainId),
       subDomainName: getSubDomainName(values.domainId, values.subDomainId),
+      higherType: values.type,
     };
 
     const { type } = values;
@@ -98,6 +99,7 @@ const AddObject = () => {
     const selectedTypeObject = interactiveObjectTypes.find(
       (item) => item.typeName === baseType
     );
+    console.log("data= ", data);
     setFormState({
       // id,
       ...data,
