@@ -12,6 +12,8 @@ import {
 } from "../../utils/book";
 import PlayObjectModal from "../Modal/PlayObjectModal/PlayObjectModal";
 import styles from "./studyBook.module.scss";
+import { isComplexType } from "../../utils/ocr";
+import QuillModal from "../Modal/QuillModal/QuillModal";
 
 const StudyBook = (props) => {
   const { pages, activePage, setActivePage, newPages } = props;
@@ -35,8 +37,15 @@ const StudyBook = (props) => {
 
   return (
     <>
-      <Modal show={showModal} handleClose={toggleShowModal}>
-        <PlayObjectModal workingArea={activeBlock} />
+      <Modal show={showModal} handleClose={toggleShowModal} size="xl">
+        {isComplexType(activeBlock.contentType) ? (
+          <PlayObjectModal workingArea={activeBlock} />
+        ) : (
+          <QuillModal
+            workingArea={activeBlock}
+            updateAreaPropertyById={() => {}}
+          />
+        )}
       </Modal>
       <BookViewer
         activePage={activePage}
