@@ -127,7 +127,7 @@ export const toggleColumn = (columns, id) => {
 export const getColumn = (label) => ({
   id: uuidv4(),
   label: label,
-  percentage: 15,
+  percentage: 20,
   minimized: false,
 });
 

@@ -1,7 +1,8 @@
 .book-viewer {
   position: relative;
   flex: 0 1 auto;
-  overflow: hidden;
+  overflow: scroll;
+  overflow-y: scroll;
   // height: 120vh;
   height: 100%;
 

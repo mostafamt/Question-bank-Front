@@ -9,7 +9,6 @@ import { CircularProgress } from "@mui/material";
 // TABLES_OF_CONTENTS
 
 const TableOfContents = (props) => {
-  console.log("TableOfContents");
   const { PAGES, setActivePage, chapterId } = props;
 
   const { data: TABLES_OF_CONTENTS, isFetching } = useQuery({
