@@ -14,7 +14,7 @@ import styles from "./bookContentLayout.module.scss";
 import TableOfContents from "../../components/Book/TableOfContents/TableOfContents";
 
 const BookContentLayout = (props) => {
-  const { children, pages: newPages } = props;
+  const { children, pages: newPages, chapterId } = props;
   const [columns, setColumns] = React.useState([
     getColumn("Thumbnails"),
     getColumn("Table Of Contents"),
@@ -28,9 +28,6 @@ const BookContentLayout = (props) => {
   const onClickMinimize = (id) => {
     setColumns((prevState) => toggleColumn(prevState, id));
   };
-
-  console.log("activePage= ", newPages?.[INITIAL_PAGE_INDEX]);
-  console.log("activePage= ", activePage);
 
   React.useEffect(() => {
     setActivePage(newPages?.[INITIAL_PAGE_INDEX]);
@@ -58,7 +55,11 @@ const BookContentLayout = (props) => {
       </BookColumn>
       <div>{clonedElement}</div>
       <BookColumn column={columns[1]} onClickMinimize={onClickMinimize}>
-        <TableOfContents setActivePage={setActivePage} />
+        <TableOfContents
+          PAGES={newPages}
+          setActivePage={setActivePage}
+          chapterId={chapterId}
+        />
       </BookColumn>
     </div>
   );

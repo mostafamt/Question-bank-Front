@@ -9,7 +9,6 @@ const BookViewer = (props) => {
 
   // const page = PAGES.find((item) => item.id === activePage.id);
   const areas = activePage?.blocks;
-  console.log("areas= ", areas);
 
   return (
     <div className={styles["book-viewer"]}>

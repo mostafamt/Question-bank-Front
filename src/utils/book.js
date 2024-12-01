@@ -75,53 +75,19 @@ export const PAGES = Array(20)
     ],
   }));
 
-export const TABLES_OF_CONTENTS = [
-  {
-    id: uuidv4(),
-    label: "Inheritance Of Traits",
-    pageIndex: 0,
-    children: [
-      {
-        id: uuidv4(),
-        label: "Lesson 1: Chromosomes and genetic information",
-        pageIndex: 2,
-      },
-      {
-        id: uuidv4(),
-        label: "Lesson 2: The interaction of gens",
-        pageIndex: 8,
-      },
-    ],
-  },
-  {
-    id: uuidv4(),
-    label: "Chapter 4",
-    children: [
-      {
-        id: uuidv4(),
-        label: "Part 1",
-      },
-      {
-        id: uuidv4(),
-        label: "Part 2",
-      },
-    ],
-  },
-  {
-    id: uuidv4(),
-    label: "Chapter 5",
-    children: [
-      {
-        id: uuidv4(),
-        label: "Part 1",
-      },
-      {
-        id: uuidv4(),
-        label: "Part 2",
-      },
-    ],
-  },
-];
+export const mapTableOfContents = (TABLES_OF_CONTENTS) => {
+  return TABLES_OF_CONTENTS?.map((item) => {
+    return {
+      id: uuidv4(),
+      title: item.title,
+      pageIndex:
+        Number.parseInt(item.pagesRange?.[0]) > 0
+          ? Number.parseInt(item.pagesRange?.[0]) - 1
+          : Number.parseInt(item.pagesRange?.[0]) || null,
+      children: mapTableOfContents(item.children) || [],
+    };
+  });
+};
 
 // export const PAGES = [
 //   {
