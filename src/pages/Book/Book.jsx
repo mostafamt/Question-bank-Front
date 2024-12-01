@@ -89,7 +89,7 @@ TabPanel.propTypes = {
 };
 
 const InnerTabs = (props) => {
-  const { tabs, items, value, handleChange, pages } = props;
+  const { tabs, items, value, handleChange, pages, chapterId } = props;
 
   return (
     <>
@@ -107,18 +107,25 @@ const InnerTabs = (props) => {
           ))}
         </Tabs>
       </AppBar>
-      <Layout value={value} tabs={tabs} items={items} pages={pages} />
+      <Layout
+        value={value}
+        tabs={tabs}
+        items={items}
+        pages={pages}
+        chapterId={chapterId}
+      />
     </>
   );
 };
 
 const Layout = (props) => {
-  const { value, tabs, items, pages } = props;
+  const { value, tabs, items, pages, chapterId } = props;
 
-  console.log("Layout= ", pages);
   return tabs.map((_, index) => (
     <TabPanel key={index} value={value} index={index}>
-      <BookContentLayout pages={pages}>{items[index]}</BookContentLayout>
+      <BookContentLayout pages={pages} chapterId={chapterId}>
+        {items[index]}
+      </BookContentLayout>
     </TabPanel>
   ));
 };
@@ -173,6 +180,7 @@ const Book = () => {
             tabs={item.children?.labels}
             items={item.children?.items}
             pages={pages}
+            chapterId={chapterId}
           />
         </TabPanel>
       ))}
