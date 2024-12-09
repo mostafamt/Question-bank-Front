@@ -194,6 +194,8 @@ const Studio = (props) => {
       // open modal if it has a supported type
       let found = COMPLEX_TYPES.find((type) => type === typeOfLabel);
       if (found) {
+        setModalName("auto-ui");
+        setWorkingArea(area);
         setActiveType(label);
         setTypeOfActiveType(typeOfLabel);
         setTimeout(() => {
