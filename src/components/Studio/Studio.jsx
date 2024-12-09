@@ -38,6 +38,7 @@ const Studio = (props) => {
     types,
     handleSubmit,
     language: lang,
+    typeOfActiveType: tOfActiveType,
   } = props;
   const [activePage, setActivePage] = React.useState(0);
   const [areas, setAreas] = React.useState(
@@ -92,6 +93,7 @@ const Studio = (props) => {
   // To Extract Sub Object
   const [showModal, setShowModal] = React.useState(false);
   const [activeType, setActiveType] = React.useState("");
+  const [typeOfActiveType, setTypeOfActiveType] = React.useState("");
   const [activeImage, setActiveImage] = React.useState("");
   const [pageId, setPageId] = React.useState(pages?.[0]?._id);
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
@@ -164,11 +166,7 @@ const Studio = (props) => {
     });
     let typeOfLabel = "";
     if (subObject) {
-      typeOfLabel = getTypeOfLabel2(
-        types,
-        areasProperties[activePage][idx].type,
-        label
-      );
+      typeOfLabel = getTypeOfLabel2(types, tOfActiveType, label);
     } else {
       typeOfLabel = getTypeOfLabel(
         types,
@@ -197,6 +195,7 @@ const Studio = (props) => {
       let found = COMPLEX_TYPES.find((type) => type === typeOfLabel);
       if (found) {
         setActiveType(label);
+        setTypeOfActiveType(typeOfLabel);
         setTimeout(() => {
           openModal();
         }, 1000);
@@ -275,6 +274,7 @@ const Studio = (props) => {
         handleCloseModal={handleCloseModal}
         activeImage={activeImage}
         activeType={activeType}
+        typeOfActiveType={typeOfActiveType}
         types={types}
         updateAreaProperty={updateAreaProperty}
         modalName={modalName}
@@ -317,6 +317,7 @@ const Studio = (props) => {
           setModalName={setModalName}
           openModal={openModal}
           setWorkingArea={setWorkingArea}
+          tOfActiveType={tOfActiveType}
         />
       </div>
       <div>

@@ -24,6 +24,7 @@ const StudioActions = (props) => {
     setModalName,
     openModal,
     setWorkingArea,
+    tOfActiveType: typeOfActiveType,
   } = props;
 
   const onDragEnd = (result) => {
@@ -95,6 +96,7 @@ const StudioActions = (props) => {
                             setModalName={setModalName}
                             openModal={openModal}
                             setWorkingArea={setWorkingArea}
+                            typeOfActiveType={typeOfActiveType}
                           />
                         </div>
                       )}

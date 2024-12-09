@@ -10,9 +10,10 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { Button, CircularProgress } from "@mui/material";
 import ScannerIcon from "@mui/icons-material/Scanner";
+import ClassIcon from "@mui/icons-material/Class";
 
 import styles from "./addBook.module.scss";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useStore } from "../../store/store";
 import { getTypes } from "../../services/api";
 
@@ -49,22 +50,29 @@ const AddBook = () => {
     enabled: !!watch("book"), // Disable auto-fetch
   });
 
-  const onSubmit = async (values) => {
+  const onSubmit = async (values, event) => {
+    const submitter = event?.nativeEvent?.submitter;
+    const name = submitter?.name;
+
     const { book, chapter } = values;
 
-    setLoadingScan(true);
+    if (name === "read") {
+      navigate(`/read/book/${book}/chapter/${chapter}`);
+    } else {
+      setLoadingScan(true);
 
-    const types = await getTypes();
+      const types = await getTypes();
 
-    setFormState({
-      types,
-    });
-    setLoadingScan(false);
-    const chapterDetails = chapters.find((item) => item._id === chapter);
-    const language = chapterDetails?.language || "en";
-    navigate(`/book/${book}/chapter/${chapter}`, {
-      state: { language },
-    });
+      setFormState({
+        types,
+      });
+      setLoadingScan(false);
+      const chapterDetails = chapters.find((item) => item._id === chapter);
+      const language = chapterDetails?.language || "en";
+      navigate(`/book/${book}/chapter/${chapter}`, {
+        state: { language },
+      });
+    }
   };
 
   return (
@@ -111,13 +119,44 @@ const AddBook = () => {
                 startIcon={
                   loadingScan ? <CircularProgress size="1rem" /> : <></>
                 }
+                name="author"
               >
-                Scan and Upload
+                Author
+              </Button>
+              <Button
+                variant="contained"
+                type="submit"
+                disabled={loadingScan}
+                startIcon={
+                  loadingScan ? <CircularProgress size="1rem" /> : <></>
+                }
+                name="read"
+              >
+                Read
               </Button>
             </div>
           </div>
         </fieldset>
       </form>
+      {/* <form>
+        <fieldset>
+          <legend></legend>
+          <div className="row">
+            {books?.map((book) => (
+              <Link
+                to={`/show/${book._id}`}
+                key={book._id}
+                className="col-md-4"
+              >
+                <span>
+                  <ClassIcon />
+                </span>
+                <span>{book.title}</span>
+              </Link>
+            ))}
+          </div>
+        </fieldset>
+      </form> */}
     </div>
   );
 };

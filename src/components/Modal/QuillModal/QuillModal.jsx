@@ -6,7 +6,9 @@ import styles from "./quillModal.module.scss";
 
 const QuillModal = (props) => {
   const { workingArea, updateAreaPropertyById } = props;
-  const [value, setValue] = React.useState(workingArea.text);
+  const [value, setValue] = React.useState(
+    workingArea.text || workingArea.contentValue
+  );
 
   const onChange = (value) => {
     setValue(value);
