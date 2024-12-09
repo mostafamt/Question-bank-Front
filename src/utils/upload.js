@@ -1,6 +1,5 @@
 import { toast } from "react-toastify";
 import axios from "../axios";
-import { NewInstance as axios2 } from "../axios";
 
 function newAbortSignal(timeoutMs) {
   const abortController = new AbortController();
@@ -13,8 +12,7 @@ const upload = async (file) => {
   const data = new FormData();
   data.append("file", file);
   try {
-    const res = await axios.post("/upload", {
-      ...data,
+    const res = await axios.post("/upload", data, {
       timeout: 10000,
       signal: newAbortSignal(10000),
     });
