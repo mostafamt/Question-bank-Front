@@ -10,6 +10,9 @@ import MenuBookIcon from "@mui/icons-material/MenuBook";
 import BookIcon from "@mui/icons-material/Book";
 import StudyBook from "../../components/StudyBook/StudyBook";
 import BookContentLayout from "../../layouts/BookContentLayout/BookContentLayout";
+import { useQuery } from "@tanstack/react-query";
+import { useParams } from "react-router";
+import { getChapterPages } from "../../api/bookapi";
 
 const tabsStyle = {
   width: "100%",
@@ -86,7 +89,7 @@ TabPanel.propTypes = {
 };
 
 const InnerTabs = (props) => {
-  const { tabs, items, value, handleChange } = props;
+  const { tabs, items, value, handleChange, pages, chapterId } = props;
 
   return (
     <>
@@ -100,26 +103,42 @@ const InnerTabs = (props) => {
           sx={tabsStyle}
         >
           {tabs.map((item, index) => (
-            <Tab label={item} {...a11yProps(index)} />
+            <Tab key={index} label={item} {...a11yProps(index)} />
           ))}
         </Tabs>
       </AppBar>
-      <Layout value={value} tabs={tabs} items={items} />
+      <Layout
+        value={value}
+        tabs={tabs}
+        items={items}
+        pages={pages}
+        chapterId={chapterId}
+      />
     </>
   );
 };
 
 const Layout = (props) => {
-  const { value, tabs, items } = props;
+  const { value, tabs, items, pages, chapterId } = props;
 
   return tabs.map((_, index) => (
-    <TabPanel value={value} index={index}>
-      <BookContentLayout>{items[index]}</BookContentLayout>
+    <TabPanel key={index} value={value} index={index}>
+      <BookContentLayout pages={pages} chapterId={chapterId}>
+        {items[index]}
+      </BookContentLayout>
     </TabPanel>
   ));
 };
 
 const Book = () => {
+  const { bookId, chapterId } = useParams();
+
+  const { data: pages, isFetching: isFetchingPages } = useQuery({
+    queryKey: [`book-${bookId}-chapter-${chapterId}`],
+    queryFn: () => getChapterPages(chapterId),
+    refetchOnWindowFocus: false,
+  });
+
   const [value1, setValue1] = React.useState(0);
   const [value2, setValue2] = React.useState(0);
 
@@ -144,6 +163,7 @@ const Book = () => {
         >
           {tabs.map((tab, index) => (
             <Tab
+              key={index}
               icon={<MenuBookIcon />}
               iconPosition="start"
               label={tab.label}
@@ -153,16 +173,16 @@ const Book = () => {
         </Tabs>
       </AppBar>
       {tabs.map((item, index) => (
-        <>
-          <TabPanel value={value1} index={index}>
-            <InnerTabs
-              value={value2}
-              handleChange={handleChange}
-              tabs={item.children?.labels}
-              items={item.children?.items}
-            />
-          </TabPanel>
-        </>
+        <TabPanel key={index} value={value1} index={index}>
+          <InnerTabs
+            value={value2}
+            handleChange={handleChange}
+            tabs={item.children?.labels}
+            items={item.children?.items}
+            pages={pages}
+            chapterId={chapterId}
+          />
+        </TabPanel>
       ))}
     </div>
   );

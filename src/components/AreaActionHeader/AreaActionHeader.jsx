@@ -14,9 +14,13 @@ const AreaActionHeader = (props) => {
     type,
     updateAreaProperty,
     updateAreaPropertyById,
+    typeOfActiveType,
   } = props;
 
-  const labels = getLabels(types, trialArea.type);
+  const labels = getLabels(
+    types,
+    subObject ? typeOfActiveType : trialArea.type
+  );
 
   return (
     <div className={styles["area-action-header"]}>

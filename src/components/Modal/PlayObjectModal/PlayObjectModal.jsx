@@ -4,9 +4,11 @@ import { useQuery } from "@tanstack/react-query";
 
 import styles from "./playObjectModal.module.scss";
 import { getObject } from "../../../api/bookapi";
+import { isComplexType } from "../../../utils/ocr";
 
 const PlayObjectModal = (props) => {
   const { workingArea } = props;
+  const [shouldFetch, setShouldFetch] = React.useState(false);
 
   const {
     data: object,
@@ -16,22 +18,35 @@ const PlayObjectModal = (props) => {
     isFetching,
   } = useQuery({
     queryKey: [`get-object`],
-    queryFn: () => getObject(workingArea.text),
+    queryFn: () => getObject(workingArea.contentValue),
+    refetchOnWindowFocus: false,
   });
 
   let renderer = <></>;
-  if (isLoadingObject) {
-    renderer = <p>Loading</p>;
+
+  if (isComplexType(workingArea.contentType)) {
+    renderer = isFetching ? (
+      <p>Loading...</p>
+    ) : (
+      <iframe
+        src={object?.url}
+        frameBorder="0"
+        height={"100%"}
+        width={"100%"}
+      ></iframe>
+    );
   } else {
-    renderer = <iframe src={object.url} frameborder="0"></iframe>;
+    renderer = workingArea.contentValue;
   }
 
   return (
-    <div>
+    <div style={{ height: "50vh" }}>
       <BootstrapModal.Header closeButton>
         <BootstrapModal.Title></BootstrapModal.Title>
       </BootstrapModal.Header>
-      <BootstrapModal.Body>{renderer}</BootstrapModal.Body>
+      <BootstrapModal.Body style={{ height: "100%" }}>
+        {renderer}
+      </BootstrapModal.Body>
     </div>
   );
 };

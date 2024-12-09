@@ -1,5 +1,6 @@
 import { default as axios } from "../axios";
 import { chapters, pages } from "./test-data";
+import { toast } from "react-toastify";
 
 export const wait = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -32,7 +33,16 @@ export const getChapterPages = async (id) => {
 
 export const submitBlock = async () => {};
 
-export const getChapterTOC = async () => {};
+export const getChapterTOC = async (chapterId) => {
+  const url = `/chapters/${chapterId}/toc`;
+  try {
+    const res = await axios.get(url);
+    return res.data;
+  } catch (error) {
+    toast.error(error?.message);
+    return "";
+  }
+};
 
 export const getBlocksByChapter = async () => {};
 

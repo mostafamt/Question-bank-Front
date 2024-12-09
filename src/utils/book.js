@@ -43,56 +43,51 @@ export const PAGES = Array(20)
     src: `/assets/biology book/page-${(index + 1)
       .toString()
       .padStart(2, "0")}.jpg`,
-    areas: [],
+    areas: [
+      {
+        id: uuidv4(),
+        x: 14,
+        y: 25,
+        width: 75,
+        height: 16.5,
+      },
+      {
+        id: uuidv4(),
+        x: 14,
+        y: 43,
+        width: 75,
+        height: 16.5,
+      },
+      {
+        id: uuidv4(),
+        x: 14,
+        y: 60,
+        width: 75,
+        height: 16.5,
+      },
+      {
+        id: uuidv4(),
+        x: 14,
+        y: 78,
+        width: 75,
+        height: 9,
+      },
+    ],
   }));
 
-export const TABLES_OF_CONTENTS = [
-  {
-    id: uuidv4(),
-    label: "Inheritance Of Traits",
-    pageIndex: 0,
-    children: [
-      {
-        id: uuidv4(),
-        label: "Lesson 1: Chromosomes and genetic information",
-        pageIndex: 2,
-      },
-      {
-        id: uuidv4(),
-        label: "Lesson 2: The interaction of gens",
-        pageIndex: 8,
-      },
-    ],
-  },
-  {
-    id: uuidv4(),
-    label: "Chapter 4",
-    children: [
-      {
-        id: uuidv4(),
-        label: "Part 1",
-      },
-      {
-        id: uuidv4(),
-        label: "Part 2",
-      },
-    ],
-  },
-  {
-    id: uuidv4(),
-    label: "Chapter 5",
-    children: [
-      {
-        id: uuidv4(),
-        label: "Part 1",
-      },
-      {
-        id: uuidv4(),
-        label: "Part 2",
-      },
-    ],
-  },
-];
+export const mapTableOfContents = (TABLES_OF_CONTENTS) => {
+  return TABLES_OF_CONTENTS?.map((item) => {
+    return {
+      id: uuidv4(),
+      title: item.title,
+      pageIndex:
+        Number.parseInt(item.pagesRange?.[0]) > 0
+          ? Number.parseInt(item.pagesRange?.[0]) - 1
+          : Number.parseInt(item.pagesRange?.[0]) || null,
+      children: mapTableOfContents(item.children) || [],
+    };
+  });
+};
 
 // export const PAGES = [
 //   {
@@ -108,7 +103,10 @@ export const TABLES_OF_CONTENTS = [
 // ];
 export const INITIAL_PAGE = PAGES[INITIAL_PAGE_INDEX];
 
-export const getTotalPages = () => PAGES.length;
+export const getTotalPages = (pages) => pages?.length || 0;
+
+export const getPageOrderByPageId = (pages, id) =>
+  pages?.findIndex((page) => page._id === id) + 1;
 
 export const toggleColumn = (columns, id) => {
   return columns.map((item) => {
@@ -129,7 +127,7 @@ export const toggleColumn = (columns, id) => {
 export const getColumn = (label) => ({
   id: uuidv4(),
   label: label,
-  percentage: 15,
+  percentage: 20,
   minimized: false,
 });
 
@@ -142,7 +140,7 @@ const fixArrayBoundaries = (length, index) => {
 
 export const changePage = (pages, currentPage, state = "next") => {
   let indexOfCurrentPage = pages.findIndex(
-    (page) => page.id === currentPage.id
+    (page) => page._id === currentPage._id
   );
 
   if (state === "next") {
