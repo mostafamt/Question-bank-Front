@@ -74,7 +74,7 @@ const DrawnUI = (props) => {
     setLabels(labels);
     setAbstractParameters(abstractParameter);
     setFoundAbstractParameters(Boolean(abstractParameter));
-    if (isEditPage) {
+    if (isEditPage && id) {
       const parameters = await getParameters();
       setLoading(false);
       return parameters;
@@ -86,7 +86,7 @@ const DrawnUI = (props) => {
 
   const onSubmit = async (values) => {
     setValues(values);
-    if (isEditPage) {
+    if (isEditPage && id) {
       await EditObject(values);
     } else {
       await saveObject(values);
