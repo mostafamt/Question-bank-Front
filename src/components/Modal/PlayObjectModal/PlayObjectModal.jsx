@@ -8,6 +8,9 @@ import { isComplexType } from "../../../utils/ocr";
 
 const PlayObjectModal = (props) => {
   const { workingArea } = props;
+
+  console.log("workingArea= ", workingArea);
+
   const [shouldFetch, setShouldFetch] = React.useState(false);
 
   const {
@@ -18,7 +21,10 @@ const PlayObjectModal = (props) => {
     isFetching,
   } = useQuery({
     queryKey: [`get-object`],
-    queryFn: () => getObject(workingArea.contentValue),
+    queryFn: () =>
+      getObject(
+        workingArea.isServer ? workingArea.text : workingArea.contentValue
+      ),
     refetchOnWindowFocus: false,
   });
 
@@ -27,13 +33,15 @@ const PlayObjectModal = (props) => {
   if (isComplexType(workingArea.contentType)) {
     renderer = isFetching ? (
       <p>Loading...</p>
-    ) : (
+    ) : object?.url ? (
       <iframe
         src={object?.url}
         frameBorder="0"
         height={"100%"}
         width={"100%"}
       ></iframe>
+    ) : (
+      <p>No Object url is available.</p>
     );
   } else {
     renderer = workingArea.contentValue;

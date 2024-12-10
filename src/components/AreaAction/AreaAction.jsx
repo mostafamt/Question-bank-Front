@@ -46,7 +46,6 @@ const AreaAction = (props) => {
 
   const onClickEdit = (event) => {
     event.stopPropagation();
-    console.log("area.type= ", area);
     if (isComplexType(area.label)) {
       setModalName("auto-ui");
     } else {
