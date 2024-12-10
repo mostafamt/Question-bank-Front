@@ -18,6 +18,7 @@ const BookContentLayout = (props) => {
   const [columns, setColumns] = React.useState([
     getColumn("Thumbnails"),
     getColumn("Table Of Contents"),
+    getColumn("Some Tab"),
   ]);
   const [pages, setPages] = React.useState(PAGES);
   const [activePage, setActivePage] = React.useState(
@@ -44,6 +45,7 @@ const BookContentLayout = (props) => {
     <div className={styles["book-content-layout"]}>
       <BookColumn
         column={columns[0]}
+        columns={["Thumbnails", "item 2"]}
         onClickMinimize={onClickMinimize}
         classNameOpened={styles.try}
       >
@@ -54,7 +56,11 @@ const BookContentLayout = (props) => {
         />
       </BookColumn>
       <div>{clonedElement}</div>
-      <BookColumn column={columns[1]} onClickMinimize={onClickMinimize}>
+      <BookColumn
+        column={columns[1]}
+        columns={["Table Of Contents", "item 2"]}
+        onClickMinimize={onClickMinimize}
+      >
         <TableOfContents
           PAGES={newPages}
           setActivePage={setActivePage}

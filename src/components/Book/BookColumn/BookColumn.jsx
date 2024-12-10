@@ -6,7 +6,7 @@ import styles from "./bookColumn.module.scss";
 import clsx from "clsx";
 
 const BookColumn = (props) => {
-  const { column, onClickMinimize, children, classNameOpened } = props;
+  const { column, columns, onClickMinimize, children, classNameOpened } = props;
 
   return (
     <div
@@ -17,15 +17,17 @@ const BookColumn = (props) => {
     >
       {column.minimized ? (
         <div className={styles.minimized}>
-          <div>
-            <button
-              onClick={() => onClickMinimize(column.id)}
-              className={styles["rotated-button"]}
-            >
-              {column.label}
-              <ContentCopyIcon />
-            </button>
-          </div>
+          {columns?.map((item) => (
+            <div>
+              <button
+                onClick={() => onClickMinimize(column.id)}
+                className={styles["rotated-button"]}
+              >
+                {item}
+                <ContentCopyIcon />
+              </button>
+            </div>
+          ))}
         </div>
       ) : (
         <div className={clsx(styles.opened, classNameOpened)}>

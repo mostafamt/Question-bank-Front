@@ -8,6 +8,10 @@
 
   & .minimized {
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
     & .rotated-button {
       writing-mode: tb-rl;
       display: flex;
