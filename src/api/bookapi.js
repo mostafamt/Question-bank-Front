@@ -48,6 +48,12 @@ export const getBlocksByChapter = async () => {};
 
 export const getObject = async (id) => {
   const url = `/interactive-objects/${id}`;
-  const res = await axios.get(url);
-  return res.data;
+  try {
+    const res = await axios.get(url);
+    return res.data;
+  } catch (error) {
+    toast.error(error?.message);
+    return "";
+  }
+  
 };
