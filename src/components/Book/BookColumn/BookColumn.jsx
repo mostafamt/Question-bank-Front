@@ -6,7 +6,7 @@ import styles from "./bookColumn.module.scss";
 import clsx from "clsx";
 
 const BookColumn = (props) => {
-  const { column, onClickMinimize, children, classNameOpened } = props;
+  const { column, columns, onClickMinimize, children, classNameOpened } = props;
 
   return (
     <div
@@ -15,28 +15,30 @@ const BookColumn = (props) => {
         flex: `0 0 ${column.percentage}%`,
       }}
     >
-      {column.minimized ? (
-        <div className={styles.minimized}>
-          <div>
-            <button
-              onClick={() => onClickMinimize(column.id)}
-              className={styles["rotated-button"]}
-            >
-              {column.label}
-              <ContentCopyIcon />
-            </button>
+      {columns?.map((column) =>
+        column.minimized ? (
+          <div key={column.id} className={styles.minimized}>
+            <div>
+              <button
+                onClick={() => onClickMinimize(column.id)}
+                className={styles["rotated-button"]}
+              >
+                {column.label}
+                <ContentCopyIcon />
+              </button>
+            </div>
           </div>
-        </div>
-      ) : (
-        <div className={clsx(styles.opened, classNameOpened)}>
-          <div className={styles.action}>
-            <p>{column.label}</p>
-            <button onClick={() => onClickMinimize(column.id)}>
-              <MinimizeIcon />
-            </button>
+        ) : (
+          <div key={column.id} className={clsx(styles.opened, classNameOpened)}>
+            <div className={styles.action}>
+              <p>{column.label}</p>
+              <button onClick={() => onClickMinimize(column.id)}>
+                <MinimizeIcon />
+              </button>
+            </div>
+            {children}
           </div>
-          {children}
-        </div>
+        )
       )}
     </div>
   );

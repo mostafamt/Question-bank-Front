@@ -1,4 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
+import BookThumnails from "../components/Book/BookThumnails/BookThumnails";
+import TableOfContents from "../components/Book/TableOfContents/TableOfContents";
 
 export const COLUMN_PERCENTAGE_MINIMIZED = 1;
 export const COLUMN_PERCENTAGE_OPENED = 15;
@@ -109,6 +111,8 @@ export const getPageOrderByPageId = (pages, id) =>
   pages?.findIndex((page) => page._id === id) + 1;
 
 export const toggleColumn = (columns, id) => {
+  // console.log("columns= ", columns);
+  // return columns;
   return columns.map((item) => {
     if (item.id === id) {
       return {
@@ -155,4 +159,96 @@ export const changePage = (pages, currentPage, state = "next") => {
   indexOfCurrentPage = fixArrayBoundaries(pages.length, indexOfCurrentPage);
 
   return pages[indexOfCurrentPage];
+};
+
+export const LEFT_POSITION = "LEFT";
+export const RIGHT_POSITION = "RIGHT";
+
+export const ALL_COLUMNS = [
+  {
+    id: uuidv4(),
+    label: "Thumbnails",
+    position: LEFT_POSITION,
+    component: <BookThumnails />,
+  },
+  {
+    id: uuidv4(),
+    label: "Block Authoring",
+    position: LEFT_POSITION,
+    component: (
+      <div>
+        <h1>Block Authoring</h1>
+      </div>
+    ),
+  },
+  {
+    id: uuidv4(),
+    label: "Recalls",
+    position: LEFT_POSITION,
+    component: (
+      <div>
+        <h1>Recalls</h1>
+      </div>
+    ),
+  },
+  {
+    id: uuidv4(),
+    label: "Micro Learning",
+    position: LEFT_POSITION,
+    component: (
+      <div>
+        <h1>Micro Learning</h1>
+      </div>
+    ),
+  },
+  {
+    id: uuidv4(),
+    label: "Enriching Contents",
+    position: LEFT_POSITION,
+    component: (
+      <div>
+        <h1>Enriching Contents</h1>
+      </div>
+    ),
+  },
+  {
+    id: uuidv4(),
+    label: "Table Of Contents",
+    position: LEFT_POSITION,
+    component: <TableOfContents />,
+  },
+  {
+    id: uuidv4(),
+    label: "Glossary & keywords",
+    position: LEFT_POSITION,
+    component: (
+      <div>
+        <h1>Glossary & keywords</h1>
+      </div>
+    ),
+  },
+  {
+    id: uuidv4(),
+    label: "Illustrative Interactions",
+    position: LEFT_POSITION,
+    component: (
+      <div>
+        <h1>Illustrative Interactions</h1>
+      </div>
+    ),
+  },
+  {
+    id: uuidv4(),
+    label: "Check Yourself",
+    position: LEFT_POSITION,
+    component: (
+      <div>
+        <h1>Check Yourself</h1>
+      </div>
+    ),
+  },
+];
+
+export const getColumnsByPosition = (position) => {
+  return ALL_COLUMNS.filter((column) => column.position === position);
 };
