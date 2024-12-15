@@ -28,6 +28,8 @@ import LanguageSwitcher from "./LanguageSwitcher/LanguageSwitcher";
 // import { debounce } from "lodash";
 import _ from "lodash";
 import StudioModals from "./StudioModals/StudioModals";
+import BookColumn2 from "../Book/BookColumn2/BookColumn2";
+import { LEFT_POSITION } from "../../utils/book";
 
 const Studio = (props) => {
   const {
@@ -269,39 +271,67 @@ const Studio = (props) => {
     return <Alert severity="error">No pages available.</Alert>;
   }
 
-  return (
-    <>
-      <StudioModals
-        showModal={showModal}
-        handleCloseModal={handleCloseModal}
-        activeImage={activeImage}
-        activeType={activeType}
-        typeOfActiveType={typeOfActiveType}
-        types={types}
-        updateAreaProperty={updateAreaProperty}
-        modalName={modalName}
-        workingArea={workingArea}
-        updateAreaPropertyById={updateAreaPropertyById}
-      />
-      <LanguageSwitcher language={language} setLanguage={setLanguage} />
-      <div className={styles.studio}>
+  const LEFT_COLUMNS = [
+    {
+      id: uuidv4(),
+      label: "Thumbnails",
+      position: LEFT_POSITION,
+      component: (
         <StudioThumbnails
           pages={pages}
           activePage={activePage}
           onClickImage={onClickImage}
         />
-        <StudioEditor
-          areasProperties={areasProperties}
-          setAreasProperties={setAreasProperties}
-          activePage={activePage}
-          imageScaleFactor={imageScaleFactor}
-          setImageScaleFactor={setImageScaleFactor}
-          areas={areas}
-          setAreas={setAreas}
-          onChangeHandler={onChangeHandler}
-          pages={pages}
-          imageRef={imageRef}
-        />
+      ),
+    },
+    {
+      id: uuidv4(),
+      label: "Recalls",
+      position: LEFT_POSITION,
+      component: (
+        <div>
+          <h1>Recalls</h1>
+        </div>
+      ),
+    },
+    {
+      id: uuidv4(),
+      label: "Micro Learning",
+      position: LEFT_POSITION,
+      component: (
+        <div>
+          <h1>Micro Learning</h1>
+        </div>
+      ),
+    },
+    {
+      id: uuidv4(),
+      label: "Enriching Contents",
+      position: LEFT_POSITION,
+      component: (
+        <div>
+          <h1>Enriching Contents</h1>
+        </div>
+      ),
+    },
+    {
+      id: uuidv4(),
+      label: "Check Yourself",
+      position: LEFT_POSITION,
+      component: (
+        <div>
+          <h1>Check Yourself</h1>
+        </div>
+      ),
+    },
+  ];
+
+  const RIGHT_COLUMNS = [
+    {
+      id: uuidv4(),
+      label: "Block Authoring",
+      position: LEFT_POSITION,
+      component: (
         <StudioActions
           areasProperties={areasProperties}
           setAreasProperties={setAreasProperties}
@@ -321,6 +351,70 @@ const Studio = (props) => {
           setWorkingArea={setWorkingArea}
           tOfActiveType={tOfActiveType}
         />
+      ),
+    },
+    {
+      id: uuidv4(),
+      label: "Table Of Contents",
+      position: LEFT_POSITION,
+      component: (
+        <div>
+          <h1>Table of Contents</h1>
+        </div>
+      ),
+    },
+    {
+      id: uuidv4(),
+      label: "Glossary & keywords",
+      position: LEFT_POSITION,
+      component: (
+        <div>
+          <h1>Glossary & keywords</h1>
+        </div>
+      ),
+    },
+    {
+      id: uuidv4(),
+      label: "Illustrative Interactions",
+      position: LEFT_POSITION,
+      component: (
+        <div>
+          <h1>Illustrative Interactions</h1>
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <>
+      <StudioModals
+        showModal={showModal}
+        handleCloseModal={handleCloseModal}
+        activeImage={activeImage}
+        activeType={activeType}
+        typeOfActiveType={typeOfActiveType}
+        types={types}
+        updateAreaProperty={updateAreaProperty}
+        modalName={modalName}
+        workingArea={workingArea}
+        updateAreaPropertyById={updateAreaPropertyById}
+      />
+      <LanguageSwitcher language={language} setLanguage={setLanguage} />
+      <div className={styles.studio}>
+        <BookColumn2 columns={LEFT_COLUMNS} />
+        <StudioEditor
+          areasProperties={areasProperties}
+          setAreasProperties={setAreasProperties}
+          activePage={activePage}
+          imageScaleFactor={imageScaleFactor}
+          setImageScaleFactor={setImageScaleFactor}
+          areas={areas}
+          setAreas={setAreas}
+          onChangeHandler={onChangeHandler}
+          pages={pages}
+          imageRef={imageRef}
+        />
+        <BookColumn2 columns={RIGHT_COLUMNS} />
       </div>
       <div>
         <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
