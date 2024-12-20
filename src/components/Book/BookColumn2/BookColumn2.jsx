@@ -4,6 +4,8 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 import styles from "./bookColumn.module.scss";
 
+// some comment to trigger redeployment
+
 const BookColumn2 = (props) => {
   const [open, setOpen] = React.useState(false);
   const [columns, setColumns] = React.useState(props.columns);
