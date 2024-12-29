@@ -1,39 +1,15 @@
 .book-column {
-  height: 100%;
+  overflow-y: scroll;
+  box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px,
+    rgba(0, 0, 0, 0.3) 0px 30px 60px -30px,
+    rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
 
-  & p {
-    margin: 0;
-    padding: 0;
-  }
-
-  & .minimized {
-    height: 100%;
-    & .rotated-button {
+  & .tabs {
+    & button {
       writing-mode: tb-rl;
       display: flex;
       gap: 0.5rem;
       align-items: center;
-    }
-  }
-
-  & .opened {
-    height: 100%;
-    // overflow-y: scroll;
-    & .action {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      border-bottom: 2px solid #ccc;
-      margin-bottom: 1rem;
-
-      & > button {
-        border-color: transparent;
-        background-color: transparent;
-
-        &:hover {
-          background-color: #ddd;
-        }
-      }
     }
   }
 }

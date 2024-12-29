@@ -30,6 +30,7 @@ import _ from "lodash";
 import StudioModals from "./StudioModals/StudioModals";
 import BookColumn2 from "../Book/BookColumn2/BookColumn2";
 import { LEFT_POSITION } from "../../utils/book";
+import BookColumn from "../Book/BookColumn/BookColumn";
 
 const Studio = (props) => {
   const {
@@ -293,6 +294,7 @@ const Studio = (props) => {
           <h1>Recalls</h1>
         </div>
       ),
+      props: {},
     },
     {
       id: uuidv4(),
@@ -303,6 +305,7 @@ const Studio = (props) => {
           <h1>Micro Learning</h1>
         </div>
       ),
+      props: {},
     },
     {
       id: uuidv4(),
@@ -313,6 +316,7 @@ const Studio = (props) => {
           <h1>Enriching Contents</h1>
         </div>
       ),
+      props: {},
     },
     {
       id: uuidv4(),
@@ -323,10 +327,11 @@ const Studio = (props) => {
           <h1>Check Yourself</h1>
         </div>
       ),
+      props: {},
     },
   ];
 
-  const RIGHT_COLUMNS = [
+  let RIGHT_COLUMNS = [
     {
       id: uuidv4(),
       label: "Block Authoring",
@@ -362,6 +367,7 @@ const Studio = (props) => {
           <h1>Table of Contents</h1>
         </div>
       ),
+      props: {},
     },
     {
       id: uuidv4(),
@@ -372,6 +378,7 @@ const Studio = (props) => {
           <h1>Glossary & keywords</h1>
         </div>
       ),
+      props: {},
     },
     {
       id: uuidv4(),
@@ -382,6 +389,7 @@ const Studio = (props) => {
           <h1>Illustrative Interactions</h1>
         </div>
       ),
+      props: {},
     },
   ];
 
@@ -401,7 +409,7 @@ const Studio = (props) => {
       />
       <LanguageSwitcher language={language} setLanguage={setLanguage} />
       <div className={styles.studio}>
-        <BookColumn2 columns={LEFT_COLUMNS} />
+        <BookColumn COLUMNS={LEFT_COLUMNS} activeColumn={LEFT_COLUMNS[0]} />
         <StudioEditor
           areasProperties={areasProperties}
           setAreasProperties={setAreasProperties}
@@ -414,7 +422,7 @@ const Studio = (props) => {
           pages={pages}
           imageRef={imageRef}
         />
-        <BookColumn2 columns={RIGHT_COLUMNS} />
+        <BookColumn COLUMNS={RIGHT_COLUMNS} activeColumn={RIGHT_COLUMNS[0]} />
       </div>
       <div>
         <canvas ref={canvasRef} style={{ display: "none" }}></canvas>

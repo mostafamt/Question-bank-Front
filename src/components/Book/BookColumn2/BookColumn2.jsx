@@ -8,6 +8,7 @@ const BookColumn2 = (props) => {
   const [open, setOpen] = React.useState(false);
   const [columns, setColumns] = React.useState(props.columns);
   const [activeColumn, setActiveColumn] = React.useState(null);
+  const { activePage } = props;
 
   React.useEffect(() => {
     setColumns(props.columns);
@@ -35,7 +36,11 @@ const BookColumn2 = (props) => {
               <MinimizeIcon />
             </button>
           </div>
-          <div>{activeColumn.component}</div>
+          <div>
+            {React.cloneElement(activeColumn.component, {
+              ...activeColumn.props,
+            })}
+          </div>
         </div>
       ) : (
         <div className={styles.closed}>

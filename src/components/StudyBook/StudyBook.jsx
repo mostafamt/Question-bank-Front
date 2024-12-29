@@ -1,5 +1,4 @@
 import React from "react";
-import BookColumn from "../Book/BookColumn/BookColumn";
 import BookViewer from "../Book/BookViewer/BookViewer";
 import BookThumnails from "../Book/BookThumnails/BookThumnails";
 import Modal from "../Modal/Modal";

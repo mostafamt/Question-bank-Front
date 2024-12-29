@@ -1,0 +1,19 @@
+.book-column-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 2px solid #ccc;
+  background-color: #fff;
+
+  & > button {
+    border-color: transparent;
+    background-color: transparent;
+
+    &:hover {
+      background-color: #ddd;
+    }
+  }
+}
