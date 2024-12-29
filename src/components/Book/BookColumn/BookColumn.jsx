@@ -1,45 +1,51 @@
 import React from "react";
-import MinimizeIcon from "@mui/icons-material/Minimize";
+import BookColumnHeader from "../BookColumnHeader/BookColumnHeader";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
 import styles from "./bookColumn.module.scss";
-import clsx from "clsx";
 
 const BookColumn = (props) => {
-  const { column, columns, onClickMinimize, children, classNameOpened } = props;
+  const { COLUMNS, activeColumn } = props;
+  const [activeTab, setActiveTab] = React.useState(activeColumn.label);
+
+  let content = <></>;
+  if (activeTab) {
+    COLUMNS.forEach((column) => {
+      if (column.label === activeTab) {
+        content = (
+          <div>
+            <BookColumnHeader
+              columnName={column.label}
+              close={() => setActiveTab("")}
+            />
+            {column.component}
+          </div>
+        );
+      }
+    });
+  } else {
+    content = (
+      <div className={styles["tabs"]}>
+        {COLUMNS.map((column) => (
+          <button key={column.id} onClick={() => setActiveTab(column.label)}>
+            <span>{column.label}</span>
+            <ContentCopyIcon />
+          </button>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div
       className={styles["book-column"]}
-      style={{
-        flex: `0 0 ${column.percentage}%`,
-      }}
+      style={
+        activeTab
+          ? { flex: `0 0 ${20}%` }
+          : { flex: `0 0 2.6%`, overflow: "hidden" }
+      }
     >
-      {columns?.map((column) =>
-        column.minimized ? (
-          <div key={column.id} className={styles.minimized}>
-            <div>
-              <button
-                onClick={() => onClickMinimize(column.id)}
-                className={styles["rotated-button"]}
-              >
-                {column.label}
-                <ContentCopyIcon />
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div key={column.id} className={clsx(styles.opened, classNameOpened)}>
-            <div className={styles.action}>
-              <p>{column.label}</p>
-              <button onClick={() => onClickMinimize(column.id)}>
-                <MinimizeIcon />
-              </button>
-            </div>
-            {children}
-          </div>
-        )
-      )}
+      {content}
     </div>
   );
 };

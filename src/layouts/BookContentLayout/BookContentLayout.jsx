@@ -1,5 +1,4 @@
 import React from "react";
-import BookColumn from "../../components/Book/BookColumn/BookColumn";
 import BookThumnails from "../../components/Book/BookThumnails/BookThumnails";
 import {
   changePage,
