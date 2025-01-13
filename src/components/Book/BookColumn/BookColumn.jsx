@@ -5,8 +5,15 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import styles from "./bookColumn.module.scss";
 
 const BookColumn = (props) => {
-  const { COLUMNS, activeColumn } = props;
+  const { COLUMNS, activeColumn, onImageLoad } = props;
   const [activeTab, setActiveTab] = React.useState(activeColumn.label);
+
+  const onChangeActiveTab = (tab) => {
+    setActiveTab(tab);
+    setTimeout(() => {
+      onImageLoad();
+    }, 50);
+  };
 
   let content = <></>;
   if (activeTab) {
@@ -16,7 +23,7 @@ const BookColumn = (props) => {
           <div>
             <BookColumnHeader
               columnName={column.label}
-              close={() => setActiveTab("")}
+              close={() => onChangeActiveTab("")}
             />
             {column.component}
           </div>
@@ -27,7 +34,10 @@ const BookColumn = (props) => {
     content = (
       <div className={styles["tabs"]}>
         {COLUMNS.map((column) => (
-          <button key={column.id} onClick={() => setActiveTab(column.label)}>
+          <button
+            key={column.id}
+            onClick={() => onChangeActiveTab(column.label)}
+          >
             <span>{column.label}</span>
             <ContentCopyIcon />
           </button>

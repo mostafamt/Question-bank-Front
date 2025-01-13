@@ -156,11 +156,12 @@ export const extractImage = (
   const idx = areasProperties[activePage].findIndex((item) => item.id === id);
   const activeArea = areas[activePage][idx];
   const image = imageRef.current;
+  const { clientWidth, clientHeight } = image;
   const ratio = image.naturalWidth / image.width;
-  const x = activeArea.x * ratio;
-  const y = activeArea.y * ratio;
-  const width = activeArea.width * ratio;
-  const height = activeArea.height * ratio;
+  const x = ((activeArea.x * ratio) / 100) * clientWidth;
+  const y = ((activeArea.y * ratio) / 100) * clientHeight;
+  const width = ((activeArea.width * ratio) / 100) * clientWidth;
+  const height = ((activeArea.height * ratio) / 100) * clientHeight;
   const croppedImage = cropSelectedArea(
     canvasRef,
     imageRef,

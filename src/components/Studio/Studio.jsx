@@ -43,18 +43,28 @@ const Studio = (props) => {
     language: lang,
     typeOfActiveType: tOfActiveType,
   } = props;
-  const [activePage, setActivePage] = React.useState(0);
+  const [activePage, setActivePage] = React.useState(
+    localStorage.getItem("page")
+      ? Number.parseInt(localStorage.getItem("page"))
+      : 0
+  );
+  const imageRef = React.useRef(null);
+
   const [areas, setAreas] = React.useState(
     pages?.map((page) =>
-      page.blocks?.map((block) => ({
-        x: block.coordinates.x,
-        y: block.coordinates.y,
-        width: block.coordinates.width,
-        height: block.coordinates.height,
-        unit: "px",
-        isChanging: true,
-        isNew: true,
-      }))
+      page.blocks?.map((block) => {
+        return {
+          x: block.coordinates.x,
+          y: block.coordinates.y,
+          width: block.coordinates.width,
+          height: block.coordinates.height,
+          unit: "px",
+          isChanging: true,
+          isNew: true,
+          _unit: block.coordinates.unit,
+          _updated: false,
+        };
+      })
     ) || Array(pages?.length || 1).fill([])
   );
 
@@ -89,7 +99,8 @@ const Studio = (props) => {
   const [colorIndex, setColorIndex] = React.useState(
     Array(pages?.length || 1).fill(0)
   );
-  const imageRef = React.createRef();
+
+  const _imageRef = React.createRef();
   const canvasRef = React.createRef();
   const { data: state } = useStore();
   const [imageScaleFactor, setImageScaleFactor] = React.useState(1);
@@ -106,9 +117,50 @@ const Studio = (props) => {
     lang === "en" ? ENGLISH : ARABIC
   );
 
+  const onImageLoad = () => {
+    setAreas((prevState) => {
+      return prevState?.map((page, idx1) => {
+        return page?.map((block, idx2) => {
+          if (block._unit === "percentage") {
+            const { clientHeight, clientWidth } = imageRef.current;
+
+            const properties = areasProperties[idx1][idx2];
+
+            return {
+              // x: block.x,
+              // y: block.y,
+              x: (properties.x / 100) * clientWidth,
+              y: (properties.y / 100) * clientHeight,
+              // width: block.width,
+              // height: block.height,
+              width: (properties.width / 100) * clientWidth,
+              height: (properties.height / 100) * clientHeight,
+              unit: "px",
+              isChanging: true,
+              isNew: true,
+              _updated: true,
+              _unit: block._unit,
+            };
+          }
+
+          return {
+            x: block.x,
+            y: block.y,
+            width: block.width,
+            height: block.height,
+            unit: "px",
+            isChanging: true,
+            isNew: true,
+          };
+        });
+      });
+    });
+  };
+
   const onClickImage = (idx) => {
     setActivePage(idx);
     setPageId(pages?.[idx]?._id);
+    localStorage.setItem("page", `${idx}`);
   };
 
   const syncAreasProperties = () => {
@@ -409,7 +461,11 @@ const Studio = (props) => {
       />
       <LanguageSwitcher language={language} setLanguage={setLanguage} />
       <div className={styles.studio}>
-        <BookColumn COLUMNS={LEFT_COLUMNS} activeColumn={LEFT_COLUMNS[0]} />
+        <BookColumn
+          COLUMNS={LEFT_COLUMNS}
+          activeColumn={LEFT_COLUMNS[0]}
+          onImageLoad={onImageLoad}
+        />
         <StudioEditor
           areasProperties={areasProperties}
           setAreasProperties={setAreasProperties}
@@ -420,9 +476,14 @@ const Studio = (props) => {
           setAreas={setAreas}
           onChangeHandler={onChangeHandler}
           pages={pages}
-          imageRef={imageRef}
+          ref={imageRef}
+          onImageLoad={onImageLoad}
         />
-        <BookColumn COLUMNS={RIGHT_COLUMNS} activeColumn={RIGHT_COLUMNS[0]} />
+        <BookColumn
+          COLUMNS={RIGHT_COLUMNS}
+          activeColumn={RIGHT_COLUMNS[0]}
+          onImageLoad={onImageLoad}
+        />
       </div>
       <div>
         <canvas ref={canvasRef} style={{ display: "none" }}></canvas>

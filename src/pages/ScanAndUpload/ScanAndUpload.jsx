@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Box, CircularProgress } from "@mui/material";
 
 import styles from "./scanAndUpload.module.scss";
-import { CREATED, DELETED } from "../../utils/ocr";
+import { CREATED, DELETED, UPDATED } from "../../utils/ocr";
 
 const ScanAndUpload = () => {
   const { bookId, chapterId } = useParams();
@@ -58,6 +58,7 @@ const ScanAndUpload = () => {
                 y: item.y,
                 width: item.width,
                 height: item.height,
+                unit: "percentage",
               },
               contentType: item.label,
               contentValue:
@@ -69,12 +70,13 @@ const ScanAndUpload = () => {
             return {
               pageId,
               blockId: item.blockId,
-              status: item.status,
+              status: UPDATED,
               coordinates: {
                 x: item.x,
                 y: item.y,
                 width: item.width,
                 height: item.height,
+                unit: "percentage",
               },
               contentType: item.label,
               contentValue:

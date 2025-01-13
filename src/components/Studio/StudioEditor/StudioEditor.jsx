@@ -9,7 +9,7 @@ import { DELETED, constructBoxColors } from "../../../utils/ocr";
 // import { ImageArea, AreaSelector } from '@bmunozg/react-image-area';
 import styles from "./studioEditor.module.scss";
 
-const StudioEditor = (props) => {
+const StudioEditor = React.forwardRef((props, ref) => {
   const {
     areasProperties,
     setAreasProperties,
@@ -53,6 +53,9 @@ const StudioEditor = (props) => {
     }
   };
 
+  const onImageLoad = () => {
+    props.onImageLoad();
+  };
   return (
     <div
       className={styles["studio-editor"]}
@@ -87,21 +90,23 @@ const StudioEditor = (props) => {
             console.log("here");
           },
         }}
+        unit="percentage"
       >
         <img
           src={pages[activePage]?.url}
           alt={pages[activePage]?.url || pages[activePage]}
           crossOrigin="anonymous"
-          ref={imageRef}
+          ref={ref}
           style={{
             width: `${imageScaleFactor * 100}%`,
             height: `${imageScaleFactor * 100}%`,
             overflow: "scroll",
           }}
+          onLoad={onImageLoad}
         />
       </AreaSelector>
     </div>
   );
-};
+});
 
 export default StudioEditor;
