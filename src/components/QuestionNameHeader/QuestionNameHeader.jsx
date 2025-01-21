@@ -53,7 +53,9 @@ const QuestionNameHeader = (props) => {
               onChange={(e) => setInstructionalRole(e.target.value)}
             >
               {instructionalRoles.map((item) => (
-                <MenuItem value={item}>{item}</MenuItem>
+                <MenuItem key={item} value={item}>
+                  {item}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>

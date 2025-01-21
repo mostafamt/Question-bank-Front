@@ -69,7 +69,7 @@ const StudioActions = (props) => {
                 {[...areasProperties[activePage]]
                   ?.sort((a, b) => a.order - b.order)
                   // .filter((item) => item.status !== DELETED)
-                  .map((area, idx) => (
+                  ?.map((area, idx) => (
                     <Draggable key={area.id} draggableId={area.id} index={idx}>
                       {(provided, snaphost) => (
                         <div
@@ -108,7 +108,7 @@ const StudioActions = (props) => {
           </Droppable>
         </DragDropContext>
 
-        {areasProperties[activePage].length > 0 && (
+        {areasProperties[activePage]?.length > 0 && (
           <div>
             <Button
               variant="contained"
@@ -123,7 +123,7 @@ const StudioActions = (props) => {
             </Button>
           </div>
         )}
-        <div>Num of areas: {areasProperties[activePage].length}</div>
+        <div>Num of areas: {areasProperties[activePage]?.length}</div>
       </List>
     </div>
   );

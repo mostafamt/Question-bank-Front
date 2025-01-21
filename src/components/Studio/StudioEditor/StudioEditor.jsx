@@ -24,12 +24,11 @@ const StudioEditor = React.forwardRef((props, ref) => {
   } = props;
 
   const newAreas =
-    areas[activePage].filter(
+    areas[activePage]?.filter(
       (_, idx) => areasProperties[activePage][idx]?.status !== DELETED
     ) || [];
 
   const onClickExistedArea = (areaProps) => {
-    console.log("areaProps= ", areaProps);
     const newAreasProperties = [...areasProperties];
     const idx = areaProps.areaNumber - 1;
     newAreasProperties[activePage][idx].open =

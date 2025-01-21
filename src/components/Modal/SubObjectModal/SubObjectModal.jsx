@@ -8,6 +8,7 @@ import { saveObject } from "../../../services/api";
 import { uploadBase64 } from "../../../utils/upload";
 import { instructionalRoles } from "../../../utils/ocr";
 import { v4 as uuidv4 } from "uuid";
+import { useLocation } from "react-router-dom";
 
 const SubObjectModal = (props) => {
   const {
@@ -23,6 +24,8 @@ const SubObjectModal = (props) => {
   const [instructionalRole, setInstructionalRole] = React.useState(
     instructionalRoles[0]
   );
+  const location = useLocation();
+  const language = location.state?.language || "en";
 
   const handleSubmit = async (areas) => {
     const objectElements = await Promise.all(
@@ -79,6 +82,7 @@ const SubObjectModal = (props) => {
           subObject
           updateAreaProperty={updateAreaProperty}
           typeOfActiveType={typeOfActiveType}
+          language={language}
         />
       </BootstrapModal.Body>
       <BootstrapModal.Footer></BootstrapModal.Footer>

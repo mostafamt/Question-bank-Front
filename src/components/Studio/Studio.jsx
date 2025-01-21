@@ -31,6 +31,7 @@ import StudioModals from "./StudioModals/StudioModals";
 import BookColumn2 from "../Book/BookColumn2/BookColumn2";
 import { LEFT_POSITION } from "../../utils/book";
 import BookColumn from "../Book/BookColumn/BookColumn";
+import IllustrativeInteractions from "../Tabs/IllustrativeInteractions/IllustrativeInteractions";
 
 const Studio = (props) => {
   const {
@@ -44,7 +45,9 @@ const Studio = (props) => {
     typeOfActiveType: tOfActiveType,
   } = props;
   const [activePage, setActivePage] = React.useState(
-    localStorage.getItem("page")
+    subObject
+      ? 0
+      : localStorage.getItem("page")
       ? Number.parseInt(localStorage.getItem("page"))
       : 0
   );
@@ -436,11 +439,7 @@ const Studio = (props) => {
       id: uuidv4(),
       label: "Illustrative Interactions",
       position: LEFT_POSITION,
-      component: (
-        <div>
-          <h1>Illustrative Interactions</h1>
-        </div>
-      ),
+      component: <IllustrativeInteractions />,
       props: {},
     },
   ];
