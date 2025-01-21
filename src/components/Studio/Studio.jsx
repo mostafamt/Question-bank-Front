@@ -31,7 +31,16 @@ import StudioModals from "./StudioModals/StudioModals";
 import BookColumn2 from "../Book/BookColumn2/BookColumn2";
 import { LEFT_POSITION } from "../../utils/book";
 import BookColumn from "../Book/BookColumn/BookColumn";
-import IllustrativeInteractions from "../Tabs/IllustrativeInteractions/IllustrativeInteractions";
+import {
+  GlossaryAndKeywordsData,
+  checkYourselfData,
+  enrichingContentData,
+  illustrativeInteractionsData,
+  microLearningData,
+  recallsData,
+  tableOfContentsData,
+} from "../../utils/tabs";
+import List from "../Tabs/List/List";
 
 const Studio = (props) => {
   const {
@@ -344,44 +353,28 @@ const Studio = (props) => {
       id: uuidv4(),
       label: "Recalls",
       position: LEFT_POSITION,
-      component: (
-        <div>
-          <h1>Recalls</h1>
-        </div>
-      ),
+      component: <List data={recallsData} />,
       props: {},
     },
     {
       id: uuidv4(),
       label: "Micro Learning",
       position: LEFT_POSITION,
-      component: (
-        <div>
-          <h1>Micro Learning</h1>
-        </div>
-      ),
+      component: <List data={microLearningData} />,
       props: {},
     },
     {
       id: uuidv4(),
       label: "Enriching Contents",
       position: LEFT_POSITION,
-      component: (
-        <div>
-          <h1>Enriching Contents</h1>
-        </div>
-      ),
+      component: <List data={enrichingContentData} />,
       props: {},
     },
     {
       id: uuidv4(),
       label: "Check Yourself",
       position: LEFT_POSITION,
-      component: (
-        <div>
-          <h1>Check Yourself</h1>
-        </div>
-      ),
+      component: <List data={checkYourselfData} />,
       props: {},
     },
   ];
@@ -417,29 +410,21 @@ const Studio = (props) => {
       id: uuidv4(),
       label: "Table Of Contents",
       position: LEFT_POSITION,
-      component: (
-        <div>
-          <h1>Table of Contents</h1>
-        </div>
-      ),
+      component: <List data={tableOfContentsData} />,
       props: {},
     },
     {
       id: uuidv4(),
       label: "Glossary & keywords",
       position: LEFT_POSITION,
-      component: (
-        <div>
-          <h1>Glossary & keywords</h1>
-        </div>
-      ),
+      component: <List data={GlossaryAndKeywordsData} />,
       props: {},
     },
     {
       id: uuidv4(),
       label: "Illustrative Interactions",
       position: LEFT_POSITION,
-      component: <IllustrativeInteractions />,
+      component: <List data={illustrativeInteractionsData} />,
       props: {},
     },
   ];

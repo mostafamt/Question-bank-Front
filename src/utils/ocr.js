@@ -170,6 +170,8 @@ export const extractImage = (
     width,
     height
   );
+  console.log("croppedImage= ", croppedImage);
+  console.log("imageRef= ", imageRef);
   return croppedImage;
 };
 
