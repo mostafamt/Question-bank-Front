@@ -1,12 +1,9 @@
 import React from "react";
 import ImageActions from "../../ImageActions/ImageActions";
-// import { ImageArea, AreaSelector } from "@bmunozg/react-image-area";
 import { AreaSelector } from "@bmunozg/react-image-area";
-import { DELETED, constructBoxColors } from "../../../utils/ocr";
-
+import { constructBoxColors } from "../../../utils/ocr";
 /** @jsxImportSource @emotion/react */
 
-// import { ImageArea, AreaSelector } from '@bmunozg/react-image-area';
 import styles from "./studioEditor.module.scss";
 
 const StudioEditor = React.forwardRef((props, ref) => {
@@ -20,13 +17,7 @@ const StudioEditor = React.forwardRef((props, ref) => {
     setAreas,
     onChangeHandler,
     pages,
-    imageRef,
   } = props;
-
-  const newAreas =
-    areas[activePage]?.filter(
-      (_, idx) => areasProperties[activePage][idx]?.status !== DELETED
-    ) || [];
 
   const onClickExistedArea = (areaProps) => {
     const newAreasProperties = [...areasProperties];
@@ -62,9 +53,6 @@ const StudioEditor = React.forwardRef((props, ref) => {
         "& > div:nth-of-type(2)": constructBoxColors(
           areasProperties[activePage]
         ),
-        // "&::before": {
-        //   content: '"Before from jsx - "',
-        // },
       }}
     >
       <ImageActions
@@ -80,7 +68,7 @@ const StudioEditor = React.forwardRef((props, ref) => {
         onChange={onChangeHandler}
         wrapperStyle={{
           width: "100%",
-          height: "95%",
+          // height: "100%",
           overflow: "scroll",
         }}
         customAreaRenderer={customRender}
