@@ -25,10 +25,7 @@ import {
 import styles from "./studio.module.scss";
 import StudioActions from "./StudioActions/StudioActions";
 import LanguageSwitcher from "./LanguageSwitcher/LanguageSwitcher";
-// import { debounce } from "lodash";
-import _ from "lodash";
 import StudioModals from "./StudioModals/StudioModals";
-import BookColumn2 from "../Book/BookColumn2/BookColumn2";
 import { LEFT_POSITION } from "../../utils/book";
 import BookColumn from "../Book/BookColumn/BookColumn";
 import {
@@ -112,9 +109,7 @@ const Studio = (props) => {
     Array(pages?.length || 1).fill(0)
   );
 
-  const _imageRef = React.createRef();
   const canvasRef = React.createRef();
-  const { data: state } = useStore();
   const [imageScaleFactor, setImageScaleFactor] = React.useState(1);
   // To Extract Sub Object
   const [showModal, setShowModal] = React.useState(false);
@@ -139,12 +134,8 @@ const Studio = (props) => {
             const properties = areasProperties[idx1][idx2];
 
             return {
-              // x: block.x,
-              // y: block.y,
               x: (properties.x / 100) * clientWidth,
               y: (properties.y / 100) * clientHeight,
-              // width: block.width,
-              // height: block.height,
               width: (properties.width / 100) * clientWidth,
               height: (properties.height / 100) * clientHeight,
               unit: "px",
@@ -186,12 +177,7 @@ const Studio = (props) => {
     setAreasProperties(newAreasProperties);
   };
 
-  const functionDebounce = _.debounce(() => console.log("yo"), 300);
-
   const onChangeHandler = (areasParam) => {
-    // syncAreasProperties();
-    // debounce(() => syncAreasProperties(), 1000);
-    // _.debounce(() => console.log("yo"), 300);
     if (areasParam.length > areasProperties[activePage].length) {
       syncAreasProperties();
     }
