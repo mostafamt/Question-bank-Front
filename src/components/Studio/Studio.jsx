@@ -124,6 +124,8 @@ const Studio = (props) => {
     lang === "en" ? ENGLISH : ARABIC
   );
 
+  const [checkedObjects, setCheckedObjects] = React.useState([]);
+
   const onImageLoad = () => {
     setAreas((prevState) => {
       return prevState?.map((page, idx1) => {
@@ -339,28 +341,64 @@ const Studio = (props) => {
       id: uuidv4(),
       label: "Recalls",
       position: LEFT_POSITION,
-      component: <List data={recallsData} />,
+      component: (
+        <List
+          data={illustrativeInteractionsData}
+          openModal={openModal}
+          setModalName={setModalName}
+          checkedObjects={checkedObjects}
+          setCheckedObjects={setCheckedObjects}
+          setWorkingArea={setWorkingArea}
+        />
+      ),
       props: {},
     },
     {
       id: uuidv4(),
       label: "Micro Learning",
       position: LEFT_POSITION,
-      component: <List data={microLearningData} />,
+      component: (
+        <List
+          data={illustrativeInteractionsData}
+          openModal={openModal}
+          setModalName={setModalName}
+          checkedObjects={checkedObjects}
+          setCheckedObjects={setCheckedObjects}
+          setWorkingArea={setWorkingArea}
+        />
+      ),
       props: {},
     },
     {
       id: uuidv4(),
       label: "Enriching Contents",
       position: LEFT_POSITION,
-      component: <List data={enrichingContentData} />,
+      component: (
+        <List
+          data={illustrativeInteractionsData}
+          openModal={openModal}
+          setModalName={setModalName}
+          checkedObjects={checkedObjects}
+          setCheckedObjects={setCheckedObjects}
+          setWorkingArea={setWorkingArea}
+        />
+      ),
       props: {},
     },
     {
       id: uuidv4(),
       label: "Check Yourself",
       position: LEFT_POSITION,
-      component: <List data={checkYourselfData} />,
+      component: (
+        <List
+          data={illustrativeInteractionsData}
+          openModal={openModal}
+          setModalName={setModalName}
+          checkedObjects={checkedObjects}
+          setCheckedObjects={setCheckedObjects}
+          setWorkingArea={setWorkingArea}
+        />
+      ),
       props: {},
     },
   ];
@@ -410,7 +448,16 @@ const Studio = (props) => {
       id: uuidv4(),
       label: "Illustrative Interactions",
       position: LEFT_POSITION,
-      component: <List data={illustrativeInteractionsData} />,
+      component: (
+        <List
+          data={illustrativeInteractionsData}
+          openModal={openModal}
+          setModalName={setModalName}
+          checkedObjects={checkedObjects}
+          setCheckedObjects={setCheckedObjects}
+          setWorkingArea={setWorkingArea}
+        />
+      ),
       props: {},
     },
   ];
@@ -428,6 +475,8 @@ const Studio = (props) => {
         modalName={modalName}
         workingArea={workingArea}
         updateAreaPropertyById={updateAreaPropertyById}
+        checkedObjects={checkedObjects}
+        setCheckedObjects={setCheckedObjects}
       />
       <LanguageSwitcher language={language} setLanguage={setLanguage} />
       <div className={styles.studio}>

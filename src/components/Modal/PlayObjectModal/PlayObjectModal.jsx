@@ -11,8 +11,6 @@ const PlayObjectModal = (props) => {
 
   console.log("workingArea= ", workingArea);
 
-  const [shouldFetch, setShouldFetch] = React.useState(false);
-
   const {
     data: object,
     isError: isErrorObject,
@@ -30,7 +28,7 @@ const PlayObjectModal = (props) => {
 
   let renderer = <></>;
 
-  if (isComplexType(workingArea.contentType)) {
+  if (isComplexType(workingArea.contentType || workingArea.typeOfLabel)) {
     renderer = isFetching ? (
       <p>Loading...</p>
     ) : object?.url ? (

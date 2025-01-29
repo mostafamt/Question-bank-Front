@@ -1,88 +1,63 @@
 import React from "react";
-import CheckIcon from "@mui/icons-material/Check";
-import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { v4 as uuidv4 } from "uuid";
-import { IconButton, TextField } from "@mui/material";
+import { IconButton } from "@mui/material";
 
 import styles from "./list.module.scss";
 
 const List = (props) => {
-  const [list, setList] = React.useState(props.data);
-  const [text, setText] = React.useState("");
-  const [updatedId, setUpdatedId] = React.useState("");
+  const {
+    openModal,
+    setModalName,
+    checkedObjects,
+    setCheckedObjects,
+    setWorkingArea,
+  } = props;
 
-  const onClickAdd = (label) => {
-    if (updatedId) {
-      onClickUpdate(updatedId, label);
-      return;
-    }
-    setList((prevState) => [
-      ...prevState,
-      {
-        id: uuidv4(),
-        label: label,
-      },
-    ]);
-    reset();
-  };
-
-  const onClickEdit = (id) => {
-    setText(list.find((item) => item.id === id).label);
-    setUpdatedId(id);
-  };
-
-  const onClickUpdate = (id, label) => {
-    const newList = list.map((item) => {
-      if (item.id === id) {
-        return {
-          id,
-          label,
-        };
-      }
-      return item;
-    });
-    setList(newList);
-    reset();
+  const onClickPlus = () => {
+    setModalName("tabs");
+    openModal();
   };
 
   const onClickDelete = (id) => {
-    setList((prevState) => prevState.filter((item) => item.id !== id));
+    setCheckedObjects((prevState) =>
+      prevState.filter((item) => item.id !== id)
+    );
   };
 
-  const reset = () => {
-    setText("");
-    setUpdatedId("");
+  const onClickPlay = (item) => {
+    setWorkingArea({
+      text: item.id,
+      contentValue: item.id,
+      contentType: item.type,
+      typeOfLabel: item.type,
+    });
+    setModalName("play-object");
+    openModal();
   };
 
   return (
     <div className={styles["illustrative-interactions"]}>
       <div>
-        <TextField
-          variant="outlined"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-        />
-        <IconButton onClick={() => onClickAdd(text)}>
-          <CheckIcon color="secondary" />
+        <IconButton onClick={onClickPlus} color="primary">
+          <AddIcon color="primary" />
         </IconButton>
       </div>
       <ul>
-        {list.map((item, idx) => (
+        {checkedObjects?.map((item, idx) => (
           <li key={item.id}>
             <span>
-              {/* <span>{idx + 1}- </span> */}
-              <span>{item.label}</span>
+              <span>{item.name}</span>
             </span>
             <span>
-              <IconButton onClick={() => onClickEdit(item.id)}>
-                <EditIcon color="primary" />
+              <IconButton onClick={() => onClickPlay(item)}>
+                <PlayArrowIcon />
               </IconButton>
-              <IconButton>
-                <DeleteIcon
-                  color="error"
-                  onClick={() => onClickDelete(item.id)}
-                />
+            </span>
+            <span>
+              <IconButton onClick={() => onClickDelete(item.id)}>
+                <DeleteIcon color="error" />
               </IconButton>
             </span>
           </li>
@@ -92,9 +67,4 @@ const List = (props) => {
   );
 };
 
-{
-  /* <IconButton aria-label="delete">
-  <DeleteIcon />
-</IconButton> */
-}
 export default List;

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { Link, useNavigate } from "react-router-dom";
-import { Button, Radio } from "@mui/material";
+import { Button, Checkbox, Radio } from "@mui/material";
 import { RadioButtonCheckedRounded, Delete } from "@mui/icons-material";
 import { fetchObjects } from "../../../services/api";
 import CategoryIcon from "@mui/icons-material/Category";
@@ -9,6 +9,8 @@ import CategoryIcon from "@mui/icons-material/Category";
 import styles from "./questionsTable.module.scss";
 
 const QuestionsTable = (props) => {
+  const { checkedObjects, setCheckedObjects } = props;
+
   const navigate = useNavigate();
   const [rows, setRows] = React.useState([]);
   const [total, setTotal] = React.useState(0);
@@ -31,19 +33,41 @@ const QuestionsTable = (props) => {
     return color;
   };
 
+  // <Radio
+  //         checked={params.id == selectedRowId}
+  //         value={params.id}
+  //         onChange={(e) => {
+  //           console.log(e.target.value);
+  //           setSelectedRowId(e.target.value);
+  //         }}
+  //       />
+
+  const handleChange = (params) => {
+    console.log("params= ", params.row);
+    const found = checkedObjects.some((item) => item.id === params.id);
+    if (found) {
+      setCheckedObjects((prevState) =>
+        prevState.filter((item) => item.id !== params.id)
+      );
+    } else {
+      setCheckedObjects((prevState) => [...prevState, params.row]);
+    }
+  };
+
+  const isChecked = (params) => {
+    return false;
+    // return checkedObjects.some((item) => item.id === params.id);
+  };
+
   const columns = [
     {
       field: "col0",
       headerName: "",
       width: 70,
       renderCell: (params) => (
-        <Radio
-          checked={params.id == selectedRowId}
-          value={params.id}
-          onChange={(e) => {
-            console.log(e.target.value);
-            setSelectedRowId(e.target.value);
-          }}
+        <Checkbox
+          checked={checkedObjects.some((item) => item.id === params.id)}
+          onChange={() => handleChange(params)}
         />
       ),
     },
@@ -118,29 +142,9 @@ const QuestionsTable = (props) => {
     fetchQuestions();
   }, [fetchQuestions]);
 
-  const onClickAddQuestion = () => {
-    navigate("/add-question");
-  };
-
-  const onClickEditQuestion = () => {
-    navigate(`/edit/${selectedRowId}`);
-  };
-
   return (
     <>
-      <div className={styles.title}>
-        <CategoryIcon />
-        <h3>Objects</h3>
-      </div>
       <div className={styles.table}>
-        <div className={styles.actions}>
-          <Button variant="contained" onClick={onClickAddQuestion}>
-            Add Object
-          </Button>
-          <Button variant="contained" onClick={onClickEditQuestion}>
-            Edit
-          </Button>
-        </div>
         <DataGrid
           rows={rows}
           rowCount={total}

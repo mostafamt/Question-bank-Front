@@ -4,6 +4,7 @@ import SubObjectModal from "../../Modal/SubObjectModal/SubObjectModal";
 import QuillModal from "../../Modal/QuillModal/QuillModal";
 import AutoUiModal from "../../Modal/AutoUiModal/AutoUiModal";
 import PlayObjectModal from "../../Modal/PlayObjectModal/PlayObjectModal";
+import ObjectsTableModalContent from "../../Modal/ObjectsTableModalContent/ObjectsTableModalContent";
 
 const StudioModals = (props) => {
   const {
@@ -17,6 +18,8 @@ const StudioModals = (props) => {
     workingArea,
     updateAreaPropertyById,
     typeOfActiveType,
+    checkedObjects,
+    setCheckedObjects,
   } = props;
 
   let rendererModal = <></>;
@@ -31,6 +34,13 @@ const StudioModals = (props) => {
     rendererModal = <AutoUiModal workingArea={workingArea} />;
   } else if (modalName === "play-object") {
     rendererModal = <PlayObjectModal workingArea={workingArea} />;
+  } else if (modalName === "tabs") {
+    rendererModal = (
+      <ObjectsTableModalContent
+        checkedObjects={checkedObjects}
+        setCheckedObjects={setCheckedObjects}
+      />
+    );
   } else {
     rendererModal = (
       <SubObjectModal
