@@ -23,7 +23,7 @@ import Error from "../pages/Error/Error";
 const routes = [
   {
     path: "/",
-    component: Home,
+    component: ScanAndUpload,
   },
   {
     path: "/true-false",

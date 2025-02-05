@@ -11,9 +11,10 @@ import CollectionsIcon from "@mui/icons-material/Collections";
 import VisuallyHiddenInput from "../../components/VisuallyHiddenInput/VisuallyHiddenInput";
 import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
+import { v4 as uuidv4 } from "uuid";
 
 import styles from "./scanAndUpload.module.scss";
-
+import { getAllTypes } from "../../services/api";
 
 const ScanAndUpload = () => {
   const location = useLocation();
@@ -21,8 +22,17 @@ const ScanAndUpload = () => {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
 
-  const { data: state } = useStore();
+  const { data: state, setFormState } = useStore();
   const { questionName, type } = state;
+
+  const getTypes = async () => {
+    const res = await getAllTypes();
+    setFormState({ ...state, types: res, language: "en" });
+  };
+
+  React.useEffect(() => {
+    getTypes();
+  }, []);
 
   const convertPdfToImage = async (file) => {
     setLoading(true);
@@ -88,6 +98,7 @@ const ScanAndUpload = () => {
             startIcon={<DescriptionIcon />}
             onChange={onChangePdf}
             color="warning"
+            disabled
           >
             Upload PDF
             <VisuallyHiddenInput type="file" accept="application/pdf" />
