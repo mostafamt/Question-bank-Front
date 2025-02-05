@@ -58,16 +58,6 @@ const BookContentLayout = (props) => {
     },
     {
       id: uuidv4(),
-      label: "Block Authoring",
-      position: LEFT_POSITION,
-      component: (
-        <div>
-          <h1>Block Authoring</h1>
-        </div>
-      ),
-    },
-    {
-      id: uuidv4(),
       label: "Recalls",
       position: LEFT_POSITION,
       component: (
@@ -93,6 +83,16 @@ const BookContentLayout = (props) => {
       component: (
         <div>
           <h1>Enriching Contents</h1>
+        </div>
+      ),
+    },
+    {
+      id: uuidv4(),
+      label: "Check Yourself",
+      position: LEFT_POSITION,
+      component: (
+        <div>
+          <h1>Check Yourself</h1>
         </div>
       ),
     },
@@ -128,16 +128,6 @@ const BookContentLayout = (props) => {
       component: (
         <div>
           <h1>Illustrative Interactions</h1>
-        </div>
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: "Check Yourself",
-      position: LEFT_POSITION,
-      component: (
-        <div>
-          <h1>Check Yourself</h1>
         </div>
       ),
     },
