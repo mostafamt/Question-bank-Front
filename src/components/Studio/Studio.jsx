@@ -42,6 +42,7 @@ const Studio = (props) => {
   const [pageId, setPageId] = React.useState(images?.[0]?._id);
   const [subTypeObjects, setSubTypeObjects] = React.useState([]);
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
+  const [croppedImage, setCroppedImage] = React.useState("");
 
   const [trialAreas, setTrialAreas] = React.useState([]);
 
@@ -269,6 +270,27 @@ const Studio = (props) => {
     return dataUrl;
   };
 
+  const onClickCrop = () => {
+    if (areas.length) {
+      const area = areas[areas.length - 1];
+      const image = imageRef.current;
+      const ratio = image.naturalWidth / image.width;
+
+      const x = area.x * ratio;
+      const y = area.y * ratio;
+      const width = area.width * ratio;
+      const height = area.height * ratio;
+      const cImage = cropSelectedArea(x, y, width, height);
+
+      setAreas([]);
+      setTrialAreas([]);
+
+      const newImages = [...images];
+      newImages[activeIndex] = cImage;
+      setImages(newImages);
+    }
+  };
+
   return (
     <>
       <Modal show={showModal} handleClose={handleCloseModal} size="xl">
@@ -301,6 +323,7 @@ const Studio = (props) => {
             setImageScaleFactor={setImageScaleFactor}
             areas={areas}
             setAreas={setAreas}
+            onClickCrop={onClickCrop}
           />
           <AreaSelector areas={areas} onChange={onChangeHandler}>
             <img

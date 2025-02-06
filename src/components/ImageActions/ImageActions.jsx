@@ -2,13 +2,20 @@ import React from "react";
 import { IconButton } from "@mui/material";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import ZoomOutIcon from "@mui/icons-material/ZoomOut";
+import CropIcon from "@mui/icons-material/Crop";
 
 const DEGREE = 0.1;
 const ZOOM_IN_FACTOR = 1 + DEGREE;
 const ZOOM_OUT_FACTOR = 1 - DEGREE;
 
 const ImageActions = (props) => {
-  const { imageScaleFactor, setImageScaleFactor, areas, setAreas } = props;
+  const {
+    imageScaleFactor,
+    setImageScaleFactor,
+    areas,
+    setAreas,
+    onClickCrop,
+  } = props;
 
   const onClickZoomIn = () => {
     setImageScaleFactor(imageScaleFactor + DEGREE);
@@ -45,6 +52,9 @@ const ImageActions = (props) => {
       </IconButton>
       <IconButton aria-label="zoom-in" onClick={onClickZoomOut}>
         <ZoomOutIcon fontSize="large" />
+      </IconButton>
+      <IconButton aria-label="zoom-in" onClick={onClickCrop}>
+        <CropIcon fontSize="large" />
       </IconButton>
     </div>
   );
