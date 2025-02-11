@@ -2,6 +2,8 @@ import React from "react";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import FileCopyIcon from "@mui/icons-material/FileCopy";
 // CloudUploadIcon
 import { styled } from "@mui/material/styles";
 import { Button, IconButton } from "@mui/material";
@@ -37,6 +39,11 @@ const StudioThumbnails = (props) => {
     // console.log("onDeleteThumbnail");
   };
 
+  const onCopyThumbnail = () => {
+    const currentImage = images[activeIndex];
+    setImages((prevState) => [...prevState, currentImage]);
+  };
+
   return (
     <div className={styles["studio-thumbnails"]}>
       <div className={styles.actions}>
@@ -52,6 +59,9 @@ const StudioThumbnails = (props) => {
 
         <IconButton aria-label="delete" onClick={onDeleteThumbnail}>
           <DeleteIcon />
+        </IconButton>
+        <IconButton aria-label="copy" onClick={onCopyThumbnail}>
+          <FileCopyIcon />
         </IconButton>
       </div>
       {images.map((img, idx) => (

@@ -18,12 +18,14 @@ import {
   getTypeOfParameter,
   ocr,
   onEditTextField,
+  ENGLISH,
 } from "../../utils/ocr";
 
 // some comment to push
 
 import styles from "./studio.module.scss";
 import { fakeSaveObject, saveObject } from "../../services/api";
+import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
 
 const Studio = (props) => {
   const { images, setImages, questionName, type, subObject, handleClose } =
@@ -31,7 +33,7 @@ const Studio = (props) => {
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [areas, setAreas] = React.useState([]);
   const [colorIndex, setColorIndex] = React.useState(0);
-  const imageRef = React.createRef();
+  const imageRef = React.useRef(null);
   const canvasRef = React.createRef();
   const { data: state } = useStore();
   const [imageScaleFactor, setImageScaleFactor] = React.useState(1);
@@ -43,6 +45,7 @@ const Studio = (props) => {
   const [subTypeObjects, setSubTypeObjects] = React.useState([]);
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
   const [croppedImage, setCroppedImage] = React.useState("");
+  const [language, setLanguage] = React.useState(ENGLISH);
 
   const [trialAreas, setTrialAreas] = React.useState([]);
 
@@ -167,14 +170,13 @@ const Studio = (props) => {
     const width = area.width * ratio;
     const height = area.height * ratio;
     const croppedImage = cropSelectedArea(x, y, width, height);
-    const text = await ocr(state.language, croppedImage);
+    const text = await ocr(language, croppedImage);
 
     updateTrialAreas(idx, { text, loading: false });
   };
 
   const handleSubmit = async (questionName, type, areas) => {
     const {
-      language,
       domainId,
       domainName,
       subDomainId,
@@ -189,12 +191,21 @@ const Studio = (props) => {
         .map(async (item) => ({
           [item.parameter]:
             item.type === "image" ? await uploadBase64(item.image) : item.text,
+          dimensions: {
+            x: item.x,
+            y: item.y,
+            width: item.width,
+            height: item.height,
+          },
         }))
     );
 
+    const height = imageRef.current.clientHeight;
+    const width = imageRef.current.clientWidth;
+
     const data = {
       questionName,
-      language,
+      language: language === ENGLISH ? "en" : "ar",
       domainId,
       domainName,
       subDomainId,
@@ -203,6 +214,10 @@ const Studio = (props) => {
       objectOwner,
       type,
       objectElements,
+      imageDimensions: {
+        width,
+        height,
+      },
     };
 
     const id = await saveObject(data);
@@ -285,9 +300,9 @@ const Studio = (props) => {
       setAreas([]);
       setTrialAreas([]);
 
-      const newImages = [...images];
-      newImages[activeIndex] = cImage;
+      const newImages = [...images, cImage];
       setImages(newImages);
+      setActiveIndex(newImages.length - 1);
     }
   };
 
@@ -305,6 +320,7 @@ const Studio = (props) => {
           updateTrialAreas={updateTrialAreas}
         />
       </Modal>
+      <LanguageSwitcher language={language} setLanguage={setLanguage} />
       <div className={styles.studio}>
         <StudioThumbnails
           images={images}

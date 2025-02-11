@@ -1,6 +1,15 @@
 .scan-and-upload {
   margin-bottom: 4rem;
 
+  & .controls {
+    display: flex;
+    justify-content: space-between;
+
+    & > label {
+      flex: 0 1 49%;
+    }
+  }
+
   & .upload-buttons {
     margin-top: 4rem;
     display: flex;

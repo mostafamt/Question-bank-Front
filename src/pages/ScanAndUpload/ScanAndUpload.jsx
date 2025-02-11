@@ -11,10 +11,10 @@ import CollectionsIcon from "@mui/icons-material/Collections";
 import VisuallyHiddenInput from "../../components/VisuallyHiddenInput/VisuallyHiddenInput";
 import { useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
-import { v4 as uuidv4 } from "uuid";
+import { getAllTypes } from "../../services/api";
+import ObjectType from "../../components/ObjectType/ObjectType";
 
 import styles from "./scanAndUpload.module.scss";
-import { getAllTypes } from "../../services/api";
 
 const ScanAndUpload = () => {
   const location = useLocation();
@@ -91,33 +91,37 @@ const ScanAndUpload = () => {
           type={state.type}
         />
       ) : (
-        <div className={styles["upload-buttons"]}>
-          <Button
-            component="label"
-            variant="outlined"
-            startIcon={<DescriptionIcon />}
-            onChange={onChangePdf}
-            color="warning"
-            disabled
-          >
-            Upload PDF
-            <VisuallyHiddenInput type="file" accept="application/pdf" />
-          </Button>
-          <Button
-            component="label"
-            variant="outlined"
-            startIcon={<CollectionsIcon />}
-            onChange={onChangeImages}
-            color="success"
-          >
-            Upload images
-            <VisuallyHiddenInput
-              type="file"
-              accept="image/png, image/jpeg"
-              multiple
-            />
-          </Button>
-        </div>
+        <>
+          <ObjectType />
+          <div className={styles["upload-buttons"]}>
+            <Button
+              component="label"
+              variant="outlined"
+              startIcon={<DescriptionIcon />}
+              onChange={onChangePdf}
+              color="warning"
+              disabled
+            >
+              Upload PDF
+              <VisuallyHiddenInput type="file" accept="application/pdf" />
+            </Button>
+            <Button
+              component="label"
+              variant="outlined"
+              startIcon={<CollectionsIcon />}
+              onChange={onChangeImages}
+              color="success"
+              disabled={type ? false : true}
+            >
+              Upload images
+              <VisuallyHiddenInput
+                type="file"
+                accept="image/png, image/jpeg"
+                multiple
+              />
+            </Button>
+          </div>
+        </>
       )}
     </div>
   );
