@@ -49,6 +49,8 @@ const Studio = (props) => {
 
   const [trialAreas, setTrialAreas] = React.useState([]);
 
+  const [jsonData, setJsonData] = React.useState({});
+
   const onClickImage = (idx) => {
     setActiveIndex(idx);
     setPageId(images?.[idx]?._id);
@@ -206,6 +208,7 @@ const Studio = (props) => {
     const data = {
       questionName,
       language: language === ENGLISH ? "en" : "ar",
+      imageUrl: await uploadBase64(images[activeIndex]),
       domainId,
       domainName,
       subDomainId,
@@ -220,11 +223,18 @@ const Studio = (props) => {
       },
     };
 
+    setJsonData(data);
+
     const id = await saveObject(data);
     return id;
   };
 
   const onClickSubmit = async () => {
+    if (!state.questionName) {
+      toast.error("please enter a name to submit !");
+      return;
+    }
+
     setLoadingSubmit(true);
     if (subObject) {
       const { questionName } = state;
@@ -372,6 +382,9 @@ const Studio = (props) => {
             updateTrialAreas={updateTrialAreas}
           />
         </div>
+      </div>
+      <div style={{ margin: "4rem 0" }}>
+        <pre>{JSON.stringify(jsonData, null, 4)}</pre>
       </div>
     </>
   );
