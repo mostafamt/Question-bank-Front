@@ -86,6 +86,17 @@ export const saveObject = async (data) => {
   }
 };
 
+export const createObjectGPT = async (data) => {
+  try {
+    const res = await axios.post("/create-object", data);
+    return res.data;
+  } catch (error) {
+    toast.error(error?.message);
+    toast.error(error?.response?.data?.message);
+    return null;
+  }
+};
+
 export const getImages = async (domain, subDomain) => {
   // await wait(1000);
   // const data = [

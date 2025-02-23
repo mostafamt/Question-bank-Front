@@ -26,6 +26,7 @@ import {
 import styles from "./studio.module.scss";
 import { fakeSaveObject, saveObject } from "../../services/api";
 import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
+import StudioModals from "./StudioModals/StudioModals";
 
 const Studio = (props) => {
   const { images, setImages, questionName, type, subObject, handleClose } =
@@ -316,20 +317,20 @@ const Studio = (props) => {
     }
   };
 
+  console.log("showModal= ", showModal);
+
   return (
     <>
-      <Modal show={showModal} handleClose={handleCloseModal} size="xl">
-        <SubObjectModal
-          handleClose={handleCloseModal}
-          image={activeImage}
-          name={`${state.questionName} - ${activeType}`}
-          type={activeType}
-          results={trialAreas}
-          setSubTypeObjects={setSubTypeObjects}
-          handleSubmit={handleSubmit}
-          updateTrialAreas={updateTrialAreas}
-        />
-      </Modal>
+      <StudioModals
+        showModal={showModal}
+        handleCloseModal={handleCloseModal}
+        activeImage={activeImage}
+        activeType={activeType}
+        trialAreas={trialAreas}
+        setSubTypeObjects={setSubTypeObjects}
+        handleSubmit={handleSubmit}
+        updateTrialAreas={updateTrialAreas}
+      />
       <LanguageSwitcher language={language} setLanguage={setLanguage} />
       <div className={styles.studio}>
         <StudioThumbnails
@@ -350,6 +351,8 @@ const Studio = (props) => {
             areas={areas}
             setAreas={setAreas}
             onClickCrop={onClickCrop}
+            showModal={showModal}
+            openModal={openModal}
           />
           <AreaSelector areas={areas} onChange={onChangeHandler}>
             <img
