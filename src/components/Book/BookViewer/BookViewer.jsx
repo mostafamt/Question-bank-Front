@@ -31,7 +31,7 @@ const BookViewer = (props) => {
     } else {
       return {
         position: "absolute",
-        top: `${area.coordinates.y + 32}px`,
+        top: `${area.coordinates.y}px`,
         left: `${area.coordinates.x}px`,
         width: `${area.coordinates.width}px`,
         height: `${area.coordinates.height}px`,
