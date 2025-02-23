@@ -25,16 +25,32 @@ const TableOfContents = (props) => {
   };
 
   const renderTree = (tree) => {
-    return tree?.map((item) => (
-      <TreeItem
-        key={item.id}
-        itemId={item.id}
-        label={item.title}
-        onClick={() => onClickItem(item)}
-      >
-        {item.children && renderTree(item?.children)}
-      </TreeItem>
-    ));
+    return tree?.map((item) => {
+      console.log("item= ", item);
+      return (
+        <TreeItem
+          key={item.id}
+          itemId={item.id}
+          label={
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                gap: "2rem",
+              }}
+            >
+              <span>{item.title}</span>
+              <span style={{ fontStyle: "italic", color: "#555" }}>
+                {item.pageIndex}
+              </span>
+            </div>
+          }
+          onClick={() => onClickItem(item)}
+        >
+          {item.children && renderTree(item?.children)}
+        </TreeItem>
+      );
+    });
   };
 
   const newTableOfContents = React.useMemo(
