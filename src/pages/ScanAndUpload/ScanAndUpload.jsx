@@ -15,12 +15,13 @@ import { getAllTypes } from "../../services/api";
 import ObjectType from "../../components/ObjectType/ObjectType";
 
 import styles from "./scanAndUpload.module.scss";
+import { CircularProgress, TextField } from "@mui/material";
+import GPTInput from "../../components/GPTInput/GPTInput";
 
 const ScanAndUpload = () => {
   const location = useLocation();
   const [images, setImages] = React.useState(location.state?.images || []);
   const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState("");
 
   const { data: state, setFormState } = useStore();
   const { questionName, type } = state;
@@ -34,51 +35,11 @@ const ScanAndUpload = () => {
     getTypes();
   }, []);
 
-  const convertPdfToImage = async (file) => {
-    setLoading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const res = await axios.post(
-        "http://34.246.140.123:5000/api/pdf2img",
-        formData
-      );
-      setLoading(false);
-      return res.data?.images;
-    } catch (error) {
-      toast.error("This service isn't available at the moment !");
-      setLoading(false);
-    }
-  };
-
-  const convertPdfToImage2 = async (file) => {
-    setLoading(true);
-    const res = await convertPdfToImages(file);
-    setLoading(false);
-    return res;
-  };
-
-  const onChangePdf = async (event) => {
-    const file = event.target.files[0];
-    const images = await convertPdfToImage(file);
-    setImages(images ? images : []);
-  };
-
   const onChangeImages = async (event) => {
     const files = event.target.files;
     const urls = [...files].map((file) => URL.createObjectURL(file));
     setImages(urls);
   };
-
-  if (loading) {
-    return (
-      <div className="container">
-        <QuestionNameHeader>{state.type}</QuestionNameHeader>
-        <Loader text="Converting pdf to images" />
-      </div>
-    );
-  }
 
   return (
     <div className={`container ${styles["scan-and-upload"]}`}>
@@ -94,32 +55,24 @@ const ScanAndUpload = () => {
         <>
           <ObjectType />
           <div className={styles["upload-buttons"]}>
-            <Button
-              component="label"
-              variant="outlined"
-              startIcon={<DescriptionIcon />}
-              onChange={onChangePdf}
-              color="warning"
-              disabled
-            >
-              Upload PDF
-              <VisuallyHiddenInput type="file" accept="application/pdf" />
-            </Button>
-            <Button
-              component="label"
-              variant="outlined"
-              startIcon={<CollectionsIcon />}
-              onChange={onChangeImages}
-              color="success"
-              disabled={type ? false : true}
-            >
-              Upload images
-              <VisuallyHiddenInput
-                type="file"
-                accept="image/png, image/jpeg"
-                multiple
-              />
-            </Button>
+            <div className={styles["upload"]}>
+              <Button
+                component="label"
+                variant="outlined"
+                startIcon={<CollectionsIcon />}
+                onChange={onChangeImages}
+                color="success"
+                disabled={type ? false : true}
+              >
+                Upload images
+                <VisuallyHiddenInput
+                  type="file"
+                  accept="image/png, image/jpeg"
+                  multiple
+                />
+              </Button>
+            </div>
+            <GPTInput type={state.type} />
           </div>
         </>
       )}

@@ -5,6 +5,7 @@
     display: flex;
     justify-content: space-between;
 
+
     & > label {
       flex: 0 1 49%;
     }
@@ -13,21 +14,31 @@
   & .upload-buttons {
     margin-top: 4rem;
     display: flex;
-    height: 12rem;
+    flex-direction: column;
+    gap: 1rem;
+    // height: 12rem;
     justify-content: space-between;
 
-    & > * {
-      flex: 0 1 49%;
-      font-size: 1.6rem;
 
+    & .upload {
       display: flex;
-      flex-direction: column;
-      justify-content: space-around;
-      & > span {
-        & > svg {
-          font-size: 5rem;
-        }
-      }
+      justify-content: flex-end;
     }
+
+    
+
+    // & > * {
+    //   flex: 0 1 49%;
+    //   font-size: 1.6rem;
+
+    //   display: flex;
+    //   flex-direction: column;
+    //   justify-content: space-around;
+    //   & > span {
+    //     & > svg {
+    //       font-size: 5rem;
+    //     }
+    //   }
+    // }
   }
 }

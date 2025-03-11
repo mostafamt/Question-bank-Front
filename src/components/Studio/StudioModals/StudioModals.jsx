@@ -39,7 +39,11 @@ const StudioModals = (props) => {
       setLoading(false);
       return;
     }
-    const data = await createObjectGPT(parsed);
+    const parsedWithFormat = {
+      type: state.type,
+      parameters: parsed,
+    };
+    const data = await createObjectGPT(parsedWithFormat);
     if (data) {
       setResult(data?.url);
       setTimeout(() => {
