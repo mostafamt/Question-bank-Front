@@ -28,6 +28,8 @@ const BookContentLayout = (props) => {
   );
   const [showModal, setShowModal] = React.useState(false);
 
+  // console.log("activePage= ", activePage);
+
   const onClickMinimize = (id) => {
     setColumns((prevState) => toggleColumn(prevState, id));
   };
@@ -86,16 +88,6 @@ const BookContentLayout = (props) => {
         </div>
       ),
     },
-    {
-      id: uuidv4(),
-      label: "Check Yourself",
-      position: LEFT_POSITION,
-      component: (
-        <div>
-          <h1>Check Yourself</h1>
-        </div>
-      ),
-    },
   ];
 
   const RIGHT_COLUMNS = [
@@ -128,6 +120,16 @@ const BookContentLayout = (props) => {
       component: (
         <div>
           <h1>Illustrative Interactions</h1>
+        </div>
+      ),
+    },
+    {
+      id: uuidv4(),
+      label: "Check Yourself",
+      position: LEFT_POSITION,
+      component: (
+        <div>
+          <h1>Check Yourself</h1>
         </div>
       ),
     },
