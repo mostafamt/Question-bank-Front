@@ -18,7 +18,7 @@ const TableOfContents = (props) => {
   });
 
   const onClickItem = (item) => {
-    console.log("item= ", item);
+    // console.log("item= ", item);
     if (item.hasOwnProperty("pageIndex") && item.pageIndex) {
       setActivePage(PAGES[item.pageIndex]);
     }
@@ -26,7 +26,6 @@ const TableOfContents = (props) => {
 
   const renderTree = (tree) => {
     return tree?.map((item) => {
-      console.log("item= ", item);
       return (
         <TreeItem
           key={item.id}

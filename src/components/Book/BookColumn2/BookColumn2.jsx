@@ -7,7 +7,7 @@ import styles from "./bookColumn.module.scss";
 const BookColumn2 = (props) => {
   const [open, setOpen] = React.useState(false);
   const [columns, setColumns] = React.useState(props.columns);
-  const [activeColumn, setActiveColumn] = React.useState(null);
+  const [activeColumn, setActiveColumn] = React.useState(props.columns[0]);
   const { activePage } = props;
 
   React.useEffect(() => {
