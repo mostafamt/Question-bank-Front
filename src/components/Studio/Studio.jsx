@@ -50,11 +50,12 @@ const Studio = (props) => {
     language: lang,
     typeOfActiveType: tOfActiveType,
   } = props;
+  // console.log("localStorage.getItem('page')= ", localStorage.getItem("page"));
   const [activePage, setActivePage] = React.useState(
     subObject
       ? 0
-      : localStorage.getItem("page")
-      ? Number.parseInt(localStorage.getItem("page"))
+      : localStorage.getItem("_page")
+      ? Number.parseInt(localStorage.getItem("_page"))
       : 0
   );
   const imageRef = React.useRef(null);
@@ -165,7 +166,7 @@ const Studio = (props) => {
   const onClickImage = (idx) => {
     setActivePage(idx);
     setPageId(pages?.[idx]?._id);
-    localStorage.setItem("page", `${idx}`);
+    localStorage.setItem("_page", `${idx}`);
   };
 
   const syncAreasProperties = () => {
