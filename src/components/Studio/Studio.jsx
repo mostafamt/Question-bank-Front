@@ -148,6 +148,13 @@ const Studio = (props) => {
 
     if (typeOfParameter === "text") {
       exract(value, idx);
+    } else if (typeOfParameter === "Coordinate") {
+      const x = Number.parseInt(trialAreas[idx].x);
+      const y = Number.parseInt(trialAreas[idx].y);
+      const text = `x= ${x}; y=${y};`;
+      updateTrialAreas(idx, {
+        text: text,
+      });
     } else {
       // open modal if it has a supported type
       const simpleTypes = getSimpleTypes();
