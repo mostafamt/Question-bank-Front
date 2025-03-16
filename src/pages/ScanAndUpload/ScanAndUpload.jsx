@@ -17,6 +17,8 @@ import ObjectType from "../../components/ObjectType/ObjectType";
 import styles from "./scanAndUpload.module.scss";
 import { CircularProgress, TextField } from "@mui/material";
 import GPTInput from "../../components/GPTInput/GPTInput";
+import BookIcon from "@mui/icons-material/Book";
+import Modals from "../../components/Modals/Modals";
 
 const ScanAndUpload = () => {
   const location = useLocation();
@@ -25,6 +27,8 @@ const ScanAndUpload = () => {
 
   const { data: state, setFormState } = useStore();
   const { questionName, type } = state;
+
+  const [showModal, setShowModal] = React.useState(false);
 
   const getTypes = async () => {
     const res = await getAllTypes();
@@ -41,42 +45,63 @@ const ScanAndUpload = () => {
     setImages(urls);
   };
 
+  const onChangeBook = async () => {
+    setShowModal(true);
+  };
+
   return (
-    <div className={`container ${styles["scan-and-upload"]}`}>
-      <QuestionNameHeader name={questionName} type={type} />
-      {!!images.length ? (
-        <Studio
-          images={images}
-          setImages={setImages}
-          questionName={state.questionName}
-          type={state.type}
-        />
-      ) : (
-        <>
-          <ObjectType />
-          <div className={styles["upload-buttons"]}>
-            <div className={styles["upload"]}>
-              <Button
-                component="label"
-                variant="outlined"
-                startIcon={<CollectionsIcon />}
-                onChange={onChangeImages}
-                color="success"
-                disabled={type ? false : true}
-              >
-                Upload images
-                <VisuallyHiddenInput
-                  type="file"
-                  accept="image/png, image/jpeg"
-                  multiple
-                />
-              </Button>
+    <>
+      <Modals
+        show={showModal}
+        handleClose={() => setShowModal(false)}
+        setImages={setImages}
+      />
+      <div className={`container ${styles["scan-and-upload"]}`}>
+        <QuestionNameHeader name={questionName} type={type} />
+        {!!images.length ? (
+          <Studio
+            images={images}
+            setImages={setImages}
+            questionName={state.questionName}
+            type={state.type}
+          />
+        ) : (
+          <>
+            <ObjectType />
+            <div className={styles["upload-buttons"]}>
+              <div className={styles["upload"]}>
+                <Button
+                  component="label"
+                  variant="outlined"
+                  startIcon={<CollectionsIcon />}
+                  onChange={onChangeImages}
+                  color="success"
+                  disabled={type ? false : true}
+                >
+                  Upload images
+                  <VisuallyHiddenInput
+                    type="file"
+                    accept="image/png, image/jpeg"
+                    multiple
+                  />
+                </Button>
+                <Button
+                  component="label"
+                  variant="outlined"
+                  startIcon={<BookIcon />}
+                  onClick={onChangeBook}
+                  color="info"
+                  disabled={type ? false : true}
+                >
+                  Upload book
+                </Button>
+              </div>
+              <GPTInput type={state.type} />
             </div>
-            <GPTInput type={state.type} />
-          </div>
-        </>
-      )}
-    </div>
+          </>
+        )}
+      </div>
+    </>
   );
 };
 

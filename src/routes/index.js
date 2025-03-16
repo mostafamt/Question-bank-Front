@@ -9,7 +9,6 @@ import DragTheWords from "../pages/DragTheWords/DragTheWords";
 import EditObject from "../pages/EditObject/EditObject";
 import EssayQuestion from "../pages/Essay-Question/EssayQuestion";
 import FillBlankForm from "../pages/FillBlank/FillBlank";
-import Home from "../pages/Home/Home";
 import MultipleChoiceForm from "../pages/MultipleChoiceForm/MultipleChoiceForm";
 import ScanAndUpload from "../pages/ScanAndUpload/ScanAndUpload";
 import SmartInteractive from "../pages/SmartInteractive/SmartInteractive";

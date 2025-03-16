@@ -5,7 +5,6 @@
     display: flex;
     justify-content: space-between;
 
-
     & > label {
       flex: 0 1 49%;
     }
@@ -19,13 +18,11 @@
     // height: 12rem;
     justify-content: space-between;
 
-
     & .upload {
       display: flex;
+      gap: 2rem;
       justify-content: flex-end;
     }
-
-    
 
     // & > * {
     //   flex: 0 1 49%;
