@@ -4,6 +4,7 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
+import DownloadIcon from "@mui/icons-material/Download";
 // CloudUploadIcon
 import { styled } from "@mui/material/styles";
 import { Button, IconButton } from "@mui/material";
@@ -44,6 +45,34 @@ const StudioThumbnails = (props) => {
     setImages((prevState) => [...prevState, currentImage]);
   };
 
+  const onDownloadThumbnail = () => {
+    const currentImage = images[activeIndex];
+
+    downloadImage(currentImage);
+    // window.open(currentImage, "_blank").focus();
+
+    // let downloading = browser.downloads.download({
+    //   url: currentImage,
+    //   // filename: "my-image-again.png",
+    //   conflictAction: "uniquify",
+    // });
+
+    console.log(currentImage);
+  };
+
+  async function downloadImage(imageSrc) {
+    const image = await fetch(imageSrc);
+    const imageBlog = await image.blob();
+    const imageURL = URL.createObjectURL(imageBlog);
+
+    const link = document.createElement("a");
+    link.href = imageURL;
+    link.download = "page";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   return (
     <div className={styles["studio-thumbnails"]}>
       <div className={styles.actions}>
@@ -62,6 +91,9 @@ const StudioThumbnails = (props) => {
         </IconButton>
         <IconButton aria-label="copy" onClick={onCopyThumbnail}>
           <FileCopyIcon />
+        </IconButton>
+        <IconButton aria-label="download" onClick={onDownloadThumbnail}>
+          <DownloadIcon />
         </IconButton>
       </div>
       {images.map((img, idx) => (

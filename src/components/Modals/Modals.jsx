@@ -4,14 +4,14 @@ import Modal from "../Modal/Modal";
 import { Button, CircularProgress } from "@mui/material";
 import Select from "../Select/Select";
 import { useForm } from "react-hook-form";
-import { getBooks, getChapters } from "../../api";
+import { getBooks, getChapterPages, getChapters, getPages } from "../../api";
 import { useQuery } from "@tanstack/react-query";
 
 import styles from "./modals.module.scss";
 
 const Modals = (props) => {
   const { show, handleClose, setImages } = props;
-  const [loadingScan, setLoadingScan] = React.useState(false);
+  const [loadingPages, setLoadingPages] = React.useState(false);
 
   const {
     register,
@@ -43,8 +43,13 @@ const Modals = (props) => {
   });
 
   const onSubmit = async (values, event) => {
-    console.log("values= ", values);
-    console.log("onSubmit");
+    setLoadingPages(true);
+    const { book, chapter } = values;
+    const data = await getPages(chapter);
+    const urls = data.map((page) => page.url);
+    setLoadingPages(false);
+    handleClose();
+    setImages(urls);
   };
 
   return (
@@ -91,8 +96,10 @@ const Modals = (props) => {
             <Button
               variant="contained"
               type="submit"
-              disabled={loadingScan}
-              startIcon={loadingScan ? <CircularProgress size="1rem" /> : <></>}
+              disabled={loadingPages}
+              startIcon={
+                loadingPages ? <CircularProgress size="1rem" /> : <></>
+              }
               name="author"
             >
               Submit
