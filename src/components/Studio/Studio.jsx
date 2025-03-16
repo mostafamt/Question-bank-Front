@@ -246,6 +246,13 @@ const Studio = (props) => {
       updateAreaProperty(idx, { loading: true });
       const text = await ocr(language, img);
       updateAreaProperty(idx, { text, loading: false });
+    } else if (typeOfLabel === "Coordinate") {
+      const x = Number.parseInt(areas[activePage][idx].x);
+      const y = Number.parseInt(areas[activePage][idx].y);
+      const text = `x= ${x}; y=${y};`;
+      updateAreaProperty(idx, {
+        text: text,
+      });
     } else {
       // open modal if it has a supported type
       let found = COMPLEX_TYPES.find((type) => type === typeOfLabel);

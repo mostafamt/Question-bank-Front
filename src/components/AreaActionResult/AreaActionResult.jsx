@@ -21,7 +21,9 @@ const AreaActionResult = (props) => {
 
   return (
     <div>
-      {trialArea?.typeOfLabel === "text" || foundComplexType ? (
+      {trialArea?.typeOfLabel === "text" ||
+      trialArea?.typeOfLabel === "Coordinate" ||
+      foundComplexType ? (
         <TextField
           sx={{
             width: "100%",
