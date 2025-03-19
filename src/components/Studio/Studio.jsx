@@ -345,6 +345,7 @@ const Studio = (props) => {
           setImages={setImages}
           activeIndex={activeIndex}
           onClickImage={onClickImage}
+          openModal={openModal}
         />
         <div
           className={styles.editor}

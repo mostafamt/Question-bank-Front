@@ -8,6 +8,7 @@ import { Button, CircularProgress, TextField } from "@mui/material";
 import axios from "../../../axios";
 import { createObjectGPT } from "../../../services/api";
 import { toast } from "react-toastify";
+import UploadThumbnailModal from "../../Modal/UploadThumbnailModal/UploadThumbnailModal";
 
 const StudioModals = (props) => {
   const {
@@ -53,9 +54,9 @@ const StudioModals = (props) => {
     setLoading(false);
   };
 
-  return (
-    <Modal show={showModal} handleClose={handleCloseModal} size="xl">
-      {state.modal === "GPT" ? (
+  const renderModals = () => {
+    if (state.modal === "GPT") {
+      return (
         <>
           <BootstrapModal.Header closeButton>
             <BootstrapModal.Title>GPT</BootstrapModal.Title>
@@ -95,7 +96,11 @@ const StudioModals = (props) => {
             <div>{result}</div>
           </BootstrapModal.Body>
         </>
-      ) : (
+      );
+    } else if (state.modal === "Upload Thumbnail") {
+      return <UploadThumbnailModal />;
+    } else {
+      return (
         <SubObjectModal
           handleClose={handleCloseModal}
           image={activeImage}
@@ -106,7 +111,17 @@ const StudioModals = (props) => {
           handleSubmit={handleSubmit}
           updateTrialAreas={updateTrialAreas}
         />
-      )}
+      );
+    }
+  };
+
+  return (
+    <Modal
+      show={showModal}
+      handleClose={handleCloseModal}
+      size={state.modalSize || "xl"}
+    >
+      {renderModals()}
     </Modal>
   );
 };

@@ -5,11 +5,13 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import DownloadIcon from "@mui/icons-material/Download";
+import LinkIcon from "@mui/icons-material/Link";
 // CloudUploadIcon
 import { styled } from "@mui/material/styles";
 import { Button, IconButton } from "@mui/material";
 
 import styles from "./studioThumbnails.module.scss";
+import { useStore } from "../../../store/store";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -24,7 +26,8 @@ const VisuallyHiddenInput = styled("input")({
 });
 
 const StudioThumbnails = (props) => {
-  const { images, onClickImage, setImages, activeIndex } = props;
+  const { images, onClickImage, setImages, activeIndex, openModal } = props;
+  const { data: state, setFormState } = useStore();
 
   const onChange = (event) => {
     const files = event.target.files;
@@ -47,17 +50,7 @@ const StudioThumbnails = (props) => {
 
   const onDownloadThumbnail = () => {
     const currentImage = images[activeIndex];
-
     downloadImage(currentImage);
-    // window.open(currentImage, "_blank").focus();
-
-    // let downloading = browser.downloads.download({
-    //   url: currentImage,
-    //   // filename: "my-image-again.png",
-    //   conflictAction: "uniquify",
-    // });
-
-    console.log(currentImage);
   };
 
   async function downloadImage(imageSrc) {
@@ -72,6 +65,16 @@ const StudioThumbnails = (props) => {
     link.click();
     document.body.removeChild(link);
   }
+
+  const onUploadThumbnail = async () => {
+    setFormState({
+      ...state,
+      modal: "Upload Thumbnail",
+      modalSize: "md",
+      thumbnailToUpload: images[activeIndex],
+    });
+    openModal();
+  };
 
   return (
     <div className={styles["studio-thumbnails"]}>
@@ -94,6 +97,9 @@ const StudioThumbnails = (props) => {
         </IconButton>
         <IconButton aria-label="download" onClick={onDownloadThumbnail}>
           <DownloadIcon />
+        </IconButton>
+        <IconButton aria-label="upload" onClick={onUploadThumbnail}>
+          <LinkIcon />
         </IconButton>
       </div>
       {images.map((img, idx) => (
