@@ -12,6 +12,7 @@ import { Button, IconButton } from "@mui/material";
 
 import styles from "./studioThumbnails.module.scss";
 import { useStore } from "../../../store/store";
+import { upload } from "../../../utils/upload";
 
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -29,11 +30,10 @@ const StudioThumbnails = (props) => {
   const { images, onClickImage, setImages, activeIndex, openModal } = props;
   const { data: state, setFormState } = useStore();
 
-  const onChange = (event) => {
-    const files = event.target.files;
-    const urls = [...files].map((file) => URL.createObjectURL(file));
-    console.log("urls= ", urls);
-    setImages((prevState) => [...prevState, ...urls]);
+  const onChange = async (event) => {
+    const file = event.target.files[0];
+    const url = await upload(file);
+    setImages((prevState) => [...prevState, url]);
   };
 
   const onDeleteThumbnail = () => {
