@@ -13,6 +13,7 @@ import BookContentLayout from "../../layouts/BookContentLayout/BookContentLayout
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
 import { getChapterPages } from "../../api/bookapi";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const tabsStyle = {
   width: "100%",
@@ -149,6 +150,19 @@ const Book = () => {
       setValue2(newValue);
     }
   };
+
+  if (isFetchingPages) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        <CircularProgress />
+      </div>
+    );
+  }
 
   return (
     <div className="container">
