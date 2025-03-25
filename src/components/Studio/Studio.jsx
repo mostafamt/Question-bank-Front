@@ -303,7 +303,7 @@ const Studio = (props) => {
     return dataUrl;
   };
 
-  const onClickCrop = () => {
+  const onClickCrop = async () => {
     if (areas.length) {
       const area = areas[areas.length - 1];
       const image = imageRef.current;
@@ -318,7 +318,8 @@ const Studio = (props) => {
       setAreas([]);
       setTrialAreas([]);
 
-      const newImages = [...images, cImage];
+      const url = await uploadBase64(cImage);
+      const newImages = [...images, url];
       setImages(newImages);
       setActiveIndex(newImages.length - 1);
     }

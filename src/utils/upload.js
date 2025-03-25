@@ -28,9 +28,11 @@ const upload = async (file) => {
 const uploadBase64 = async (base64Data) => {
   const base64Response = await fetch(base64Data);
   const blob = await base64Response.blob();
-  const data = new FormData();
-  data.append("file", blob);
-  const res = await axios.post("/upload", data);
+  const formData = new FormData();
+  formData.append("file", new File([blob], "image.jpeg"));
+  formData.append("ref", "image.jpeg");
+  formData.append("purpose", "image");
+  const res = await axios.post("/upload", formData);
   return res.data;
 };
 
