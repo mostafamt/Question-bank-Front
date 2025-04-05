@@ -13,17 +13,17 @@ import SubObjectModal from "../Modal/SubObjectModal/SubObjectModal";
 import StudioThumbnails from "./StudioThumbnails/StudioThumbnails";
 import { uploadBase64 } from "../../utils/upload";
 import {
+  ENGLISH,
   constructBoxColors,
   getSimpleTypes,
   getTypeOfParameter,
   ocr,
   onEditTextField,
 } from "../../utils/ocr";
-
-// some comment to push
+import { saveObject } from "../../services/api";
+import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
 
 import styles from "./studio.module.scss";
-import { fakeSaveObject, saveObject } from "../../services/api";
 
 const Studio = (props) => {
   const { images, setImages, questionName, type, subObject, handleClose } =
@@ -42,7 +42,7 @@ const Studio = (props) => {
   const [pageId, setPageId] = React.useState(images?.[0]?._id);
   const [subTypeObjects, setSubTypeObjects] = React.useState([]);
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
-
+  const [language, setLanguage] = React.useState(ENGLISH);
   const [trialAreas, setTrialAreas] = React.useState([]);
 
   const onClickImage = (idx) => {
@@ -166,7 +166,7 @@ const Studio = (props) => {
     const width = area.width * ratio;
     const height = area.height * ratio;
     const croppedImage = cropSelectedArea(x, y, width, height);
-    const text = await ocr(state.language, croppedImage);
+    const text = await ocr(language, croppedImage);
 
     updateTrialAreas(idx, { text, loading: false });
   };
@@ -283,6 +283,7 @@ const Studio = (props) => {
           updateTrialAreas={updateTrialAreas}
         />
       </Modal>
+      <LanguageSwitcher language={language} setLanguage={setLanguage} />
       <div className={styles.studio}>
         <StudioThumbnails
           images={images}

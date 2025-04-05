@@ -1,0 +1,15 @@
+.language-switcher {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+
+  & > button {
+    background-color: #fff;
+    border: 0;
+    transition: all 0.5s;
+
+    &.active {
+      background-color: #eee;
+    }
+  }
+}
