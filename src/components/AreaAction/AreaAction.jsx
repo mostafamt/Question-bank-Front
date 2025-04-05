@@ -73,7 +73,7 @@ const AreaAction = (props) => {
         <IconButton aria-label="delete" onClick={onClickDelete}>
           <DeleteForever color="error" />
         </IconButton>
-        {trialArea.open ? <AddIcon /> : <RemoveIcon />}
+        {trialArea.open ? <RemoveIcon /> : <AddIcon />}
       </ListItemButton>
 
       <Collapse in={trialArea.open} timeout="auto" unmountOnExit>

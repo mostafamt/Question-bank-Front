@@ -12,11 +12,10 @@ const getLanguageCodeSet2FromSet1 = (set1) => {
   return res;
 };
 
-export const ocr = async (language, dataUrl) => {
-  const newLanguageCode = getLanguageCodeSet2FromSet1(language);
+export const ocr = async (language = ENGLISH, dataUrl) => {
   let text = "";
   try {
-    const result = await Tesseract.recognize(dataUrl, newLanguageCode);
+    const result = await Tesseract.recognize(dataUrl, language);
     text = result.data.text;
   } catch (err) {
     console.error(err);
@@ -107,3 +106,6 @@ export const getSimpleTypes = () => [
   "Chart",
   "TrueFalse",
 ];
+
+export const ARABIC = "ara";
+export const ENGLISH = "eng";
