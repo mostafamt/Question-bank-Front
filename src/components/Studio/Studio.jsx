@@ -247,8 +247,13 @@ const Studio = (props) => {
       const text = await ocr(language, img);
       updateAreaProperty(idx, { text, loading: false });
     } else if (typeOfLabel === "Coordinate") {
-      const x = Number.parseInt(areas[activePage][idx].x);
-      const y = Number.parseInt(areas[activePage][idx].y);
+      const { naturalHeight, naturalWidth } = imageRef.current;
+      const x = Number.parseInt(
+        (areas[activePage][idx].x * naturalWidth) / 100
+      );
+      const y = Number.parseInt(
+        (areas[activePage][idx].y * naturalHeight) / 100
+      );
       const text = `x= ${x}; y=${y};`;
       updateAreaProperty(idx, {
         text: text,
