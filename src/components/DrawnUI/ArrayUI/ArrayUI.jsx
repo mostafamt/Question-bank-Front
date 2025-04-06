@@ -42,17 +42,26 @@ const ArrayUI = (props) => {
   const [open, setOpen] = React.useState(Array(fields.length).fill(false));
 
   const AddButton = () => {
+    const onClickAddItem = () => {
+      append(object);
+      openItem(fields.length);
+    };
+
     return (
       <div>
-        <IconButton
-          aria-label="add"
-          onClick={() => append(object)}
-          color="primary"
-        >
+        <IconButton aria-label="add" onClick={onClickAddItem} color="primary">
           <AddIcon />
         </IconButton>
       </div>
     );
+  };
+
+  const openItem = (idx) => {
+    setOpen((prevState) => {
+      const newState = [...prevState];
+      newState[idx] = true;
+      return newState;
+    });
   };
 
   const onClickItem = (idx) => {
