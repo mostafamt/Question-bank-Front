@@ -208,6 +208,9 @@ const Studio = (props) => {
     };
 
     const id = await saveObject(data);
+    if (id) {
+      clear();
+    }
     return id;
   };
 
@@ -225,7 +228,6 @@ const Studio = (props) => {
       const id = await handleSubmit(questionName, type, trialAreas);
       id && toast.success("Object created successfully!");
     }
-    clear();
     setLoadingSubmit(false);
   };
 
