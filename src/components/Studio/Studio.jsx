@@ -69,6 +69,7 @@ const Studio = (props) => {
           parameter: trialAreas[i].parameter,
           order: trialAreas[i].order,
           open: trialAreas[i].open,
+          type: trialAreas[i].type,
         },
       ];
     }
@@ -110,17 +111,6 @@ const Studio = (props) => {
     // state
     setActiveType(value);
 
-    //
-    let newTrialAreas = [...trialAreas];
-    newTrialAreas[idx].color = colors[colorIndex];
-    // newTrialAreas[idx].parameter = value;
-    setTrialAreas(newTrialAreas);
-    //
-
-    setColorIndex((prevState) =>
-      prevState === colors.length - 1 ? 0 : prevState + 1
-    );
-
     const typeOfParameter = getTypeOfParameter(state.types, type, value);
 
     const activeArea = areas[idx];
@@ -136,9 +126,15 @@ const Studio = (props) => {
     updateTrialAreas(idx, {
       parameter: value,
       image: croppedImage,
-      type: getTypeOfParameter(state.types, type, value),
+      type: typeOfParameter,
+      color: colors[colorIndex],
     });
 
+    setColorIndex((prevState) =>
+      prevState === colors.length - 1 ? 0 : prevState + 1
+    );
+
+    console.log("typeOfParameter= ", typeOfParameter);
     if (typeOfParameter === "text") {
       exract(value, idx);
     } else if (typeOfParameter === "Coordinate") {
