@@ -3,17 +3,23 @@ import { Box, Button, CircularProgress, TextField } from "@mui/material";
 import VisuallyHiddenInput from "../../VisuallyHiddenInput/VisuallyHiddenInput";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import PhotoIcon from "@mui/icons-material/Photo";
+import FullscreenIcon from "@mui/icons-material/Fullscreen";
+import { default as BootstrapModal } from "react-bootstrap/Modal";
 
-import styles from "./image.module.scss";
 import { upload } from "../../../utils/upload";
 import { Controller } from "react-hook-form";
 import ValidationMessage from "../../ValidationMessage/ValidationMessage";
+
+import styles from "./image.module.scss";
+import Modal from "../../Modal/Modal";
 
 const Image = (props) => {
   const { space, setValue, name, getValues, control, errors, path } = props;
   const [coordinate, setCoordinate] = React.useState();
   const [scaledCoordinate, setScaledCoordinate] = React.useState();
   const imageRef = React.createRef();
+  const imageRefInModal = React.createRef();
+  const [showModal, setShowModal] = React.useState(false);
 
   let value = getValues(name);
   const [loading, setLoading] = React.useState(false);
@@ -28,6 +34,8 @@ const Image = (props) => {
     setLoading(false);
   };
 
+  React.useEffect(() => {}, [scaledCoordinate, showModal]);
+
   const onChangeInput = (event) => {
     console.log("value= ", event.target.value);
     setValue(name, event.target.value);
@@ -35,24 +43,87 @@ const Image = (props) => {
   };
 
   const onClickImage = (event) => {
-    console.log("event= ", event);
-    console.log("ref= ", imageRef);
     const rect = event.target.getBoundingClientRect();
     const scaledX = event.clientX - rect.left;
     const scaledY = event.clientY - rect.top;
+    // console.log("ref= ", imageRef.current.offsetWidth);
     const ratioX = imageRef.current.naturalWidth / imageRef.current.offsetWidth;
     const ratioY =
       imageRef.current.naturalHeight / imageRef.current.offsetHeight;
     const x = parseInt(scaledX * ratioX);
     const y = parseInt(scaledY * ratioY);
     setCoordinate({ x, y });
-    setScaledCoordinate({ x: scaledX, y: scaledY });
-    console.log("x= ", scaledX * ratioX);
-    console.log("y= ", scaledY * ratioY);
+    setScaledCoordinate({
+      x: (scaledX / imageRef.current.offsetWidth) * 100,
+      y: (scaledY / imageRef.current.offsetHeight) * 100,
+    });
+  };
+
+  const onClickImageInModal = (event) => {
+    const rect = event.target.getBoundingClientRect();
+    const scaledX = event.clientX - rect.left;
+    const scaledY = event.clientY - rect.top;
+    const ratioX =
+      imageRefInModal.current.naturalWidth /
+      imageRefInModal.current.offsetWidth;
+    const ratioY =
+      imageRefInModal.current.naturalHeight /
+      imageRefInModal.current.offsetHeight;
+    const x = parseInt(scaledX * ratioX);
+    const y = parseInt(scaledY * ratioY);
+    setCoordinate({ x, y });
+    setScaledCoordinate({
+      x: (scaledX / imageRefInModal.current.offsetWidth) * 100,
+      y: (scaledY / imageRefInModal.current.offsetHeight) * 100,
+    });
+  };
+
+  const onClickFullScreen = () => {
+    setShowModal(true);
+  };
+
+  const onCloseModal = () => {
+    setShowModal(false);
   };
 
   return (
     <Box>
+      <Modal show={showModal} handleClose={onCloseModal} fullScreen={true}>
+        <BootstrapModal.Header closeButton>
+          <BootstrapModal.Title></BootstrapModal.Title>
+        </BootstrapModal.Header>
+        <BootstrapModal.Body>
+          <Controller
+            name={name}
+            control={control}
+            rules={{ required: "File is required" }} // Set required rule
+            render={({ field }) => (
+              <div className={styles["modal-image-area"]}>
+                <img
+                  src={field.value}
+                  alt={field.value}
+                  onClick={onClickImageInModal}
+                  ref={imageRefInModal}
+                />
+                {scaledCoordinate && (
+                  <div
+                    className={styles.info}
+                    style={{
+                      left: `${scaledCoordinate.x}%`,
+                      top: `${scaledCoordinate.y}%`,
+                    }}
+                  ></div>
+                )}
+                {coordinate && (
+                  <p>
+                    x: {coordinate?.x}, y: {coordinate?.y}
+                  </p>
+                )}
+              </div>
+            )}
+          />
+        </BootstrapModal.Body>
+      </Modal>
       <Controller
         name={name}
         control={control}
@@ -62,6 +133,9 @@ const Image = (props) => {
             <div className={styles["image-area"]}>
               {field.value ? (
                 <>
+                  <div className={styles["full-screen"]}>
+                    <FullscreenIcon onClick={onClickFullScreen} />
+                  </div>
                   <img
                     src={field.value}
                     alt={field.value}
@@ -72,8 +146,8 @@ const Image = (props) => {
                     <div
                       className={styles.info}
                       style={{
-                        left: scaledCoordinate.x,
-                        top: scaledCoordinate.y,
+                        left: `${scaledCoordinate.x}%`,
+                        top: `${scaledCoordinate.y}%`,
                       }}
                     ></div>
                   )}
