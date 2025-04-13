@@ -13,6 +13,7 @@ import SubObjectModal from "../Modal/SubObjectModal/SubObjectModal";
 import StudioThumbnails from "./StudioThumbnails/StudioThumbnails";
 import { uploadBase64 } from "../../utils/upload";
 import {
+  ARABIC,
   ENGLISH,
   constructBoxColors,
   getSimpleTypes,
@@ -42,7 +43,9 @@ const Studio = (props) => {
   const [pageId, setPageId] = React.useState(images?.[0]?._id);
   const [subTypeObjects, setSubTypeObjects] = React.useState([]);
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
-  const [language, setLanguage] = React.useState(ENGLISH);
+  const [language, setLanguage] = React.useState(
+    state.language === "ar" ? ARABIC : ENGLISH
+  );
   const [trialAreas, setTrialAreas] = React.useState([]);
 
   const onClickImage = (idx) => {
