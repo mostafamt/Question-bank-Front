@@ -39,6 +39,7 @@ const StudioModals = (props) => {
       <ObjectsTableModalContent
         checkedObjects={checkedObjects}
         setCheckedObjects={setCheckedObjects}
+        handleCloseModal={handleCloseModal}
       />
     );
   } else {

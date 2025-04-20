@@ -2,7 +2,7 @@ import React from "react";
 import AddIcon from "@mui/icons-material/Add";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { IconButton } from "@mui/material";
+import { Box, Button, IconButton } from "@mui/material";
 
 import styles from "./list.module.scss";
 
@@ -63,6 +63,11 @@ const List = (props) => {
           </li>
         ))}
       </ul>
+      {Boolean(checkedObjects.length) && (
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <Button variant="contained">Submit</Button>
+        </Box>
+      )}
     </div>
   );
 };
