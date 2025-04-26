@@ -5,7 +5,7 @@ import Alert from "@mui/material/Alert";
 import { Box, Button, CircularProgress } from "@mui/material";
 import ArrayUI from "../../components/DrawnUI/ArrayUI/ArrayUI";
 import { useForm } from "react-hook-form";
-import { emptyValues } from "../../utils/data";
+import { emptyValues, ignoreSpaces } from "../../utils/data";
 import ObjectUI from "../../components/DrawnUI/ObjectUI/ObjectUI";
 import { useStore } from "../../store/store";
 import { toast } from "react-toastify";
@@ -90,6 +90,7 @@ const DrawnUI = () => {
   };
 
   const onSubmit = async (values) => {
+    console.log("onSubmit");
     setValues(values);
     if (isEditPage) {
       await EditObject(values);
@@ -154,7 +155,7 @@ const DrawnUI = () => {
         space: space,
         label: key,
         required: searchIfRequired(labels, key),
-        type: getTypeOfKey(labels, key) || value,
+        type: ignoreSpaces(value) || getTypeOfKey(labels, key),
         control: control,
         setValue: setValue,
         getValues: getValues,
@@ -200,6 +201,9 @@ const DrawnUI = () => {
         </React.Fragment>
       );
     }
+
+    console.log("errors= ", errors);
+
     return (
       <>
         {jsx}

@@ -74,4 +74,11 @@ export const fullTextTrim = (text) => {
   return newText.split(" ")?.[0];
 };
 
+export function ignoreSpaces(str) {
+  if (typeof str === "string") {
+    return str.replaceAll(" ", "");
+  }
+  return str;
+}
+
 export { emptyValues, fillValues, syntaxHighlight };
