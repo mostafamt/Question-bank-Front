@@ -3,12 +3,22 @@ import { Box, Button, CircularProgress, TextField } from "@mui/material";
 import VisuallyHiddenInput from "../../VisuallyHiddenInput/VisuallyHiddenInput";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
+import { AudioRecorder, useAudioRecorder } from "react-audio-voice-recorder";
+
+import { upload, uploadBase64 } from "../../../utils/upload";
 
 import styles from "./sound.module.scss";
-import { upload } from "../../../utils/upload";
 
 const Sound = (props) => {
   const { setValue, name, space, getValues } = props;
+
+  const recorderControls = useAudioRecorder(
+    {
+      noiseSuppression: true,
+      echoCancellation: true,
+    },
+    (err) => console.table(err) // onNotAllowedOrFound
+  );
 
   let value = getValues(name);
 
@@ -22,13 +32,23 @@ const Sound = (props) => {
     setLoading(false);
   };
 
+  const onRecordFinish = async (blob) => {
+    setLoading(true);
+    const link = await uploadBase64(blob);
+    setValue(name, link);
+    setLoading(false);
+  };
+
   const onChangeInput = (event) => {
     setValue(name, event.target.value);
   };
 
   return (
     <Box className={styles.image}>
-      <div className={styles["image-area"]}>
+      <div
+        className={styles["image-area"]}
+        style={{ width: value ? "30%" : "200px" }}
+      >
         {value ? (
           <audio controls>
             <source src={value} type="audio/mp3" />
@@ -39,6 +59,14 @@ const Sound = (props) => {
         )}
       </div>
       <div className={styles.inputs}>
+        <AudioRecorder
+          onRecordingComplete={(blob) => onRecordFinish(blob)}
+          recorderControls={recorderControls}
+          // downloadOnSavePress={true}
+          // downloadFileExtension="mp3"
+          showVisualizer={true}
+        />
+
         <Button
           component="label"
           role={undefined}
