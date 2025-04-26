@@ -4,6 +4,8 @@ import Image from "../components/DrawnUI/Image/Image";
 import Video from "../components/DrawnUI/Video/Video";
 import Sound from "../components/DrawnUI/Sound/Sound";
 import Boolean from "../components/DrawnUI/Boolean/Boolean";
+import QuillInput from "../components/DrawnUI/QuillInput/QuillInput";
+import InteractiveObject from "../components/DrawnUI/InteractiveObject/InteractiveObject";
 import { trimText } from "./data";
 
 export const AUTO_UI_TYPES_MAPPING = {
@@ -16,6 +18,8 @@ export const AUTO_UI_TYPES_MAPPING = {
   Bool: <Boolean />,
   timeStamp: <Text />,
   Coordinate: <Text type="number" />,
+  QuillInput: <QuillInput />,
+  SI: <InteractiveObject />,
 };
 
 export const getTypeOfKey = (labels, type) => {

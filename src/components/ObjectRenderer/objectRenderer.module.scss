@@ -1,0 +1,7 @@
+.object-renderer {
+  margin: 2rem 0 2rem;
+  & iframe {
+    padding: 1rem;
+    height: 20rem;
+  }
+}

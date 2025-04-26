@@ -1,0 +1,11 @@
+.interactive-object {
+  // height: 12rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 1rem;
+
+  & .header {
+    display: flex;
+    justify-content: space-between;
+  }
+}
