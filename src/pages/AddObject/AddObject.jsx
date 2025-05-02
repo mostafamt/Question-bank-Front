@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import DesignServicesIcon from "@mui/icons-material/DesignServices";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import ScannerIcon from "@mui/icons-material/Scanner";
+import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 import Input from "../../components/Input/Input";
 import Select from "../../components/Select/Select";
 import { Button, CircularProgress } from "@mui/material";
@@ -86,6 +87,30 @@ const AddObject = () => {
   };
 
   const onSubmitOcr = async (values) => {
+    let data = {
+      ...values,
+      domainName: getDomainName(values.domainId),
+      subDomainName: getSubDomainName(values.domainId, values.subDomainId),
+      higherType: values.type,
+    };
+
+    const { type } = values;
+    const baseType = getBaseTypeFromType(categories, watch("category"), type);
+    data = { ...data, type: baseType };
+    const selectedTypeObject = interactiveObjectTypes.find(
+      (item) => item.typeName === baseType
+    );
+    console.log("data= ", data);
+    setFormState({
+      // id,
+      ...data,
+      labels: selectedTypeObject.labels,
+      types: interactiveObjectTypes,
+    });
+    navigate("/scan-and-upload");
+  };
+
+  const onSubmitAutoGen = async (values) => {
     let data = {
       ...values,
       domainName: getDomainName(values.domainId),
@@ -240,10 +265,10 @@ const AddObject = () => {
               </Button>
               <Button
                 variant="contained"
-                onClick={onClickExcelFile}
-                startIcon={<InsertDriveFileIcon />}
+                onClick={handleSubmit(onSubmitAutoGen)}
+                startIcon={<AutoFixHighIcon />}
               >
-                Excel File
+                Auto Gen
               </Button>
               <Button
                 variant="contained"

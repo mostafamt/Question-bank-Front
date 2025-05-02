@@ -131,6 +131,9 @@ const DrawnUI = () => {
     try {
       const res = await axios.patch(`/interactive-objects/${params.id}`, data);
       toast.success(`Object updated successfully`);
+      const url = res.data;
+      window.open(url, "_blank");
+      console.log("res= ", res.data);
     } catch (error) {
       toast.error(error?.message);
     }
