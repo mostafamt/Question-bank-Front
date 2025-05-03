@@ -21,6 +21,7 @@ import { useQuery } from "@tanstack/react-query";
 import { NewInstance as axios } from "../../axios";
 import { toast } from "react-toastify";
 import { getCategories, getQuestionTypes, getTypes } from "../../services/api";
+import { v4 as uuidv4 } from "uuid";
 
 import styles from "./addObject.module.scss";
 import { getImages, getAllTypes } from "../../services/api";
@@ -33,7 +34,17 @@ const AddObject = () => {
     formState: { errors },
     handleSubmit,
     watch,
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      questionName: `object ${uuidv4().slice(0, 4)}`,
+      objectOwner: "me",
+      domainId: "ea593b9efe036879f9329e46051356af",
+      subDomainId: "8922af923453305fb60e39f5c205ccdb",
+      topic: "topic",
+      language: "en",
+      IR: "test",
+    },
+  });
   const { setFormState } = useStore();
   // const [types, setTypes] = React.useState([]);
   const [loadingOCR, setLoadingOCR] = React.useState(false);
