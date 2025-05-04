@@ -19,6 +19,7 @@ import NotFound from "../pages/NotFound/NotFound";
 import AddType from "../pages/AddType/AddType";
 import Types from "../pages/Types/Types";
 import Error from "../pages/Error/Error";
+import AutoGeneration from "../pages/AutoGeneration/AutoGeneration";
 
 const routes = [
   {
@@ -56,6 +57,10 @@ const routes = [
   {
     path: "/scan-and-upload",
     component: ScanAndUpload,
+  },
+  {
+    path: "/auto-generation",
+    component: AutoGeneration,
   },
   {
     path: "/add-question/multiple-choice/manual",

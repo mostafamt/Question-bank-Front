@@ -78,6 +78,7 @@ export const fakeSaveObject = async (data) => {
 export const saveObject = async (data) => {
   try {
     const res = await axios.post("/interactive-objects", data);
+    window.open(`/show/${res.data}`, "_blank");
     return res.data;
   } catch (error) {
     toast.error(error?.message);

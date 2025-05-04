@@ -53,4 +53,11 @@ const uploadBase64 = async (base64Data) => {
   return res.data;
 };
 
-export { upload, uploadBase64 };
+const uploadForStudio = async (base64Data) => {
+  const base64Response = await fetch(base64Data);
+  const blob = await base64Response.blob();
+  const url = await uploadBase64(blob);
+  return url;
+};
+
+export { upload, uploadBase64, uploadForStudio };

@@ -11,7 +11,7 @@ import { colors } from "../../constants/highlight-color";
 import SubObjectModal from "../Modal/SubObjectModal/SubObjectModal";
 
 import StudioThumbnails from "./StudioThumbnails/StudioThumbnails";
-import { uploadBase64 } from "../../utils/upload";
+import { uploadBase64, uploadForStudio } from "../../utils/upload";
 import {
   ARABIC,
   ENGLISH,
@@ -193,7 +193,9 @@ const Studio = (props) => {
         .sort((a, b) => a.order - b.order)
         .map(async (item) => ({
           [item.parameter]:
-            item.type === "image" ? await uploadBase64(item.image) : item.text,
+            item.type === "image"
+              ? await uploadForStudio(item.image)
+              : item.text,
         }))
     );
 
