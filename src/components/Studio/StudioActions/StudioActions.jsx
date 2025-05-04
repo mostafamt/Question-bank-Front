@@ -3,6 +3,7 @@ import { Button, CircularProgress, List } from "@mui/material";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import AreaAction from "../../AreaAction/AreaAction";
 import { DELETED, reorder } from "../../../utils/ocr";
+import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 
 import styles from "./studioActions.module.scss";
 
@@ -110,7 +111,7 @@ const StudioActions = (props) => {
           </Droppable>
         </DragDropContext>
 
-        {subObject && areasProperties?.length && (
+        {subObject && areasProperties[activePage]?.length === 0 && (
           <div>
             <div>
               <Button
@@ -119,10 +120,14 @@ const StudioActions = (props) => {
                 sx={{ width: "100%" }}
                 disabled={loadingAutoGenerate}
                 startIcon={
-                  loadingAutoGenerate ? <CircularProgress size="1rem" /> : <></>
+                  loadingAutoGenerate ? (
+                    <CircularProgress size="1rem" />
+                  ) : (
+                    <AutoFixHighIcon size="1rem" />
+                  )
                 }
               >
-                Submit
+                Auto Generate
               </Button>
             </div>
           </div>
