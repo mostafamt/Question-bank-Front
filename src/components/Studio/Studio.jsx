@@ -49,6 +49,8 @@ const Studio = (props) => {
     handleSubmit,
     language: lang,
     typeOfActiveType: tOfActiveType,
+    onSubmitAutoGenerate,
+    loadingAutoGenerate,
   } = props;
   // console.log("localStorage.getItem('page')= ", localStorage.getItem("page"));
   const [activePage, setActivePage] = React.useState(
@@ -440,6 +442,8 @@ const Studio = (props) => {
           openModal={openModal}
           setWorkingArea={setWorkingArea}
           tOfActiveType={tOfActiveType}
+          onSubmitAutoGenerate={onSubmitAutoGenerate}
+          loadingAutoGenerate={loadingAutoGenerate}
         />
       ),
     },

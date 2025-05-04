@@ -25,6 +25,8 @@ const StudioActions = (props) => {
     openModal,
     setWorkingArea,
     tOfActiveType: typeOfActiveType,
+    onSubmitAutoGenerate,
+    loadingAutoGenerate,
   } = props;
 
   const onDragEnd = (result) => {
@@ -107,6 +109,24 @@ const StudioActions = (props) => {
             )}
           </Droppable>
         </DragDropContext>
+
+        {subObject && areasProperties?.length && (
+          <div>
+            <div>
+              <Button
+                variant="contained"
+                onClick={onSubmitAutoGenerate}
+                sx={{ width: "100%" }}
+                disabled={loadingAutoGenerate}
+                startIcon={
+                  loadingAutoGenerate ? <CircularProgress size="1rem" /> : <></>
+                }
+              >
+                Submit
+              </Button>
+            </div>
+          </div>
+        )}
 
         {areasProperties[activePage]?.length > 0 && (
           <div>
