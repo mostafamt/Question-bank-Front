@@ -142,7 +142,7 @@ const AddObject = () => {
       labels: selectedTypeObject.labels,
       types: interactiveObjectTypes,
     });
-    navigate("/scan-and-upload");
+    navigate("/auto-generation");
   };
 
   let labels = [];
