@@ -20,6 +20,7 @@ import AddType from "../pages/AddType/AddType";
 import Types from "../pages/Types/Types";
 import Error from "../pages/Error/Error";
 import AddBook from "../pages/AddBook/AddBook";
+import Show from "../pages/Show/Show";
 
 const routes = [
   {
@@ -113,6 +114,10 @@ const routes = [
   {
     path: "/excel-file",
     component: ExcelFile,
+  },
+  {
+    path: "/show/:id",
+    component: Show,
   },
   {
     path: "/test",
