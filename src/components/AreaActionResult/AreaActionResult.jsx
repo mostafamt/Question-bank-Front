@@ -4,7 +4,7 @@ import styles from "./areaActionResult.module.scss";
 import { CircularProgress, TextField } from "@mui/material";
 
 const AreaActionResult = (props) => {
-  const { type, onEditText, trialArea } = props;
+  const { onEditText, trialArea } = props;
 
   if (trialArea.loading) {
     return (
