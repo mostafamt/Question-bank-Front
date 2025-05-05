@@ -218,7 +218,7 @@ const Studio = (props) => {
 
     const id = await saveObject(data);
     if (id) {
-      clear();
+      // clear();
     }
     return id;
   };
