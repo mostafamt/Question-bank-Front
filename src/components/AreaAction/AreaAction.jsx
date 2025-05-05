@@ -94,11 +94,7 @@ const AreaAction = (props) => {
               trialArea={trialArea}
             />
 
-            <AreaActionResult
-              type={types[parameter]}
-              onEditText={onEditText}
-              trialArea={trialArea}
-            />
+            <AreaActionResult onEditText={onEditText} trialArea={trialArea} />
           </Box>
         </List>
       </Collapse>

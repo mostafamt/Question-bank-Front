@@ -147,6 +147,10 @@ const Studio = (props) => {
       updateTrialAreas(idx, {
         text: text,
       });
+    } else if( typeOfParameter === "SI" ){
+      setTimeout(() => {
+        openModal();
+      }, 1000);
     } else {
       // open modal if it has a supported type
       const simpleTypes = getSimpleTypes();
@@ -285,9 +289,7 @@ const Studio = (props) => {
         <SubObjectModal
           handleClose={handleCloseModal}
           image={activeImage}
-          name={`${state.questionName} - ${activeType}`}
           type={activeType}
-          results={trialAreas}
           setSubTypeObjects={setSubTypeObjects}
           handleSubmit={handleSubmit}
           updateTrialAreas={updateTrialAreas}
