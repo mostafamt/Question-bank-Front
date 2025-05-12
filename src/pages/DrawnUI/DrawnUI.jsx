@@ -117,6 +117,7 @@ const DrawnUI = () => {
     try {
       const res = await axios.post("/interactive-objects", data);
       toast.success(`Object added successfully`);
+      window.open(`/show/${res.data}`, "_blank");
     } catch (error) {
       toast.error(error?.message);
     }
@@ -132,8 +133,7 @@ const DrawnUI = () => {
       const res = await axios.patch(`/interactive-objects/${params.id}`, data);
       toast.success(`Object updated successfully`);
       const url = res.data;
-      window.open(url, "_blank");
-      console.log("res= ", res.data);
+      window.open(`/show/${res.data}`, "_blank");
     } catch (error) {
       toast.error(error?.message);
     }
