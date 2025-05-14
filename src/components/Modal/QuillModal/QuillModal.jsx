@@ -7,7 +7,9 @@ import styles from "./quillModal.module.scss";
 const QuillModal = (props) => {
   const { workingArea, updateAreaPropertyById } = props;
   const [value, setValue] = React.useState(
-    workingArea.text || workingArea.contentValue
+    workingArea.typeOfLabel === "image"
+      ? `<img src=${workingArea.image} />`
+      : workingArea.text || workingArea.contentValue
   );
 
   const onChange = (value) => {
