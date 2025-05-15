@@ -138,7 +138,7 @@ const Studio = (props) => {
     );
 
     console.log("typeOfParameter= ", typeOfParameter);
-    if (typeOfParameter === "text") {
+    if (typeOfParameter === "text" || typeOfParameter === "number") {
       exract(value, idx);
     } else if (typeOfParameter === "Coordinate") {
       const x = Number.parseInt(trialAreas[idx].x);
@@ -147,7 +147,7 @@ const Studio = (props) => {
       updateTrialAreas(idx, {
         text: text,
       });
-    } else if( typeOfParameter === "SI" ){
+    } else if (typeOfParameter === "SI") {
       setTimeout(() => {
         openModal();
       }, 1000);
