@@ -170,8 +170,6 @@ export const extractImage = (
     width,
     height
   );
-  console.log("croppedImage= ", croppedImage);
-  console.log("imageRef= ", imageRef);
   return croppedImage;
 };
 
@@ -183,8 +181,6 @@ export const updateAreasProperties = (
   type
 ) => {
   let newAreas = [];
-
-  console.log("updateAreasProperties");
 
   for (let block = 0; block < areasProperties[activePage].length; block++) {
     const { isServer, status } = areasProperties[activePage][block];
@@ -305,7 +301,7 @@ export const getValue = (types, type, label) => {
 };
 
 export const DELETED = "deleted";
-export const UPDATED = "upated";
+export const UPDATED = "updated";
 export const CREATED = "new";
 
 export const instructionalRoles = [
