@@ -7,20 +7,6 @@
   overflow: hidden;
   position: relative;
 
-  & .type {
-    font-size: 1rem;
-    transform: translate(0, -110%);
-    z-index: 5;
-    background-color: #fff;
-    height: 2rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 1rem;
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-    display: none;
-  }
-
   & > div:nth-child(2) {
     & > div:not(:first-child) {
       &:hover .type {

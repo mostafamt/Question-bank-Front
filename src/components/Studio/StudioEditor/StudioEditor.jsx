@@ -5,6 +5,7 @@ import { constructBoxColors } from "../../../utils/ocr";
 /** @jsxImportSource @emotion/react */
 
 import styles from "./studioEditor.module.scss";
+import StudioAreaSelector from "../StudioAreaSelector/StudioAreaSelector";
 
 const StudioEditor = React.forwardRef((props, ref) => {
   const {
@@ -19,42 +20,8 @@ const StudioEditor = React.forwardRef((props, ref) => {
     pages,
   } = props;
 
-  const onClickExistedArea = (areaProps) => {
-    const newAreasProperties = [...areasProperties];
-    const idx = areaProps.areaNumber - 1;
-    newAreasProperties[activePage][idx].open =
-      !newAreasProperties[activePage][idx].open;
-    setAreasProperties(newAreasProperties);
-  };
-
-  const customRender = (areaProps) => {
-    if (!areaProps.isChanging) {
-      return (
-        <div
-          key={areaProps.areaNumber}
-          onClick={() => onClickExistedArea(areaProps)}
-        >
-          <div className={styles.type}>
-            {areasProperties[activePage][areaProps.areaNumber - 1]?.type} -
-            {areasProperties[activePage][areaProps.areaNumber - 1]?.label}
-          </div>
-        </div>
-      );
-    }
-  };
-
-  const onImageLoad = () => {
-    props.onImageLoad();
-  };
   return (
-    <div
-      className={styles["studio-editor"]}
-      css={{
-        "& > div:nth-of-type(2)": constructBoxColors(
-          areasProperties[activePage]
-        ),
-      }}
-    >
+    <div className={styles["studio-editor"]}>
       <ImageActions
         imageScaleFactor={imageScaleFactor}
         setImageScaleFactor={setImageScaleFactor}
@@ -63,35 +30,7 @@ const StudioEditor = React.forwardRef((props, ref) => {
         activePage={activePage}
         areasProperties={areasProperties}
       />
-      <AreaSelector
-        areas={areas[activePage]}
-        onChange={onChangeHandler}
-        wrapperStyle={{
-          width: "100%",
-          // height: "100%",
-          overflow: "scroll",
-        }}
-        customAreaRenderer={customRender}
-        areaProps={{
-          onClick: (event, area) => {
-            console.log("here");
-          },
-        }}
-        unit="percentage"
-      >
-        <img
-          src={pages[activePage]?.url}
-          alt={pages[activePage]?.url || pages[activePage]}
-          crossOrigin="anonymous"
-          ref={ref}
-          style={{
-            width: `${imageScaleFactor * 100}%`,
-            height: `${imageScaleFactor * 100}%`,
-            overflow: "scroll",
-          }}
-          onLoad={onImageLoad}
-        />
-      </AreaSelector>
+      <StudioAreaSelector {...props} ref={ref} />
     </div>
   );
 });

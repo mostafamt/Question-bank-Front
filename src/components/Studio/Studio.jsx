@@ -51,6 +51,7 @@ const Studio = (props) => {
     typeOfActiveType: tOfActiveType,
     onSubmitAutoGenerate,
     loadingAutoGenerate,
+    refetch,
   } = props;
   // console.log("localStorage.getItem('page')= ", localStorage.getItem("page"));
   const [activePage, setActivePage] = React.useState(
@@ -285,6 +286,7 @@ const Studio = (props) => {
     } else {
       const id = await handleSubmit(pageId, areasProperties[activePage]);
       id && toast.success("Object created successfully!");
+      refetch();
     }
     // clear();
     setLoadingSubmit(false);

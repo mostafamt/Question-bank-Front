@@ -1,0 +1,31 @@
+.studio-area-selector {
+  $block-size: 50px;
+  height: 95%;
+  // border: 5px dashed black;
+  display: grid;
+  grid-template-columns: $block-size auto $block-size;
+  grid-template-rows: $block-size repeat(6, 1fr) $block-size;
+
+  & > div {
+    text-align: center;
+  }
+
+  & .block {
+    grid-column: 2 / 3;
+    grid-row: 2 / 8;
+  }
+
+  // & .type {
+  //   font-size: 1rem;
+  //   transform: translate(0, -110%);
+  //   z-index: 5;
+  //   background-color: #fff;
+  //   height: 2rem;
+  //   display: flex;
+  //   justify-content: center;
+  //   align-items: center;
+  //   border-radius: 1rem;
+  //   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  //   display: none;
+  // }
+}
