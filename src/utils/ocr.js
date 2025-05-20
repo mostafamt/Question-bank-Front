@@ -111,7 +111,7 @@ export const constructBoxColors = (trialAreas) => {
     }
   });
 
-  return obj;
+  return { "& > div": obj };
 };
 
 export const cropSelectedArea = (canvasRef, imageRef, x, y, width, height) => {
