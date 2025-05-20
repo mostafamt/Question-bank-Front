@@ -68,14 +68,7 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
       <div>block 12</div>
       <div
         className={styles.block}
-        css={{
-          "& > div > div:nth-of-type(2)": constructBoxColors(
-            areasProperties[activePage]
-          ),
-          "& > div > div:nth-of-type(2)": {
-            backgroundColor: "red",
-          },
-        }}
+        css={constructBoxColors(areasProperties[activePage])}
       >
         <AreaSelector
           areas={areas[activePage]}
@@ -92,6 +85,7 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
             },
           }}
           unit="percentage"
+          debug={true}
         >
           <img
             src={pages[activePage]?.url}
