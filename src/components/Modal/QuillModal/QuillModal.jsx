@@ -12,6 +12,8 @@ const QuillModal = (props) => {
       : workingArea.text || workingArea.contentValue
   );
 
+  console.log("QuillModal");
+
   const onChange = (value) => {
     setValue(value);
     updateAreaPropertyById(workingArea.id, { text: value });
