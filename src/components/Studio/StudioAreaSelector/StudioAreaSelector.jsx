@@ -1,9 +1,10 @@
 import React from "react";
 import { AreaSelector } from "@bmunozg/react-image-area";
+import { constructBoxColors } from "../../../utils/ocr";
+import clsx from "clsx";
+/** @jsxImportSource @emotion/react */
 
 import styles from "./studioAreaSelector.module.scss";
-import { constructBoxColors } from "../../../utils/ocr";
-/** @jsxImportSource @emotion/react */
 
 const StudioAreaSelector = React.forwardRef((props, ref) => {
   const {
@@ -16,6 +17,7 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
     setAreas,
     onChangeHandler,
     pages,
+    showVB,
   } = props;
 
   const onClickExistedArea = (areaProps) => {
@@ -47,7 +49,12 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
   };
 
   return (
-    <div className={styles["studio-area-selector"]}>
+    <div
+      className={clsx(
+        styles["studio-area-selector"],
+        !showVB && styles["show"]
+      )}
+    >
       <div>block 1</div>
       <div>block 2</div>
       <div>block 3</div>
@@ -85,7 +92,6 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
             },
           }}
           unit="percentage"
-          debug={true}
         >
           <img
             src={pages[activePage]?.url}
