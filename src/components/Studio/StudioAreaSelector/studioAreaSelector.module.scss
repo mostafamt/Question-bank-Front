@@ -51,3 +51,14 @@
     }
   }
 }
+
+.show {
+  & > div:not(:last-child) {
+    display: none;
+  }
+
+  & .block {
+    grid-column: 1 / 4;
+    grid-row: 1 / 10;
+  }
+}

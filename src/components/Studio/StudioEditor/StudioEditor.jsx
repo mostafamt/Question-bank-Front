@@ -18,7 +18,16 @@ const StudioEditor = React.forwardRef((props, ref) => {
     setAreas,
     onChangeHandler,
     pages,
+    onImageLoad,
   } = props;
+  const [showVB, setShowVB] = React.useState(false);
+
+  const onClickToggleVirutalBlocks = () => {
+    setShowVB((prevState) => !prevState);
+    setTimeout(() => {
+      onImageLoad();
+    }, 20);
+  };
 
   return (
     <div className={styles["studio-editor"]}>
@@ -29,8 +38,10 @@ const StudioEditor = React.forwardRef((props, ref) => {
         setAreas={setAreas}
         activePage={activePage}
         areasProperties={areasProperties}
+        showVB={showVB}
+        onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
       />
-      <StudioAreaSelector {...props} ref={ref} />
+      <StudioAreaSelector {...props} showVB={showVB} ref={ref} />
     </div>
   );
 });
