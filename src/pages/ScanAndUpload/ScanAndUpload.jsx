@@ -21,7 +21,11 @@ const ScanAndUpload = () => {
     refetchOnWindowFocus: false,
   });
 
-  const { data: pages, isFetching: isFetchingPages } = useQuery({
+  const {
+    data: pages,
+    refetch,
+    isFetching: isFetchingPages,
+  } = useQuery({
     queryKey: [`book-${bookId}-chapter-${chapterId}`],
     queryFn: () => getChapterPages(chapterId),
     refetchOnWindowFocus: false,
@@ -109,6 +113,7 @@ const ScanAndUpload = () => {
           type={"state.type"}
           handleSubmit={handleSubmit}
           language={language}
+          refetch={refetch}
         />
       )}
     </div>

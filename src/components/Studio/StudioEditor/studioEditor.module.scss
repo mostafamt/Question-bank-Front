@@ -1,34 +1,11 @@
 .studio-editor {
+  background-color: #fff;
+
   flex: 1 1 auto;
-  // border: 1px solid black;
   box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px,
     rgba(0, 0, 0, 0.3) 0px 30px 60px -30px,
     rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
   overflow: hidden;
   position: relative;
 
-  & .type {
-    font-size: 1rem;
-    transform: translate(0, -110%);
-    z-index: 5;
-    background-color: #fff;
-    height: 2rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 1rem;
-    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-    display: none;
-  }
-
-  & > div:nth-child(2) {
-    & > div:not(:first-child) {
-      &:hover .type {
-        display: flex !important;
-      }
-      & {
-        border: 2px solid green !important;
-      }
-    }
-  }
 }
