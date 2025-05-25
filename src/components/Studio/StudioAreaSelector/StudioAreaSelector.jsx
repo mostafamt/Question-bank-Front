@@ -5,6 +5,8 @@ import clsx from "clsx";
 /** @jsxImportSource @emotion/react */
 
 import styles from "./studioAreaSelector.module.scss";
+import VirtualBlock from "../../VirtualBlock/VirtualBlock";
+import { VIRTUAL_BLOCK_LABELS } from "../../../utils/virtual-blocks";
 
 const StudioAreaSelector = React.forwardRef((props, ref) => {
   const {
@@ -18,6 +20,12 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
     onChangeHandler,
     pages,
     showVB,
+    openModal,
+    setModalName,
+    checkedObject,
+    setCheckedObject,
+    virtualBlocks,
+    setVirtualBlocks,
   } = props;
 
   const onClickExistedArea = (areaProps) => {
@@ -48,6 +56,25 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
     props.onImageLoad();
   };
 
+  const virtualBlocksRenders = [];
+
+  for (const label in virtualBlocks) {
+    virtualBlocksRenders.push(
+      <VirtualBlock
+        key={label}
+        label={label}
+        openModal={openModal}
+        setModalName={setModalName}
+        checkedObject={virtualBlocks[label]?.id}
+        setCheckedObject={(value) => {
+          const newVirtualBlocks = { ...virtualBlocks };
+          newVirtualBlocks[label] = {};
+          setVirtualBlocks(newVirtualBlocks);
+        }}
+      />
+    );
+  }
+
   return (
     <div
       className={clsx(
@@ -55,24 +82,22 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
         !showVB && styles["show"]
       )}
     >
-      <div>block 1</div>
-      <div>block 2</div>
-      <div>block 3</div>
-      <div>block 4</div>
-      <div>block 5</div>
-      <div>block 6</div>
-      <div>block 7</div>
-      <div>block 8</div>
-      <div>block 9</div>
-      <div>block 10</div>
-      <div>block 11</div>
-      <div>block 12</div>
-      <div>block 12</div>
-      <div>block 12</div>
-      <div>block 12</div>
-      <div>block 12</div>
-      <div>block 12</div>
-      <div>block 12</div>
+      {/* {VIRTUAL_BLOCK_LABELS.map((label, idx) => (
+        <VirtualBlock
+          key={label}
+          label={label}
+          openModal={openModal}
+          setModalName={setModalName}
+          checkedObject={virtualBlocks[label]}
+          setCheckedObject={(value) => {
+            const newVirtualBlocks = { ...virtualBlocks };
+            newVirtualBlocks[label] = value;
+            setVirtualBlocks(newVirtualBlocks);
+          }}
+        />
+      ))} */}
+
+      {virtualBlocksRenders}
       <div
         className={styles.block}
         css={constructBoxColors(areasProperties[activePage])}

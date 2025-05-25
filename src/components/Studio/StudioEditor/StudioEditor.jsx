@@ -19,6 +19,8 @@ const StudioEditor = React.forwardRef((props, ref) => {
     onChangeHandler,
     pages,
     onImageLoad,
+    checkedObject,
+    setCheckedObject,
   } = props;
   const [showVB, setShowVB] = React.useState(false);
 
