@@ -1,0 +1,25 @@
+.virtual-block {
+  width: 100%;
+  padding: 0 2px;
+  border: 1px solid black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+
+  & .block {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    // padding: 0.25rem 0;
+
+    & .header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+}
