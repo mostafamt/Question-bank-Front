@@ -130,8 +130,9 @@ const Studio = (props) => {
   );
 
   const [checkedObjects, setCheckedObjects] = React.useState([]);
-  const [checkedObject, setCheckedObject] = React.useState([]);
-  const [virtualBlocks, setVirtualBlocks] = React.useState(VIRTUAL_BLOCKS);
+  const [virtualBlocks, setVirtualBlocks] = React.useState(
+    pages.map((_) => VIRTUAL_BLOCKS)
+  );
 
   const onImageLoad = () => {
     setAreas((prevState) => {
@@ -499,10 +500,13 @@ const Studio = (props) => {
         updateAreaPropertyById={updateAreaPropertyById}
         checkedObjects={checkedObjects}
         setCheckedObjects={setCheckedObjects}
-        checkedObject={checkedObject}
-        setCheckedObject={setCheckedObject}
-        virtualBlocks={virtualBlocks}
-        setVirtualBlocks={setVirtualBlocks}
+        virtualBlocks={virtualBlocks[activePage]}
+        setVirtualBlocks={(value) =>
+          setVirtualBlocks((prevState) => {
+            prevState[activePage] = value;
+            return [...prevState];
+          })
+        }
       />
       <LanguageSwitcher language={language} setLanguage={setLanguage} />
       <div className={styles.studio}>
@@ -525,10 +529,13 @@ const Studio = (props) => {
           onImageLoad={onImageLoad}
           openModal={openModal}
           setModalName={setModalName}
-          checkedObject={checkedObject}
-          setCheckedObject={setCheckedObject}
-          virtualBlocks={virtualBlocks}
-          setVirtualBlocks={setVirtualBlocks}
+          virtualBlocks={virtualBlocks[activePage]}
+          setVirtualBlocks={(value) =>
+            setVirtualBlocks((prevState) => {
+              prevState[activePage] = value;
+              return [...prevState];
+            })
+          }
         />
         <BookColumn
           COLUMNS={RIGHT_COLUMNS}
