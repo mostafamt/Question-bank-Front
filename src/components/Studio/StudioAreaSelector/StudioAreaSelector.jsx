@@ -56,7 +56,7 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
   for (const label in virtualBlocks) {
     virtualBlocksRenders.push(
       <VirtualBlock
-        key={label}
+        key={`${activePage} ${label}`}
         label={label}
         openModal={openModal}
         setModalName={setModalName}
