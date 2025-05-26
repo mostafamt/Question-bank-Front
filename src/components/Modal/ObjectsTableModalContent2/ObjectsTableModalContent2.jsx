@@ -15,7 +15,6 @@ const ObjectsTableModalContent2 = (props) => {
 
   const onSubmit = (event) => {
     event.preventDefault();
-    console.log("virtualBlocks= ", virtualBlocks);
     setVirtualBlocks({
       ...virtualBlocks,
       [state.virtual_block_key]: {

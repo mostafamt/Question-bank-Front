@@ -65,8 +65,6 @@ const VirtualBlock = (props) => {
     });
   };
 
-  console.log("checkedObject= ", checkedObject);
-
   return (
     <div className={styles["virtual-block"]}>
       {checkedObject?.id ? (
