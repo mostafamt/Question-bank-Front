@@ -3,10 +3,9 @@ import { AreaSelector } from "@bmunozg/react-image-area";
 import { constructBoxColors } from "../../../utils/ocr";
 import clsx from "clsx";
 /** @jsxImportSource @emotion/react */
+import VirtualBlock from "../../VirtualBlock/VirtualBlock";
 
 import styles from "./studioAreaSelector.module.scss";
-import VirtualBlock from "../../VirtualBlock/VirtualBlock";
-import { VIRTUAL_BLOCK_LABELS } from "../../../utils/virtual-blocks";
 
 const StudioAreaSelector = React.forwardRef((props, ref) => {
   const {
@@ -14,16 +13,12 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
     setAreasProperties,
     activePage,
     imageScaleFactor,
-    setImageScaleFactor,
     areas,
-    setAreas,
     onChangeHandler,
     pages,
     showVB,
     openModal,
     setModalName,
-    checkedObject,
-    setCheckedObject,
     virtualBlocks,
     setVirtualBlocks,
   } = props;
@@ -65,10 +60,10 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
         label={label}
         openModal={openModal}
         setModalName={setModalName}
-        checkedObject={virtualBlocks[label]?.id}
+        checkedObject={virtualBlocks[label]}
         setCheckedObject={(value) => {
           const newVirtualBlocks = { ...virtualBlocks };
-          newVirtualBlocks[label] = {};
+          newVirtualBlocks[label] = value;
           setVirtualBlocks(newVirtualBlocks);
         }}
       />
@@ -82,21 +77,6 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
         !showVB && styles["show"]
       )}
     >
-      {/* {VIRTUAL_BLOCK_LABELS.map((label, idx) => (
-        <VirtualBlock
-          key={label}
-          label={label}
-          openModal={openModal}
-          setModalName={setModalName}
-          checkedObject={virtualBlocks[label]}
-          setCheckedObject={(value) => {
-            const newVirtualBlocks = { ...virtualBlocks };
-            newVirtualBlocks[label] = value;
-            setVirtualBlocks(newVirtualBlocks);
-          }}
-        />
-      ))} */}
-
       {virtualBlocksRenders}
       <div
         className={styles.block}
@@ -107,7 +87,6 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
           onChange={onChangeHandler}
           wrapperStyle={{
             width: "100%",
-            // height: "100%",
             overflow: "scroll",
           }}
           customAreaRenderer={customRender}

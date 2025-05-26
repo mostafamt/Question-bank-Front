@@ -21,8 +21,6 @@ const StudioModals = (props) => {
     typeOfActiveType,
     checkedObjects,
     setCheckedObjects,
-    checkedObject,
-    setCheckedObject,
     virtualBlocks,
     setVirtualBlocks,
   } = props;
@@ -50,8 +48,6 @@ const StudioModals = (props) => {
   } else if (modalName === "virtual-blocks") {
     rendererModal = (
       <ObjectsTableModalContent2
-        checkedObject={checkedObject}
-        setCheckedObject={setCheckedObject}
         handleCloseModal={handleCloseModal}
         virtualBlocks={virtualBlocks}
         setVirtualBlocks={setVirtualBlocks}

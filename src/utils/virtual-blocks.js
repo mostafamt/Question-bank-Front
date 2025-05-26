@@ -13,22 +13,76 @@ export const VIRTUAL_BLOCK_MENU = [
 ];
 
 export const VIRTUAL_BLOCKS = {
-  TL: {},
-  TM: {},
-  TR: {},
-  L1: {},
-  L2: {},
-  L3: {},
-  L4: {},
-  L5: {},
-  L6: {},
-  R1: {},
-  R2: {},
-  R3: {},
-  R4: {},
-  R5: {},
-  R6: {},
-  BL: {},
-  BM: {},
-  BR: {},
+  TL: {
+    label: "",
+    id: "",
+  },
+  TM: {
+    label: "",
+    id: "",
+  },
+  TR: {
+    label: "",
+    id: "",
+  },
+  L1: {
+    label: "",
+    id: "",
+  },
+  L2: {
+    label: "",
+    id: "",
+  },
+  L3: {
+    label: "",
+    id: "",
+  },
+  L4: {
+    label: "",
+    id: "",
+  },
+  L5: {
+    label: "",
+    id: "",
+  },
+  L6: {
+    label: "",
+    id: "",
+  },
+  R1: {
+    label: "",
+    id: "",
+  },
+  R2: {
+    label: "",
+    id: "",
+  },
+  R3: {
+    label: "",
+    id: "",
+  },
+  R4: {
+    label: "",
+    id: "",
+  },
+  R5: {
+    label: "",
+    id: "",
+  },
+  R6: {
+    label: "",
+    id: "",
+  },
+  BL: {
+    label: "",
+    id: "",
+  },
+  BM: {
+    label: "",
+    id: "",
+  },
+  BR: {
+    label: "",
+    id: "",
+  },
 };

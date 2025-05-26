@@ -38,30 +38,41 @@ const VirtualBlock = (props) => {
   }, []);
 
   React.useEffect(() => {
-    getData(checkedObject);
-  }, [checkedObject, getData]);
+    getData(checkedObject?.id);
+  }, [checkedObject?.id, getData]);
 
   const onChange = (e) => {
-    setValue(e.target.value);
+    const header = e.target.value;
+    setValue(header);
     setModalName("virtual-blocks");
     openModal();
     setFormState({
       ...state,
-      virtual_block_label: label,
+      virtual_block_label: header,
+      virtual_block_key: label,
+    });
+    setCheckedObject({
+      label: header,
+      id: checkedObject?.id,
     });
   };
 
   const onClickCloseButton = () => {
     setValue("");
-    setCheckedObject("");
+    setCheckedObject({
+      label: "",
+      id: "",
+    });
   };
+
+  console.log("checkedObject= ", checkedObject);
 
   return (
     <div className={styles["virtual-block"]}>
-      {checkedObject ? (
+      {checkedObject?.id ? (
         <div className={styles.block}>
           <div className={styles.header}>
-            <span>{value}</span>
+            <span>{checkedObject?.label}</span>
             <IconButton
               color="inherit"
               aria-label="close"

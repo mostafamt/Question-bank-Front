@@ -1,28 +1,26 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
-import QuestionsTable from "../../Tables/QuestionsTable/QuestionsTable";
 import { Box, Button } from "@mui/material";
 import RadioQuestionsTable from "../../Tables/RadioQuestionsTable/RadioQuestionsTable";
 import { useStore } from "../../../store/store";
 
 const ObjectsTableModalContent2 = (props) => {
-  const {
-    checkedObject,
-    setCheckedObject,
-    handleCloseModal,
-    virtualBlocks,
-    setVirtualBlocks,
-  } = props;
-  const [object, setObject] = React.useState(checkedObject);
+  const { handleCloseModal, virtualBlocks, setVirtualBlocks } = props;
 
-  const { data: state, setFormState } = useStore();
+  const { data: state } = useStore();
+
+  const [object, setObject] = React.useState(
+    virtualBlocks[state.virtual_block_label]
+  );
 
   const onSubmit = (event) => {
     event.preventDefault();
-    setCheckedObject(object);
+    console.log("virtualBlocks= ", virtualBlocks);
     setVirtualBlocks({
       ...virtualBlocks,
-      [state.virtual_block_label]: {
+      [state.virtual_block_key]: {
+        ...virtualBlocks[state.virtual_block_key],
+        label: virtualBlocks[state.virtual_block_key]?.label,
         id: object,
       },
     });
@@ -36,10 +34,7 @@ const ObjectsTableModalContent2 = (props) => {
       </BootstrapModal.Header>
       <BootstrapModal.Body>
         <form onSubmit={onSubmit}>
-          <RadioQuestionsTable
-            checkedObject={object}
-            setCheckedObject={setObject}
-          />
+          <RadioQuestionsTable object={object} setObject={setObject} />
           <Box
             sx={{ margin: "2rem 0", display: "flex", justifyContent: "center" }}
           >

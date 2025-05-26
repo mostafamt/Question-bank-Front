@@ -1,21 +1,18 @@
 import * as React from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { Link, useNavigate } from "react-router-dom";
-import { Button, Checkbox, Radio } from "@mui/material";
-import { RadioButtonCheckedRounded, Delete } from "@mui/icons-material";
+import { Link } from "react-router-dom";
+import { Radio } from "@mui/material";
+import { RadioButtonCheckedRounded } from "@mui/icons-material";
 import { fetchObjects } from "../../../services/api";
-import CategoryIcon from "@mui/icons-material/Category";
 
 import styles from "./radioQuestionsTable.module.scss";
 
 const RadioQuestionsTable = (props) => {
-  const { checkedObject, setCheckedObject } = props;
+  const { object, setObject } = props;
 
-  const navigate = useNavigate();
   const [rows, setRows] = React.useState([]);
   const [total, setTotal] = React.useState(0);
   const [loading, setLoading] = React.useState(false);
-  const [selectedRowId, setSelectedRowId] = React.useState(checkedObject);
   const [paginationModel, setPaginationModel] = React.useState({
     page: 1,
     pageSize: 5,
@@ -33,32 +30,6 @@ const RadioQuestionsTable = (props) => {
     return color;
   };
 
-  // <Radio
-  //         checked={params.id == selectedRowId}
-  //         value={params.id}
-  //         onChange={(e) => {
-  //           console.log(e.target.value);
-  //           setSelectedRowId(e.target.value);
-  //         }}
-  //       />
-
-  //   const handleChange = (params) => {
-  //     console.log("params= ", params.row);
-  //     const found = checkedObjects.some((item) => item.id === params.id);
-  //     if (found) {
-  //       setCheckedObjects((prevState) =>
-  //         prevState.filter((item) => item.id !== params.id)
-  //       );
-  //     } else {
-  //       setCheckedObjects((prevState) => [...prevState, params.row]);
-  //     }
-  //   };
-
-  const isChecked = (params) => {
-    return false;
-    // return checkedObjects.some((item) => item.id === params.id);
-  };
-
   const columns = [
     {
       field: "col0",
@@ -66,13 +37,10 @@ const RadioQuestionsTable = (props) => {
       width: 70,
       renderCell: (params) => (
         <Radio
-          checked={params.id == selectedRowId}
+          checked={params.id === object}
           value={params.id}
           onChange={(e) => {
-            console.log(e.target.value);
-            setSelectedRowId(e.target.value);
-            setCheckedObject(e.target.value);
-            // setCheckedObject
+            setObject(e.target.value);
           }}
         />
       ),
