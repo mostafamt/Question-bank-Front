@@ -8,16 +8,12 @@
   overflow: hidden;
   position: relative;
 
-  $block-size: 50px;
+  $block-size: 6rem;
   height: 95%;
   // border: 5px dashed black;
   display: grid;
   grid-template-columns: $block-size auto $block-size;
   grid-template-rows: $block-size repeat(6, 1fr) $block-size;
-
-  & > div {
-    text-align: center;
-  }
 
   & .block {
     grid-column: 2 / 3;

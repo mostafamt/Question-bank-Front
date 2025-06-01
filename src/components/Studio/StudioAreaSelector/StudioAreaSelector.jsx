@@ -3,6 +3,7 @@ import { AreaSelector } from "@bmunozg/react-image-area";
 import { constructBoxColors } from "../../../utils/ocr";
 import clsx from "clsx";
 /** @jsxImportSource @emotion/react */
+import VirtualBlock from "../../VirtualBlock/VirtualBlock";
 
 import styles from "./studioAreaSelector.module.scss";
 
@@ -12,12 +13,14 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
     setAreasProperties,
     activePage,
     imageScaleFactor,
-    setImageScaleFactor,
     areas,
-    setAreas,
     onChangeHandler,
     pages,
     showVB,
+    openModal,
+    setModalName,
+    virtualBlocks,
+    setVirtualBlocks,
   } = props;
 
   const onClickExistedArea = (areaProps) => {
@@ -48,6 +51,25 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
     props.onImageLoad();
   };
 
+  const virtualBlocksRenders = [];
+
+  for (const label in virtualBlocks) {
+    virtualBlocksRenders.push(
+      <VirtualBlock
+        key={`${activePage} ${label}`}
+        label={label}
+        openModal={openModal}
+        setModalName={setModalName}
+        checkedObject={virtualBlocks[label]}
+        setCheckedObject={(value) => {
+          const newVirtualBlocks = { ...virtualBlocks };
+          newVirtualBlocks[label] = value;
+          setVirtualBlocks(newVirtualBlocks);
+        }}
+      />
+    );
+  }
+
   return (
     <div
       className={clsx(
@@ -55,24 +77,7 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
         !showVB && styles["show"]
       )}
     >
-      <div>block 1</div>
-      <div>block 2</div>
-      <div>block 3</div>
-      <div>block 4</div>
-      <div>block 5</div>
-      <div>block 6</div>
-      <div>block 7</div>
-      <div>block 8</div>
-      <div>block 9</div>
-      <div>block 10</div>
-      <div>block 11</div>
-      <div>block 12</div>
-      <div>block 12</div>
-      <div>block 12</div>
-      <div>block 12</div>
-      <div>block 12</div>
-      <div>block 12</div>
-      <div>block 12</div>
+      {virtualBlocksRenders}
       <div
         className={styles.block}
         css={constructBoxColors(areasProperties[activePage])}
@@ -82,7 +87,6 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
           onChange={onChangeHandler}
           wrapperStyle={{
             width: "100%",
-            // height: "100%",
             overflow: "scroll",
           }}
           customAreaRenderer={customRender}
