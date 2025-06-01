@@ -92,8 +92,18 @@ const ScanAndUpload = () => {
         })
     );
 
+    const v_blocks = [
+      {
+        blockId: "6823650ba",
+        contentType: "Exercise",
+        contentValue: "6825c095e823c3000a2fb6da",
+        iconLocation: "TL",
+      },
+    ];
+
     const data = {
       blocks,
+      v_blocks: v_blocks,
     };
 
     const id = await saveBlocks(data);

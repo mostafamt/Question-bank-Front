@@ -9,7 +9,7 @@ const MuiSelect = (props) => {
   const { value, onChange, list } = props;
 
   return (
-    <Box sx={{ minWidth: 120 }}>
+    <Box>
       <FormControl variant="standard" fullWidth>
         {/* <InputLabel id="demo-simple-select-label">Label</InputLabel> */}
         <Select

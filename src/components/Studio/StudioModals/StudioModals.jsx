@@ -5,6 +5,7 @@ import QuillModal from "../../Modal/QuillModal/QuillModal";
 import AutoUiModal from "../../Modal/AutoUiModal/AutoUiModal";
 import PlayObjectModal from "../../Modal/PlayObjectModal/PlayObjectModal";
 import ObjectsTableModalContent from "../../Modal/ObjectsTableModalContent/ObjectsTableModalContent";
+import ObjectsTableModalContent2 from "../../Modal/ObjectsTableModalContent2/ObjectsTableModalContent2";
 
 const StudioModals = (props) => {
   const {
@@ -20,6 +21,8 @@ const StudioModals = (props) => {
     typeOfActiveType,
     checkedObjects,
     setCheckedObjects,
+    virtualBlocks,
+    setVirtualBlocks,
   } = props;
 
   let rendererModal = <></>;
@@ -40,6 +43,14 @@ const StudioModals = (props) => {
         checkedObjects={checkedObjects}
         setCheckedObjects={setCheckedObjects}
         handleCloseModal={handleCloseModal}
+      />
+    );
+  } else if (modalName === "virtual-blocks") {
+    rendererModal = (
+      <ObjectsTableModalContent2
+        handleCloseModal={handleCloseModal}
+        virtualBlocks={virtualBlocks}
+        setVirtualBlocks={setVirtualBlocks}
       />
     );
   } else {

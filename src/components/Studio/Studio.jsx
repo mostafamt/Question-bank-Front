@@ -38,6 +38,7 @@ import {
   tableOfContentsData,
 } from "../../utils/tabs";
 import List from "../Tabs/List/List";
+import { VIRTUAL_BLOCKS } from "../../utils/virtual-blocks";
 
 const Studio = (props) => {
   const {
@@ -129,6 +130,9 @@ const Studio = (props) => {
   );
 
   const [checkedObjects, setCheckedObjects] = React.useState([]);
+  const [virtualBlocks, setVirtualBlocks] = React.useState(
+    pages.map((_) => VIRTUAL_BLOCKS)
+  );
 
   const onImageLoad = () => {
     setAreas((prevState) => {
@@ -496,6 +500,13 @@ const Studio = (props) => {
         updateAreaPropertyById={updateAreaPropertyById}
         checkedObjects={checkedObjects}
         setCheckedObjects={setCheckedObjects}
+        virtualBlocks={virtualBlocks[activePage]}
+        setVirtualBlocks={(value) =>
+          setVirtualBlocks((prevState) => {
+            prevState[activePage] = value;
+            return [...prevState];
+          })
+        }
       />
       <LanguageSwitcher language={language} setLanguage={setLanguage} />
       <div className={styles.studio}>
@@ -516,6 +527,15 @@ const Studio = (props) => {
           pages={pages}
           ref={imageRef}
           onImageLoad={onImageLoad}
+          openModal={openModal}
+          setModalName={setModalName}
+          virtualBlocks={virtualBlocks[activePage]}
+          setVirtualBlocks={(value) =>
+            setVirtualBlocks((prevState) => {
+              prevState[activePage] = value;
+              return [...prevState];
+            })
+          }
         />
         <BookColumn
           COLUMNS={RIGHT_COLUMNS}
