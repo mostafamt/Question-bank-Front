@@ -31,7 +31,8 @@ const ScanAndUpload = () => {
     refetchOnWindowFocus: false,
   });
 
-  const handleSubmit = async (pageId, areas) => {
+  const handleSubmit = async (pageId, areas, virtualBlocks) => {
+    console.log("virtualBlocks= ", virtualBlocks);
     const blocks = await Promise.all(
       [...areas]
         .sort((a, b) => a.order - b.order)
@@ -92,18 +93,23 @@ const ScanAndUpload = () => {
         })
     );
 
-    const v_blocks = [
-      {
-        blockId: "6823650ba",
-        contentType: "Exercise",
-        contentValue: "6825c095e823c3000a2fb6da",
-        iconLocation: "TL",
-      },
-    ];
+    const v_blocks = [];
+    for (const key in virtualBlocks) {
+      const { label, id } = virtualBlocks[key];
+      if (id) {
+        v_blocks.push({
+          pageId,
+          status: CREATED,
+          iconLocation: key,
+          contentType: label,
+          contentValue: id,
+        });
+      }
+    }
 
     const data = {
       blocks,
-      v_blocks: v_blocks,
+      v_blocks,
     };
 
     const id = await saveBlocks(data);
