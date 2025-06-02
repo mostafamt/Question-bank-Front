@@ -92,14 +92,14 @@ const ScanAndUpload = () => {
           }
         })
     );
-
+    
     const v_blocks = [];
     for (const key in virtualBlocks) {
-      const { label, id } = virtualBlocks[key];
+      const { label, id, status } = virtualBlocks[key];
       if (id) {
         v_blocks.push({
           pageId,
-          status: CREATED,
+          status,
           iconLocation: key,
           contentType: label,
           contentValue: id,

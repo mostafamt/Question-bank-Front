@@ -1,6 +1,10 @@
 import React from "react";
 import MuiSelect from "../MuiSelect/MuiSelect";
-import { VIRTUAL_BLOCK_MENU } from "../../utils/virtual-blocks";
+import {
+  CREATED,
+  DELETED,
+  VIRTUAL_BLOCK_MENU,
+} from "../../utils/virtual-blocks";
 import IconButton from "@mui/material/IconButton";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import CloseIcon from "@mui/icons-material/Close";
@@ -11,8 +15,14 @@ import { useStore } from "../../store/store";
 import styles from "./virtualBlock.module.scss";
 
 const VirtualBlock = (props) => {
-  const { openModal, setModalName, checkedObject, setCheckedObject, label } =
-    props;
+  const {
+    openModal,
+    setModalName,
+    checkedObject,
+    setCheckedObject,
+    label,
+    showVB,
+  } = props;
 
   const [value, setValue] = React.useState("");
 
@@ -38,8 +48,10 @@ const VirtualBlock = (props) => {
   }, []);
 
   React.useEffect(() => {
-    getData(checkedObject?.id);
-  }, [checkedObject?.id, getData]);
+    if (showVB) {
+      getData(checkedObject?.id);
+    }
+  }, [checkedObject?.id, getData, showVB]);
 
   const onChange = (e) => {
     const header = e.target.value;
@@ -54,20 +66,31 @@ const VirtualBlock = (props) => {
     setCheckedObject({
       label: header,
       id: checkedObject?.id,
+      status: CREATED,
     });
   };
 
   const onClickCloseButton = () => {
     setValue("");
     setCheckedObject({
-      label: "",
-      id: "",
+      ...checkedObject,
+      status: DELETED,
     });
+  };
+
+  const onClickPlayButton = () => {
+    console.log("onClickPlayButton");
+    setModalName("play-object-2");
+    setFormState({
+      ...state,
+      activeId: checkedObject?.id,
+    });
+    openModal();
   };
 
   return (
     <div className={styles["virtual-block"]}>
-      {checkedObject?.id ? (
+      {checkedObject?.status && checkedObject?.status !== DELETED ? (
         <div className={styles.block}>
           <div className={styles.header}>
             <span>{checkedObject?.label}</span>
@@ -81,7 +104,11 @@ const VirtualBlock = (props) => {
             </IconButton>
           </div>
           <div>
-            <IconButton color="primary" aria-label="play">
+            <IconButton
+              color="primary"
+              aria-label="play"
+              onClick={onClickPlayButton}
+            >
               <PlayArrowIcon />
             </IconButton>
           </div>

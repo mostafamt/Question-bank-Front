@@ -38,7 +38,7 @@ import {
   tableOfContentsData,
 } from "../../utils/tabs";
 import List from "../Tabs/List/List";
-import { VIRTUAL_BLOCKS } from "../../utils/virtual-blocks";
+import { parseVirtualBlocksFromPages } from "../../utils/virtual-blocks";
 
 const Studio = (props) => {
   const {
@@ -54,14 +54,16 @@ const Studio = (props) => {
     loadingAutoGenerate,
     refetch,
   } = props;
-  // console.log("localStorage.getItem('page')= ", localStorage.getItem("page"));
-  const [activePage, setActivePage] = React.useState(
+
+  const [activePageIndex, setActivePageIndex] = React.useState(
     subObject
       ? 0
       : localStorage.getItem("_page")
       ? Number.parseInt(localStorage.getItem("_page"))
       : 0
   );
+  const activePageId = pages?.[activePageIndex]?._id;
+
   const imageRef = React.useRef(null);
 
   const [areas, setAreas] = React.useState(
@@ -121,7 +123,7 @@ const Studio = (props) => {
   const [activeType, setActiveType] = React.useState("");
   const [typeOfActiveType, setTypeOfActiveType] = React.useState("");
   const [activeImage, setActiveImage] = React.useState("");
-  const [pageId, setPageId] = React.useState(pages?.[0]?._id);
+
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
   const [modalName, setModalName] = React.useState("");
   const [workingArea, setWorkingArea] = React.useState();
@@ -131,17 +133,7 @@ const Studio = (props) => {
 
   const [checkedObjects, setCheckedObjects] = React.useState([]);
   const [virtualBlocks, setVirtualBlocks] = React.useState(
-    pages.map((page) => {
-      const vBlocks = VIRTUAL_BLOCKS;
-      page.v_blocks.forEach((v_block) => {
-        const iconLocation = v_block.iconLocation;
-        vBlocks[iconLocation] = {
-          id: v_block.contentValue,
-          label: v_block.contentType,
-        };
-      });
-      return vBlocks;
-    })
+    parseVirtualBlocksFromPages(pages)
   );
 
   const onImageLoad = () => {
@@ -181,15 +173,14 @@ const Studio = (props) => {
   };
 
   const onClickImage = (idx) => {
-    setActivePage(idx);
-    setPageId(pages?.[idx]?._id);
+    setActivePageIndex(idx);
     localStorage.setItem("_page", `${idx}`);
   };
 
   const syncAreasProperties = () => {
     const newAreasProperties = updateAreasProperties(
       areasProperties,
-      activePage,
+      activePageIndex,
       areas,
       subObject,
       type
@@ -198,26 +189,26 @@ const Studio = (props) => {
   };
 
   const onChangeHandler = (areasParam) => {
-    if (areasParam.length > areasProperties[activePage].length) {
+    if (areasParam.length > areasProperties[activePageIndex].length) {
       syncAreasProperties();
     }
 
     const newAreasParam = [...areas];
-    newAreasParam[activePage] = areasParam;
+    newAreasParam[activePageIndex] = areasParam;
     setAreas(newAreasParam);
   };
 
   const onClickDeleteArea = (idx) => {
-    const { isServer } = areasProperties[activePage][idx];
+    const { isServer } = areasProperties[activePageIndex][idx];
     if (isServer) {
       updateAreaProperty(idx, { status: DELETED });
     } else {
-      const newAreas = deleteAreaByIndex(areas, activePage, idx);
+      const newAreas = deleteAreaByIndex(areas, activePageIndex, idx);
       setAreas(newAreas);
 
       const newAreasProperties = deleteAreaByIndex(
         areasProperties,
-        activePage,
+        activePageIndex,
         idx
       );
       setAreasProperties(newAreasProperties);
@@ -229,12 +220,14 @@ const Studio = (props) => {
 
   const onChangeLabel = async (id, label) => {
     syncAreasProperties();
-    const idx = areasProperties[activePage].findIndex((area) => area.id === id);
+    const idx = areasProperties[activePageIndex].findIndex(
+      (area) => area.id === id
+    );
     let area = {
-      color: colors[colorIndex[activePage] % colors.length],
+      color: colors[colorIndex[activePageIndex] % colors.length],
     };
     setColorIndex((prevState) => {
-      prevState[activePage]++;
+      prevState[activePageIndex]++;
       return prevState;
     });
     let typeOfLabel = "";
@@ -243,7 +236,7 @@ const Studio = (props) => {
     } else {
       typeOfLabel = getTypeOfLabel(
         types,
-        areasProperties[activePage][idx].type,
+        areasProperties[activePageIndex][idx].type,
         label
       );
     }
@@ -251,7 +244,7 @@ const Studio = (props) => {
       canvasRef,
       imageRef,
       areasProperties,
-      activePage,
+      activePageIndex,
       areas,
       id
     );
@@ -266,10 +259,10 @@ const Studio = (props) => {
     } else if (typeOfLabel === "Coordinate") {
       const { naturalHeight, naturalWidth } = imageRef.current;
       const x = Number.parseInt(
-        (areas[activePage][idx].x * naturalWidth) / 100
+        (areas[activePageIndex][idx].x * naturalWidth) / 100
       );
       const y = Number.parseInt(
-        (areas[activePage][idx].y * naturalHeight) / 100
+        (areas[activePageIndex][idx].y * naturalHeight) / 100
       );
       const text = `x= ${x}; y=${y};`;
       updateAreaProperty(idx, {
@@ -293,15 +286,15 @@ const Studio = (props) => {
   const onClickSubmit = async () => {
     setLoadingSubmit(true);
     if (subObject) {
-      const id = await handleSubmit(areasProperties[activePage]);
+      const id = await handleSubmit(areasProperties[activePageIndex]);
       props.updateAreaProperty(-1, { text: id });
       id && toast.success("Sub-Object created successfully!");
       handleClose();
     } else {
       const id = await handleSubmit(
-        pageId,
-        areasProperties[activePage],
-        virtualBlocks[activePage]
+        activePageId,
+        areasProperties[activePageIndex],
+        virtualBlocks[activePageIndex]
       );
       id && toast.success("Object created successfully!");
       refetch();
@@ -314,14 +307,14 @@ const Studio = (props) => {
     setAreasProperties((prevState) => {
       let newTrialAreas = [...prevState];
       if (idx === -1) {
-        const lastIndex = idx + areasProperties[activePage].length;
-        newTrialAreas[activePage][lastIndex] = {
-          ...newTrialAreas[activePage][lastIndex],
+        const lastIndex = idx + areasProperties[activePageIndex].length;
+        newTrialAreas[activePageIndex][lastIndex] = {
+          ...newTrialAreas[activePageIndex][lastIndex],
           ...property,
         };
       } else {
-        newTrialAreas[activePage][idx] = {
-          ...newTrialAreas[activePage][idx],
+        newTrialAreas[activePageIndex][idx] = {
+          ...newTrialAreas[activePageIndex][idx],
           ...property,
         };
       }
@@ -331,24 +324,24 @@ const Studio = (props) => {
 
   const updateAreaPropertyById = (id, property) => {
     const newAreasProperties = [...areasProperties];
-    newAreasProperties[activePage] = newAreasProperties[activePage].map(
-      (area) => {
-        if (area.id === id) {
-          return {
-            ...area,
-            ...property,
-          };
-        }
-        return area;
+    newAreasProperties[activePageIndex] = newAreasProperties[
+      activePageIndex
+    ].map((area) => {
+      if (area.id === id) {
+        return {
+          ...area,
+          ...property,
+        };
       }
-    );
+      return area;
+    });
     setAreasProperties(newAreasProperties);
   };
 
   const onEditText = (id, text) => {
     const newAreasProperties = onEditTextField(
       areasProperties,
-      activePage,
+      activePageIndex,
       id,
       text
     );
@@ -367,7 +360,7 @@ const Studio = (props) => {
       component: (
         <StudioThumbnails
           pages={pages}
-          activePage={activePage}
+          activePage={activePageIndex}
           onClickImage={onClickImage}
         />
       ),
@@ -447,7 +440,7 @@ const Studio = (props) => {
         <StudioActions
           areasProperties={areasProperties}
           setAreasProperties={setAreasProperties}
-          activePage={activePage}
+          activePage={activePageIndex}
           onEditText={onEditText}
           onClickDeleteArea={onClickDeleteArea}
           type={type}
@@ -514,10 +507,10 @@ const Studio = (props) => {
         updateAreaPropertyById={updateAreaPropertyById}
         checkedObjects={checkedObjects}
         setCheckedObjects={setCheckedObjects}
-        virtualBlocks={virtualBlocks[activePage]}
+        virtualBlocks={virtualBlocks[activePageIndex]}
         setVirtualBlocks={(value) =>
           setVirtualBlocks((prevState) => {
-            prevState[activePage] = value;
+            prevState[activePageIndex] = value;
             return [...prevState];
           })
         }
@@ -532,7 +525,7 @@ const Studio = (props) => {
         <StudioEditor
           areasProperties={areasProperties}
           setAreasProperties={setAreasProperties}
-          activePage={activePage}
+          activePage={activePageIndex}
           imageScaleFactor={imageScaleFactor}
           setImageScaleFactor={setImageScaleFactor}
           areas={areas}
@@ -543,10 +536,10 @@ const Studio = (props) => {
           onImageLoad={onImageLoad}
           openModal={openModal}
           setModalName={setModalName}
-          virtualBlocks={virtualBlocks[activePage]}
+          virtualBlocks={virtualBlocks[activePageIndex]}
           setVirtualBlocks={(value) =>
             setVirtualBlocks((prevState) => {
-              prevState[activePage] = value;
+              prevState[activePageIndex] = value;
               return [...prevState];
             })
           }
