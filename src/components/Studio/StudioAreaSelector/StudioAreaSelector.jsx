@@ -66,6 +66,7 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
           newVirtualBlocks[label] = value;
           setVirtualBlocks(newVirtualBlocks);
         }}
+        showVB={showVB}
       />
     );
   }
