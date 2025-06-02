@@ -131,7 +131,17 @@ const Studio = (props) => {
 
   const [checkedObjects, setCheckedObjects] = React.useState([]);
   const [virtualBlocks, setVirtualBlocks] = React.useState(
-    pages.map((_) => VIRTUAL_BLOCKS)
+    pages.map((page) => {
+      const vBlocks = VIRTUAL_BLOCKS;
+      page.v_blocks.forEach((v_block) => {
+        const iconLocation = v_block.iconLocation;
+        vBlocks[iconLocation] = {
+          id: v_block.contentValue,
+          label: v_block.contentType,
+        };
+      });
+      return vBlocks;
+    })
   );
 
   const onImageLoad = () => {
@@ -288,7 +298,11 @@ const Studio = (props) => {
       id && toast.success("Sub-Object created successfully!");
       handleClose();
     } else {
-      const id = await handleSubmit(pageId, areasProperties[activePage]);
+      const id = await handleSubmit(
+        pageId,
+        areasProperties[activePage],
+        virtualBlocks[activePage]
+      );
       id && toast.success("Object created successfully!");
       refetch();
     }
