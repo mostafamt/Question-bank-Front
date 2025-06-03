@@ -8,6 +8,7 @@ import {
 import IconButton from "@mui/material/IconButton";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import CloseIcon from "@mui/icons-material/Close";
+import { DeleteForever } from "@mui/icons-material";
 import axios from "../../axios";
 import { toast } from "react-toastify";
 import { useStore } from "../../store/store";
@@ -88,6 +89,12 @@ const VirtualBlock = (props) => {
     openModal();
   };
 
+  const selectedItem = VIRTUAL_BLOCK_MENU.find(
+    (item) => item.label === checkedObject?.label
+  );
+
+  console.log("selectedItem= ", selectedItem);
+
   return (
     <div className={styles["virtual-block"]}>
       {checkedObject?.status && checkedObject?.status !== DELETED ? (
@@ -100,7 +107,7 @@ const VirtualBlock = (props) => {
               size="small"
               onClick={onClickCloseButton}
             >
-              <CloseIcon sx={{ fontSize: 12 }} />
+              <DeleteForever color="error" sx={{ fontSize: 16 }} />
             </IconButton>
           </div>
           <div>
@@ -108,18 +115,21 @@ const VirtualBlock = (props) => {
               color="primary"
               aria-label="play"
               onClick={onClickPlayButton}
+              sx={{ padding: 0 }}
             >
-              <PlayArrowIcon />
+              <img src={selectedItem?.iconSrc} alt="compass" width="50px" />
             </IconButton>
           </div>
-          <p>{name}</p>
+          {/* <div>{name}</div> */}
         </div>
       ) : (
-        <MuiSelect
-          list={VIRTUAL_BLOCK_MENU}
-          value={value}
-          onChange={onChange}
-        />
+        <div className={styles["select"]}>
+          <MuiSelect
+            list={VIRTUAL_BLOCK_MENU.map((item) => item.label)}
+            value={value}
+            onChange={onChange}
+          />
+        </div>
       )}
     </div>
   );
