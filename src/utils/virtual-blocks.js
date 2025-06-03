@@ -1,17 +1,54 @@
-export const NUM_OF_VIRUTAL_BLOCKS = 18;
+import { v4 as uuidv4 } from "uuid";
 
 export const VIRTUAL_BLOCK_MENU = [
-  "Overview 🧭",
-  "Notes 📝",
-  "Recall 🧠",
-  "Example 🔍",
-  "Check Yourself ✅",
-  "Quizz ❓",
-  "Activity 🏃‍♂️",
-  "Enriching Content 🌟",
-  "Summary 📋",
+  {
+    id: uuidv4(),
+    label: "Overview 🧭",
+    iconSrc: "/assets/compass.svg",
+  },
+  {
+    id: uuidv4(),
+    label: "Notes 📝",
+    iconSrc: "/assets/memo.svg",
+  },
+  {
+    id: uuidv4(),
+    label: "Recall 🧠",
+    iconSrc: "/assets/brain.svg",
+  },
+  {
+    id: uuidv4(),
+    label: "Example 🔍",
+    iconSrc: "/assets/magnifying-glass.svg",
+  },
+  {
+    id: uuidv4(),
+    label: "Check Yourself ✅",
+    iconSrc: "/assets/check-mark-button.svg",
+  },
+  {
+    id: uuidv4(),
+    label: "Quizz ❓",
+    iconSrc: "/assets/red-question-mark.svg",
+  },
+  {
+    id: uuidv4(),
+    label: "Activity 🏃‍♂️",
+    iconSrc: "/assets/man-running.svg",
+  },
+  {
+    id: uuidv4(),
+    label: "Enriching Content 🌟",
+    iconSrc: "/assets/glowing-star.svg",
+  },
+  {
+    id: uuidv4(),
+    label: "Summary 📋",
+    iconSrc: "/assets/clipboard.svg",
+  },
 ];
 
+export const NUM_OF_VIRUTAL_BLOCKS = 18;
 export const SERVER = "updated";
 export const CREATED = "new";
 export const DELETED = "deleted";
