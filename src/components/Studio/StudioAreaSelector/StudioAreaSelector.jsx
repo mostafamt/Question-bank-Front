@@ -3,9 +3,9 @@ import { AreaSelector } from "@bmunozg/react-image-area";
 import { constructBoxColors } from "../../../utils/ocr";
 import clsx from "clsx";
 /** @jsxImportSource @emotion/react */
-import VirtualBlock from "../../VirtualBlock/VirtualBlock";
 
 import styles from "./studioAreaSelector.module.scss";
+import VirtualBlocks from "../../VirtualBlocks/VirtualBlocks";
 
 const StudioAreaSelector = React.forwardRef((props, ref) => {
   const {
@@ -51,34 +51,19 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
     props.onImageLoad();
   };
 
-  const virtualBlocksRenders = [];
-
-  for (const label in virtualBlocks) {
-    virtualBlocksRenders.push(
-      <VirtualBlock
-        key={`${activePage} ${label}`}
-        label={label}
-        openModal={openModal}
-        setModalName={setModalName}
-        checkedObject={virtualBlocks[label]}
-        setCheckedObject={(value) => {
-          const newVirtualBlocks = { ...virtualBlocks };
-          newVirtualBlocks[label] = value;
-          setVirtualBlocks(newVirtualBlocks);
-        }}
-        showVB={showVB}
-      />
-    );
-  }
-
   return (
-    <div
+    <VirtualBlocks
       className={clsx(
         styles["studio-area-selector"],
         !showVB && styles["show"]
       )}
+      showVB={showVB}
+      virtualBlocks={virtualBlocks}
+      setVirtualBlocks={setVirtualBlocks}
+      activePage={activePage}
+      openModal={openModal}
+      setModalName={setModalName}
     >
-      {virtualBlocksRenders}
       <div
         className={styles.block}
         css={constructBoxColors(areasProperties[activePage])}
@@ -112,7 +97,7 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
           />
         </AreaSelector>
       </div>
-    </div>
+    </VirtualBlocks>
   );
 });
 

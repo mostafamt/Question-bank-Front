@@ -1,17 +1,17 @@
 import React from "react";
-import MuiSelect from "../MuiSelect/MuiSelect";
+import MuiSelect from "../../MuiSelect/MuiSelect";
 import {
   CREATED,
   DELETED,
   VIRTUAL_BLOCK_MENU,
-} from "../../utils/virtual-blocks";
+} from "../../../utils/virtual-blocks";
 import IconButton from "@mui/material/IconButton";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import CloseIcon from "@mui/icons-material/Close";
 import { DeleteForever } from "@mui/icons-material";
-import axios from "../../axios";
+import axios from "../../../axios";
 import { toast } from "react-toastify";
-import { useStore } from "../../store/store";
+import { useStore } from "../../../store/store";
 
 import styles from "./virtualBlock.module.scss";
 
