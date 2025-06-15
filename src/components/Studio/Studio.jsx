@@ -133,7 +133,7 @@ const Studio = (props) => {
 
   const [checkedObjects, setCheckedObjects] = React.useState([]);
   const [virtualBlocks, setVirtualBlocks] = React.useState(
-    parseVirtualBlocksFromPages(pages)
+    subObject ? [] : parseVirtualBlocksFromPages(pages)
   );
 
   const onImageLoad = () => {
