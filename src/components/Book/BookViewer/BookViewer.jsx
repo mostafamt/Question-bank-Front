@@ -3,15 +3,19 @@ import { PAGES } from "../../../utils/book";
 import BookViewerTopBar from "../BookViewerTopBar/BookViewerTopBar";
 
 import styles from "./bookViewer.module.scss";
+import { parseVirtualBlocksFromActivePage } from "../../../utils/virtual-blocks";
+import VirtualBlock from "../../VirtualBlocks/VirtualBlock/VirtualBlock";
 
 const BookViewer = (props) => {
-  const { activePage, onChangePage, onClickArea, newPages } = props;
+  const { activePage, onChangePage, onClickArea, newPages: pages } = props;
   const [width, setWidth] = React.useState(null);
   const [showVB, setShowVB] = React.useState(false);
 
-  // const page = PAGES.find((item) => item.id === activePage.id);
   const areas = activePage?.blocks;
-  // const [areas, setAreas] = React.useState(activePage?.blocks);
+
+  let virtualBlocks = parseVirtualBlocksFromActivePage(activePage);
+
+  console.log("virtualBlocks= ", virtualBlocks);
 
   React.useEffect(() => {
     console.log("change width");
@@ -37,23 +41,35 @@ const BookViewer = (props) => {
     }
   };
 
-  const virtualBlocks = Array(18).fill(null);
+  // const virtualBlocks = Array(18).fill(null);
+
+  const virtualBlocksRenders = [];
+
+  for (const label in virtualBlocks) {
+    virtualBlocksRenders.push(
+      <VirtualBlock
+        key={`${label}`}
+        label={label}
+        // openModal={openModal}
+        // setModalName={setModalName}
+        checkedObject={virtualBlocks[label]}
+        showVB={showVB}
+        reader
+      />
+    );
+  }
 
   return (
     <div className={styles["book-viewer"]}>
       <BookViewerTopBar
         activePage={activePage}
         onChangePage={onChangePage}
-        pages={newPages}
+        pages={pages}
         showVB={showVB}
         setShowVB={setShowVB}
       />
       <div className={styles.blocks}>
-        {virtualBlocks.map((_, idx) => (
-          <div key={idx} style={{ display: showVB ? "block" : "none" }}>
-            box {idx + 1}
-          </div>
-        ))}
+        {virtualBlocksRenders}
         <div
           className={styles["viewer-box"]}
           style={{
