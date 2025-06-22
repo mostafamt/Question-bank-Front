@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 import { useStore } from "../../../store/store";
 
 import styles from "./virtualBlock.module.scss";
+import clsx from "clsx";
 
 const VirtualBlock = (props) => {
   const {
@@ -23,6 +24,7 @@ const VirtualBlock = (props) => {
     setCheckedObject,
     label,
     showVB,
+    reader,
   } = props;
 
   const [value, setValue] = React.useState("");
@@ -32,7 +34,7 @@ const VirtualBlock = (props) => {
 
   const [loading, setLoading] = React.useState(false);
 
-  const { data: state, setFormState } = useStore();
+  const { data: state, setFormState, openModal: openModalGlobal } = useStore();
 
   const getData = React.useCallback(async (id) => {
     if (!id) return;
@@ -80,7 +82,6 @@ const VirtualBlock = (props) => {
   };
 
   const onClickPlayButton = () => {
-    console.log("onClickPlayButton");
     setModalName("play-object-2");
     setFormState({
       ...state,
@@ -89,32 +90,50 @@ const VirtualBlock = (props) => {
     openModal();
   };
 
+  const onClickPlayButtonForReader = () => {
+    console.log("checkedObject= ", checkedObject);
+    setFormState({
+      ...state,
+      modal: {
+        ...state.modal,
+        name: "play-object",
+        opened: true,
+        id: checkedObject.id,
+      },
+    });
+  };
+
   const selectedItem = VIRTUAL_BLOCK_MENU.find(
     (item) => item.label === checkedObject?.label
   );
 
-  console.log("selectedItem= ", selectedItem);
-
   return (
-    <div className={styles["virtual-block"]}>
+    <div
+      className={clsx(styles["virtual-block"], styles["reader"])}
+      style={{ display: showVB ? "block" : "none" }}
+    >
       {checkedObject?.status && checkedObject?.status !== DELETED ? (
         <div className={styles.block}>
-          <div className={styles.header}>
-            <span>{checkedObject?.label}</span>
-            <IconButton
-              color="inherit"
-              aria-label="close"
-              size="small"
-              onClick={onClickCloseButton}
-            >
-              <DeleteForever color="error" sx={{ fontSize: 16 }} />
-            </IconButton>
-          </div>
+          {reader ? (
+            <div></div>
+          ) : (
+            <div className={styles.header}>
+              <span>{checkedObject?.label}</span>
+              <IconButton
+                color="inherit"
+                aria-label="close"
+                size="small"
+                onClick={onClickCloseButton}
+              >
+                <DeleteForever color="error" sx={{ fontSize: 16 }} />
+              </IconButton>
+            </div>
+          )}
           <div>
             <IconButton
               color="primary"
               aria-label="play"
-              onClick={onClickPlayButton}
+              onClick={reader ? onClickPlayButtonForReader : onClickPlayButton}
               sx={{ padding: 0 }}
             >
               <img src={selectedItem?.iconSrc} alt="compass" width="50px" />
@@ -122,6 +141,8 @@ const VirtualBlock = (props) => {
           </div>
           {/* <div>{name}</div> */}
         </div>
+      ) : reader ? (
+        <div></div>
       ) : (
         <div className={styles["select"]}>
           <MuiSelect

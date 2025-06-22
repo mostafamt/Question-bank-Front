@@ -163,3 +163,17 @@ export const parseVirtualBlocksFromPages = (pages) => {
 
   return virtualBlocksPages;
 };
+
+export const parseVirtualBlocksFromActivePage = (page) => {
+  const vBlocks = { ...VIRTUAL_BLOCKS };
+  page.v_blocks.forEach((v_block) => {
+    const iconLocation = v_block.iconLocation;
+    vBlocks[iconLocation] = {
+      id: v_block.contentValue,
+      label: v_block.contentType,
+      status: SERVER,
+    };
+  });
+
+  return vBlocks;
+};
