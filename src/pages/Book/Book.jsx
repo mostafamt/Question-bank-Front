@@ -26,10 +26,6 @@ const tabsStyle = {
   },
 };
 
-const appBarStyle = {
-  bgcolor: "#eee",
-  color: "#000",
-};
 
 const tabs = [
   {
@@ -94,7 +90,13 @@ const InnerTabs = (props) => {
 
   return (
     <>
-      <AppBar position="static" sx={appBarStyle}>
+      <AppBar
+        position="static"
+        sx={{
+          bgcolor: "#eee",
+          color: "#000",
+        }}
+      >
         <Tabs
           value={value}
           onChange={(event, newValue) => handleChange("inner", event, newValue)}
@@ -108,27 +110,15 @@ const InnerTabs = (props) => {
           ))}
         </Tabs>
       </AppBar>
-      <Layout
-        value={value}
-        tabs={tabs}
-        items={items}
-        pages={pages}
-        chapterId={chapterId}
-      />
+      {tabs.map((_, index) => (
+        <TabPanel key={index} value={value} index={index}>
+          <BookContentLayout pages={pages} chapterId={chapterId}>
+            {items[index]}
+          </BookContentLayout>
+        </TabPanel>
+      ))}
     </>
   );
-};
-
-const Layout = (props) => {
-  const { value, tabs, items, pages, chapterId } = props;
-
-  return tabs.map((_, index) => (
-    <TabPanel key={index} value={value} index={index}>
-      <BookContentLayout pages={pages} chapterId={chapterId}>
-        {items[index]}
-      </BookContentLayout>
-    </TabPanel>
-  ));
 };
 
 const Book = () => {
@@ -166,7 +156,13 @@ const Book = () => {
 
   return (
     <div className="container">
-      <AppBar position="static" sx={appBarStyle}>
+      <AppBar
+        position="static"
+        sx={{
+          bgcolor: "#eee",
+          color: "#000",
+        }}
+      >
         <Tabs
           value={value1}
           onChange={(event, newValue) => handleChange("outer", event, newValue)}
