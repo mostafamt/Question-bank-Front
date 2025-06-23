@@ -5,6 +5,7 @@ import BookViewerTopBar from "../BookViewerTopBar/BookViewerTopBar";
 import styles from "./bookViewer.module.scss";
 import { parseVirtualBlocksFromActivePage } from "../../../utils/virtual-blocks";
 import VirtualBlock from "../../VirtualBlocks/VirtualBlock/VirtualBlock";
+import { getImageDimensions } from "../../../utils/image";
 
 const BookViewer = (props) => {
   const { activePage, onChangePage, onClickArea, newPages: pages } = props;
@@ -15,11 +16,17 @@ const BookViewer = (props) => {
 
   let virtualBlocks = parseVirtualBlocksFromActivePage(activePage);
 
-  console.log("virtualBlocks= ", virtualBlocks);
-
   React.useEffect(() => {
-    console.log("change width");
-  }, []);
+    getImageDimensions(activePage.url)
+      .then((dimensions) => {
+        console.log(
+          `Image dimensions: Width = ${dimensions.width}, Height = ${dimensions.height}`
+        );
+      })
+      .catch((error) => {
+        console.error(error.message);
+      });
+  }, [activePage.url]);
 
   const getStyle = (area) => {
     if (area?.coordinates?.unit === "percentage") {
@@ -68,7 +75,10 @@ const BookViewer = (props) => {
         showVB={showVB}
         setShowVB={setShowVB}
       />
-      <div className={styles.blocks}>
+      <div
+        className={styles.blocks}
+        style={{ display: showVB ? "grid" : "block" }}
+      >
         {virtualBlocksRenders}
         <div
           className={styles["viewer-box"]}
