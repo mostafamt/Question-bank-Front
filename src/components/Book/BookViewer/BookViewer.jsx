@@ -11,12 +11,16 @@ const BookViewer = (props) => {
   const { activePage, onChangePage, onClickArea, newPages: pages } = props;
   const [width, setWidth] = React.useState(null);
   const [showVB, setShowVB] = React.useState(false);
+  const ref = React.createRef(null);
 
   const areas = activePage?.blocks;
 
   let virtualBlocks = parseVirtualBlocksFromActivePage(activePage);
 
+  console.log("ref= ", ref?.current?.clientWidth);
+
   React.useEffect(() => {
+    // console.log("ref= ", ref?.current?.clientWidth);
     getImageDimensions(activePage.url)
       .then((dimensions) => {
         console.log(
@@ -26,7 +30,7 @@ const BookViewer = (props) => {
       .catch((error) => {
         console.error(error.message);
       });
-  }, [activePage.url]);
+  }, [activePage.url, ref, ref.current?.clientWidth]);
 
   const getStyle = (area) => {
     if (area?.coordinates?.unit === "percentage") {
@@ -86,10 +90,11 @@ const BookViewer = (props) => {
             gridColumn: showVB ? "2 / 6" : "1 / 8",
             gridRow: showVB ? "2 / 8" : "1 / 8",
             backgroundImage: `url(${activePage.url})`,
-            backgroundSize: "contain",
+            backgroundSize: "cover",
             backgroundRepeat: "no-repeat",
-            height: showVB ? "37rem" : "100%",
+            height: showVB ? "94%" : "99%",
           }}
+          ref={ref}
         >
           {/* {activePage && <img src={activePage.url} alt={activePage.url} />} */}
           {areas?.map((area) => (
