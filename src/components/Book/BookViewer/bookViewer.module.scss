@@ -16,9 +16,9 @@
   & .blocks {
     height: 94%;
 
-    $block-size: 6rem;
+    $block-size: 4rem;
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: $block-size repeat(4, 1fr) $block-size;
     grid-template-rows: $block-size repeat(6, 1fr) $block-size;
 
     & div:nth-child(1),
