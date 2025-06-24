@@ -6,7 +6,9 @@ import PlayObject from "./PlayObject/PlayObject";
 const Modals = () => {
   const { data: state, setFormState } = useStore();
 
-  const { name, size, opened } = state.modal;
+  const name = state.modal?.name || "";
+  const size = state.modal?.size || "xl";
+  const opened = state.modal?.opened || false;
 
   let modalContent = <></>;
 
