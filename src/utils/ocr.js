@@ -362,6 +362,8 @@ export const COMPLEX_TYPES = [
   "Guess Answer",
   "Chart",
   "TrueFalse",
+  "Bar Chart",
+  "Pie Chart",
 ];
 
 export const ARABIC = "ara";
