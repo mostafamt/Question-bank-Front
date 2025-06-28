@@ -251,7 +251,7 @@ const Studio = (props) => {
     area = { ...area, label, typeOfLabel: typeOfLabel, image: img };
 
     updateAreaProperty(idx, area);
-    if (typeOfLabel === "text") {
+    if (typeOfLabel === "text" || typeOfLabel === "number") {
       updateAreaProperty(idx, { loading: true });
       const text = await ocr(language, img);
       updateAreaProperty(idx, { text, loading: false });
