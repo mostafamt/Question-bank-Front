@@ -22,6 +22,7 @@ const AreaActionResult = (props) => {
   return (
     <div>
       {trialArea?.typeOfLabel === "text" ||
+      trialArea?.typeOfLabel === "number" ||
       trialArea?.typeOfLabel === "Coordinate" ||
       foundComplexType ? (
         <TextField
