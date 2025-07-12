@@ -40,6 +40,7 @@ const StudioEditor = React.forwardRef((props, ref) => {
         areasProperties={areasProperties}
         showVB={showVB}
         onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
+        onImageLoad={onImageLoad}
       />
       <StudioAreaSelector {...props} showVB={showVB} ref={ref} />
     </div>

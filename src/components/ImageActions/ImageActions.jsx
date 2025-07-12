@@ -17,20 +17,28 @@ const ImageActions = (props) => {
     areasProperties,
     showVB,
     onClickToggleVirutalBlocks,
+    onImageLoad,
   } = props;
+
+  const [oldAreas, setOldAreas] = React.useState(areas[activePage] || []);
+
+  console.log("oldAreas= ", oldAreas);
 
   const onClickZoomIn = () => {
     setImageScaleFactor(imageScaleFactor + DEGREE);
     const newAreas = [...areas];
     newAreas[activePage] = areas[activePage].map((area, idx) => {
       const { x, y, width, height } = areasProperties[activePage][idx];
-      area.x = area.x + x * DEGREE;
-      area.y = area.y + y * DEGREE;
-      area.height = area.height + height * DEGREE;
-      area.width = area.width + width * DEGREE;
+      area.x = area.x + oldAreas[idx].x * DEGREE;
+      area.y = area.y + oldAreas[idx].y * DEGREE;
+      area.height = area.height + oldAreas[idx].height * DEGREE;
+      area.width = area.width + oldAreas[idx].width * DEGREE;
       return area;
     });
     setAreas(newAreas);
+    setTimeout(() => {
+      onImageLoad();
+    }, 1);
   };
 
   const onClickZoomOut = () => {
@@ -38,13 +46,16 @@ const ImageActions = (props) => {
     const newAreas = [...areas];
     newAreas[activePage] = areas[activePage].map((area, idx) => {
       const { x, y, width, height } = areasProperties[activePage][idx];
-      area.x = area.x - x * DEGREE;
-      area.y = area.y - y * DEGREE;
-      area.height = area.height - height * DEGREE;
-      area.width = area.width - width * DEGREE;
+      area.x = area.x - oldAreas[idx].x * DEGREE;
+      area.y = area.y - oldAreas[idx].y * DEGREE;
+      area.height = area.height - oldAreas[idx].height * DEGREE;
+      area.width = area.width - oldAreas[idx].width * DEGREE;
       return area;
     });
     setAreas(newAreas);
+    setTimeout(() => {
+      onImageLoad();
+    }, 1);
   };
 
   return (
