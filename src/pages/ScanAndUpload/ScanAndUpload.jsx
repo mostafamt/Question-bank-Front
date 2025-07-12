@@ -32,7 +32,6 @@ const ScanAndUpload = () => {
   });
 
   const handleSubmit = async (pageId, areas, virtualBlocks) => {
-    console.log("virtualBlocks= ", virtualBlocks);
     const blocks = await Promise.all(
       [...areas]
         .sort((a, b) => a.order - b.order)
@@ -92,7 +91,7 @@ const ScanAndUpload = () => {
           }
         })
     );
-    
+
     const v_blocks = [];
     for (const key in virtualBlocks) {
       const { label, id, status } = virtualBlocks[key];

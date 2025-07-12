@@ -1,50 +1,62 @@
 import { v4 as uuidv4 } from "uuid";
 
+export const NOTES = "Notes 📝";
+export const SUMMARY = "Summary 📋";
+
 export const VIRTUAL_BLOCK_MENU = [
   {
     id: uuidv4(),
     label: "Overview 🧭",
     iconSrc: "/assets/compass.svg",
+    category: "object",
   },
   {
     id: uuidv4(),
-    label: "Notes 📝",
+    label: NOTES,
     iconSrc: "/assets/memo.svg",
+    category: "text",
   },
   {
     id: uuidv4(),
     label: "Recall 🧠",
     iconSrc: "/assets/brain.svg",
+    category: "object",
   },
   {
     id: uuidv4(),
     label: "Example 🔍",
     iconSrc: "/assets/magnifying-glass.svg",
+    category: "object",
   },
   {
     id: uuidv4(),
     label: "Check Yourself ✅",
     iconSrc: "/assets/check-mark-button.svg",
+    category: "object",
   },
   {
     id: uuidv4(),
     label: "Quizz ❓",
     iconSrc: "/assets/red-question-mark.svg",
+    category: "object",
   },
   {
     id: uuidv4(),
     label: "Activity 🏃‍♂️",
     iconSrc: "/assets/man-running.svg",
+    category: "object",
   },
   {
     id: uuidv4(),
     label: "Enriching Content 🌟",
     iconSrc: "/assets/glowing-star.svg",
+    category: "object",
   },
   {
     id: uuidv4(),
-    label: "Summary 📋",
+    label: SUMMARY,
     iconSrc: "/assets/clipboard.svg",
+    category: "text",
   },
 ];
 

@@ -1,6 +1,7 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
 import QuillEditor from "react-quill";
+import { quillModules } from "../../../utils/quill";
 
 import styles from "./quillModal.module.scss";
 
@@ -19,26 +20,6 @@ const QuillModal = (props) => {
     updateAreaPropertyById(workingArea.id, { text: value });
   };
 
-  const modules = {
-    toolbar: [
-      [{ header: "1" }, { header: "2" }, { font: [] }],
-      [{ size: [] }],
-      ["bold", "italic", "underline", "strike", "blockquote"],
-      [
-        { list: "ordered" },
-        { list: "bullet" },
-        { indent: "-1" },
-        { indent: "+1" },
-      ],
-      ["link", "image", "video"],
-      ["clean"],
-    ],
-    clipboard: {
-      // toggle to add extra line breaks when pasting HTML:
-      matchVisual: false,
-    },
-  };
-
   return (
     <div className={styles["quill-modal"]}>
       <BootstrapModal.Header closeButton>
@@ -50,7 +31,7 @@ const QuillModal = (props) => {
           theme="snow"
           value={value}
           onChange={onChange}
-          modules={modules}
+          modules={quillModules}
         />
       </BootstrapModal.Body>
     </div>

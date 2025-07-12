@@ -3,6 +3,8 @@ import MuiSelect from "../../MuiSelect/MuiSelect";
 import {
   CREATED,
   DELETED,
+  NOTES,
+  SUMMARY,
   VIRTUAL_BLOCK_MENU,
 } from "../../../utils/virtual-blocks";
 import IconButton from "@mui/material/IconButton";
@@ -12,9 +14,9 @@ import { DeleteForever } from "@mui/icons-material";
 import axios from "../../../axios";
 import { toast } from "react-toastify";
 import { useStore } from "../../../store/store";
+import clsx from "clsx";
 
 import styles from "./virtualBlock.module.scss";
-import clsx from "clsx";
 
 const VirtualBlock = (props) => {
   const {
@@ -28,6 +30,7 @@ const VirtualBlock = (props) => {
   } = props;
 
   const [value, setValue] = React.useState("");
+  const [header, setHeader] = React.useState("");
 
   const [url, setUrl] = React.useState("");
   const [name, setName] = React.useState("");
@@ -51,16 +54,17 @@ const VirtualBlock = (props) => {
   }, []);
 
   React.useEffect(() => {
-    if (showVB) {
+    if (
+      showVB &&
+      checkedObject.label !== NOTES &&
+      checkedObject.label !== SUMMARY
+    ) {
       getData(checkedObject?.id);
     }
   }, [checkedObject?.id, getData, showVB]);
 
-  const onChange = (e) => {
-    const header = e.target.value;
-    setValue(header);
-    setModalName("virtual-blocks");
-    openModal();
+  const onClickSubmitForText = (header, value) => {
+    console.log("value= ", value);
     setFormState({
       ...state,
       virtual_block_label: header,
@@ -68,13 +72,46 @@ const VirtualBlock = (props) => {
     });
     setCheckedObject({
       label: header,
-      id: checkedObject?.id,
+      id: value,
       status: CREATED,
     });
   };
 
+  const onChange = (e) => {
+    const _header = e.target.value;
+    setHeader(_header);
+    if (_header === NOTES || _header === SUMMARY) {
+      setFormState({
+        ...state,
+        modal: {
+          ...state.modal,
+          name: "quill-modal",
+          opened: true,
+          props: {
+            value,
+            setValue,
+            onClickSubmit: (value) => onClickSubmitForText(_header, value),
+          },
+        },
+      });
+    } else {
+      setModalName("virtual-blocks");
+      openModal();
+      setFormState({
+        ...state,
+        virtual_block_label: _header,
+        virtual_block_key: label,
+      });
+      setCheckedObject({
+        label: _header,
+        id: checkedObject?.id,
+        status: CREATED,
+      });
+    }
+  };
+
   const onClickCloseButton = () => {
-    setValue("");
+    setHeader("");
     setCheckedObject({
       ...checkedObject,
       status: DELETED,
@@ -82,12 +119,29 @@ const VirtualBlock = (props) => {
   };
 
   const onClickPlayButton = () => {
-    setModalName("play-object-2");
-    setFormState({
-      ...state,
-      activeId: checkedObject?.id,
-    });
-    openModal();
+    if (checkedObject.label === NOTES || checkedObject.label === SUMMARY) {
+      setFormState({
+        ...state,
+        modal: {
+          ...state.modal,
+          name: "quill-modal",
+          opened: true,
+          props: {
+            value: checkedObject.id,
+            setValue,
+            onClickSubmit: (value) =>
+              onClickSubmitForText(checkedObject.label, value),
+          },
+        },
+      });
+    } else {
+      setModalName("play-object-2");
+      setFormState({
+        ...state,
+        activeId: checkedObject?.id,
+      });
+      openModal();
+    }
   };
 
   const onClickPlayButtonForReader = () => {
@@ -147,7 +201,7 @@ const VirtualBlock = (props) => {
         <div className={styles["select"]}>
           <MuiSelect
             list={VIRTUAL_BLOCK_MENU.map((item) => item.label)}
-            value={value}
+            value={header}
             onChange={onChange}
           />
         </div>
