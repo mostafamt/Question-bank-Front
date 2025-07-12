@@ -1,8 +1,9 @@
 .virtual-block {
   border: 1px solid black;
 
-  font-size: 0.6rem;
+  // font-size: 0.6rem;
   padding: 0.25rem;
+  position: relative;
 
   & .select {
     height: 100%;
@@ -21,10 +22,13 @@
     align-items: center;
 
     & .header {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      position: absolute;
+      top: 0;
+      right: 0;
+      // width: 100%;
+      // display: flex;
+      // justify-content: space-between;
+      // align-items: center;
     }
   }
 }
