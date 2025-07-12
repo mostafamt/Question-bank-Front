@@ -172,18 +172,17 @@ const VirtualBlock = (props) => {
             <div></div>
           ) : (
             <div className={styles.header}>
-              <span>{checkedObject?.label}</span>
               <IconButton
                 color="inherit"
                 aria-label="close"
                 size="small"
                 onClick={onClickCloseButton}
               >
-                <DeleteForever color="error" sx={{ fontSize: 16 }} />
+                <DeleteForever color="error" />
               </IconButton>
             </div>
           )}
-          <div>
+          <div style={{ display: "flex", flexDirection: "column" }}>
             <IconButton
               color="primary"
               aria-label="play"
@@ -192,6 +191,11 @@ const VirtualBlock = (props) => {
             >
               <img src={selectedItem?.iconSrc} alt="compass" width="50px" />
             </IconButton>
+            <div>
+              {checkedObject?.label
+                .replace(/\p{Emoji_Presentation}|\p{Emoji}\uFE0F/gu, "")
+                .trim()}
+            </div>
           </div>
           {/* <div>{name}</div> */}
         </div>
