@@ -38,7 +38,7 @@ const StudioModals = (props) => {
     rendererModal = <AutoUiModal workingArea={workingArea} />;
   } else if (modalName === "play-object") {
     rendererModal = <PlayObjectModal workingArea={workingArea} />;
-  } else if(modalName === "play-object-2"){
+  } else if (modalName === "play-object-2") {
     rendererModal = <PlayObjectModal2 />;
   } else if (modalName === "tabs") {
     rendererModal = (

@@ -18,6 +18,9 @@ const MuiSelect = (props) => {
           value={value}
           onChange={(e) => onChange(e)}
           label="Label"
+          MenuProps={{
+            disableScrollLock: true,
+          }}
         >
           {list?.map((param) => (
             <MenuItem key={param} value={param}>
