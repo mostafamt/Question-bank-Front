@@ -522,6 +522,7 @@ const Studio = (props) => {
           onImageLoad={onImageLoad}
         />
         <StudioEditor
+          key={activePageIndex}
           areasProperties={areasProperties}
           setAreasProperties={setAreasProperties}
           activePage={activePageIndex}
