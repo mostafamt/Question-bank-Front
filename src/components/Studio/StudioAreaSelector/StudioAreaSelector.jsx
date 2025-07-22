@@ -73,7 +73,6 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
           onChange={onChangeHandler}
           wrapperStyle={{
             width: "100%",
-            overflow: "scroll",
           }}
           customAreaRenderer={customRender}
           areaProps={{
