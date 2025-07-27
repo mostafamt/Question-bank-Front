@@ -5,9 +5,11 @@ import ZoomOutIcon from "@mui/icons-material/ZoomOut";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 
+import styles from "./styles.module.scss";
+
 const DEGREE = 0.1;
 
-const ImageActions = (props) => {
+const ImageActions = React.forwardRef((props, ref) => {
   const {
     imageScaleFactor,
     setImageScaleFactor,
@@ -21,8 +23,6 @@ const ImageActions = (props) => {
   } = props;
 
   const [oldAreas, setOldAreas] = React.useState(areas[activePage] || []);
-
-  console.log("oldAreas= ", oldAreas);
 
   const onClickZoomIn = () => {
     setImageScaleFactor(imageScaleFactor + DEGREE);
@@ -59,14 +59,7 @@ const ImageActions = (props) => {
   };
 
   return (
-    <div
-      style={{
-        borderBottom: "1px solid black",
-        height: "5%",
-        display: "flex",
-        justifyContent: "space-between",
-      }}
-    >
+    <div className={styles["image-actions"]} ref={ref}>
       <div>
         <IconButton aria-label="zoom-in" onClick={onClickZoomIn}>
           <ZoomInIcon fontSize="large" />
@@ -88,6 +81,6 @@ const ImageActions = (props) => {
       </IconButton>
     </div>
   );
-};
+});
 
 export default ImageActions;

@@ -22,6 +22,16 @@ const StudioEditor = React.forwardRef((props, ref) => {
   } = props;
   const [showVB, setShowVB] = React.useState(false);
 
+  const studioEditorSelectorRef = React.useRef(null);
+  const imageActionsRef = React.useRef(null);
+
+  React.useImperativeHandle(ref, () => {
+    return {
+      studioEditorSelectorRef: studioEditorSelectorRef,
+      imageActionsRef: imageActionsRef,
+    };
+  });
+
   const onClickToggleVirutalBlocks = () => {
     setShowVB((prevState) => !prevState);
     setTimeout(() => {
@@ -41,8 +51,13 @@ const StudioEditor = React.forwardRef((props, ref) => {
         showVB={showVB}
         onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
         onImageLoad={onImageLoad}
+        ref={imageActionsRef}
       />
-      <StudioAreaSelector {...props} showVB={showVB} ref={ref} />
+      <StudioAreaSelector
+        {...props}
+        showVB={showVB}
+        ref={studioEditorSelectorRef}
+      />
     </div>
   );
 });
