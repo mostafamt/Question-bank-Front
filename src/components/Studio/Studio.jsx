@@ -66,6 +66,7 @@ const Studio = (props) => {
 
   const studioEditorRef = React.useRef(null);
   const [showStickyToolbar, setShowStickyToolbar] = React.useState(false);
+  const [showVB, setShowVB] = React.useState(false);
 
   const [areas, setAreas] = React.useState(
     pages?.map((page) =>
@@ -116,6 +117,13 @@ const Studio = (props) => {
   const [colorIndex, setColorIndex] = React.useState(
     Array(pages?.length || 1).fill(0)
   );
+
+  const onClickToggleVirutalBlocks = () => {
+    setShowVB((prevState) => !prevState);
+    setTimeout(() => {
+      onImageLoad();
+    }, 20);
+  };
 
   const canvasRef = React.createRef();
   const [imageScaleFactor, setImageScaleFactor] = React.useState(1);
@@ -551,8 +559,8 @@ const Studio = (props) => {
         setAreas={setAreas}
         activePage={activePageIndex}
         areasProperties={areasProperties}
-        showVB={false}
-        onClickToggleVirutalBlocks={() => {}}
+        showVB={showVB}
+        onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
         onImageLoad={onImageLoad}
       />
       <LanguageSwitcher language={language} setLanguage={setLanguage} />
@@ -563,7 +571,6 @@ const Studio = (props) => {
           onImageLoad={onImageLoad}
         />
         <StudioEditor
-          key={activePageIndex}
           areasProperties={areasProperties}
           setAreasProperties={setAreasProperties}
           activePage={activePageIndex}
@@ -584,6 +591,8 @@ const Studio = (props) => {
               return [...prevState];
             })
           }
+          showVB={showVB}
+          onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
         />
         <BookColumn
           COLUMNS={RIGHT_COLUMNS}

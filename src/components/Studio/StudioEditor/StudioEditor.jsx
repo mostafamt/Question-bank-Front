@@ -19,8 +19,9 @@ const StudioEditor = React.forwardRef((props, ref) => {
     onChangeHandler,
     pages,
     onImageLoad,
+    showVB,
+    onClickToggleVirutalBlocks,
   } = props;
-  const [showVB, setShowVB] = React.useState(false);
 
   const studioEditorSelectorRef = React.useRef(null);
   const imageActionsRef = React.useRef(null);
@@ -31,13 +32,6 @@ const StudioEditor = React.forwardRef((props, ref) => {
       imageActionsRef: imageActionsRef,
     };
   });
-
-  const onClickToggleVirutalBlocks = () => {
-    setShowVB((prevState) => !prevState);
-    setTimeout(() => {
-      onImageLoad();
-    }, 20);
-  };
 
   return (
     <div className={styles["studio-editor"]}>
