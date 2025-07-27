@@ -22,7 +22,13 @@ const StudyBook = (props) => {
   const [activeBlock, setActiveBlock] = React.useState({});
 
   const onChangePage = (state = "next") => {
-    setActivePage((prevState) => changePage(newPages, prevState, state));
+    console.log("activePage= ", activePage);
+    setActivePage((prevState) => {
+      const newPage = changePage(newPages, prevState, state);
+      localStorage.setItem("page", JSON.stringify(newPage));
+      return newPage;
+    });
+    
   };
 
   const onClickArea = (block) => {

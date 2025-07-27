@@ -17,16 +17,10 @@ const BookViewer = (props) => {
 
   let virtualBlocks = parseVirtualBlocksFromActivePage(activePage);
 
-  console.log("ref= ", ref?.current?.clientWidth);
-
   React.useEffect(() => {
     // console.log("ref= ", ref?.current?.clientWidth);
     getImageDimensions(activePage.url)
-      .then((dimensions) => {
-        console.log(
-          `Image dimensions: Width = ${dimensions.width}, Height = ${dimensions.height}`
-        );
-      })
+      .then((dimensions) => {})
       .catch((error) => {
         console.error(error.message);
       });

@@ -14,6 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
 import { getChapterPages } from "../../api/bookapi";
 import CircularProgress from "@mui/material/CircularProgress";
+import { INITIAL_PAGE_INDEX } from "../../utils/book";
 
 const tabsStyle = {
   width: "100%",
@@ -25,7 +26,6 @@ const tabsStyle = {
     color: "#fff",
   },
 };
-
 
 const tabs = [
   {
@@ -88,6 +88,10 @@ TabPanel.propTypes = {
 const InnerTabs = (props) => {
   const { tabs, items, value, handleChange, pages, chapterId } = props;
 
+  const [activePage, setActivePage] = React.useState(
+    pages?.[INITIAL_PAGE_INDEX] || ""
+  );
+
   return (
     <>
       <AppBar
@@ -110,13 +114,25 @@ const InnerTabs = (props) => {
           ))}
         </Tabs>
       </AppBar>
-      {tabs.map((_, index) => (
-        <TabPanel key={index} value={value} index={index}>
-          <BookContentLayout pages={pages} chapterId={chapterId}>
-            {items[index]}
-          </BookContentLayout>
-        </TabPanel>
-      ))}
+      {tabs.map((_, index) => {
+        const clonedElement = React.cloneElement(items[index], {
+          activePage,
+          setActivePage,
+        });
+
+        return (
+          <TabPanel key={index} value={value} index={index}>
+            <BookContentLayout
+              pages={pages}
+              chapterId={chapterId}
+              activePage={activePage}
+              setActivePage={setActivePage}
+            >
+              {clonedElement}
+            </BookContentLayout>
+          </TabPanel>
+        );
+      })}
     </>
   );
 };
