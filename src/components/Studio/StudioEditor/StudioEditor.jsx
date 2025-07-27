@@ -21,6 +21,7 @@ const StudioEditor = React.forwardRef((props, ref) => {
     onImageLoad,
     showVB,
     onClickToggleVirutalBlocks,
+    onClickImage,
   } = props;
 
   const studioEditorSelectorRef = React.useRef(null);
@@ -46,6 +47,8 @@ const StudioEditor = React.forwardRef((props, ref) => {
         onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
         onImageLoad={onImageLoad}
         ref={imageActionsRef}
+        pages={pages}
+        onClickImage={onClickImage}
       />
       <StudioAreaSelector
         {...props}

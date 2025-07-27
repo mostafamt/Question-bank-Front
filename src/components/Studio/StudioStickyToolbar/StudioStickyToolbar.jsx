@@ -15,6 +15,8 @@ const StudioStickyToolbar = (props) => {
     showVB,
     onClickToggleVirutalBlocks,
     onImageLoad,
+    pages,
+    onClickImage,
   } = props;
 
   if (!show) return;
@@ -31,6 +33,8 @@ const StudioStickyToolbar = (props) => {
         showVB={showVB}
         onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
         onImageLoad={onImageLoad}
+        pages={pages}
+        onClickImage={onClickImage}
       />
     </div>
   );

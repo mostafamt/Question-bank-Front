@@ -562,6 +562,8 @@ const Studio = (props) => {
         showVB={showVB}
         onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
         onImageLoad={onImageLoad}
+        pages={pages}
+        onClickImage={onClickImage}
       />
       <LanguageSwitcher language={language} setLanguage={setLanguage} />
       <div className={styles.studio}>
@@ -593,6 +595,7 @@ const Studio = (props) => {
           }
           showVB={showVB}
           onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
+          onClickImage={onClickImage}
         />
         <BookColumn
           COLUMNS={RIGHT_COLUMNS}
