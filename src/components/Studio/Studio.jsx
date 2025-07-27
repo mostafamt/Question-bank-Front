@@ -38,6 +38,7 @@ import {
 } from "../../utils/tabs";
 import List from "../Tabs/List/List";
 import { parseVirtualBlocksFromPages } from "../../utils/virtual-blocks";
+import StudioStickyToolbar from "./StudioStickyToolbar/StudioStickyToolbar";
 
 const Studio = (props) => {
   const {
@@ -63,7 +64,8 @@ const Studio = (props) => {
   );
   const activePageId = pages?.[activePageIndex]?._id;
 
-  const imageRef = React.useRef(null);
+  const studioEditorRef = React.useRef(null);
+  const [showStickyToolbar, setShowStickyToolbar] = React.useState(false);
 
   const [areas, setAreas] = React.useState(
     pages?.map((page) =>
@@ -135,12 +137,38 @@ const Studio = (props) => {
     subObject ? [] : parseVirtualBlocksFromPages(pages)
   );
 
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        console.log(entry);
+        // If the target is NOT visible → show sticky content
+        setShowStickyToolbar(!entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0,
+      }
+    );
+
+    const imageActionsRef = studioEditorRef.current?.imageActionsRef;
+    if (imageActionsRef.current) {
+      observer.observe(imageActionsRef.current);
+    }
+
+    return () => {
+      if (imageActionsRef.current) {
+        observer.unobserve(imageActionsRef.current);
+      }
+    };
+  }, []);
+
   const onImageLoad = () => {
     setAreas((prevState) => {
       return prevState?.map((page, idx1) => {
         return page?.map((block, idx2) => {
           if (block._unit === "percentage") {
-            const { clientHeight, clientWidth } = imageRef.current;
+            const { clientHeight, clientWidth } =
+              studioEditorRef.current.studioEditorSelectorRef.current;
 
             const properties = areasProperties[idx1][idx2];
 
@@ -241,7 +269,7 @@ const Studio = (props) => {
     }
     const img = extractImage(
       canvasRef,
-      imageRef,
+      studioEditorRef.current.studioEditorSelectorRef.current,
       areasProperties,
       activePageIndex,
       areas,
@@ -256,7 +284,8 @@ const Studio = (props) => {
       const text = await ocr(language, img);
       updateAreaProperty(idx, { text, loading: false });
     } else if (typeOfLabel === "Coordinate") {
-      const { naturalHeight, naturalWidth } = imageRef.current;
+      const { naturalHeight, naturalWidth } =
+        studioEditorRef.current.studioEditorSelectorRef.current;
       const x = Number.parseInt(
         (areas[activePageIndex][idx].x * naturalWidth) / 100
       );
@@ -514,6 +543,18 @@ const Studio = (props) => {
           })
         }
       />
+      <StudioStickyToolbar
+        show={showStickyToolbar}
+        imageScaleFactor={imageScaleFactor}
+        setImageScaleFactor={setImageScaleFactor}
+        areas={areas}
+        setAreas={setAreas}
+        activePage={activePageIndex}
+        areasProperties={areasProperties}
+        showVB={false}
+        onClickToggleVirutalBlocks={() => {}}
+        onImageLoad={onImageLoad}
+      />
       <LanguageSwitcher language={language} setLanguage={setLanguage} />
       <div className={styles.studio}>
         <BookColumn
@@ -532,7 +573,7 @@ const Studio = (props) => {
           setAreas={setAreas}
           onChangeHandler={onChangeHandler}
           pages={pages}
-          ref={imageRef}
+          ref={studioEditorRef}
           onImageLoad={onImageLoad}
           openModal={openModal}
           setModalName={setModalName}

@@ -1,18 +1,15 @@
-import { useForm } from "react-hook-form";
+import React from "react";
 
-import axios from "axios";
+import styles from "./test2.module.scss";
 
 const Test2 = () => {
-  const { register, handleSubmit } = useForm();
-
-  const OnSubmit = (data) => {
-    console.log(data);
-  };
-
-  <form onSubmit={handleSubmit(OnSubmit)}>
-    <input type="file" name="picture" />
-    <button type="submit">submit</button>
-  </form>;
+  return (
+    <div className={styles["test-2"]}>
+      <div className={styles.header}>HEADER</div>
+      <div className={styles["main-content"]}>MAIN CONTENT</div>
+      <div className={styles.footer}>FOOTER</div>
+    </div>
+  );
 };
 
 export default Test2;
