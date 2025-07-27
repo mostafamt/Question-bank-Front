@@ -20,12 +20,15 @@ import TableOfContents from "../../components/Book/TableOfContents/TableOfConten
 import BookColumns2 from "../../components/Book/BookColumn2/BookColumn2";
 
 const BookContentLayout = (props) => {
-  const { children, pages: newPages, chapterId } = props;
+  const {
+    children,
+    pages: newPages,
+    chapterId,
+    activePage,
+    setActivePage,
+  } = props;
   const [columns, setColumns] = React.useState(ALL_COLUMNS);
   const [pages, setPages] = React.useState(PAGES);
-  const [activePage, setActivePage] = React.useState(
-    newPages?.[INITIAL_PAGE_INDEX] || ""
-  );
   const [showModal, setShowModal] = React.useState(false);
 
   // console.log("activePage= ", activePage);
