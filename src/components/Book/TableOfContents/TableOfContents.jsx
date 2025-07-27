@@ -20,7 +20,9 @@ const TableOfContents = (props) => {
   const onClickItem = (item) => {
     // console.log("item= ", item);
     if (item.hasOwnProperty("pageIndex") && item.pageIndex) {
-      setActivePage(PAGES[item.pageIndex]);
+      const newPage = PAGES[item.pageIndex];
+      setActivePage(newPage);
+      localStorage.setItem("page", JSON.stringify(newPage));
     }
   };
 
