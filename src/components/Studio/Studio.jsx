@@ -39,6 +39,8 @@ import {
 import List from "../Tabs/List/List";
 import { parseVirtualBlocksFromPages } from "../../utils/virtual-blocks";
 import StudioStickyToolbar from "./StudioStickyToolbar/StudioStickyToolbar";
+import StudioCompositeBlocks from "./StudioCompositeBlocks/StudioCompositeBlocks";
+import { addIdsToList } from "../../utils/data";
 
 const Studio = (props) => {
   const {
@@ -53,6 +55,7 @@ const Studio = (props) => {
     onSubmitAutoGenerate,
     loadingAutoGenerate,
     refetch,
+    compositeBlocksTypes,
   } = props;
 
   const [activePageIndex, setActivePageIndex] = React.useState(
@@ -67,6 +70,7 @@ const Studio = (props) => {
   const studioEditorRef = React.useRef(null);
   const [showStickyToolbar, setShowStickyToolbar] = React.useState(false);
   const [showVB, setShowVB] = React.useState(false);
+  const [compositeBlocksAreas, setCompositeBlocksAreas] = React.useState([]);
 
   const [areas, setAreas] = React.useState(
     pages?.map((page) =>
@@ -148,7 +152,6 @@ const Studio = (props) => {
   React.useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        console.log(entry);
         // If the target is NOT visible → show sticky content
         setShowStickyToolbar(!entry.isIntersecting);
       },
@@ -224,13 +227,18 @@ const Studio = (props) => {
   };
 
   const onChangeHandler = (areasParam) => {
-    if (areasParam.length > areasProperties[activePageIndex].length) {
-      syncAreasProperties();
-    }
+    if (activeRightTab.label === "Composite Blocks") {
+      const areasParamWithId = addIdsToList(areasParam);
+      setCompositeBlocksAreas(areasParamWithId);
+    } else {
+      if (areasParam.length > areasProperties[activePageIndex].length) {
+        syncAreasProperties();
+      }
 
-    const newAreasParam = [...areas];
-    newAreasParam[activePageIndex] = areasParam;
-    setAreas(newAreasParam);
+      const newAreasParam = [...areas];
+      newAreasParam[activePageIndex] = areasParam;
+      setAreas(newAreasParam);
+    }
   };
 
   const onClickDeleteArea = (idx) => {
@@ -384,15 +392,20 @@ const Studio = (props) => {
     setAreasProperties(newAreasProperties);
   };
 
-  if (!pages.length) {
-    return <Alert severity="error">No pages available.</Alert>;
-  }
+  const onChangeCompositeBlocksList = (id, value) => {
+    setCompositeBlocksAreas((prevState) => {
+      prevState[id] = {
+        ...prevState[id],
+        type: value,
+      };
+      return prevState;
+    });
+  };
 
   const LEFT_COLUMNS = [
     {
       id: uuidv4(),
       label: "Thumbnails",
-      position: LEFT_POSITION,
       component: (
         <StudioThumbnails
           pages={pages}
@@ -404,7 +417,6 @@ const Studio = (props) => {
     {
       id: uuidv4(),
       label: "Recalls",
-      position: LEFT_POSITION,
       component: (
         <List
           data={illustrativeInteractionsData}
@@ -415,12 +427,10 @@ const Studio = (props) => {
           setWorkingArea={setWorkingArea}
         />
       ),
-      props: {},
     },
     {
       id: uuidv4(),
       label: "Micro Learning",
-      position: LEFT_POSITION,
       component: (
         <List
           data={illustrativeInteractionsData}
@@ -431,12 +441,10 @@ const Studio = (props) => {
           setWorkingArea={setWorkingArea}
         />
       ),
-      props: {},
     },
     {
       id: uuidv4(),
       label: "Enriching Contents",
-      position: LEFT_POSITION,
       component: (
         <List
           data={illustrativeInteractionsData}
@@ -447,12 +455,10 @@ const Studio = (props) => {
           setWorkingArea={setWorkingArea}
         />
       ),
-      props: {},
     },
     {
       id: uuidv4(),
       label: "Check Yourself",
-      position: LEFT_POSITION,
       component: (
         <List
           data={illustrativeInteractionsData}
@@ -463,57 +469,52 @@ const Studio = (props) => {
           setWorkingArea={setWorkingArea}
         />
       ),
-      props: {},
     },
   ];
+
+  const StudioActionsComponent = (
+    <StudioActions
+      areasProperties={areasProperties}
+      setAreasProperties={setAreasProperties}
+      activePage={activePageIndex}
+      onEditText={onEditText}
+      onClickDeleteArea={onClickDeleteArea}
+      type={type}
+      onClickSubmit={onClickSubmit}
+      loadingSubmit={loadingSubmit}
+      updateAreaProperty={updateAreaProperty}
+      updateAreaPropertyById={updateAreaPropertyById}
+      types={types}
+      onChangeLabel={onChangeLabel}
+      subObject={subObject}
+      setModalName={setModalName}
+      openModal={openModal}
+      setWorkingArea={setWorkingArea}
+      tOfActiveType={tOfActiveType}
+      onSubmitAutoGenerate={onSubmitAutoGenerate}
+      loadingAutoGenerate={loadingAutoGenerate}
+    />
+  );
 
   let RIGHT_COLUMNS = [
     {
       id: uuidv4(),
       label: "Block Authoring",
-      position: LEFT_POSITION,
-      component: (
-        <StudioActions
-          areasProperties={areasProperties}
-          setAreasProperties={setAreasProperties}
-          activePage={activePageIndex}
-          onEditText={onEditText}
-          onClickDeleteArea={onClickDeleteArea}
-          type={type}
-          onClickSubmit={onClickSubmit}
-          loadingSubmit={loadingSubmit}
-          updateAreaProperty={updateAreaProperty}
-          updateAreaPropertyById={updateAreaPropertyById}
-          types={types}
-          onChangeLabel={onChangeLabel}
-          subObject={subObject}
-          setModalName={setModalName}
-          openModal={openModal}
-          setWorkingArea={setWorkingArea}
-          tOfActiveType={tOfActiveType}
-          onSubmitAutoGenerate={onSubmitAutoGenerate}
-          loadingAutoGenerate={loadingAutoGenerate}
-        />
-      ),
+      component: StudioActionsComponent,
     },
     {
       id: uuidv4(),
       label: "Table Of Contents",
-      position: LEFT_POSITION,
       component: <List data={tableOfContentsData} />,
-      props: {},
     },
     {
       id: uuidv4(),
       label: "Glossary & keywords",
-      position: LEFT_POSITION,
       component: <List data={GlossaryAndKeywordsData} />,
-      props: {},
     },
     {
       id: uuidv4(),
       label: "Illustrative Interactions",
-      position: LEFT_POSITION,
       component: (
         <List
           data={illustrativeInteractionsData}
@@ -524,9 +525,26 @@ const Studio = (props) => {
           setWorkingArea={setWorkingArea}
         />
       ),
-      props: {},
+    },
+    {
+      id: uuidv4(),
+      label: "Composite Blocks",
+      component: (
+        <StudioCompositeBlocks
+          compositeBlocksAreas={compositeBlocksAreas}
+          compositeBlocksTypes={compositeBlocksTypes}
+          onChangeCompositeBlocksList={onChangeCompositeBlocksList}
+        />
+      ),
     },
   ];
+
+  const [activeLeftTab, setActiveLeftTab] = React.useState(LEFT_COLUMNS[0]);
+  const [activeRightTab, setActiveRightTab] = React.useState(RIGHT_COLUMNS[0]);
+
+  if (!pages.length) {
+    return <Alert severity="error">No pages available.</Alert>;
+  }
 
   return (
     <>
@@ -571,6 +589,8 @@ const Studio = (props) => {
           COLUMNS={LEFT_COLUMNS}
           activeColumn={LEFT_COLUMNS[0]}
           onImageLoad={onImageLoad}
+          activeTab={activeLeftTab}
+          setActiveTab={setActiveLeftTab}
         />
         <StudioEditor
           areasProperties={areasProperties}
@@ -596,11 +616,15 @@ const Studio = (props) => {
           showVB={showVB}
           onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
           onClickImage={onClickImage}
+          activeRightTab={activeRightTab}
+          compositeBlocksAreas={compositeBlocksAreas}
         />
         <BookColumn
           COLUMNS={RIGHT_COLUMNS}
           activeColumn={RIGHT_COLUMNS[0]}
           onImageLoad={onImageLoad}
+          activeTab={activeRightTab}
+          setActiveTab={setActiveRightTab}
         />
       </div>
       <div>

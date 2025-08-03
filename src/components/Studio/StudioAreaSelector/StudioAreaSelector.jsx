@@ -21,7 +21,11 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
     setModalName,
     virtualBlocks,
     setVirtualBlocks,
+    activeRightTab,
+    compositeBlocksAreas,
   } = props;
+
+  const [_areas, _setAreas] = React.useState([]);
 
   const onClickExistedArea = (areaProps) => {
     const newAreasProperties = [...areasProperties];
@@ -51,6 +55,10 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
     props.onImageLoad();
   };
 
+  const onChangeHandlerForCB = (areas) => {
+    _setAreas(areas);
+  };
+
   return (
     <VirtualBlocks
       className={clsx(
@@ -69,7 +77,11 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
         css={constructBoxColors(areasProperties[activePage])}
       >
         <AreaSelector
-          areas={areas[activePage]}
+          areas={
+            activeRightTab.label === "Composite Blocks"
+              ? compositeBlocksAreas
+              : areas[activePage]
+          }
           onChange={onChangeHandler}
           wrapperStyle={{
             width: "100%",

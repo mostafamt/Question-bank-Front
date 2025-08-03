@@ -11,6 +11,11 @@ export const getTypes = async () => {
   return res.data;
 };
 
+export const getCompositeTypes = async () => {
+  const res = await axios.get("/composite-object-types");
+  return res.data;
+};
+
 export const getBooks = async () => {
   const res = await axios.get("/books");
   return res.data;
@@ -55,5 +60,4 @@ export const getObject = async (id) => {
     toast.error(error?.message);
     return "";
   }
-  
 };
