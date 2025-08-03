@@ -3,7 +3,11 @@ import Studio from "../../components/Studio/Studio";
 import { useLocation, useParams } from "react-router-dom";
 import { uploadBase64 } from "../../utils/upload";
 import { saveBlocks } from "../../services/api";
-import { getChapterPages, getTypes } from "../../api/bookapi";
+import {
+  getChapterPages,
+  getCompositeTypes,
+  getTypes,
+} from "../../api/bookapi";
 import { useQuery } from "@tanstack/react-query";
 import { Box, CircularProgress } from "@mui/material";
 
@@ -18,6 +22,12 @@ const ScanAndUpload = () => {
   const { data: types, isFetching: isFetchingTypes } = useQuery({
     queryKey: ["types"],
     queryFn: () => getTypes(),
+    refetchOnWindowFocus: false,
+  });
+
+  const { data: compositeBlocksTypes } = useQuery({
+    queryKey: ["composite-types"],
+    queryFn: () => getCompositeTypes(),
     refetchOnWindowFocus: false,
   });
 
@@ -124,6 +134,7 @@ const ScanAndUpload = () => {
       ) : (
         <Studio
           types={types}
+          compositeBlocksTypes={compositeBlocksTypes}
           pages={pages}
           type={"state.type"}
           handleSubmit={handleSubmit}

@@ -22,6 +22,8 @@ const StudioEditor = React.forwardRef((props, ref) => {
     showVB,
     onClickToggleVirutalBlocks,
     onClickImage,
+    activeRightTab,
+    compositeBlocksAreas,
   } = props;
 
   const studioEditorSelectorRef = React.useRef(null);
