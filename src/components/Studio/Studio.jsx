@@ -412,6 +412,7 @@ const Studio = (props) => {
       setCompositeBlocks((prevState) => ({
         ...prevState,
         [key]: value,
+        areas: [],
       }));
       return;
     }
@@ -531,6 +532,17 @@ const Studio = (props) => {
     },
     {
       id: uuidv4(),
+      label: "Composite Blocks",
+      component: (
+        <StudioCompositeBlocks
+          compositeBlocks={compositeBlocks}
+          compositeBlocksTypes={compositeBlocksTypes}
+          onChangeCompositeBlocks={onChangeCompositeBlocks}
+        />
+      ),
+    },
+    {
+      id: uuidv4(),
       label: "Table Of Contents",
       component: <List data={tableOfContentsData} />,
     },
@@ -550,17 +562,6 @@ const Studio = (props) => {
           checkedObjects={checkedObjects}
           setCheckedObjects={setCheckedObjects}
           setWorkingArea={setWorkingArea}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: "Composite Blocks",
-      component: (
-        <StudioCompositeBlocks
-          compositeBlocks={compositeBlocks}
-          compositeBlocksTypes={compositeBlocksTypes}
-          onChangeCompositeBlocks={onChangeCompositeBlocks}
         />
       ),
     },

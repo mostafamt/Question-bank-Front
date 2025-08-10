@@ -5,7 +5,11 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-import { getList1FromData, getList2FromData } from "../../../utils/studio";
+import {
+  getList1FromData,
+  getList2FromData,
+  getTypeOfLabelForCompositeBlocks,
+} from "../../../utils/studio";
 
 import styles from "./studioCompositeBlocks.module.scss";
 
@@ -15,6 +19,18 @@ const StudioCompositeBlocks = (props) => {
 
   const list1 = getList1FromData(compositeBlocksTypes);
   const list2 = getList2FromData(compositeBlocksTypes, compositeBlocks.type);
+
+  const onChange = (id, type, value) => {
+    const typeOfLabel = getTypeOfLabelForCompositeBlocks(
+      compositeBlocksTypes,
+      compositeBlocks.type,
+      value
+    );
+
+    onChangeCompositeBlocks(id, type, value);
+    onChangeCompositeBlocks(id, "text", typeOfLabel);
+    console.log("type= ", typeOfLabel);
+  };
 
   return (
     <div className={styles["studio-composite-blocks"]}>
@@ -55,11 +71,10 @@ const StudioCompositeBlocks = (props) => {
           <div key={block.id} className={styles.block}>
             <MuiSelect
               value={block.type}
-              onChange={(e) =>
-                onChangeCompositeBlocks(block.id, "type", e.target.value)
-              }
+              onChange={(e) => onChange(block.id, "type", e.target.value)}
               list={["", ...list2]}
             />
+            {block.text && <input value={block.text} />}
           </div>
         ))}
       </div>
