@@ -11,6 +11,7 @@ import {
   COMPLEX_TYPES,
   DELETED,
   ENGLISH,
+  cropSelectedArea,
   deleteAreaByIndex,
   extractImage,
   getTypeNameOfLabelKey,
@@ -430,6 +431,58 @@ const Studio = (props) => {
     });
   };
 
+  const processCompositeBlock = async (id, typeOfLabel) => {
+    setCompositeBlocks((prevState) => {
+      const newAreas = prevState?.areas?.map((item) => {
+        if (item.id === id) {
+          item.loading = true;
+        }
+        return item;
+      });
+      return { ...prevState, areas: newAreas };
+    });
+
+    const { naturalWidth, clientWidth, clientHeight } =
+      studioEditorRef.current.studioEditorSelectorRef.current;
+
+    const ratio = naturalWidth / clientWidth;
+
+    const selecedBlock = compositeBlocks.areas.find((item) => item.id === id);
+    const x = ((selecedBlock.x * ratio) / 100) * clientWidth;
+    const y = ((selecedBlock.y * ratio) / 100) * clientHeight;
+    const width = ((selecedBlock.width * ratio) / 100) * clientWidth;
+    const height = ((selecedBlock.height * ratio) / 100) * clientHeight;
+
+    const img = cropSelectedArea(
+      canvasRef,
+      studioEditorRef.current.studioEditorSelectorRef,
+      x,
+      y,
+      width,
+      height
+    );
+
+    let text = "";
+    if (typeOfLabel === "text") {
+      text = await ocr(language, img);
+    }
+
+    setCompositeBlocks((prevState) => {
+      const newAreas = prevState?.areas?.map((item) => {
+        if (item.id === id) {
+          item = {
+            ...item,
+            loading: false,
+            img: img,
+            text: text,
+          };
+        }
+        return item;
+      });
+      return { ...prevState, areas: newAreas };
+    });
+  };
+
   const LEFT_COLUMNS = [
     {
       id: uuidv4(),
@@ -538,6 +591,7 @@ const Studio = (props) => {
           compositeBlocks={compositeBlocks}
           compositeBlocksTypes={compositeBlocksTypes}
           onChangeCompositeBlocks={onChangeCompositeBlocks}
+          processCompositeBlock={processCompositeBlock}
         />
       ),
     },

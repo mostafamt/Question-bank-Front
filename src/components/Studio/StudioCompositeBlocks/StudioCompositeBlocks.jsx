@@ -1,6 +1,6 @@
 import React from "react";
 import MuiSelect from "../../MuiSelect/MuiSelect";
-import { Box, TextField } from "@mui/material";
+import { CircularProgress, TextField } from "@mui/material";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -14,8 +14,12 @@ import {
 import styles from "./studioCompositeBlocks.module.scss";
 
 const StudioCompositeBlocks = (props) => {
-  const { compositeBlocks, compositeBlocksTypes, onChangeCompositeBlocks } =
-    props;
+  const {
+    compositeBlocks,
+    compositeBlocksTypes,
+    onChangeCompositeBlocks,
+    processCompositeBlock,
+  } = props;
 
   const list1 = getList1FromData(compositeBlocksTypes);
   const list2 = getList2FromData(compositeBlocksTypes, compositeBlocks.type);
@@ -29,7 +33,26 @@ const StudioCompositeBlocks = (props) => {
 
     onChangeCompositeBlocks(id, type, value);
     onChangeCompositeBlocks(id, "text", typeOfLabel);
+
+    processCompositeBlock(id, typeOfLabel);
+
     console.log("type= ", typeOfLabel);
+  };
+
+  const renderBlockResult = (block) => {
+    if (block.loading) {
+      return (
+        <div style={{ paddingTop: "0.5rem" }}>
+          <CircularProgress size="1rem" />
+        </div>
+      );
+    }
+
+    if (block.text) {
+      return <TextField size="small" defaultValue={block.text} />;
+    } else {
+      return <img src={block.img} alt={block.img} width="100%" />;
+    }
   };
 
   return (
@@ -74,7 +97,7 @@ const StudioCompositeBlocks = (props) => {
               onChange={(e) => onChange(block.id, "type", e.target.value)}
               list={["", ...list2]}
             />
-            {block.text && <input value={block.text} />}
+            {renderBlockResult(block)}
           </div>
         ))}
       </div>
