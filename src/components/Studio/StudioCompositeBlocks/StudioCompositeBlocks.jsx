@@ -1,39 +1,68 @@
 import React from "react";
 import MuiSelect from "../../MuiSelect/MuiSelect";
-import { Box } from "@mui/material";
+import { Box, TextField } from "@mui/material";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import { getList1FromData, getList2FromData } from "../../../utils/studio";
 
 import styles from "./studioCompositeBlocks.module.scss";
 
 const StudioCompositeBlocks = (props) => {
-  const {
-    compositeBlocksAreas,
-    compositeBlocksTypes,
-    onChangeCompositeBlocksList,
-  } = props;
+  const { compositeBlocks, compositeBlocksTypes, onChangeCompositeBlocks } =
+    props;
 
-  const list = compositeBlocksTypes?.labels?.map((item) => item.typeName);
-
-  const getChildSelectMenu = (type) => {
-    compositeBlocksTypes?.labels?.find((item) => item.typeName);
-  };
+  const list1 = getList1FromData(compositeBlocksTypes);
+  const list2 = getList2FromData(compositeBlocksTypes, compositeBlocks.type);
 
   return (
-    <div>
-      {compositeBlocksAreas.map((block) => (
-        <Box
-          key={block.id}
-          sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
-        >
-          <MuiSelect
-            value={block.type}
+    <div className={styles["studio-composite-blocks"]}>
+      <div className={styles.header}>
+        <TextField
+          label="Name"
+          size="small"
+          value={compositeBlocks.name}
+          onChange={(e) =>
+            onChangeCompositeBlocks(null, "name", e.target.value)
+          }
+        />
+
+        <FormControl fullWidth>
+          <InputLabel size="small" id="demo-simple-select-label">
+            Type
+          </InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            size="small"
+            id="demo-simple-select"
+            label="type"
+            value={compositeBlocks.type}
             onChange={(e) =>
-              onChangeCompositeBlocksList(block.id, e.target.value)
+              onChangeCompositeBlocks(null, "type", e.target.value)
             }
-            list={list}
-          />
-          <MuiSelect value={""} onChange={(e) => {}} list={[]} />
-        </Box>
-      ))}
+          >
+            {list1.map((item) => (
+              <MenuItem key={item} value={item}>
+                {item}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </div>
+      <div className={styles.blocks}>
+        {compositeBlocks?.areas?.map((block) => (
+          <div key={block.id} className={styles.block}>
+            <MuiSelect
+              value={block.type}
+              onChange={(e) =>
+                onChangeCompositeBlocks(block.id, "type", e.target.value)
+              }
+              list={["", ...list2]}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

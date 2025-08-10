@@ -21,7 +21,6 @@ import {
   updateAreasProperties,
 } from "../../utils/ocr";
 
-import styles from "./studio.module.scss";
 import StudioActions from "./StudioActions/StudioActions";
 import LanguageSwitcher from "./LanguageSwitcher/LanguageSwitcher";
 import StudioModals from "./StudioModals/StudioModals";
@@ -40,7 +39,9 @@ import List from "../Tabs/List/List";
 import { parseVirtualBlocksFromPages } from "../../utils/virtual-blocks";
 import StudioStickyToolbar from "./StudioStickyToolbar/StudioStickyToolbar";
 import StudioCompositeBlocks from "./StudioCompositeBlocks/StudioCompositeBlocks";
-import { addIdsToList } from "../../utils/data";
+import { addPropsToAreasForCompositeBlocks } from "../../utils/studio";
+
+import styles from "./studio.module.scss";
 
 const Studio = (props) => {
   const {
@@ -71,6 +72,16 @@ const Studio = (props) => {
   const [showStickyToolbar, setShowStickyToolbar] = React.useState(false);
   const [showVB, setShowVB] = React.useState(false);
   const [compositeBlocksAreas, setCompositeBlocksAreas] = React.useState([]);
+  const [compositeBlocks, setCompositeBlocks] = React.useState({
+    name: "",
+    type: "",
+    areas: [],
+  });
+  const [_compositeBlocks, _setCompositeBlocks] = React.useState({
+    name: "",
+    type: "",
+    areas: [],
+  });
 
   const [areas, setAreas] = React.useState(
     pages?.map((page) =>
@@ -228,8 +239,12 @@ const Studio = (props) => {
 
   const onChangeHandler = (areasParam) => {
     if (activeRightTab.label === "Composite Blocks") {
-      const areasParamWithId = addIdsToList(areasParam);
-      setCompositeBlocksAreas(areasParamWithId);
+      const compositeBlocksWithPropsAreas = addPropsToAreasForCompositeBlocks(
+        compositeBlocks,
+        areasParam
+      );
+
+      setCompositeBlocks(compositeBlocksWithPropsAreas);
     } else {
       if (areasParam.length > areasProperties[activePageIndex].length) {
         syncAreasProperties();
@@ -285,7 +300,7 @@ const Studio = (props) => {
     }
     const img = extractImage(
       canvasRef,
-      studioEditorRef.current.studioEditorSelectorRef.current,
+      studioEditorRef.current.studioEditorSelectorRef,
       areasProperties,
       activePageIndex,
       areas,
@@ -392,13 +407,25 @@ const Studio = (props) => {
     setAreasProperties(newAreasProperties);
   };
 
-  const onChangeCompositeBlocksList = (id, value) => {
-    setCompositeBlocksAreas((prevState) => {
-      prevState[id] = {
-        ...prevState[id],
-        type: value,
+  const onChangeCompositeBlocks = (id, key, value) => {
+    if (!id) {
+      setCompositeBlocks((prevState) => ({
+        ...prevState,
+        [key]: value,
+      }));
+      return;
+    }
+
+    setCompositeBlocks((prevState) => {
+      return {
+        ...prevState,
+        areas: prevState?.areas?.map((item) => {
+          if (item.id === id) {
+            item = { ...item, [key]: value };
+          }
+          return item;
+        }),
       };
-      return prevState;
     });
   };
 
@@ -531,9 +558,9 @@ const Studio = (props) => {
       label: "Composite Blocks",
       component: (
         <StudioCompositeBlocks
-          compositeBlocksAreas={compositeBlocksAreas}
+          compositeBlocks={compositeBlocks}
           compositeBlocksTypes={compositeBlocksTypes}
-          onChangeCompositeBlocksList={onChangeCompositeBlocksList}
+          onChangeCompositeBlocks={onChangeCompositeBlocks}
         />
       ),
     },
@@ -617,7 +644,7 @@ const Studio = (props) => {
           onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
           onClickImage={onClickImage}
           activeRightTab={activeRightTab}
-          compositeBlocksAreas={compositeBlocksAreas}
+          compositeBlocks={compositeBlocks}
         />
         <BookColumn
           COLUMNS={RIGHT_COLUMNS}

@@ -1,5 +1,3 @@
-import { v4 as uuidv4 } from "uuid";
-
 const BOOLEAN = "Bool";
 
 const emptyValues = (object) => {
@@ -76,14 +74,4 @@ export const fullTextTrim = (text) => {
   return newText.split(" ")?.[0];
 };
 
-const addIdsToList = (list) => {
-  const newList = list.map((item) => {
-    if (!item.id) {
-      item = { ...item, id: uuidv4() };
-    }
-    return item;
-  });
-  return newList;
-};
-
-export { emptyValues, fillValues, syntaxHighlight, addIdsToList };
+export { emptyValues, fillValues, syntaxHighlight };

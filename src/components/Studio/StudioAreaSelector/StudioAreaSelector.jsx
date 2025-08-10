@@ -22,10 +22,13 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
     virtualBlocks,
     setVirtualBlocks,
     activeRightTab,
-    compositeBlocksAreas,
+    compositeBlocks,
   } = props;
 
-  const [_areas, _setAreas] = React.useState([]);
+  const [_areas, _setAreas] = React.useState({
+    name: "",
+    areas: [],
+  });
 
   const onClickExistedArea = (areaProps) => {
     const newAreasProperties = [...areasProperties];
@@ -56,7 +59,7 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
   };
 
   const onChangeHandlerForCB = (areas) => {
-    _setAreas(areas);
+    // _setCompositeBlocks((prevState) => ({ ...prevState, areas }));
   };
 
   return (
@@ -79,7 +82,7 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
         <AreaSelector
           areas={
             activeRightTab.label === "Composite Blocks"
-              ? compositeBlocksAreas
+              ? compositeBlocks.areas
               : areas[activePage]
           }
           onChange={onChangeHandler}

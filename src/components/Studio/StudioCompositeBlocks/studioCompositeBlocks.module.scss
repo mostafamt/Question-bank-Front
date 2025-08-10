@@ -1,0 +1,17 @@
+.studio-composite-blocks {
+  margin: 1rem;
+
+  & .header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  & .blocks {
+    margin-top: 2rem;
+
+    & .block {
+      border: 1px solid black;
+    }
+  }
+}
