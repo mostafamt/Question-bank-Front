@@ -47,6 +47,17 @@ export const saveBlocks = async (data) => {
     const res = await axios2.post("/save-blocks", data);
     return res.data;
   } catch (error) {
+    console.log(error);
+    toast.error(error?.message);
+    return null;
+  }
+};
+
+export const saveCompositeBlocks = async (data) => {
+  try {
+    const res = await axios2.post("/composite-objects", data);
+    return res.data;
+  } catch (error) {
     toast.error(error?.message);
     return null;
   }

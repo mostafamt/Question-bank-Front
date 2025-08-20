@@ -1,6 +1,6 @@
 import React from "react";
 import MuiSelect from "../../MuiSelect/MuiSelect";
-import { CircularProgress, TextField } from "@mui/material";
+import { CircularProgress, TextField, Button } from "@mui/material";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -19,6 +19,8 @@ const StudioCompositeBlocks = (props) => {
     compositeBlocksTypes,
     onChangeCompositeBlocks,
     processCompositeBlock,
+    onSubmitCompositeBlocks,
+    loadingSubmitCompositeBlocks,
   } = props;
 
   const list1 = getList1FromData(compositeBlocksTypes);
@@ -100,6 +102,26 @@ const StudioCompositeBlocks = (props) => {
             {renderBlockResult(block)}
           </div>
         ))}
+      </div>
+
+      <div className={styles.submit}>
+        <Button
+          variant="contained"
+          sx={{ width: "100%", margin: "1rem 0" }}
+          disabled={
+            compositeBlocks.areas.length === 0 || loadingSubmitCompositeBlocks
+          }
+          startIcon={
+            loadingSubmitCompositeBlocks ? (
+              <CircularProgress size="1rem" />
+            ) : (
+              <></>
+            )
+          }
+          onClick={onSubmitCompositeBlocks}
+        >
+          Submit
+        </Button>
       </div>
     </div>
   );
