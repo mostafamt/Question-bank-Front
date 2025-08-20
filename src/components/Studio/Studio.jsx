@@ -43,6 +43,8 @@ import StudioCompositeBlocks from "./StudioCompositeBlocks/StudioCompositeBlocks
 import { addPropsToAreasForCompositeBlocks } from "../../utils/studio";
 
 import styles from "./studio.module.scss";
+import { saveCompositeBlocks } from "../../services/api";
+import { useParams } from "react-router-dom";
 
 const Studio = (props) => {
   const {
@@ -72,17 +74,14 @@ const Studio = (props) => {
   const studioEditorRef = React.useRef(null);
   const [showStickyToolbar, setShowStickyToolbar] = React.useState(false);
   const [showVB, setShowVB] = React.useState(false);
-  const [compositeBlocksAreas, setCompositeBlocksAreas] = React.useState([]);
+  const { bookId, chapterId } = useParams();
   const [compositeBlocks, setCompositeBlocks] = React.useState({
     name: "",
     type: "",
     areas: [],
   });
-  const [_compositeBlocks, _setCompositeBlocks] = React.useState({
-    name: "",
-    type: "",
-    areas: [],
-  });
+  const [loadingSubmitCompositeBlocks, setLoadingSubmitCompositeBlocks] =
+    React.useState(false);
 
   const [areas, setAreas] = React.useState(
     pages?.map((page) =>
@@ -483,6 +482,35 @@ const Studio = (props) => {
     });
   };
 
+  const onSubmitCompositeBlocks = async () => {
+    setLoadingSubmitCompositeBlocks(true);
+
+    const blocks = compositeBlocks.areas.map(
+      ({ type, text, x, y, width, height, unit }) => ({
+        contentType: type,
+        contentValue: text,
+        coordinates: {
+          height,
+          unit: unit === "%" ? "percentage" : "px",
+          width,
+          x,
+          y,
+        },
+      })
+    );
+
+    const data = {
+      name: compositeBlocks.name,
+      type: compositeBlocks.type,
+      chapterId,
+      blocks,
+    };
+
+    const id = await saveCompositeBlocks(data);
+
+    setLoadingSubmitCompositeBlocks(false);
+  };
+
   const LEFT_COLUMNS = [
     {
       id: uuidv4(),
@@ -592,6 +620,8 @@ const Studio = (props) => {
           compositeBlocksTypes={compositeBlocksTypes}
           onChangeCompositeBlocks={onChangeCompositeBlocks}
           processCompositeBlock={processCompositeBlock}
+          onSubmitCompositeBlocks={onSubmitCompositeBlocks}
+          loadingSubmitCompositeBlocks={loadingSubmitCompositeBlocks}
         />
       ),
     },
