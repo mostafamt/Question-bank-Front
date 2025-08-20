@@ -6,6 +6,7 @@ import clsx from "clsx";
 
 import styles from "./studioAreaSelector.module.scss";
 import VirtualBlocks from "../../VirtualBlocks/VirtualBlocks";
+import { getList2FromData } from "../../../utils/studio";
 
 const StudioAreaSelector = React.forwardRef((props, ref) => {
   const {
@@ -22,7 +23,9 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
     virtualBlocks,
     setVirtualBlocks,
     activeRightTab,
+    compositeBlocksTypes,
     compositeBlocks,
+    setCompositeBlocks,
     highlight,
   } = props;
 
@@ -66,7 +69,36 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
   console.log("areas[activePage]= ", areas[activePage]);
 
   const onPickAreaForCompositeBlocks = (idx) => {
+    const area = areasProperties[activePage][idx];
+    const list = getList2FromData(compositeBlocksTypes, compositeBlocks.type);
+
+    const condition1 =
+      (area.type === "Illustrative object" || area.type === "Question") &&
+      list.includes("Object");
+    const condition2 = area.type === "Question" && list.includes("Question");
+
+    console.log("compositeBlocks= ", compositeBlocks);
+
+    if (condition1 || condition2) {
+      setCompositeBlocks((prevState) => ({
+        ...prevState,
+        areas: [
+          ...prevState.areas,
+          {
+            x: area.x,
+            y: area.y,
+            height: area.height,
+            width: area.width,
+            type: list.includes("Object") ? "Object" : "Question",
+            text: area.blockId,
+            unit: "%",
+          },
+        ],
+      }));
+    }
+
     console.log("area= ", areasProperties[activePage][idx]);
+    console.log("list= ", list);
   };
 
   const renderBlocks = () => {

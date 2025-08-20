@@ -730,7 +730,9 @@ const Studio = (props) => {
           onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
           onClickImage={onClickImage}
           activeRightTab={activeRightTab}
+          compositeBlocksTypes={compositeBlocksTypes}
           compositeBlocks={compositeBlocks}
+          setCompositeBlocks={setCompositeBlocks}
           highlight={highlight}
           setHighlight={setHighlight}
         />
