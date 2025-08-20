@@ -80,6 +80,7 @@ const Studio = (props) => {
     type: "",
     areas: [],
   });
+  const [highlight, setHighlight] = React.useState("");
   const [loadingSubmitCompositeBlocks, setLoadingSubmitCompositeBlocks] =
     React.useState(false);
 
@@ -730,6 +731,8 @@ const Studio = (props) => {
           onClickImage={onClickImage}
           activeRightTab={activeRightTab}
           compositeBlocks={compositeBlocks}
+          highlight={highlight}
+          setHighlight={setHighlight}
         />
         <BookColumn
           COLUMNS={RIGHT_COLUMNS}

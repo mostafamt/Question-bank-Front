@@ -9,6 +9,7 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
+import BackHandIcon from "@mui/icons-material/BackHand";
 
 import styles from "./styles.module.scss";
 
@@ -30,6 +31,8 @@ const ImageActions = React.forwardRef((props, ref) => {
     onImageLoad,
     pages,
     onClickImage,
+    highlight,
+    setHighlight,
   } = props;
 
   const [oldAreas, setOldAreas] = React.useState(areas[activePage] || []);
@@ -124,6 +127,25 @@ const ImageActions = React.forwardRef((props, ref) => {
           <LastPageIcon fontSize={iconFontSize} />
         </IconButton>
       </div>
+      <div>
+        <span>|</span>
+      </div>
+
+      <div>
+        <IconButton
+          aria-label="hand"
+          onClick={() => setHighlight(highlight === "hand" ? "" : "hand")}
+          sx={{
+            backgroundColor: highlight === "hand" ? "#ccc" : "transparent",
+          }}
+        >
+          <BackHandIcon fontSize={iconFontSize} />
+        </IconButton>
+      </div>
+
+      <div>
+        <span>|</span>
+      </div>
 
       <div>
         <IconButton aria-label="zoom-in" onClick={onClickZoomIn}>
@@ -137,6 +159,9 @@ const ImageActions = React.forwardRef((props, ref) => {
         <IconButton aria-label="zoom-out" onClick={onClickZoomOut}>
           <ZoomOutIcon fontSize={iconFontSize} />
         </IconButton>
+      </div>
+      <div>
+        <span>|</span>
       </div>
 
       <div>

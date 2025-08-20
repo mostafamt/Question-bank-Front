@@ -12,7 +12,12 @@
     display: flex;
     display: flex;
     align-items: center;
-    margin-right: 2rem;
+    // margin-right: 1rem;
+
+    & span {
+      font-size: 27px;
+      font-weight: 100;
+    }
 
     // #212529
   }

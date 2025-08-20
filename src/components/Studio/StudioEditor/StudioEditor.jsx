@@ -23,6 +23,8 @@ const StudioEditor = React.forwardRef((props, ref) => {
     onClickToggleVirutalBlocks,
     onClickImage,
     activeRightTab,
+    highlight,
+    setHighlight,
   } = props;
 
   const studioEditorSelectorRef = React.useRef(null);
@@ -50,6 +52,8 @@ const StudioEditor = React.forwardRef((props, ref) => {
         ref={imageActionsRef}
         pages={pages}
         onClickImage={onClickImage}
+        highlight={highlight}
+        setHighlight={setHighlight}
       />
       <StudioAreaSelector
         {...props}
