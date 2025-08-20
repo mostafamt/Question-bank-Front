@@ -23,6 +23,7 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
     setVirtualBlocks,
     activeRightTab,
     compositeBlocks,
+    highlight,
   } = props;
 
   const [_areas, _setAreas] = React.useState({
@@ -62,6 +63,30 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
     // _setCompositeBlocks((prevState) => ({ ...prevState, areas }));
   };
 
+  console.log("areas[activePage]= ", areas[activePage]);
+
+  const onPickAreaForCompositeBlocks = (idx) => {
+    console.log("area= ", areasProperties[activePage][idx]);
+  };
+
+  const renderBlocks = () => {
+    return areas[activePage].map((area, idx) => (
+      <div
+        key={idx}
+        style={{
+          position: "absolute",
+          top: `${area.y}px`,
+          left: `${area.x}px`,
+          width: `${area.width}px`,
+          height: `${area.height}px`,
+          backgroundColor: "rgba(0, 0, 0, 0.2)",
+          cursor: "pointer",
+        }}
+        onClick={() => onPickAreaForCompositeBlocks(idx)}
+      />
+    ));
+  };
+
   return (
     <VirtualBlocks
       className={clsx(
@@ -79,37 +104,56 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
         className={styles.block}
         css={constructBoxColors(areasProperties[activePage])}
       >
-        <AreaSelector
-          areas={
-            activeRightTab.label === "Composite Blocks"
-              ? compositeBlocks.areas
-              : areas[activePage]
-          }
-          onChange={onChangeHandler}
-          wrapperStyle={{
-            width: "100%",
-          }}
-          customAreaRenderer={customRender}
-          areaProps={{
-            onClick: (event, area) => {
-              console.log("here");
-            },
-          }}
-          unit="percentage"
-        >
-          <img
-            src={pages[activePage]?.url}
-            alt={pages[activePage]?.url || pages[activePage]}
-            crossOrigin="anonymous"
-            ref={ref}
-            style={{
-              width: `${imageScaleFactor * 100}%`,
-              height: `${imageScaleFactor * 100}%`,
-              overflow: "scroll",
+        {highlight === "hand" ? (
+          <div style={{ position: "relative" }}>
+            {renderBlocks()}
+            <img
+              src={pages[activePage]?.url}
+              alt={pages[activePage]?.url || pages[activePage]}
+              crossOrigin="anonymous"
+              ref={ref}
+              style={{
+                width: `${imageScaleFactor * 100}%`,
+                height: `${imageScaleFactor * 100}%`,
+                overflow: "scroll",
+                cursor: "pointer",
+              }}
+              onLoad={onImageLoad}
+            />
+          </div>
+        ) : (
+          <AreaSelector
+            areas={
+              activeRightTab.label === "Composite Blocks"
+                ? compositeBlocks.areas
+                : areas[activePage]
+            }
+            onChange={onChangeHandler}
+            wrapperStyle={{
+              width: "100%",
             }}
-            onLoad={onImageLoad}
-          />
-        </AreaSelector>
+            customAreaRenderer={customRender}
+            areaProps={{
+              onClick: (event, area) => {
+                console.log("here");
+              },
+            }}
+            unit="percentage"
+          >
+            <img
+              src={pages[activePage]?.url}
+              alt={pages[activePage]?.url || pages[activePage]}
+              crossOrigin="anonymous"
+              ref={ref}
+              style={{
+                width: `${imageScaleFactor * 100}%`,
+                height: `${imageScaleFactor * 100}%`,
+                overflow: "scroll",
+              }}
+              onLoad={onImageLoad}
+            />
+          </AreaSelector>
+        )}
       </div>
     </VirtualBlocks>
   );
