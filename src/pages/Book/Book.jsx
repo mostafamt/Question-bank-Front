@@ -1,170 +1,101 @@
-import React from "react";
-import PropTypes from "prop-types";
-// import SwipeableViews from "react-swipeable-views";
-import AppBar from "@mui/material/AppBar";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
+import React, { useState, useMemo } from "react";
+import { useParams } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+import { AppBar, Tabs, Tab, CircularProgress } from "@mui/material";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import BookIcon from "@mui/icons-material/Book";
 import StudyBook from "../../components/StudyBook/StudyBook";
 import BookContentLayout from "../../layouts/BookContentLayout/BookContentLayout";
-import { useQuery } from "@tanstack/react-query";
-import { useParams } from "react-router";
 import { getChapterPages } from "../../api/bookapi";
-import CircularProgress from "@mui/material/CircularProgress";
 import { INITIAL_PAGE_INDEX } from "../../utils/book";
+
+const tabsConfig = [
+  {
+    label: "The Book",
+    icon: <MenuBookIcon />,
+    children: [
+      { label: "Study Book", component: <StudyBook /> },
+      { label: "Work Book", component: <div>Work Book</div> },
+      { label: "Activity Book", component: <div>Activity Book</div> },
+    ],
+  },
+  {
+    label: "Review Book",
+    icon: <BookIcon />,
+    children: [
+      { label: "Review Booklet", component: <div>Review Booklet</div> },
+      {
+        label: "Exam Style Questions",
+        component: <div>Exam Style Questions</div>,
+      },
+      { label: "Check Yourself", component: <div>Check Yourself</div> },
+      { label: "Headlights Booklet", component: <div>Headlights Booklet</div> },
+    ],
+  },
+];
 
 const tabsStyle = {
   width: "100%",
-  "& .MuiTabs-indicator": {
-    backgroundColor: "transparent",
-  },
+  "& .MuiTabs-indicator": { backgroundColor: "transparent" },
   "& .MuiTab-root.Mui-selected": {
     backgroundColor: "primary.main",
     color: "#fff",
   },
 };
 
-const tabs = [
-  {
-    label: "The Book",
-    icon: <MenuBookIcon />,
-    children: {
-      labels: ["Study Book", "Work Book", "Activity Book"],
-      items: [<StudyBook />, <div>Work Book</div>, <div>Activity Book</div>],
-    },
-  },
-  {
-    label: "Review Book",
-    icon: <BookIcon />,
-    children: {
-      labels: [
-        "Review Booklet",
-        "Exam Style Questions",
-        "Check Yourself",
-        "Headlights Booklet",
-      ],
-      items: [
-        <div>Review Booklet</div>,
-        <div>Exam Style Questions</div>,
-        <div>Check Yourself</div>,
-        <div>Headlights Booklet</div>,
-      ],
-    },
-  },
-];
+const TabPanel = ({ value, index, children }) =>
+  value === index ? <div role="tabpanel">{children}</div> : null;
 
-function a11yProps(index) {
-  return {
-    id: `simple-tab-${index}`,
-    "aria-controls": `simple-tabpanel-${index}`,
-  };
-}
-
-function TabPanel(props) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`full-width-tabpanel-${index}`}
-      aria-labelledby={`full-width-tab-${index}`}
-      {...other}
-    >
-      {value === index && <div>{children}</div>}
-    </div>
-  );
-}
-
-TabPanel.propTypes = {
-  children: PropTypes.node,
-  index: PropTypes.number.isRequired,
-  value: PropTypes.number.isRequired,
-};
-
-const InnerTabs = (props) => {
-  const { tabs, items, value, handleChange, pages, chapterId } = props;
-
-  const [activePage, setActivePage] = React.useState(
+const InnerTabs = ({ chapterId, pages, tabs }) => {
+  const [value, setValue] = useState(0);
+  const [activePage, setActivePage] = useState(
     pages?.[INITIAL_PAGE_INDEX] || ""
   );
 
   return (
     <>
-      <AppBar
-        position="static"
-        sx={{
-          bgcolor: "#eee",
-          color: "#000",
-        }}
-      >
+      <AppBar position="static" sx={{ bgcolor: "#eee", color: "#000" }}>
         <Tabs
           value={value}
-          onChange={(event, newValue) => handleChange("inner", event, newValue)}
-          textColor="inherit"
+          onChange={(_, newValue) => setValue(newValue)}
           variant="fullWidth"
-          aria-label="full width tabs example"
           sx={tabsStyle}
         >
-          {tabs.map((item, index) => (
-            <Tab key={index} label={item} {...a11yProps(index)} />
+          {tabs.map((tab, i) => (
+            <Tab key={i} label={tab.label} />
           ))}
         </Tabs>
       </AppBar>
-      {tabs.map((_, index) => {
-        const clonedElement = React.cloneElement(items[index], {
-          activePage,
-          setActivePage,
-        });
 
-        return (
-          <TabPanel key={index} value={value} index={index}>
-            <BookContentLayout
-              pages={pages}
-              chapterId={chapterId}
-              activePage={activePage}
-              setActivePage={setActivePage}
-            >
-              {clonedElement}
-            </BookContentLayout>
-          </TabPanel>
-        );
-      })}
+      {tabs.map((tab, i) => (
+        <TabPanel key={i} value={value} index={i}>
+          <BookContentLayout
+            pages={pages}
+            chapterId={chapterId}
+            activePage={activePage}
+            setActivePage={setActivePage}
+          >
+            {React.cloneElement(tab.component, { activePage, setActivePage })}
+          </BookContentLayout>
+        </TabPanel>
+      ))}
     </>
   );
 };
 
 const Book = () => {
   const { bookId, chapterId } = useParams();
-
-  const { data: pages, isFetching: isFetchingPages } = useQuery({
+  const { data: pages, isFetching } = useQuery({
     queryKey: [`book-${bookId}-chapter-${chapterId}`],
     queryFn: () => getChapterPages(chapterId),
     refetchOnWindowFocus: false,
   });
 
-  const [value1, setValue1] = React.useState(0);
-  const [value2, setValue2] = React.useState(0);
+  const [outerValue, setOuterValue] = useState(0);
 
-  const handleChange = (variant, event, newValue) => {
-    if (variant === "outer") {
-      setValue1(newValue);
-    } else {
-      setValue2(newValue);
-    }
-  };
-
-  if (isFetchingPages) {
+  if (isFetching) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-        }}
-      >
+      <div style={{ display: "flex", justifyContent: "center" }}>
         <CircularProgress />
       </div>
     );
@@ -172,42 +103,27 @@ const Book = () => {
 
   return (
     <div className="container">
-      <AppBar
-        position="static"
-        sx={{
-          bgcolor: "#eee",
-          color: "#000",
-        }}
-      >
+      <AppBar position="static" sx={{ bgcolor: "#eee", color: "#000" }}>
         <Tabs
-          value={value1}
-          onChange={(event, newValue) => handleChange("outer", event, newValue)}
-          textColor="inherit"
+          value={outerValue}
+          onChange={(_, newValue) => setOuterValue(newValue)}
           variant="fullWidth"
-          aria-label="full width tabs example"
           sx={tabsStyle}
         >
-          {tabs.map((tab, index) => (
+          {tabsConfig.map((tab, i) => (
             <Tab
-              key={index}
-              icon={<MenuBookIcon />}
+              key={i}
+              icon={tab.icon}
               iconPosition="start"
               label={tab.label}
-              {...a11yProps(index)}
             />
           ))}
         </Tabs>
       </AppBar>
-      {tabs.map((item, index) => (
-        <TabPanel key={index} value={value1} index={index}>
-          <InnerTabs
-            value={value2}
-            handleChange={handleChange}
-            tabs={item.children?.labels}
-            items={item.children?.items}
-            pages={pages}
-            chapterId={chapterId}
-          />
+
+      {tabsConfig.map((tab, i) => (
+        <TabPanel key={i} value={outerValue} index={i}>
+          <InnerTabs chapterId={chapterId} pages={pages} tabs={tab.children} />
         </TabPanel>
       ))}
     </div>
