@@ -178,7 +178,7 @@ export const parseVirtualBlocksFromPages = (pages) => {
 
 export const parseVirtualBlocksFromActivePage = (page) => {
   const vBlocks = { ...VIRTUAL_BLOCKS };
-  page.v_blocks.forEach((v_block) => {
+  page?.v_blocks?.forEach((v_block) => {
     const iconLocation = v_block.iconLocation;
     vBlocks[iconLocation] = {
       id: v_block.contentValue,
