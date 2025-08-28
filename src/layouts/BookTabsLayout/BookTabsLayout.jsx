@@ -17,9 +17,9 @@ import { v4 as uuidv4 } from "uuid";
 import TableOfContents from "../../components/Book/TableOfContents/TableOfContents";
 import BookColumns2 from "../../components/Book/BookColumn2/BookColumn2";
 
-import styles from "./studyBookLayout.module.scss";
+import styles from "./bookTabsLayout.module.scss";
 
-const StudyBookLayout = (props) => {
+const BookTabsLayout = (props) => {
   const {
     children,
     pages: newPages,
@@ -158,4 +158,4 @@ const StudyBookLayout = (props) => {
   );
 };
 
-export default StudyBookLayout;
+export default BookTabsLayout;

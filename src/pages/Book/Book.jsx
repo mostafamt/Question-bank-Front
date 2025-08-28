@@ -1,25 +1,12 @@
 import React, { useState } from "react";
 import { useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
-import { AppBar, Tabs, Tab, CircularProgress } from "@mui/material";
-import MenuBookIcon from "@mui/icons-material/MenuBook";
-import BookIcon from "@mui/icons-material/Book";
-import StudyBook from "../../components/StudyBook/StudyBook";
-import BookContentLayout from "../../layouts/StudyBookLayout/StudyBookLayout";
+import { CircularProgress } from "@mui/material";
 import { getChapterPages } from "../../api/bookapi";
 import { INITIAL_PAGE_INDEX } from "../../utils/book";
-import BookReaderLayout from "../../layouts/BookReaderLayout/BookReaderLayout";
 import { tabsConfig } from "../../config/reader";
-import StudyBookLayout from "../../layouts/StudyBookLayout/StudyBookLayout";
-
-const tabsStyle = {
-  width: "100%",
-  "& .MuiTabs-indicator": { backgroundColor: "transparent" },
-  "& .MuiTab-root.Mui-selected": {
-    backgroundColor: "primary.main",
-    color: "#fff",
-  },
-};
+import BookHeaderLayout from "../../layouts/BookHeaderLayout/BookHeaderLayout";
+import BookTabsLayout from "../../layouts/BookTabsLayout/BookTabsLayout";
 
 const Book = () => {
   const { bookId, chapterId } = useParams();
@@ -71,8 +58,8 @@ const Book = () => {
   const innerTab = outerTab.children[innerValue];
 
   return (
-    <BookReaderLayout>
-      <StudyBookLayout
+    <BookHeaderLayout>
+      <BookTabsLayout
         pages={pages}
         chapterId={chapterId}
         activePage={activePage}
@@ -84,8 +71,8 @@ const Book = () => {
           setActivePage,
           onChangeActivePage,
         })}
-      </StudyBookLayout>
-    </BookReaderLayout>
+      </BookTabsLayout>
+    </BookHeaderLayout>
   );
 };
 

@@ -11,7 +11,7 @@ const tabsStyle = {
   },
 };
 
-const BookReaderLayout = ({ children }) => {
+const BookHeaderLayout = ({ children }) => {
   const [outerValue, setOuterValue] = useState(0); // top-level tabs
   const [innerValue, setInnerValue] = useState(0); // nested tabs
 
@@ -62,4 +62,4 @@ const BookReaderLayout = ({ children }) => {
   );
 };
 
-export default BookReaderLayout;
+export default BookHeaderLayout;
