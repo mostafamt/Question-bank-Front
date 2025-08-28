@@ -17,14 +17,15 @@ const BookViewer = (props) => {
 
   let virtualBlocks = parseVirtualBlocksFromActivePage(activePage);
 
-  React.useEffect(() => {
-    // console.log("ref= ", ref?.current?.clientWidth);
-    getImageDimensions(activePage.url)
-      .then((dimensions) => {})
-      .catch((error) => {
-        console.error(error.message);
-      });
-  }, [activePage.url, ref, ref.current?.clientWidth]);
+  // React.useEffect(() => {
+  //   // console.log("ref= ", ref?.current?.clientWidth);
+  //   console.log("activePage= ", activePage);
+  //   getImageDimensions(activePage.url)
+  //     .then((dimensions) => {})
+  //     .catch((error) => {
+  //       console.error(error.message);
+  //     });
+  // }, [activePage.url, ref, ref.current?.clientWidth]);
 
   const getStyle = (area) => {
     if (area?.coordinates?.unit === "percentage") {
