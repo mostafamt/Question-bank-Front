@@ -8,7 +8,8 @@ const BookColumn2 = (props) => {
   const [open, setOpen] = React.useState(false);
   const [columns, setColumns] = React.useState(props.columns);
   const [activeColumn, setActiveColumn] = React.useState(props.columns[0]);
-  const { activePage } = props;
+  const { activePage, setActivePage } = props;
+  const containerRef = React.useRef(null);
 
   React.useEffect(() => {
     setColumns(props.columns);
@@ -22,6 +23,7 @@ const BookColumn2 = (props) => {
           ? { flex: `0 0 ${20}%` }
           : { flex: `0 0 2.6%`, overflow: "hidden" }
       }
+      ref={containerRef}
     >
       {activeColumn ? (
         <div
@@ -39,6 +41,8 @@ const BookColumn2 = (props) => {
           <div>
             {React.cloneElement(activeColumn.component, {
               ...activeColumn.props,
+              activePage: activePage,
+              ref: containerRef,
             })}
           </div>
         </div>
