@@ -34,6 +34,31 @@ const Book = () => {
     pages?.[INITIAL_PAGE_INDEX] || ""
   );
 
+  const onChangeActivePage = (action) => {
+    setActivePage((prevPage) => {
+      // Case 1: Direct page object
+      if (typeof action === "object" && action?._id) {
+        return action;
+      }
+
+      // Case 2: Action string
+      const currentIndex = pages.findIndex((p) => p._id === prevPage._id);
+
+      switch (action) {
+        case "next":
+          return pages[Math.min(currentIndex + 1, pages.length - 1)];
+        case "prev":
+          return pages[Math.max(currentIndex - 1, 0)];
+        case "first":
+          return pages[0];
+        case "last":
+          return pages[pages.length - 1];
+        default:
+          return prevPage;
+      }
+    });
+  };
+
   if (isFetching) {
     return (
       <div style={{ display: "flex", justifyContent: "center" }}>
@@ -52,10 +77,12 @@ const Book = () => {
         chapterId={chapterId}
         activePage={activePage}
         setActivePage={setActivePage}
+        onChangeActivePage={onChangeActivePage}
       >
         {React.cloneElement(innerTab.component, {
           activePage,
           setActivePage,
+          onChangeActivePage,
         })}
       </StudyBookLayout>
     </BookReaderLayout>

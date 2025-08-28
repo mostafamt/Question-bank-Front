@@ -16,7 +16,8 @@ import QuillModal from "../Modal/QuillModal/QuillModal";
 import styles from "./studyBook.module.scss";
 
 const StudyBook = (props) => {
-  const { pages, activePage, setActivePage, newPages } = props;
+  const { pages, activePage, setActivePage, newPages, onChangeActivePage } =
+    props;
   const [showModal, setShowModal] = React.useState(false);
   const [activeBlock, setActiveBlock] = React.useState({});
 
@@ -54,6 +55,7 @@ const StudyBook = (props) => {
         onChangePage={onChangePage}
         onClickArea={onClickArea}
         newPages={newPages}
+        onChangeActivePage={onChangeActivePage}
       />
     </>
   );

@@ -11,21 +11,28 @@ import { getPageOrderByPageId, getTotalPages } from "../../../utils/book";
 import styles from "./bookViewerTopBar.module.scss";
 
 const BookViewerTopBar = (props) => {
-  const { activePage, onChangePage, pages, showVB, setShowVB } = props;
+  const {
+    activePage,
+    onChangePage,
+    pages,
+    showVB,
+    setShowVB,
+    onChangeActivePage,
+  } = props;
 
   const onClickNextPage = () => {
-    onChangePage("next");
+    onChangeActivePage("next");
   };
   const onClickPreviousPage = () => {
-    onChangePage("previous");
+    onChangeActivePage("prev");
   };
 
   const onClickFirstPage = () => {
-    onChangePage("first");
+    onChangeActivePage("first");
   };
 
   const onClickLastPage = () => {
-    onChangePage("last");
+    onChangeActivePage("last");
   };
 
   const onClickShowVirtualBlocks = () => {

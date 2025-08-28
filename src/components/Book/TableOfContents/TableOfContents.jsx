@@ -9,7 +9,7 @@ import { CircularProgress } from "@mui/material";
 // TABLES_OF_CONTENTS
 
 const TableOfContents = (props) => {
-  const { PAGES, setActivePage, chapterId } = props;
+  const { PAGES, setActivePage, chapterId, onChangeActivePage } = props;
 
   const { data: TABLES_OF_CONTENTS, isFetching } = useQuery({
     queryKey: [`toc`],
@@ -21,7 +21,7 @@ const TableOfContents = (props) => {
     // console.log("item= ", item);
     if (item.hasOwnProperty("pageIndex") && item.pageIndex) {
       const newPage = PAGES[item.pageIndex];
-      setActivePage(newPage);
+      onChangeActivePage(newPage);
     }
   };
 
