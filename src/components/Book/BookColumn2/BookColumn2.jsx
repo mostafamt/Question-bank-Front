@@ -41,8 +41,8 @@ const BookColumn2 = (props) => {
           <div>
             {React.cloneElement(activeColumn.component, {
               ...activeColumn.props,
-              activePage: activePage,
-              ref: containerRef,
+              activePage,
+              ...(activeColumn.label === "Thumbnails" && { ref: containerRef }),
             })}
           </div>
         </div>
