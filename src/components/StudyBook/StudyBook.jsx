@@ -10,25 +10,21 @@ import {
   toggleColumn,
 } from "../../utils/book";
 import PlayObjectModal from "../Modal/PlayObjectModal/PlayObjectModal";
-import styles from "./studyBook.module.scss";
 import { isComplexType } from "../../utils/ocr";
 import QuillModal from "../Modal/QuillModal/QuillModal";
 
+import styles from "./studyBook.module.scss";
+
 const StudyBook = (props) => {
   const { pages, activePage, setActivePage, newPages } = props;
-  // const [pages, setPages] = React.useState(PAGES);
-  // const [activePage, setActivePage] = React.useState(INITIAL_PAGE);
   const [showModal, setShowModal] = React.useState(false);
   const [activeBlock, setActiveBlock] = React.useState({});
 
   const onChangePage = (state = "next") => {
-    console.log("activePage= ", activePage);
     setActivePage((prevState) => {
       const newPage = changePage(newPages, prevState, state);
-      localStorage.setItem("page", JSON.stringify(newPage));
       return newPage;
     });
-    
   };
 
   const onClickArea = (block) => {

@@ -140,7 +140,11 @@ const StudyBookLayout = (props) => {
 
   return (
     <div className={styles["book-content-layout"]}>
-      <BookColumns2 columns={LEFT_COLUMNS} />
+      <BookColumns2
+        columns={LEFT_COLUMNS}
+        activePage={activePage}
+        setActivePage={setActivePage}
+      />
       <div>{clonedElement}</div>
       <BookColumns2 columns={RIGHT_COLUMNS} />
     </div>

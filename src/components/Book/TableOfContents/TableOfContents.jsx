@@ -22,7 +22,6 @@ const TableOfContents = (props) => {
     if (item.hasOwnProperty("pageIndex") && item.pageIndex) {
       const newPage = PAGES[item.pageIndex];
       setActivePage(newPage);
-      localStorage.setItem("page", JSON.stringify(newPage));
     }
   };
 

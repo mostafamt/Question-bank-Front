@@ -2,37 +2,28 @@ import React from "react";
 
 import styles from "./bookThumnails.module.scss";
 
-const BookThumnails = (props) => {
+const BookThumnails = React.forwardRef((props, ref) => {
   const { pages, activePage, setActivePage } = props;
-
-  React.useEffect(() => {
-    localStorage.setItem("page", JSON.stringify(activePage));
-  }, []);
+  const containerRef = React.useRef(null);
 
   const onClickButton = (page) => {
-    // console.log("page= ", page);
-    // console.log("page= ", page);
     setActivePage(page);
-    localStorage.setItem("page", JSON.stringify(page));
+    ref.current?.scrollBy({ top: 200, behavior: "smooth" });
   };
 
   return (
-    <div className={styles["book-thumbnails"]}>
+    <div className={styles["book-thumbnails"]} ref={containerRef}>
       {pages?.map((page) => (
         <button
           key={page._id}
           onClick={() => onClickButton(page)}
-          className={
-            JSON.parse(localStorage.getItem("page"))?._id === page?._id
-              ? styles.active
-              : ""
-          }
+          className={activePage?._id === page?._id ? styles.active : ""}
         >
           <img style={{ width: "100%" }} src={page.url} alt={page.url} />
         </button>
       ))}
     </div>
   );
-};
+});
 
 export default BookThumnails;
