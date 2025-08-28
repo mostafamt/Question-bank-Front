@@ -26,6 +26,7 @@ const StudyBookLayout = (props) => {
     chapterId,
     activePage,
     setActivePage,
+    onChangeActivePage,
   } = props;
   const [columns, setColumns] = React.useState(ALL_COLUMNS);
   const [pages, setPages] = React.useState(PAGES);
@@ -58,8 +59,13 @@ const StudyBookLayout = (props) => {
           pages={newPages}
           activePage={activePage}
           setActivePage={setActivePage}
+          onChangeActivePage={onChangeActivePage}
         />
       ),
+      props: {
+        activePage,
+        onChangeActivePage,
+      },
     },
     {
       id: uuidv4(),
@@ -103,6 +109,7 @@ const StudyBookLayout = (props) => {
           PAGES={newPages}
           setActivePage={setActivePage}
           chapterId={chapterId}
+          onChangeActivePage={onChangeActivePage}
         />
       ),
     },

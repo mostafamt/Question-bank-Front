@@ -8,7 +8,13 @@ import VirtualBlock from "../../VirtualBlocks/VirtualBlock/VirtualBlock";
 import { getImageDimensions } from "../../../utils/image";
 
 const BookViewer = (props) => {
-  const { activePage, onChangePage, onClickArea, newPages: pages } = props;
+  const {
+    activePage,
+    onChangePage,
+    onClickArea,
+    newPages: pages,
+    onChangeActivePage,
+  } = props;
   const [width, setWidth] = React.useState(null);
   const [showVB, setShowVB] = React.useState(false);
   const ref = React.createRef(null);
@@ -73,6 +79,7 @@ const BookViewer = (props) => {
         pages={pages}
         showVB={showVB}
         setShowVB={setShowVB}
+        onChangeActivePage={onChangeActivePage}
       />
       <div
         className={styles.blocks}
