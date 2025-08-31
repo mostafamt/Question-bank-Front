@@ -1,11 +1,14 @@
 .book-column {
-  overflow-y: scroll;
+  // overflow-y: scroll;
   box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px,
     rgba(0, 0, 0, 0.3) 0px 30px 60px -30px,
     rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
 
   & .opened {
     position: relative;
+    height: 100%;
+    flex: 0 0 20%;
+
     & .head {
       position: sticky;
       top: 0;
@@ -15,6 +18,7 @@
       align-items: flex-end;
       border-bottom: 2px solid #ccc;
       background-color: #fff;
+      height: 3%;
 
       & > button {
         border-color: transparent;
@@ -24,6 +28,10 @@
           background-color: #ddd;
         }
       }
+    }
+
+    & .body {
+      height: 97%;
     }
   }
 

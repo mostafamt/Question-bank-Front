@@ -9,7 +9,6 @@ const BookColumn2 = (props) => {
   const [columns, setColumns] = React.useState(props.columns);
   const [activeColumn, setActiveColumn] = React.useState(props.columns[0]);
   const { activePage, setActivePage } = props;
-  const containerRef = React.useRef(null);
 
   React.useEffect(() => {
     setColumns(props.columns);
@@ -23,26 +22,19 @@ const BookColumn2 = (props) => {
           ? { flex: `0 0 ${20}%` }
           : { flex: `0 0 2.6%`, overflow: "hidden" }
       }
-      ref={containerRef}
     >
       {activeColumn ? (
-        <div
-          className={styles.opened}
-          style={{
-            flex: `0 0 ${20}%`,
-          }}
-        >
+        <div className={styles.opened}>
           <div className={styles.head}>
             <span>{activeColumn.label}</span>
             <button onClick={() => setActiveColumn(null)}>
               <MinimizeIcon />
             </button>
           </div>
-          <div>
+          <div className={styles.body}>
             {React.cloneElement(activeColumn.component, {
               ...activeColumn.props,
               activePage,
-              ...(activeColumn.label === "Thumbnails" && { ref: containerRef }),
             })}
           </div>
         </div>
