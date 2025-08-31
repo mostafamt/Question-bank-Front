@@ -78,6 +78,7 @@ export const PAGES = Array(20)
   }));
 
 export const mapTableOfContents = (TABLES_OF_CONTENTS) => {
+  console.log("TABLES_OF_CONTENTS= ", TABLES_OF_CONTENTS);
   return TABLES_OF_CONTENTS?.map((item) => {
     return {
       id: uuidv4(),

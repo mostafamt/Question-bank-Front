@@ -62,10 +62,6 @@ const BookTabsLayout = (props) => {
           onChangeActivePage={onChangeActivePage}
         />
       ),
-      props: {
-        activePage,
-        onChangeActivePage,
-      },
     },
     {
       id: uuidv4(),
