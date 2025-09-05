@@ -91,7 +91,7 @@ const BookViewer = (props) => {
           style={{
             gridColumn: showVB ? "2 / 6" : "1 / 8",
             gridRow: showVB ? "2 / 8" : "1 / 8",
-            backgroundImage: `url(${activePage.url})`,
+            backgroundImage: `url(${activePage?.url})`,
             backgroundSize: "cover",
             backgroundRepeat: "no-repeat",
             height: showVB ? "94%" : "99%",
