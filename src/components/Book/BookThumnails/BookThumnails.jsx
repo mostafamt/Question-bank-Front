@@ -4,10 +4,9 @@ import styles from "./bookThumnails.module.scss";
 
 const BookThumnails = React.forwardRef((props, ref) => {
   const { pages, activePage, onChangeActivePage } = props;
-  const containerRef = React.useRef(null);
 
   return (
-    <div className={styles["book-thumbnails"]} ref={containerRef}>
+    <div className={styles["book-thumbnails"]} ref={ref}>
       {pages?.map((page) => (
         <button
           key={page._id}

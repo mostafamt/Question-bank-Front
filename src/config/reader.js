@@ -7,7 +7,7 @@ export const tabsConfig = [
     label: "The Book",
     icon: <MenuBookIcon />,
     children: [
-      { label: "Study Book", component: <StudyBook /> },
+      { label: "Study Book", component: StudyBook },
       { label: "Work Book", component: <div>Work Book</div> },
       { label: "Activity Book", component: <div>Activity Book</div> },
     ],

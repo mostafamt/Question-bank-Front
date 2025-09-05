@@ -19,7 +19,7 @@ import BookColumns2 from "../../components/Book/BookColumn2/BookColumn2";
 
 import styles from "./bookTabsLayout.module.scss";
 
-const BookTabsLayout = (props) => {
+const BookTabsLayout = React.forwardRef((props, ref) => {
   const {
     children,
     pages: newPages,
@@ -28,26 +28,6 @@ const BookTabsLayout = (props) => {
     setActivePage,
     onChangeActivePage,
   } = props;
-  const [columns, setColumns] = React.useState(ALL_COLUMNS);
-  const [pages, setPages] = React.useState(PAGES);
-  const [showModal, setShowModal] = React.useState(false);
-
-  // console.log("activePage= ", activePage);
-
-  const onClickMinimize = (id) => {
-    setColumns((prevState) => toggleColumn(prevState, id));
-  };
-
-  React.useEffect(() => {
-    setActivePage(newPages?.[INITIAL_PAGE_INDEX]);
-  }, [newPages]);
-
-  const clonedElement = React.cloneElement(children, {
-    pages,
-    activePage,
-    setActivePage,
-    newPages,
-  });
 
   const LEFT_COLUMNS = [
     {
@@ -60,6 +40,7 @@ const BookTabsLayout = (props) => {
           activePage={activePage}
           setActivePage={setActivePage}
           onChangeActivePage={onChangeActivePage}
+          ref={ref}
         />
       ),
     },
@@ -148,10 +129,10 @@ const BookTabsLayout = (props) => {
         activePage={activePage}
         setActivePage={setActivePage}
       />
-      <div>{clonedElement}</div>
+      <div>{children}</div>
       <BookColumns2 columns={RIGHT_COLUMNS} />
     </div>
   );
-};
+});
 
 export default BookTabsLayout;
