@@ -5,7 +5,6 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import styles from "./bookColumn.module.scss";
 
 const BookColumn2 = (props) => {
-  const [open, setOpen] = React.useState(false);
   const [columns, setColumns] = React.useState(props.columns);
   const [activeColumn, setActiveColumn] = React.useState(props.columns[0]);
   const { activePage, setActivePage } = props;
@@ -14,13 +13,31 @@ const BookColumn2 = (props) => {
     setColumns(props.columns);
   }, [props.columns]);
 
+  React.useEffect(() => {
+    console.log("window.innerWidth= ", window.innerWidth);
+    const checkMobile = () => {
+      if (window.innerWidth <= 768) {
+        console.log("here");
+        setActiveColumn(null);
+      }
+    };
+
+    checkMobile(); // run on mount
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   return (
     <div
       className={styles["book-column"]}
       style={
         activeColumn
           ? { flex: `0 0 ${20}%` }
-          : { flex: `0 0 2.6%`, overflow: "hidden" }
+          : {
+              flex: `0 0 ${window.innerWidth <= 768 ? 6.6 : 2.6}%`,
+              overflow: "hidden",
+            }
       }
     >
       {activeColumn ? (

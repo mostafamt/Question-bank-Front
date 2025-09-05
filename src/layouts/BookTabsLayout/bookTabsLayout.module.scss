@@ -16,6 +16,11 @@
       flex: 0 0 15%;
     }
   }
+
+  @media (max-width: 768px) {
+    height: 35rem;
+    gap: 1rem;
+  }
 }
 
 .try {
