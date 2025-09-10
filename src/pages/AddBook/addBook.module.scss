@@ -26,11 +26,11 @@
         & .row {
           display: flex;
           align-items: center;
-          //   justify-content: center;
+          justify-content: space-between;
           gap: 4%;
 
-          & > * {
-            flex: 0 1 48%;
+          & > label {
+            flex: 1 1 auto;
           }
         }
 
@@ -42,6 +42,26 @@
 
           & > button {
             flex: 0 1 30%;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .add-book {
+    & > form {
+      & > fieldset {
+        padding: 1rem;
+        & > div {
+          & .row {
+            flex-direction: column;
+            align-items: flex-start;
+
+            & > label {
+              width: 100%;
+            }
           }
         }
       }

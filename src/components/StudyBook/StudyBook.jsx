@@ -54,7 +54,7 @@ const StudyBook = (props) => {
         setActivePage={setActivePage}
         onChangePage={onChangePage}
         onClickArea={onClickArea}
-        newPages={newPages}
+        newPages={pages}
         onChangeActivePage={onChangeActivePage}
       />
     </>
