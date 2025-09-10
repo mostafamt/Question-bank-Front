@@ -16,13 +16,22 @@
       flex: 0 0 15%;
     }
   }
-
-  @media (max-width: 768px) {
-    height: 35rem;
-    gap: 1rem;
-  }
 }
 
 .try {
   overflow-y: scroll !important;
+}
+
+@media (max-width: 768px) {
+  .book-content-layout {
+    height: 35rem;
+    gap: 1rem;
+
+    & > div {
+      &:nth-child(1),
+      &:nth-child(3) {
+        flex: 0 0 10%;
+      }
+    }
+  }
 }

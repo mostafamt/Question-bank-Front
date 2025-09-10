@@ -1,19 +1,13 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import Select from "../../components/Select/Select";
-import {
-  getBooks,
-  getChapterPages,
-  getChapters,
-  getTestChapters,
-} from "../../api/bookapi";
+import { getBooks, getChapters } from "../../api/bookapi";
 import { useQuery } from "@tanstack/react-query";
 import { Button, CircularProgress } from "@mui/material";
-import ScannerIcon from "@mui/icons-material/Scanner";
-import ClassIcon from "@mui/icons-material/Class";
-
+import ImportContactsIcon from "@mui/icons-material/ImportContacts";
+import DrawIcon from "@mui/icons-material/Draw";
 import styles from "./addBook.module.scss";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useStore } from "../../store/store";
 import { getTypes } from "../../services/api";
 
@@ -28,50 +22,51 @@ const AddBook = () => {
     watch,
   } = useForm();
 
-  const {
-    data: books,
-    isError: isErrorBooks,
-    isLoading: isLoadingBooks,
-    isSuccess: isSuccessBooks,
-  } = useQuery({
+  const { data: books, isLoading: isLoadingBooks } = useQuery({
     queryKey: ["books"],
     queryFn: getBooks,
   });
 
-  const {
-    data: chapters,
-    isError: isErrorChapters,
-    isLoading: isLoadingChapters,
-    isSuccess: isSuccessChapters,
-    isFetching,
-  } = useQuery({
+  const { data: chapters, isLoading: isLoadingChapters } = useQuery({
     queryKey: [`chapters-${watch("book")}`],
     queryFn: () => getChapters(watch("book")),
     enabled: !!watch("book"), // Disable auto-fetch
   });
 
-  const onSubmit = async (values, event) => {
-    const submitter = event?.nativeEvent?.submitter;
-    const name = submitter?.name;
+  const handleRead = ({ book, chapter }) => {
+    navigate(`/read/book/${book}/chapter/${chapter}`);
+  };
 
-    const { book, chapter } = values;
-
-    if (name === "read") {
-      navigate(`/read/book/${book}/chapter/${chapter}`);
-    } else {
-      setLoadingScan(true);
-
+  const handleAuthor = async ({ book, chapter }) => {
+    setLoadingScan(true);
+    try {
       const types = await getTypes();
+      setFormState({ types });
 
-      setFormState({
-        types,
-      });
-      setLoadingScan(false);
-      const chapterDetails = chapters.find((item) => item._id === chapter);
+      const chapterDetails = chapters.find((c) => c._id === chapter);
       const language = chapterDetails?.language || "en";
-      navigate(`/book/${book}/chapter/${chapter}`, {
-        state: { language },
-      });
+
+      navigate(`/book/${book}/chapter/${chapter}`, { state: { language } });
+    } finally {
+      setLoadingScan(false);
+    }
+  };
+
+  const onSubmit = async (values, event) => {
+    const submitterName = event?.nativeEvent?.submitter?.name;
+
+    if (submitterName === "read") {
+      handleRead(values);
+    } else {
+      await handleAuthor(values);
+    }
+  };
+
+  const renderButtonIcon = (type) => {
+    if (type === "author") {
+      return loadingScan ? <CircularProgress size="1rem" /> : <DrawIcon />;
+    } else {
+      return <ImportContactsIcon />;
     }
   };
 
@@ -116,9 +111,7 @@ const AddBook = () => {
                 variant="contained"
                 type="submit"
                 disabled={loadingScan}
-                startIcon={
-                  loadingScan ? <CircularProgress size="1rem" /> : <></>
-                }
+                startIcon={renderButtonIcon("author")}
                 name="author"
               >
                 Author
@@ -127,9 +120,7 @@ const AddBook = () => {
                 variant="contained"
                 type="submit"
                 disabled={loadingScan}
-                startIcon={
-                  loadingScan ? <CircularProgress size="1rem" /> : <></>
-                }
+                startIcon={renderButtonIcon("read")}
                 name="read"
               >
                 Read
@@ -138,25 +129,6 @@ const AddBook = () => {
           </div>
         </fieldset>
       </form>
-      {/* <form>
-        <fieldset>
-          <legend></legend>
-          <div className="row">
-            {books?.map((book) => (
-              <Link
-                to={`/show/${book._id}`}
-                key={book._id}
-                className="col-md-4"
-              >
-                <span>
-                  <ClassIcon />
-                </span>
-                <span>{book.title}</span>
-              </Link>
-            ))}
-          </div>
-        </fieldset>
-      </form> */}
     </div>
   );
 };

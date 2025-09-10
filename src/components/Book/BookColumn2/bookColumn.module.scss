@@ -41,6 +41,21 @@
       display: flex;
       gap: 0.5rem;
       align-items: center;
+      font-size: 0.5rem;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .book-column {
+    & .closed {
+      & button {
+        font-size: 0.65rem;
+
+        & > svg {
+          font-size: inherit;
+        }
+      }
     }
   }
 }
