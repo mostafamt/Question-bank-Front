@@ -8,8 +8,10 @@ import { Button, IconButton } from "@mui/material";
 import styles from "./studioThumbnails.module.scss";
 import VisuallyHiddenInput from "../../VisuallyHiddenInput/VisuallyHiddenInput";
 
-const StudioThumbnails = (props) => {
+const StudioThumbnails = React.forwardRef((props, ref) => {
   const { pages, onClickImage, activePage } = props;
+
+  const containerRef = React.useRef(null);
 
   const onChange = (event) => {
     // const files = event.target.files;
@@ -24,6 +26,21 @@ const StudioThumbnails = (props) => {
     // setImages(newImages);
     // console.log("onDeleteThumbnail");
   };
+
+  React.useEffect(() => {
+    if (containerRef.current && activePage !== null) {
+      const container = containerRef.current;
+      const img = container.children[activePage]; // direct access
+
+      if (img) {
+        const offset = container.clientHeight * 0.5; // 3% offset
+        container.scrollTo({
+          top: img.offsetTop - offset,
+          behavior: "smooth",
+        });
+      }
+    }
+  }, [activePage, containerRef]);
 
   return (
     <div className={styles["studio-thumbnails"]}>
@@ -43,21 +60,25 @@ const StudioThumbnails = (props) => {
           <DeleteIcon />
         </IconButton>
       </div>
-      {pages.map((img, idx) => (
-        <img
-          key={idx}
-          src={img?.url || img}
-          alt={img?.url || img}
-          width="100%"
-          onClick={() => onClickImage(idx)}
-          style={{
-            border:
-              activePage === idx ? "1rem solid #ccc" : "1rem solid transparent",
-          }}
-        />
-      ))}
+      <div className={styles["thumbnails-container"]} ref={containerRef}>
+        {pages.map((img, idx) => (
+          <img
+            key={idx}
+            src={img?.url || img}
+            alt={img?.url || img}
+            width="100%"
+            onClick={() => onClickImage(idx)}
+            style={{
+              border:
+                activePage === idx
+                  ? "1rem solid #ccc"
+                  : "1rem solid transparent",
+            }}
+          />
+        ))}
+      </div>
     </div>
   );
-};
+});
 
 export default StudioThumbnails;
