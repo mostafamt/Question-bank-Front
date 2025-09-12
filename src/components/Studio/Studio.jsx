@@ -629,7 +629,7 @@ const Studio = (props) => {
     {
       id: uuidv4(),
       label: "Table Of Contents",
-      component: <List data={tableOfContentsData} />,
+      component: <h1>Table Of Contents</h1>,
     },
     {
       id: uuidv4(),

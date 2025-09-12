@@ -63,7 +63,7 @@ const List = (props) => {
           </li>
         ))}
       </ul>
-      {Boolean(checkedObjects.length) && (
+      {Boolean(checkedObjects?.length) && (
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <Button variant="contained">Submit</Button>
         </Box>
