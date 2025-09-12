@@ -65,8 +65,8 @@ const Studio = (props) => {
   const [activePageIndex, setActivePageIndex] = React.useState(
     subObject
       ? 0
-      : localStorage.getItem("_page")
-      ? Number.parseInt(localStorage.getItem("_page"))
+      : localStorage.getItem("author_page")
+      ? Number.parseInt(localStorage.getItem("author_page"))
       : 0
   );
   const activePageId = pages?.[activePageIndex]?._id;
@@ -83,6 +83,7 @@ const Studio = (props) => {
   const [highlight, setHighlight] = React.useState("");
   const [loadingSubmitCompositeBlocks, setLoadingSubmitCompositeBlocks] =
     React.useState(false);
+  const thumbnailsRef = React.useRef(null);
 
   const [areas, setAreas] = React.useState(
     pages?.map((page) =>
@@ -224,7 +225,26 @@ const Studio = (props) => {
 
   const onClickImage = (idx) => {
     setActivePageIndex(idx);
-    localStorage.setItem("_page", `${idx}`);
+    localStorage.setItem("author_page", `${idx}`);
+
+    console.log("thumbnailsRef= ", thumbnailsRef);
+
+    // if (thumbnailsRef.current) {
+    //   const container = thumbnailsRef.current;
+    //   const index = pages.findIndex((p) => p._id === newPage._id);
+
+    //   if (index !== -1) {
+    //     const btn = container.querySelector(`button:nth-child(${index + 1})`);
+    //     if (btn) {
+    //       const offset = container.clientHeight * 0.03; // 3% of container height
+
+    //       container.scrollTo({
+    //         top: btn.offsetTop - offset,
+    //         behavior: "smooth",
+    //       });
+    //     }
+    //   }
+    // }
   };
 
   const syncAreasProperties = () => {
@@ -521,6 +541,7 @@ const Studio = (props) => {
           pages={pages}
           activePage={activePageIndex}
           onClickImage={onClickImage}
+          ref={thumbnailsRef}
         />
       ),
     },
