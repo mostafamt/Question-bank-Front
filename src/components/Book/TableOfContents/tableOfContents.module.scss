@@ -1,0 +1,10 @@
+.tree-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+
+  & > span:nth-child(2) {
+    font-style: italic;
+    color: #555;
+  }
+}

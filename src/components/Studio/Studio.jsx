@@ -45,6 +45,7 @@ import { addPropsToAreasForCompositeBlocks } from "../../utils/studio";
 import styles from "./studio.module.scss";
 import { saveCompositeBlocks } from "../../services/api";
 import { useParams } from "react-router-dom";
+import TableOfContents from "../Book/TableOfContents/TableOfContents";
 
 const Studio = (props) => {
   const {
@@ -650,7 +651,19 @@ const Studio = (props) => {
     {
       id: uuidv4(),
       label: "Table Of Contents",
-      component: <h1>Table Of Contents</h1>,
+      component: (
+        <TableOfContents
+          pages={pages}
+          chapterId={chapterId}
+          onChangeActivePage={(newPage) => {
+            const newIndex = pages.findIndex((p) => p._id === newPage._id);
+            if (newIndex !== -1) {
+              setActivePageIndex(newIndex);
+              localStorage.setItem("author_page", `${newIndex}`);
+            }
+          }}
+        />
+      ),
     },
     {
       id: uuidv4(),
