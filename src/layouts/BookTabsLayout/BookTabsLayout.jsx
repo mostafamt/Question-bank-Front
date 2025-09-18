@@ -83,7 +83,7 @@ const BookTabsLayout = React.forwardRef((props, ref) => {
       position: LEFT_POSITION,
       component: (
         <TableOfContents
-          PAGES={newPages}
+          pages={newPages}
           setActivePage={setActivePage}
           chapterId={chapterId}
           onChangeActivePage={onChangeActivePage}

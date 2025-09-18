@@ -6,64 +6,56 @@ import { mapTableOfContents } from "../../../utils/book";
 import { getChapterTOC } from "../../../api/bookapi";
 import { useQuery } from "@tanstack/react-query";
 import { CircularProgress } from "@mui/material";
-// TABLES_OF_CONTENTS
+
+import styles from "./tableOfContents.module.scss";
 
 const TableOfContents = (props) => {
-  const { PAGES, setActivePage, chapterId, onChangeActivePage } = props;
+  const { pages, chapterId, onChangeActivePage } = props;
 
-  const { data: TABLES_OF_CONTENTS, isFetching } = useQuery({
+  const { data, isFetching } = useQuery({
     queryKey: [`toc`],
     queryFn: () => getChapterTOC(chapterId),
     refetchOnWindowFocus: false,
   });
 
-  const onClickItem = (item) => {
-    // console.log("item= ", item);
-    if (item.hasOwnProperty("pageIndex") && item.pageIndex) {
-      const newPage = PAGES[item.pageIndex];
-      onChangeActivePage(newPage);
-    }
-  };
+  const handleClickItem = React.useCallback(
+    (item) => {
+      if (item?.pageIndex != null) {
+        const newPage = pages[item.pageIndex];
+        if (newPage) onChangeActivePage(newPage);
+      }
+    },
+    [pages, onChangeActivePage]
+  );
 
-  const renderTree = (tree) => {
-    return tree?.map((item) => {
-      return (
+  const renderTree = React.useCallback(
+    (tree) =>
+      tree?.map((item) => (
         <TreeItem
           key={item.id}
           itemId={item.id}
           label={
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                gap: "2rem",
-              }}
-            >
+            <div className={styles["tree-item"]}>
               <span>{item.title}</span>
-              <span style={{ fontStyle: "italic", color: "#555" }}>
-                {item.pageIndex}
-              </span>
+              <span>{item.pageIndex}</span>
             </div>
           }
-          onClick={() => onClickItem(item)}
+          onClick={() => handleClickItem(item)}
         >
           {item.children && renderTree(item?.children)}
         </TreeItem>
-      );
-    });
-  };
-
-  const newTableOfContents = React.useMemo(
-    () => mapTableOfContents(TABLES_OF_CONTENTS),
-    [TABLES_OF_CONTENTS]
+      )),
+    [handleClickItem]
   );
+
+  const tableOfContents = React.useMemo(() => mapTableOfContents(data), [data]);
 
   return (
     <Box sx={{ minHeight: 352, minWidth: 250 }}>
       {isFetching ? (
         <CircularProgress size="1rem" />
       ) : (
-        <SimpleTreeView>{renderTree(newTableOfContents)}</SimpleTreeView>
+        <SimpleTreeView>{renderTree(tableOfContents)}</SimpleTreeView>
       )}
     </Box>
   );
