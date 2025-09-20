@@ -66,8 +66,6 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
     // _setCompositeBlocks((prevState) => ({ ...prevState, areas }));
   };
 
-  console.log("areas[activePage]= ", areas[activePage]);
-
   const onPickAreaForCompositeBlocks = (idx) => {
     const area = areasProperties[activePage][idx];
     const list = getList2FromData(compositeBlocksTypes, compositeBlocks.type);
@@ -76,8 +74,6 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
       (area.type === "Illustrative object" || area.type === "Question") &&
       list.includes("Object");
     const condition2 = area.type === "Question" && list.includes("Question");
-
-    console.log("compositeBlocks= ", compositeBlocks);
 
     if (condition1 || condition2) {
       setCompositeBlocks((prevState) => ({

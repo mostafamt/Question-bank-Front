@@ -9,7 +9,7 @@ import CategoryIcon from "@mui/icons-material/Category";
 import styles from "./questionsTable.module.scss";
 
 const QuestionsTable = (props) => {
-  const { checkedObjects, setCheckedObjects } = props;
+  const { checkedObjects, setCheckedObjects, modalState } = props;
 
   const navigate = useNavigate();
   const [rows, setRows] = React.useState([]);
@@ -33,30 +33,31 @@ const QuestionsTable = (props) => {
     return color;
   };
 
-  // <Radio
-  //         checked={params.id == selectedRowId}
-  //         value={params.id}
-  //         onChange={(e) => {
-  //           console.log(e.target.value);
-  //           setSelectedRowId(e.target.value);
-  //         }}
-  //       />
-
   const handleChange = (params) => {
-    console.log("params= ", params.row);
-    const found = checkedObjects.some((item) => item.id === params.id);
-    if (found) {
-      setCheckedObjects((prevState) =>
-        prevState.filter((item) => item.id !== params.id)
-      );
-    } else {
-      setCheckedObjects((prevState) => [...prevState, params.row]);
-    }
+    console.log("params= ", params);
+    setCheckedObjects((prevState) => {
+      return prevState.map((tab) => {
+        if (tab.label === modalState?.source) {
+          return {
+            ...tab,
+            objects: tab.objects.some((e) => e.id === params.id)
+              ? [...tab.objects.filter((e) => e.id !== params.id)]
+              : [...tab.objects, params.row],
+          };
+        }
+        return tab;
+      });
+    });
+
+    console.log("checkedObjects= ", checkedObjects);
   };
 
   const isChecked = (params) => {
-    return false;
-    // return checkedObjects.some((item) => item.id === params.id);
+    const checked = checkedObjects
+      ?.find((e) => e?.label === modalState?.source)
+      ?.objects?.some((item) => item.id === params.id);
+
+    return checked;
   };
 
   const columns = [
@@ -66,7 +67,7 @@ const QuestionsTable = (props) => {
       width: 70,
       renderCell: (params) => (
         <Checkbox
-          checked={checkedObjects.some((item) => item.id === params.id)}
+          checked={isChecked(params)}
           onChange={() => handleChange(params)}
         />
       ),

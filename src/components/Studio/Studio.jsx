@@ -47,6 +47,20 @@ import { saveCompositeBlocks } from "../../services/api";
 import { useParams } from "react-router-dom";
 import TableOfContents from "../Book/TableOfContents/TableOfContents";
 
+const RECALLS = "Recalls";
+const MICRO_LEARNING = "Micro Learning";
+const ENRICHING_CONTENT = "Enriching Content";
+const CHECK_YOURSELF = "Check Yourself";
+const ILLUSTRATIVE_INTERACTIONS = "Illustrative Interactions";
+
+const tabNames = [
+  RECALLS,
+  MICRO_LEARNING,
+  ENRICHING_CONTENT,
+  CHECK_YOURSELF,
+  ILLUSTRATIVE_INTERACTIONS,
+];
+
 const Studio = (props) => {
   const {
     pages,
@@ -146,7 +160,10 @@ const Studio = (props) => {
   const canvasRef = React.createRef();
   const [imageScaleFactor, setImageScaleFactor] = React.useState(1);
   // To Extract Sub Object
-  const [showModal, setShowModal] = React.useState(false);
+  const [modalState, setModalState] = React.useState({
+    open: false,
+    source: null,
+  });
   const [activeType, setActiveType] = React.useState("");
   const [typeOfActiveType, setTypeOfActiveType] = React.useState("");
   const [activeImage, setActiveImage] = React.useState("");
@@ -158,7 +175,12 @@ const Studio = (props) => {
     lang === "en" ? ENGLISH : ARABIC
   );
 
-  const [checkedObjects, setCheckedObjects] = React.useState([]);
+  const [checkedObjects, setCheckedObjects] = React.useState(
+    tabNames.map((e) => ({
+      label: e,
+      objects: [],
+    }))
+  );
   const [virtualBlocks, setVirtualBlocks] = React.useState(
     subObject ? [] : parseVirtualBlocksFromPages(pages)
   );
@@ -295,8 +317,20 @@ const Studio = (props) => {
     }
   };
 
-  const handleCloseModal = () => setShowModal(false);
-  const openModal = () => setShowModal(true);
+  const handleCloseModal = () => {
+    setModalState({
+      open: false,
+      source: null,
+    });
+  };
+
+  const openModal = (source = null) => {
+    console.log("source= ", source);
+    setModalState({
+      open: true,
+      source: source,
+    });
+  };
 
   const onChangeLabel = async (id, label) => {
     syncAreasProperties();
@@ -548,21 +582,22 @@ const Studio = (props) => {
     },
     {
       id: uuidv4(),
-      label: "Recalls",
+      label: RECALLS,
       component: (
         <List
           data={illustrativeInteractionsData}
-          openModal={openModal}
+          openModal={() => openModal(RECALLS)}
           setModalName={setModalName}
           checkedObjects={checkedObjects}
           setCheckedObjects={setCheckedObjects}
           setWorkingArea={setWorkingArea}
+          modalState={modalState}
         />
       ),
     },
     {
       id: uuidv4(),
-      label: "Micro Learning",
+      label: MICRO_LEARNING,
       component: (
         <List
           data={illustrativeInteractionsData}
@@ -571,12 +606,13 @@ const Studio = (props) => {
           checkedObjects={checkedObjects}
           setCheckedObjects={setCheckedObjects}
           setWorkingArea={setWorkingArea}
+          tabName={MICRO_LEARNING}
         />
       ),
     },
     {
       id: uuidv4(),
-      label: "Enriching Contents",
+      label: ENRICHING_CONTENT,
       component: (
         <List
           data={illustrativeInteractionsData}
@@ -585,12 +621,13 @@ const Studio = (props) => {
           checkedObjects={checkedObjects}
           setCheckedObjects={setCheckedObjects}
           setWorkingArea={setWorkingArea}
+          tabName={ENRICHING_CONTENT}
         />
       ),
     },
     {
       id: uuidv4(),
-      label: "Check Yourself",
+      label: CHECK_YOURSELF,
       component: (
         <List
           data={illustrativeInteractionsData}
@@ -599,6 +636,7 @@ const Studio = (props) => {
           checkedObjects={checkedObjects}
           setCheckedObjects={setCheckedObjects}
           setWorkingArea={setWorkingArea}
+          tabName={CHECK_YOURSELF}
         />
       ),
     },
@@ -668,11 +706,11 @@ const Studio = (props) => {
     {
       id: uuidv4(),
       label: "Glossary & keywords",
-      component: <List data={GlossaryAndKeywordsData} />,
+      component: <h1>Glossary & Keywords</h1>,
     },
     {
       id: uuidv4(),
-      label: "Illustrative Interactions",
+      label: ILLUSTRATIVE_INTERACTIONS,
       component: (
         <List
           data={illustrativeInteractionsData}
@@ -681,6 +719,7 @@ const Studio = (props) => {
           checkedObjects={checkedObjects}
           setCheckedObjects={setCheckedObjects}
           setWorkingArea={setWorkingArea}
+          tabName={ILLUSTRATIVE_INTERACTIONS}
         />
       ),
     },
@@ -696,7 +735,7 @@ const Studio = (props) => {
   return (
     <>
       <StudioModals
-        showModal={showModal}
+        modalState={modalState}
         handleCloseModal={handleCloseModal}
         activeImage={activeImage}
         activeType={activeType}
@@ -715,6 +754,7 @@ const Studio = (props) => {
             return [...prevState];
           })
         }
+        tabName={""}
       />
       <StudioStickyToolbar
         show={showStickyToolbar}

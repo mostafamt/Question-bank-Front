@@ -10,7 +10,7 @@ import PlayObjectModal2 from "../../Modal/PlayObjectModal2/PlayObjectModal2";
 
 const StudioModals = (props) => {
   const {
-    showModal,
+    modalState,
     handleCloseModal,
     activeImage,
     activeType,
@@ -46,6 +46,7 @@ const StudioModals = (props) => {
         checkedObjects={checkedObjects}
         setCheckedObjects={setCheckedObjects}
         handleCloseModal={handleCloseModal}
+        modalState={modalState}
       />
     );
   } else if (modalName === "virtual-blocks") {
@@ -70,7 +71,7 @@ const StudioModals = (props) => {
   }
 
   return (
-    <Modal show={showModal} handleClose={handleCloseModal} size="xl">
+    <Modal show={modalState.open} handleClose={handleCloseModal} size="xl">
       {rendererModal}
     </Modal>
   );

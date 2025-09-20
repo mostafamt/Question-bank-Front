@@ -3,6 +3,7 @@ import AddIcon from "@mui/icons-material/Add";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, Button, IconButton } from "@mui/material";
+import { useStore } from "../../../store/store";
 
 import styles from "./list.module.scss";
 
@@ -13,7 +14,18 @@ const List = (props) => {
     checkedObjects,
     setCheckedObjects,
     setWorkingArea,
+    tabName,
+    modalState,
   } = props;
+
+  const { data: state, setFormState } = useStore();
+
+  React.useEffect(() => {
+    setFormState({
+      ...state,
+      activeTab: tabName,
+    });
+  }, []);
 
   const onClickPlus = () => {
     setModalName("tabs");
@@ -21,9 +33,18 @@ const List = (props) => {
   };
 
   const onClickDelete = (id) => {
-    setCheckedObjects((prevState) =>
-      prevState.filter((item) => item.id !== id)
-    );
+    setCheckedObjects((prevState) => {
+      return prevState.map((tab) => {
+        if (tab.label === tabName) {
+          console.log("tab= ", tab);
+          return {
+            ...tab,
+            objects: tab.objects.filter((item) => item.id !== id),
+          };
+        }
+        return tab;
+      });
+    });
   };
 
   const onClickPlay = (item) => {
@@ -37,38 +58,50 @@ const List = (props) => {
     openModal();
   };
 
+  const onSubmitHandler = (event) => {
+    event.preventDefault();
+    console.log("submitted !");
+  };
+
   return (
-    <div className={styles["illustrative-interactions"]}>
+    <form
+      onSubmit={onSubmitHandler}
+      className={styles["illustrative-interactions"]}
+    >
       <div>
         <IconButton onClick={onClickPlus} color="primary">
           <AddIcon color="primary" />
         </IconButton>
       </div>
       <ul>
-        {checkedObjects?.map((item, idx) => (
-          <li key={item.id}>
-            <span>
-              <span>{item.name}</span>
-            </span>
-            <span>
-              <IconButton onClick={() => onClickPlay(item)}>
-                <PlayArrowIcon />
-              </IconButton>
-            </span>
-            <span>
-              <IconButton onClick={() => onClickDelete(item.id)}>
-                <DeleteIcon color="error" />
-              </IconButton>
-            </span>
-          </li>
-        ))}
+        {checkedObjects
+          .find((obj) => obj.label === modalState?.source)
+          ?.objects?.map((item, idx) => (
+            <li key={item?.id ?? idx}>
+              <span>{item?.name}</span>
+              <span>
+                <IconButton onClick={() => onClickPlay(item)}>
+                  <PlayArrowIcon />
+                </IconButton>
+              </span>
+              <span>
+                <IconButton onClick={() => onClickDelete(item?.id)}>
+                  <DeleteIcon color="error" />
+                </IconButton>
+              </span>
+            </li>
+          ))}
       </ul>
-      {Boolean(checkedObjects?.length) && (
+      {Boolean(
+        checkedObjects.find((obj) => obj.label === tabName)?.objects?.length
+      ) && (
         <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <Button variant="contained">Submit</Button>
+          <Button variant="contained" type="submit">
+            Submit
+          </Button>
         </Box>
       )}
-    </div>
+    </form>
   );
 };
 
