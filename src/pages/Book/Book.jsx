@@ -20,6 +20,24 @@ const Book = () => {
   const [activePage, setActivePage] = useState(null);
   const thumbnailsRef = React.useRef(null);
 
+  const [areas, setAreas] = React.useState(
+    pages?.map((page) =>
+      page.blocks?.map((block) => {
+        return {
+          x: block.coordinates.x,
+          y: block.coordinates.y,
+          width: block.coordinates.width,
+          height: block.coordinates.height,
+          unit: "px",
+          isChanging: true,
+          isNew: true,
+          _unit: block.coordinates.unit,
+          _updated: false,
+        };
+      })
+    ) || Array(pages?.length || 1).fill([])
+  );
+
   React.useEffect(() => {
     if (pages?.length) {
       setActivePage(pages[INITIAL_PAGE_INDEX]);
