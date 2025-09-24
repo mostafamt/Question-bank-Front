@@ -46,6 +46,7 @@ import styles from "./studio.module.scss";
 import { saveCompositeBlocks } from "../../services/api";
 import { useParams } from "react-router-dom";
 import TableOfContents from "../Book/TableOfContents/TableOfContents";
+import GlossaryAndKeywords from "../Tabs/GlossaryAndKeywords/GlossaryAndKeywords";
 
 const RECALLS = "Recalls";
 const MICRO_LEARNING = "Micro Learning";
@@ -710,7 +711,7 @@ const Studio = (props) => {
     {
       id: uuidv4(),
       label: "Glossary & keywords",
-      component: <h1>Glossary & Keywords</h1>,
+      component: <GlossaryAndKeywords chapterId={chapterId} />,
     },
     {
       id: uuidv4(),

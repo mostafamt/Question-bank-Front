@@ -134,3 +134,15 @@ export const getTabObjects = async (chapterId, tabName) => {
     return null;
   }
 };
+
+export const getGlossaryAndKeywords = async () => {
+  try {
+    const res = await axios2.get("/glossary-and-keywords");
+    const data = res.data;
+    return data;
+  } catch (error) {
+    toast.error(error?.message);
+    toast.error(error?.response?.data?.message);
+    return null;
+  }
+};
