@@ -16,6 +16,7 @@ const List = (props) => {
     setWorkingArea,
     tabName,
     modalState,
+    label,
   } = props;
 
   const { data: state, setFormState } = useStore();
@@ -35,8 +36,7 @@ const List = (props) => {
   const onClickDelete = (id) => {
     setCheckedObjects((prevState) => {
       return prevState.map((tab) => {
-        if (tab.label === tabName) {
-          console.log("tab= ", tab);
+        if (tab.label === label) {
           return {
             ...tab,
             objects: tab.objects.filter((item) => item.id !== id),
@@ -75,7 +75,7 @@ const List = (props) => {
       </div>
       <ul>
         {checkedObjects
-          .find((obj) => obj.label === modalState?.source)
+          .find((obj) => obj.label === label)
           ?.objects?.map((item, idx) => (
             <li key={item?.id ?? idx}>
               <span>{item?.name}</span>

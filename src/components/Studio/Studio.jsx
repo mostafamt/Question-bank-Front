@@ -592,6 +592,7 @@ const Studio = (props) => {
           setCheckedObjects={setCheckedObjects}
           setWorkingArea={setWorkingArea}
           modalState={modalState}
+          label={RECALLS}
         />
       ),
     },
