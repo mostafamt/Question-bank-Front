@@ -591,8 +591,8 @@ const Studio = (props) => {
           checkedObjects={checkedObjects}
           setCheckedObjects={setCheckedObjects}
           setWorkingArea={setWorkingArea}
-          tabName={RECALLS}
           chapterId={chapterId}
+          tabName={RECALLS}
         />
       ),
     },
@@ -607,6 +607,7 @@ const Studio = (props) => {
           checkedObjects={checkedObjects}
           setCheckedObjects={setCheckedObjects}
           setWorkingArea={setWorkingArea}
+          chapterId={chapterId}
           tabName={MICRO_LEARNING}
         />
       ),
@@ -622,6 +623,7 @@ const Studio = (props) => {
           checkedObjects={checkedObjects}
           setCheckedObjects={setCheckedObjects}
           setWorkingArea={setWorkingArea}
+          chapterId={chapterId}
           tabName={ENRICHING_CONTENT}
         />
       ),
@@ -637,6 +639,7 @@ const Studio = (props) => {
           checkedObjects={checkedObjects}
           setCheckedObjects={setCheckedObjects}
           setWorkingArea={setWorkingArea}
+          chapterId={chapterId}
           tabName={CHECK_YOURSELF}
         />
       ),
@@ -720,6 +723,7 @@ const Studio = (props) => {
           checkedObjects={checkedObjects}
           setCheckedObjects={setCheckedObjects}
           setWorkingArea={setWorkingArea}
+          chapterId={chapterId}
           tabName={ILLUSTRATIVE_INTERACTIONS}
         />
       ),

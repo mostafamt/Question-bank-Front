@@ -11,6 +11,10 @@ import styles from "./list.module.scss";
 
 const tabsMapping = {
   Recalls: "recalls",
+  "Micro Learning": "micro-los",
+  "Enriching Content": "enriching-contents",
+  "Check Yourself": "exercises",
+  "Illustrative Interactions": "illustrative-objects",
 };
 
 const List = (props) => {
@@ -77,7 +81,7 @@ const List = (props) => {
       setWorkingArea({
         text: item.id,
         contentValue: item.id,
-        contentType: item.type,
+        contentType: item.type || "Text MCQ",
         typeOfLabel: item.type,
       });
       setModalName("play-object");
@@ -121,8 +125,8 @@ const List = (props) => {
       <ListItem
         key={item.id}
         item={item}
-        onPlay={handlePlay}
-        onDelete={handleDelete}
+        onPlay={() => handlePlay(item)}
+        onDelete={() => handleDelete(item.id)}
       />
     ));
   }, [checkedObjects, tabName, isFetching, handleDelete, handlePlay]);
