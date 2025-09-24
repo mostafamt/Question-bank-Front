@@ -9,7 +9,7 @@ import CategoryIcon from "@mui/icons-material/Category";
 import styles from "./questionsTable.module.scss";
 
 const QuestionsTable = (props) => {
-  const { checkedObjects, setCheckedObjects, modalState } = props;
+  const { objects, setObjects } = props;
 
   const navigate = useNavigate();
   const [rows, setRows] = React.useState([]);
@@ -34,30 +34,18 @@ const QuestionsTable = (props) => {
   };
 
   const handleChange = (params) => {
-    console.log("params= ", params);
-    setCheckedObjects((prevState) => {
-      return prevState.map((tab) => {
-        if (tab.label === modalState?.source) {
-          return {
-            ...tab,
-            objects: tab.objects.some((e) => e.id === params.id)
-              ? [...tab.objects.filter((e) => e.id !== params.id)]
-              : [...tab.objects, params.row],
-          };
-        }
-        return tab;
-      });
-    });
-
-    console.log("checkedObjects= ", checkedObjects);
+    const found = objects.some((item) => item.id === params.id);
+    if (found) {
+      setObjects((prevState) =>
+        prevState.filter((item) => item.id !== params.id)
+      );
+    } else {
+      setObjects((prevState) => [...prevState, params.row]);
+    }
   };
 
   const isChecked = (params) => {
-    const checked = checkedObjects
-      ?.find((e) => e?.label === modalState?.source)
-      ?.objects?.some((item) => item.id === params.id);
-
-    return checked;
+    return objects?.some((item) => item.id === params.id);
   };
 
   const columns = [

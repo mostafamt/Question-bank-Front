@@ -6,12 +6,13 @@ import { Box, Button } from "@mui/material";
 const ObjectsTableModalContent = (props) => {
   const { checkedObjects, setCheckedObjects, handleCloseModal, modalState } =
     props;
-  const [objects, setObjects] = React.useState(checkedObjects || []);
+  const [objects, setObjects] = React.useState(
+    checkedObjects.find((tab) => tab.label === modalState?.source)?.objects ||
+      []
+  );
 
   const onSubmit = (event) => {
     event.preventDefault();
-
-    console.log("objects= ", objects);
 
     setCheckedObjects((prevState) =>
       prevState.map((tab) =>
@@ -29,11 +30,7 @@ const ObjectsTableModalContent = (props) => {
       </BootstrapModal.Header>
       <BootstrapModal.Body>
         <form onSubmit={onSubmit}>
-          <QuestionsTable
-            checkedObjects={objects}
-            setCheckedObjects={setObjects}
-            modalState={modalState}
-          />
+          <QuestionsTable objects={objects} setObjects={setObjects} />
           <Box
             sx={{ margin: "2rem 0", display: "flex", justifyContent: "center" }}
           >
