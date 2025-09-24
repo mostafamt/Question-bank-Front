@@ -1,0 +1,11 @@
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  & > span {
+    &:first-child {
+      flex-grow: 1;
+    }
+  }
+}

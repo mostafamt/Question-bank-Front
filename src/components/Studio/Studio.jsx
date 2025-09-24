@@ -591,8 +591,8 @@ const Studio = (props) => {
           checkedObjects={checkedObjects}
           setCheckedObjects={setCheckedObjects}
           setWorkingArea={setWorkingArea}
-          modalState={modalState}
-          label={RECALLS}
+          tabName={RECALLS}
+          chapterId={chapterId}
         />
       ),
     },
