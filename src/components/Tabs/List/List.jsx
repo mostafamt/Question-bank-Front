@@ -2,11 +2,12 @@ import React from "react";
 import AddIcon from "@mui/icons-material/Add";
 import { Box, Button, CircularProgress, IconButton } from "@mui/material";
 import { useStore } from "../../../store/store";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { getTabObjects, updateTabObjects } from "../../../services/api";
+import ListItem from "../ListItem/ListItem";
+import { useForm } from "react-hook-form";
 
 import styles from "./list.module.scss";
-import ListItem from "../ListItem/ListItem";
 
 const tabsMapping = {
   Recalls: "recalls",
@@ -24,12 +25,18 @@ const List = (props) => {
   } = props;
 
   const { setFormState } = useStore();
-  const [loading, setLoading] = React.useState(false);
+
+  const { handleSubmit } = useForm();
 
   const { data: tabObjects, isFetching } = useQuery({
     queryKey: [`tab-objects-${tabName}`],
     queryFn: () => getTabObjects(chapterId, tabsMapping[tabName]),
     refetchOnWindowFocus: false,
+  });
+
+  const mutation = useMutation({
+    mutationFn: (bodyData) =>
+      updateTabObjects(chapterId, tabsMapping[tabName], bodyData),
   });
 
   React.useEffect(() => {
@@ -93,17 +100,14 @@ const List = (props) => {
     [setCheckedObjects, tabName]
   );
 
-  const onSubmitHandler = async (event) => {
-    event.preventDefault();
-    setLoading(true);
+  const onSubmitHandler = async () => {
     const ids = {
       ids: checkedObjects
         .find((tab) => tab.label === tabName)
         ?.objects?.map((item) => item.id),
     };
 
-    await updateTabObjects(chapterId, tabsMapping[tabName], ids);
-    setLoading(false);
+    mutation.mutate(ids);
   };
 
   const objectsList = React.useMemo(() => {
@@ -125,7 +129,7 @@ const List = (props) => {
 
   return (
     <form
-      onSubmit={onSubmitHandler}
+      onSubmit={handleSubmit(onSubmitHandler)}
       className={styles["illustrative-interactions"]}
     >
       <div>
@@ -139,8 +143,10 @@ const List = (props) => {
         <Button
           variant="contained"
           type="submit"
-          disabled={loading}
-          startIcon={loading ? <CircularProgress size="1rem" /> : <></>}
+          disabled={mutation.isLoading}
+          startIcon={
+            mutation.isLoading ? <CircularProgress size="1rem" /> : <></>
+          }
         >
           Submit
         </Button>
