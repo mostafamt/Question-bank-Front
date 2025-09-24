@@ -1,11 +1,16 @@
 import React from "react";
 import AddIcon from "@mui/icons-material/Add";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { Box, Button, IconButton } from "@mui/material";
+import { Box, Button, CircularProgress, IconButton } from "@mui/material";
 import { useStore } from "../../../store/store";
+import { useQuery } from "@tanstack/react-query";
+import { getTabObjects, updateTabObjects } from "../../../services/api";
 
 import styles from "./list.module.scss";
+import ListItem from "../ListItem/ListItem";
+
+const tabsMapping = {
+  Recalls: "recalls",
+};
 
 const List = (props) => {
   const {
@@ -15,53 +20,108 @@ const List = (props) => {
     setCheckedObjects,
     setWorkingArea,
     tabName,
-    modalState,
-    label,
+    chapterId,
   } = props;
 
-  const { data: state, setFormState } = useStore();
+  const { setFormState } = useStore();
+  const [loading, setLoading] = React.useState(false);
+
+  const { data: tabObjects, isFetching } = useQuery({
+    queryKey: [`tab-objects-${tabName}`],
+    queryFn: () => getTabObjects(chapterId, tabsMapping[tabName]),
+    refetchOnWindowFocus: false,
+  });
 
   React.useEffect(() => {
-    setFormState({
-      ...state,
+    setFormState((prevState) => ({
+      ...prevState,
       activeTab: tabName,
-    });
+    }));
   }, []);
+
+  React.useEffect(() => {
+    if (!tabObjects) return;
+
+    setCheckedObjects((prevState) => {
+      return prevState.map((tab) => {
+        if (tab.label === tabName) {
+          return {
+            ...tab,
+            objects: [
+              ...tabObjects?.map((item) => ({
+                ...item,
+                id: item._id,
+              })),
+            ],
+          };
+        }
+        return tab;
+      });
+    });
+  }, [tabObjects, tabName, setCheckedObjects]);
 
   const onClickPlus = () => {
     setModalName("tabs");
     openModal();
   };
 
-  const onClickDelete = (id) => {
-    setCheckedObjects((prevState) => {
-      return prevState.map((tab) => {
-        if (tab.label === label) {
-          return {
-            ...tab,
-            objects: tab.objects.filter((item) => item.id !== id),
-          };
-        }
-        return tab;
+  const handlePlay = React.useCallback(
+    (item) => {
+      setWorkingArea({
+        text: item.id,
+        contentValue: item.id,
+        contentType: item.type,
+        typeOfLabel: item.type,
       });
-    });
-  };
+      setModalName("play-object");
+      openModal();
+    },
+    [setWorkingArea, setModalName, openModal]
+  );
 
-  const onClickPlay = (item) => {
-    setWorkingArea({
-      text: item.id,
-      contentValue: item.id,
-      contentType: item.type,
-      typeOfLabel: item.type,
-    });
-    setModalName("play-object");
-    openModal();
-  };
+  const handleDelete = React.useCallback(
+    (id) => {
+      if (!id) return;
+      setCheckedObjects((prevState) =>
+        prevState.map((tab) =>
+          tab.label === tabName
+            ? { ...tab, objects: tab.objects.filter((item) => item.id !== id) }
+            : tab
+        )
+      );
+    },
+    [setCheckedObjects, tabName]
+  );
 
-  const onSubmitHandler = (event) => {
+  const onSubmitHandler = async (event) => {
     event.preventDefault();
-    console.log("submitted !");
+    setLoading(true);
+    const ids = {
+      ids: checkedObjects
+        .find((tab) => tab.label === tabName)
+        ?.objects?.map((item) => item.id),
+    };
+
+    await updateTabObjects(chapterId, tabsMapping[tabName], ids);
+    setLoading(false);
   };
+
+  const objectsList = React.useMemo(() => {
+    const list =
+      checkedObjects?.find((tab) => tab.label === tabName)?.objects || [];
+
+    if (isFetching) return <CircularProgress size="1rem" />;
+    if (!list.length) return <p>{tabName} is empty</p>;
+
+    return list.map((item) => (
+      <ListItem
+        key={item.id}
+        item={item}
+        onPlay={handlePlay}
+        onDelete={handleDelete}
+      />
+    ));
+  }, [checkedObjects, tabName, isFetching, handleDelete, handlePlay]);
 
   return (
     <form
@@ -73,34 +133,18 @@ const List = (props) => {
           <AddIcon color="primary" />
         </IconButton>
       </div>
-      <ul>
-        {checkedObjects
-          .find((obj) => obj.label === label)
-          ?.objects?.map((item, idx) => (
-            <li key={item?.id ?? idx}>
-              <span>{item?.name}</span>
-              <span>
-                <IconButton onClick={() => onClickPlay(item)}>
-                  <PlayArrowIcon />
-                </IconButton>
-              </span>
-              <span>
-                <IconButton onClick={() => onClickDelete(item?.id)}>
-                  <DeleteIcon color="error" />
-                </IconButton>
-              </span>
-            </li>
-          ))}
-      </ul>
-      {Boolean(
-        checkedObjects.find((obj) => obj.label === tabName)?.objects?.length
-      ) && (
-        <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <Button variant="contained" type="submit">
-            Submit
-          </Button>
-        </Box>
-      )}
+      <ul>{objectsList}</ul>
+
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <Button
+          variant="contained"
+          type="submit"
+          disabled={loading}
+          startIcon={loading ? <CircularProgress size="1rem" /> : <></>}
+        >
+          Submit
+        </Button>
+      </Box>
     </form>
   );
 };

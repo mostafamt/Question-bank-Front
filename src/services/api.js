@@ -106,3 +106,31 @@ export const getQuestionTypes = async () => {
   // const res = await axios.get("interactive-object-types");
   // return res;
 };
+
+export const updateTabObjects = async (chapterId, tabName, bodyData) => {
+  try {
+    const res = await axios2.post(
+      `/chapters/${chapterId}/${tabName}`,
+      bodyData
+    );
+    const data = res.data;
+    toast.success(data?.message);
+    return data;
+  } catch (error) {
+    toast.error(error?.message);
+    toast.error(error?.response?.data?.message);
+    return null;
+  }
+};
+
+export const getTabObjects = async (chapterId, tabName) => {
+  try {
+    const res = await axios2.get(`/chapters/${chapterId}/${tabName}`);
+    const data = res.data;
+    return data;
+  } catch (error) {
+    toast.error(error?.message);
+    toast.error(error?.response?.data?.message);
+    return null;
+  }
+};
