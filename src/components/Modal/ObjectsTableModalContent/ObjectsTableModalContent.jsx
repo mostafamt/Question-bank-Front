@@ -4,20 +4,14 @@ import QuestionsTable from "../../Tables/QuestionsTable/QuestionsTable";
 import { Box, Button } from "@mui/material";
 
 const ObjectsTableModalContent = (props) => {
-  const { checkedObjects, setCheckedObjects, handleCloseModal, modalState } =
-    props;
-  const [objects, setObjects] = React.useState(
-    checkedObjects.find((tab) => tab.label === modalState?.source)?.objects ||
-      []
-  );
+  const { checkedObjects, setCheckedObjects, handleCloseModal } = props;
+  const [objects, setObjects] = React.useState(checkedObjects || []);
 
   const onSubmit = (event) => {
     event.preventDefault();
 
-    setCheckedObjects((prevState) =>
-      prevState.map((tab) =>
-        tab.label === modalState?.source ? { ...tab, objects } : tab
-      )
+    setCheckedObjects(
+      objects.map((item) => ({ ...item, _id: item.id || item._id }))
     );
 
     handleCloseModal();

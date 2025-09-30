@@ -5,7 +5,7 @@ import { IconButton } from "@mui/material";
 
 import styles from "./listItem.module.scss";
 
-const ListItem = ({ item, onPlay, onDelete }) => {
+const ListItem = ({ item, onPlay, onDelete, reader }) => {
   return (
     <li className={styles["list-item"]}>
       <span>{item.name}</span>
@@ -14,11 +14,13 @@ const ListItem = ({ item, onPlay, onDelete }) => {
           <PlayArrowIcon />
         </IconButton>
       </span>
-      <span>
-        <IconButton onClick={() => onDelete(item.id)}>
-          <DeleteIcon color="error" />
-        </IconButton>
-      </span>
+      {!reader && (
+        <span>
+          <IconButton onClick={() => onDelete(item._id)}>
+            <DeleteIcon color="error" />
+          </IconButton>
+        </span>
+      )}
     </li>
   );
 };

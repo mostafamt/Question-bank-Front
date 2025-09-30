@@ -18,6 +18,14 @@ import TableOfContents from "../../components/Book/TableOfContents/TableOfConten
 import BookColumns2 from "../../components/Book/BookColumn2/BookColumn2";
 
 import styles from "./bookTabsLayout.module.scss";
+import List from "../../components/Tabs/List/List";
+import GlossaryAndKeywords from "../../components/Tabs/GlossaryAndKeywords/GlossaryAndKeywords";
+
+const RECALLS = "Recalls";
+const MICRO_LEARNING = "Micro Learning";
+const ENRICHING_CONTENT = "Enriching Content";
+const CHECK_YOURSELF = "Check Yourself";
+const ILLUSTRATIVE_INTERACTIONS = "Illustrative Interactions";
 
 const BookTabsLayout = React.forwardRef((props, ref) => {
   const {
@@ -28,6 +36,19 @@ const BookTabsLayout = React.forwardRef((props, ref) => {
     setActivePage,
     onChangeActivePage,
   } = props;
+
+  const [modalState, setModalState] = React.useState({
+    open: false,
+    source: null,
+  });
+
+  const openModal = (source = null) => {
+    console.log("source= ", source);
+    setModalState({
+      open: true,
+      source: source,
+    });
+  };
 
   const LEFT_COLUMNS = [
     {
@@ -48,30 +69,20 @@ const BookTabsLayout = React.forwardRef((props, ref) => {
       id: uuidv4(),
       label: "Recalls",
       position: LEFT_POSITION,
-      component: (
-        <div>
-          <h1>Recalls</h1>
-        </div>
-      ),
+      component: <List chapterId={chapterId} tabName={RECALLS} reader />,
     },
     {
       id: uuidv4(),
       label: "Micro Learning",
       position: LEFT_POSITION,
-      component: (
-        <div>
-          <h1>Micro Learning</h1>
-        </div>
-      ),
+      component: <List chapterId={chapterId} tabName={MICRO_LEARNING} reader />,
     },
     {
       id: uuidv4(),
       label: "Enriching Contents",
       position: LEFT_POSITION,
       component: (
-        <div>
-          <h1>Enriching Contents</h1>
-        </div>
+        <List chapterId={chapterId} tabName={ENRICHING_CONTENT} reader />
       ),
     },
   ];
@@ -94,31 +105,25 @@ const BookTabsLayout = React.forwardRef((props, ref) => {
       id: uuidv4(),
       label: "Glossary & keywords",
       position: LEFT_POSITION,
-      component: (
-        <div>
-          <h1>Glossary & keywords</h1>
-        </div>
-      ),
+      component: <GlossaryAndKeywords chapterId={chapterId} />,
     },
     {
       id: uuidv4(),
       label: "Illustrative Interactions",
       position: LEFT_POSITION,
       component: (
-        <div>
-          <h1>Illustrative Interactions</h1>
-        </div>
+        <List
+          chapterId={chapterId}
+          tabName={ILLUSTRATIVE_INTERACTIONS}
+          reader
+        />
       ),
     },
     {
       id: uuidv4(),
       label: "Check Yourself",
       position: LEFT_POSITION,
-      component: (
-        <div>
-          <h1>Check Yourself</h1>
-        </div>
-      ),
+      component: <List chapterId={chapterId} tabName={CHECK_YOURSELF} reader />,
     },
   ];
 

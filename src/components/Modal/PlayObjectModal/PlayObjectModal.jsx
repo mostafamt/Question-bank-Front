@@ -9,8 +9,6 @@ import { isComplexType } from "../../../utils/ocr";
 const PlayObjectModal = (props) => {
   const { workingArea } = props;
 
-  console.log("workingArea= ", workingArea);
-
   const {
     data: object,
     isError: isErrorObject,

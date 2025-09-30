@@ -18,17 +18,9 @@ const tabsMapping = {
 };
 
 const List = (props) => {
-  const {
-    openModal,
-    setModalName,
-    checkedObjects,
-    setCheckedObjects,
-    setWorkingArea,
-    tabName,
-    chapterId,
-  } = props;
+  const { tabName, chapterId, reader } = props;
 
-  const { setFormState } = useStore();
+  const { openModal, setFormState } = useStore();
 
   const { handleSubmit } = useForm();
 
@@ -37,6 +29,10 @@ const List = (props) => {
     queryFn: () => getTabObjects(chapterId, tabsMapping[tabName]),
     refetchOnWindowFocus: false,
   });
+
+  const [objects, setObjects] = React.useState([]);
+
+  console.log("tabObjects= ", tabObjects);
 
   const mutation = useMutation({
     mutationFn: (bodyData) =>
@@ -53,108 +49,90 @@ const List = (props) => {
   React.useEffect(() => {
     if (!tabObjects) return;
 
-    setCheckedObjects((prevState) => {
-      return prevState.map((tab) => {
-        if (tab.label === tabName) {
-          return {
-            ...tab,
-            objects: [
-              ...tabObjects?.map((item) => ({
-                ...item,
-                id: item._id,
-              })),
-            ],
-          };
-        }
-        return tab;
-      });
-    });
-  }, [tabObjects, tabName, setCheckedObjects]);
+    setObjects(tabObjects);
+  }, [tabObjects, tabName, setObjects]);
 
   const onClickPlus = () => {
-    setModalName("tabs");
-    openModal();
+    openModal("tabs", {
+      checkedObjects: objects,
+      setCheckedObjects: setObjects,
+      source: tabName,
+    });
   };
 
   const handlePlay = React.useCallback(
     (item) => {
-      setWorkingArea({
-        text: item.id,
-        contentValue: item.id,
-        contentType: item.type || "Text MCQ",
-        typeOfLabel: item.type,
+      openModal("play-object", {
+        workingArea: {
+          text: item._id,
+          contentValue: item._id,
+          contentType: item.type || "Text MCQ",
+          typeOfLabel: item.type,
+        },
       });
-      setModalName("play-object");
-      openModal();
     },
-    [setWorkingArea, setModalName, openModal]
+    [openModal]
   );
 
   const handleDelete = React.useCallback(
     (id) => {
       if (!id) return;
-      setCheckedObjects((prevState) =>
-        prevState.map((tab) =>
-          tab.label === tabName
-            ? { ...tab, objects: tab.objects.filter((item) => item.id !== id) }
-            : tab
-        )
-      );
+      setObjects((prevState) => prevState.filter((item) => item._id !== id));
     },
-    [setCheckedObjects, tabName]
+    [setObjects]
   );
 
   const onSubmitHandler = async () => {
     const ids = {
-      ids: checkedObjects
-        .find((tab) => tab.label === tabName)
-        ?.objects?.map((item) => item.id),
+      ids: objects.map((item) => item._id),
     };
 
     mutation.mutate(ids);
   };
 
   const objectsList = React.useMemo(() => {
-    const list =
-      checkedObjects?.find((tab) => tab.label === tabName)?.objects || [];
-
     if (isFetching) return <CircularProgress size="1rem" />;
-    if (!list.length) return <p>{tabName} is empty</p>;
+    if (!objects.length) return <p>{tabName} is empty</p>;
 
-    return list.map((item) => (
+    return objects.map((item) => (
       <ListItem
-        key={item.id}
+        key={item._id}
         item={item}
         onPlay={() => handlePlay(item)}
-        onDelete={() => handleDelete(item.id)}
+        onDelete={() => handleDelete(item._id)}
+        reader={reader}
       />
     ));
-  }, [checkedObjects, tabName, isFetching, handleDelete, handlePlay]);
+  }, [objects, tabName, isFetching, handleDelete, handlePlay]);
 
   return (
     <form
       onSubmit={handleSubmit(onSubmitHandler)}
       className={styles["illustrative-interactions"]}
     >
-      <div>
-        <IconButton onClick={onClickPlus} color="primary">
-          <AddIcon color="primary" />
-        </IconButton>
-      </div>
+      {!reader && (
+        <div>
+          <IconButton onClick={onClickPlus} color="primary">
+            <AddIcon color="primary" />
+          </IconButton>
+        </div>
+      )}
       <ul>{objectsList}</ul>
 
-      <Box sx={{ display: "flex", justifyContent: "center" }}>
-        <Button
-          variant="contained"
-          type="submit"
-          disabled={mutation.isLoading}
-          startIcon={
-            mutation.isLoading ? <CircularProgress size="1rem" /> : <></>
-          }
-        >
-          Submit
-        </Button>
-      </Box>
+      {!reader && (
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <Button
+            variant="contained"
+            type="submit"
+            disabled={mutation.isLoading}
+            startIcon={
+              mutation.isLoading ? <CircularProgress size="1rem" /> : <></>
+            }
+          >
+            Submit
+          </Button>
+        </Box>
+      )}
     </form>
   );
 };
