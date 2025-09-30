@@ -27,15 +27,6 @@ import LanguageSwitcher from "./LanguageSwitcher/LanguageSwitcher";
 import StudioModals from "./StudioModals/StudioModals";
 import { LEFT_POSITION } from "../../utils/book";
 import BookColumn from "../Book/BookColumn/BookColumn";
-import {
-  GlossaryAndKeywordsData,
-  checkYourselfData,
-  enrichingContentData,
-  illustrativeInteractionsData,
-  microLearningData,
-  recallsData,
-  tableOfContentsData,
-} from "../../utils/tabs";
 import List from "../Tabs/List/List";
 import { parseVirtualBlocksFromPages } from "../../utils/virtual-blocks";
 import StudioStickyToolbar from "./StudioStickyToolbar/StudioStickyToolbar";
@@ -586,7 +577,6 @@ const Studio = (props) => {
       label: RECALLS,
       component: (
         <List
-          data={illustrativeInteractionsData}
           openModal={() => openModal(RECALLS)}
           setModalName={setModalName}
           checkedObjects={checkedObjects}
@@ -602,7 +592,6 @@ const Studio = (props) => {
       label: MICRO_LEARNING,
       component: (
         <List
-          data={illustrativeInteractionsData}
           openModal={openModal}
           setModalName={setModalName}
           checkedObjects={checkedObjects}
@@ -618,7 +607,6 @@ const Studio = (props) => {
       label: ENRICHING_CONTENT,
       component: (
         <List
-          data={illustrativeInteractionsData}
           openModal={openModal}
           setModalName={setModalName}
           checkedObjects={checkedObjects}
@@ -634,7 +622,6 @@ const Studio = (props) => {
       label: CHECK_YOURSELF,
       component: (
         <List
-          data={illustrativeInteractionsData}
           openModal={openModal}
           setModalName={setModalName}
           checkedObjects={checkedObjects}
@@ -718,7 +705,6 @@ const Studio = (props) => {
       label: ILLUSTRATIVE_INTERACTIONS,
       component: (
         <List
-          data={illustrativeInteractionsData}
           openModal={openModal}
           setModalName={setModalName}
           checkedObjects={checkedObjects}
