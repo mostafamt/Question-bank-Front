@@ -575,62 +575,22 @@ const Studio = (props) => {
     {
       id: uuidv4(),
       label: RECALLS,
-      component: (
-        <List
-          openModal={() => openModal(RECALLS)}
-          setModalName={setModalName}
-          checkedObjects={checkedObjects}
-          setCheckedObjects={setCheckedObjects}
-          setWorkingArea={setWorkingArea}
-          chapterId={chapterId}
-          tabName={RECALLS}
-        />
-      ),
+      component: <List chapterId={chapterId} tabName={RECALLS} />,
     },
     {
       id: uuidv4(),
       label: MICRO_LEARNING,
-      component: (
-        <List
-          openModal={openModal}
-          setModalName={setModalName}
-          checkedObjects={checkedObjects}
-          setCheckedObjects={setCheckedObjects}
-          setWorkingArea={setWorkingArea}
-          chapterId={chapterId}
-          tabName={MICRO_LEARNING}
-        />
-      ),
+      component: <List chapterId={chapterId} tabName={MICRO_LEARNING} />,
     },
     {
       id: uuidv4(),
       label: ENRICHING_CONTENT,
-      component: (
-        <List
-          openModal={openModal}
-          setModalName={setModalName}
-          checkedObjects={checkedObjects}
-          setCheckedObjects={setCheckedObjects}
-          setWorkingArea={setWorkingArea}
-          chapterId={chapterId}
-          tabName={ENRICHING_CONTENT}
-        />
-      ),
+      component: <List chapterId={chapterId} tabName={ENRICHING_CONTENT} />,
     },
     {
       id: uuidv4(),
       label: CHECK_YOURSELF,
-      component: (
-        <List
-          openModal={openModal}
-          setModalName={setModalName}
-          checkedObjects={checkedObjects}
-          setCheckedObjects={setCheckedObjects}
-          setWorkingArea={setWorkingArea}
-          chapterId={chapterId}
-          tabName={CHECK_YOURSELF}
-        />
-      ),
+      component: <List chapterId={chapterId} tabName={CHECK_YOURSELF} />,
     },
   ];
 
@@ -704,15 +664,7 @@ const Studio = (props) => {
       id: uuidv4(),
       label: ILLUSTRATIVE_INTERACTIONS,
       component: (
-        <List
-          openModal={openModal}
-          setModalName={setModalName}
-          checkedObjects={checkedObjects}
-          setCheckedObjects={setCheckedObjects}
-          setWorkingArea={setWorkingArea}
-          chapterId={chapterId}
-          tabName={ILLUSTRATIVE_INTERACTIONS}
-        />
+        <List chapterId={chapterId} tabName={ILLUSTRATIVE_INTERACTIONS} />
       ),
     },
   ];

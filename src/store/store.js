@@ -4,14 +4,31 @@ const useStore = create((set) => ({
   data: {
     modal: {
       name: "",
-      opened: false,
       size: "xl",
+      opened: false,
+      props: {},
     },
   },
+  setFormState: (data) =>
+    set((prevState) => ({ data: { ...prevState.data, ...data } })),
 
-  count: 1,
-  inc: () => set((state) => ({ count: state.count + 1 })),
-  setFormState: (data) => set(() => ({ data })),
+  openModal: (name, props = {}) =>
+    set((prevState) => ({
+      data: {
+        ...prevState.data,
+        modal: {
+          ...prevState.data.modal,
+          name: name,
+          opened: true,
+          props: props,
+        },
+      },
+    })),
+  closeModal: () =>
+    set((prevState) => ({
+      ...prevState.data,
+      modal: { ...prevState.data.modal, name: "", opened: false, props: {} },
+    })),
 }));
 
 export { useStore };
