@@ -115,6 +115,11 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
     ));
   };
 
+  const renderedAreas =
+    activeRightTab.label === "Composite Blocks"
+      ? compositeBlocks.areas
+      : areas[activePage];
+
   return (
     <VirtualBlocks
       className={clsx(
@@ -149,13 +154,10 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
               onLoad={onImageLoad}
             />
           </div>
-        ) : (
+        ) : activeRightTab.label === "Block Authoring" ||
+          activeRightTab.label === "Composite Blocks" ? (
           <AreaSelector
-            areas={
-              activeRightTab.label === "Composite Blocks"
-                ? compositeBlocks.areas
-                : areas[activePage]
-            }
+            areas={renderedAreas}
             onChange={onChangeHandler}
             wrapperStyle={{
               width: "100%",
@@ -181,6 +183,22 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
               onLoad={onImageLoad}
             />
           </AreaSelector>
+        ) : (
+          <div style={{ position: "relative" }}>
+            <img
+              src={pages[activePage]?.url}
+              alt={pages[activePage]?.url || pages[activePage]}
+              crossOrigin="anonymous"
+              ref={ref}
+              style={{
+                width: `${imageScaleFactor * 100}%`,
+                height: `${imageScaleFactor * 100}%`,
+                overflow: "scroll",
+                cursor: "pointer",
+              }}
+              onLoad={onImageLoad}
+            />
+          </div>
         )}
       </div>
     </VirtualBlocks>
