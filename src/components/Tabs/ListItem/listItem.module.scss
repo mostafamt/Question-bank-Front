@@ -8,4 +8,12 @@
       flex-grow: 1;
     }
   }
+
+  & .up-down {
+    display: flex;
+
+    & button {
+      padding: 0;
+    }
+  }
 }
