@@ -14,10 +14,13 @@ export default function DataTable(props) {
   const [total, setTotal] = React.useState(0);
   const [loading, setLoading] = React.useState(false);
   const [selectedRowId, setSelectedRowId] = React.useState();
+  const [searchValue, setSearchValue] = React.useState("")
+  const [searchColumn, setSearchColumn] = React.useState("")
   const [paginationModel, setPaginationModel] = React.useState({
     page: 1,
-    pageSize: 5,
+    pageSize: 10,
   });
+  const columnNames = { name: "questionName", type: "type", domain: "domainName", subDomain: "subDomainName", topic: "topic", IR: "IR" }
 
   const renderColorStatus = (status) => {
     let color = { backgroundColor: "black" };
@@ -36,6 +39,8 @@ export default function DataTable(props) {
       field: "col0",
       headerName: "",
       width: 70,
+      sortable: false,
+      filterable: false,
       renderCell: (params) => (
         <Radio
           checked={params.id == selectedRowId}
@@ -50,7 +55,7 @@ export default function DataTable(props) {
     {
       field: "name",
       headerName: "Title",
-      width: 300,
+      width: 200,
       renderCell: (params) => {
         return <Link to={`/show/${params.id}`}>{params.row.name}</Link>;
       },
@@ -71,14 +76,24 @@ export default function DataTable(props) {
       width: 200,
     },
     {
+      field: "topic",
+      headerName: "Topic",
+      width: 100,
+    },
+    {
+      field: "IR",
+      headerName: "Instructional Role",
+      width: 150,
+    },
+    {
       field: "dateModified",
       headerName: "Date Modified",
-      width: 150,
+      width: 120,
     },
     {
       field: "hasAnswered",
       headerName: "Has Answered",
-      width: 150,
+      width: 120,
       renderCell: (params) => {
         return (
           <div
@@ -94,7 +109,9 @@ export default function DataTable(props) {
     setLoading(true);
     const res = await fetchObjects(
       paginationModel.page,
-      paginationModel.pageSize
+      paginationModel.pageSize,
+      searchValue,
+      searchColumn
     );
     const data = res?.data;
     if (!!data?.docs.length) {
@@ -103,12 +120,13 @@ export default function DataTable(props) {
           id: item._id || uuidv4(),
           name:
             item.questionName ||
-            `Untitled ${
-              paginationModel.page * paginationModel.pageSize + idx + 1
+            `Untitled ${paginationModel.page * paginationModel.pageSize + idx + 1
             }`,
           type: item.type,
           domain: item.domainName,
           subDomain: item.subDomainName,
+          topic: item.topic,
+          IR: item.IR,
           dateModified: new Date(item.createdAt).toLocaleDateString("en-GB"),
           hasAnswered: item.isAnswered,
         }))
@@ -116,7 +134,7 @@ export default function DataTable(props) {
     }
     setLoading(false);
     setTotal(res.data.totalDocs);
-  }, [paginationModel.page, paginationModel.pageSize]);
+  }, [paginationModel.page, paginationModel.pageSize, searchValue, searchColumn]);
 
   React.useEffect(() => {
     fetchQuestions();
@@ -135,10 +153,10 @@ export default function DataTable(props) {
       <div className={styles.table}>
         <div className={styles.actions}>
           <Button variant="contained" onClick={onClickAddQuestion}>
-            Add Question
+            New Object
           </Button>
           <Button variant="contained" onClick={onClickEditQuestion}>
-            Edit
+            Edit Object
           </Button>
         </div>
         <DataGrid
@@ -149,9 +167,25 @@ export default function DataTable(props) {
           columns={columns}
           baseCheckbox={RadioButtonCheckedRounded}
           slots={{ toolbar: GridToolbar }}
-          pageSizeOptions={[5, 10]}
+          pageSizeOptions={[10, 25, 50, 100]}
           paginationModel={paginationModel}
           paginationMode="server"
+          onFilterModelChange={(e) => {
+            console.log(e.items.length)
+            if (e.items.length && e.items[0].value) {
+              const searchValue = e.items[0].value
+              setSearchValue(searchValue)
+              let propName = columnNames[e.items[0].field]
+              console.log(propName)
+              setSearchColumn(propName)
+              // this.getData(1, this.state.rowsPerPage, `&${propName}=${searchValue}`)
+              // //axios.get(`${urls.lomURL}/los?${propName}=${searchValue}`)
+            } else {
+              setSearchValue("")
+              setSearchColumn("")
+            }
+
+          }}
           onPaginationModelChange={setPaginationModel}
         />
       </div>

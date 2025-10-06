@@ -65,6 +65,7 @@ const AutoGenerationStudio = (props) => {
       subDomainName,
       topic,
       objectOwner,
+      IR
     } = state;
 
     const { x, y, width, height } = areas[0];
@@ -82,7 +83,6 @@ const AutoGenerationStudio = (props) => {
     setCroppedImage(imageBase64);
 
     const url = await uploadForStudio(imageBase64);
-    console.log("url= ", url);
 
     const objectElements = [
       {
@@ -98,6 +98,7 @@ const AutoGenerationStudio = (props) => {
       subDomainId,
       subDomainName,
       topic,
+      IR,
       objectOwner,
       type,
       objectElements,

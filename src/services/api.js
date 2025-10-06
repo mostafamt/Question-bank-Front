@@ -10,11 +10,12 @@ const wait = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-export const fetchObjects = async (page, limit) => {
+export const fetchObjects = async (page, limit, searchValue, searchColumn) => {
   try {
-    const res = await axios2.get(
+    const url = searchValue ? `/interactive-objects?page=${page}&limit=${limit}&${searchColumn}=${searchValue}` :
       `/interactive-objects?page=${page}&limit=${limit}`
-    );
+
+    const res = await axios2.get(url);
     return res;
   } catch (error) {
     toast.error(error?.message);

@@ -108,6 +108,7 @@ const DrawnUI = () => {
       topic: state.topic,
       language: state.language,
       type: state.type,
+      IR: state.IR,
       domainName: state.domainName,
       subDomainName: state.subDomainName,
       parameters: {

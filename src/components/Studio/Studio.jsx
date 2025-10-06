@@ -189,6 +189,7 @@ const Studio = (props) => {
       subDomainId,
       subDomainName,
       topic,
+      IR,
       objectOwner,
     } = state;
 
@@ -213,6 +214,7 @@ const Studio = (props) => {
       topic,
       objectOwner,
       type,
+      IR,
       objectElements,
     };
 
