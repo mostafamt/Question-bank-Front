@@ -8,6 +8,8 @@ import Modal from "../../components/Modal/Modal";
 import DeleteModalContent from "../../components/Modal/DeleteModalContent/DeleteModalContent";
 import axios from "../../axios";
 import { toast } from "react-toastify";
+import { instructionalRoles } from "../../utils/helper";
+
 import {
   ownerList,
   domainList,
@@ -47,9 +49,11 @@ const EditObject = () => {
 
   const fetchData = async () => {
     const res = await axios.get(`/interactive-objects/${id}`);
+    const category = { SI: "SnapLearning", X: "Explanation Object", Q: "Question" }
     return {
       ...res.data,
       type: getCorrectQuestionTypeName(res.data.type),
+      category: category[res.data.questionOrExplanation]
     };
   };
 
@@ -123,14 +127,14 @@ const EditObject = () => {
           <fieldset>
             <legend>Edit Object</legend>
             <div>
-              <Input
-                label="title"
-                name="questionName"
-                type="text"
-                register={register}
-                errors={errors}
-              />
               <div className={styles.row}>
+                <Input
+                  label="title"
+                  name="questionName"
+                  type="text"
+                  register={register}
+                  errors={errors}
+                />
                 <Select
                   label="object owner"
                   name="objectOwner"
@@ -143,6 +147,10 @@ const EditObject = () => {
                     </option>
                   ))}
                 </Select>
+              </div>
+
+              <div className={styles.row}>
+
                 <Select
                   label="domain"
                   name="domainId"
@@ -155,8 +163,6 @@ const EditObject = () => {
                     </option>
                   ))}
                 </Select>
-              </div>
-              <div className={styles.row}>
                 <Select
                   label="sub domain"
                   name="subDomainId"
@@ -169,14 +175,14 @@ const EditObject = () => {
                     </option>
                   ))}
                 </Select>
+              </div>
+              <div className={styles.row}>
                 <Input
                   label="topic"
                   name="topic"
                   register={register}
                   errors={errors}
                 />
-              </div>
-              <div className={styles.row}>
                 <Select
                   label="language"
                   name="language"
@@ -189,6 +195,22 @@ const EditObject = () => {
                     </option>
                   ))}
                 </Select>
+              </div>
+              <div className={styles.row}>
+
+                <Select
+                  label="Instructional Role"
+                  name="IR"
+                  register={register}
+                  errors={errors}
+                >
+                  {instructionalRoles?.map((item, idx) => (
+                    <option key={item} value={item}>
+                      {item}
+                    </option>
+                  ))}
+                </Select>
+
                 <Select
                   label="question type"
                   name="type"

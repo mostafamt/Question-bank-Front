@@ -71,6 +71,11 @@ const ObjectsTable = (props) => {
       width: 200,
     },
     {
+      field: "topic",
+      headerName: "Topic",
+      width: 200,
+    },
+    {
       field: "dateModified",
       headerName: "Date Modified",
       width: 150,
@@ -103,8 +108,7 @@ const ObjectsTable = (props) => {
           id: item._id || uuidv4(),
           name:
             item.questionName ||
-            `Untitled ${
-              paginationModel.page * paginationModel.pageSize + idx + 1
+            `Untitled ${paginationModel.page * paginationModel.pageSize + idx + 1
             }`,
           type: item.type,
           domain: item.domainName,
