@@ -1,10 +1,10 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
 import { useStore } from "../../store/store";
-import PlayObject from "./PlayObject/PlayObject";
-import QuillModal from "./QuillModal/QuillModal";
 import PlayObjectModal from "../Modal/PlayObjectModal/PlayObjectModal";
 import ObjectsTableModalContent from "../Modal/ObjectsTableModalContent/ObjectsTableModalContent";
+import AutoUiModal from "../Modal/AutoUiModal/AutoUiModal";
+import QuillModal from "../Modal/QuillModal/QuillModal";
 
 const Modals = () => {
   const { data: state, setFormState } = useStore();
@@ -23,31 +23,39 @@ const Modals = () => {
     });
   };
 
-  let modalContent = <></>;
+  let modalContent;
 
-  if (name === "") {
-    modalContent = <h1>some modal content</h1>;
-  } else if (name === "play-object") {
-    modalContent = (
-      <PlayObjectModal {...state.modal.props} handleCloseModal={closeModal} />
-    );
-  } else if (name === "tabs") {
-    modalContent = (
-      <ObjectsTableModalContent
-        {...state.modal.props}
-        handleCloseModal={closeModal}
-      />
-    );
-  } else if (name === "quill-modal") {
-    const { value, setValue, onClickSubmit } = state.modal.props;
+  switch (name) {
+    case "play-object":
+      modalContent = (
+        <PlayObjectModal {...state.modal.props} handleCloseModal={closeModal} />
+      );
+      break;
 
-    modalContent = (
-      <QuillModal
-        value={value}
-        setValue={setValue}
-        onClickSubmit={onClickSubmit}
-      />
-    );
+    case "tabs":
+      modalContent = (
+        <ObjectsTableModalContent
+          {...state.modal.props}
+          handleCloseModal={closeModal}
+        />
+      );
+      break;
+
+    case "quill":
+      modalContent = (
+        <QuillModal {...state.modal.props} handleCloseModal={closeModal} />
+      );
+      break;
+
+    case "auto-ui":
+      modalContent = (
+        <AutoUiModal {...state.modal.props} handleCloseModal={closeModal} />
+      );
+      break;
+
+    default:
+      modalContent = null;
+      break;
   }
 
   return (
