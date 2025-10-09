@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Box, Collapse, IconButton, List, TextField } from "@mui/material";
+import { Box, Collapse, IconButton, List } from "@mui/material";
 import { DeleteForever } from "@mui/icons-material";
 import AreaActionResult from "../AreaActionResult/AreaActionResult";
 import AreaActionHeader from "../AreaActionHeader/AreaActionHeader";
@@ -11,10 +11,11 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import { hexToRgbA } from "../../utils/helper";
 import EditIcon from "@mui/icons-material/Edit";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-
-import styles from "./areaAction.module.scss";
+import { useStore } from "../../store/store";
 import { grey } from "@mui/material/colors";
 import { isComplexType } from "../../utils/ocr";
+
+import styles from "./areaAction.module.scss";
 
 const AreaAction = (props) => {
   const {
@@ -29,11 +30,10 @@ const AreaAction = (props) => {
     types,
     onChangeLabel,
     subObject,
-    setModalName,
-    openModal,
-    setWorkingArea,
     typeOfActiveType,
   } = props;
+
+  const { openModal } = useStore();
 
   const onClick = () => {
     updateAreaProperty(idx, { open: !area.open });
@@ -46,21 +46,18 @@ const AreaAction = (props) => {
 
   const onClickEdit = (event) => {
     event.stopPropagation();
-    if (isComplexType(area.label)) {
-      setModalName("auto-ui");
-    } else {
-      setModalName("quill");
-    }
-    setWorkingArea(area);
 
-    openModal();
+    openModal(isComplexType(area.label) ? "auto-ui" : "quill", {
+      workingArea: area,
+      updateAreaPropertyById: updateAreaPropertyById,
+    });
   };
 
   const onClickPlay = (event) => {
     event.stopPropagation();
-    setModalName("play-object");
-    setWorkingArea(area);
-    openModal();
+    openModal("play-object", {
+      workingArea: area,
+    });
   };
 
   return (
