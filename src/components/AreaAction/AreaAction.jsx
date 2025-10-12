@@ -70,10 +70,7 @@ const AreaAction = (props) => {
       <ListItemButton
         onClick={onClick}
         sx={{
-          padding: "0 0.5rem",
           background: hexToRgbA(area.color),
-          display: "flex",
-          flexDirection: "column",
         }}
       >
         <div
@@ -82,6 +79,7 @@ const AreaAction = (props) => {
             display: "flex",
             justifyContent: "space-between",
           }}
+          className={styles["header-title"]}
         >
           <ListItemText primary={area.label} />
 
