@@ -20,13 +20,13 @@ import styles from "./virtualBlock.module.scss";
 
 const VirtualBlock = (props) => {
   const {
-    openModal,
-    setModalName,
     checkedObject,
     setCheckedObject,
     label,
     showVB,
     reader,
+    virtualBlocks,
+    setVirtualBlocks,
   } = props;
 
   const [value, setValue] = React.useState("");
@@ -95,8 +95,10 @@ const VirtualBlock = (props) => {
         },
       });
     } else {
-      setModalName("virtual-blocks");
-      openModal();
+      openModalGlobal("virtual-blocks", {
+        virtualBlocks: virtualBlocks,
+        setVirtualBlocks: setVirtualBlocks,
+      });
       setFormState({
         ...state,
         virtual_block_label: _header,
@@ -135,12 +137,11 @@ const VirtualBlock = (props) => {
         },
       });
     } else {
-      setModalName("play-object-2");
+      openModalGlobal("play-object-2", {});
       setFormState({
         ...state,
         activeId: checkedObject?.id,
       });
-      openModal();
     }
   };
 
