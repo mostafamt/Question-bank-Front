@@ -24,8 +24,6 @@ import {
 
 import StudioActions from "./StudioActions/StudioActions";
 import LanguageSwitcher from "./LanguageSwitcher/LanguageSwitcher";
-import StudioModals from "./StudioModals/StudioModals";
-import { LEFT_POSITION } from "../../utils/book";
 import BookColumn from "../Book/BookColumn/BookColumn";
 import List from "../Tabs/List/List";
 import { parseVirtualBlocksFromPages } from "../../utils/virtual-blocks";
@@ -38,6 +36,7 @@ import { saveCompositeBlocks } from "../../services/api";
 import { useParams } from "react-router-dom";
 import TableOfContents from "../Book/TableOfContents/TableOfContents";
 import GlossaryAndKeywords from "../Tabs/GlossaryAndKeywords/GlossaryAndKeywords";
+import { useStore } from "../../store/store";
 
 const RECALLS = "Recalls";
 const MICRO_LEARNING = "Micro Learning";
@@ -77,6 +76,8 @@ const Studio = (props) => {
       : 0
   );
   const activePageId = pages?.[activePageIndex]?._id;
+
+  const { openModal: openModalGlobal, setFormState } = useStore();
 
   const studioEditorRef = React.useRef(null);
   const [showStickyToolbar, setShowStickyToolbar] = React.useState(false);
@@ -309,21 +310,6 @@ const Studio = (props) => {
     }
   };
 
-  const handleCloseModal = () => {
-    setModalState({
-      open: false,
-      source: null,
-    });
-  };
-
-  const openModal = (source = null) => {
-    console.log("source= ", source);
-    setModalState({
-      open: true,
-      source: source,
-    });
-  };
-
   const onChangeLabel = async (id, label) => {
     syncAreasProperties();
     const idx = areasProperties[activePageIndex].findIndex(
@@ -379,13 +365,16 @@ const Studio = (props) => {
       // open modal if it has a supported type
       let found = COMPLEX_TYPES.find((type) => type === typeOfLabel);
       if (found) {
-        setModalName("");
         setWorkingArea(area);
         setActiveType(label);
         setTypeOfActiveType(typeOfLabel);
-        setTimeout(() => {
-          openModal();
-        }, 1000);
+        openModalGlobal("sub-object", {
+          image: img,
+          type: activeType,
+          types: types,
+          updateAreaProperty: updateAreaProperty,
+          typeOfActiveType: typeOfActiveType,
+        });
       }
     }
   };
@@ -609,8 +598,6 @@ const Studio = (props) => {
       types={types}
       onChangeLabel={onChangeLabel}
       subObject={subObject}
-      setModalName={setModalName}
-      openModal={openModal}
       setWorkingArea={setWorkingArea}
       tOfActiveType={tOfActiveType}
       onSubmitAutoGenerate={onSubmitAutoGenerate}
@@ -678,28 +665,6 @@ const Studio = (props) => {
 
   return (
     <>
-      <StudioModals
-        modalState={modalState}
-        handleCloseModal={handleCloseModal}
-        activeImage={activeImage}
-        activeType={activeType}
-        typeOfActiveType={typeOfActiveType}
-        types={types}
-        updateAreaProperty={updateAreaProperty}
-        modalName={modalName}
-        workingArea={workingArea}
-        updateAreaPropertyById={updateAreaPropertyById}
-        checkedObjects={checkedObjects}
-        setCheckedObjects={setCheckedObjects}
-        virtualBlocks={virtualBlocks[activePageIndex]}
-        setVirtualBlocks={(value) =>
-          setVirtualBlocks((prevState) => {
-            prevState[activePageIndex] = value;
-            return [...prevState];
-          })
-        }
-        tabName={""}
-      />
       <StudioStickyToolbar
         show={showStickyToolbar}
         imageScaleFactor={imageScaleFactor}
@@ -735,8 +700,6 @@ const Studio = (props) => {
           pages={pages}
           ref={studioEditorRef}
           onImageLoad={onImageLoad}
-          openModal={openModal}
-          setModalName={setModalName}
           virtualBlocks={virtualBlocks[activePageIndex]}
           setVirtualBlocks={(value) =>
             setVirtualBlocks((prevState) => {
