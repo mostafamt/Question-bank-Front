@@ -8,6 +8,8 @@ import ObjectsTableModalContent2 from "./ObjectsTableModalContent2/ObjectsTableM
 import AutoUiModal from "./AutoUiModal/AutoUiModal";
 import QuillModal from "./QuillModal/QuillModal";
 import SubObjectModal from "./SubObjectModal/SubObjectModal";
+import PlayCompositeBlocks from "./PlayCompositeBlocks/PlayCompositeBlocks";
+import EditCompositeBlocks from "./EditCompositeBlocks/EditCompositeBlocks";
 
 // Modal registry
 const MODAL_COMPONENTS = {
@@ -18,6 +20,8 @@ const MODAL_COMPONENTS = {
   "auto-ui": AutoUiModal,
   quill: QuillModal,
   "sub-object": SubObjectModal,
+  "play-composite-blocks": PlayCompositeBlocks,
+  "edit-composite-blocks": EditCompositeBlocks,
 };
 
 const Modal = () => {
