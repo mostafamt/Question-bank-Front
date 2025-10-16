@@ -67,8 +67,8 @@ const StudioActions = (props) => {
             {(provided, snapshot) => (
               <div {...provided.droppableProps} ref={provided.innerRef}>
                 {[...areasProperties[activePage]]
-                  ?.sort((a, b) => a.order - b.order)
-                  // .filter((item) => item.status !== DELETED)
+                  // ?.sort((a, b) => a.order - b.order)
+                  .filter((item) => item.status !== DELETED)
                   ?.map((area, idx) => (
                     <Draggable key={area.id} draggableId={area.id} index={idx}>
                       {(provided, snaphost) => (
