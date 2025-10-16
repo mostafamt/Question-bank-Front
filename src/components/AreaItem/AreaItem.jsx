@@ -22,8 +22,6 @@ const AreaItem = ({
   actions = [],
   children,
 }) => {
-  //   const [isOpen, setIsOpen] = React.useState(false);
-
   return (
     <div
       className={styles["area-item"]}
@@ -73,6 +71,14 @@ const AreaItem = ({
       </Collapse>
     </div>
   );
+};
+
+AreaItem.defaultProps = {
+  color: "#000000",
+  isOpen: false,
+  actions: [],
+  children: null,
+  handleToggle: () => {},
 };
 
 export default AreaItem;
