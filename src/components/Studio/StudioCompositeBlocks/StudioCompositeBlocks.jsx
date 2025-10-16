@@ -11,7 +11,12 @@ import {
   getTypeOfLabelForCompositeBlocks,
 } from "../../../utils/studio";
 
+import { grey } from "@mui/material/colors";
+import { PlayArrow, Edit, DeleteForever } from "@mui/icons-material";
+
 import styles from "./studioCompositeBlocks.module.scss";
+import AreaItem from "../../AreaItem/AreaItem";
+import { useStore } from "../../../store/store";
 
 const StudioCompositeBlocks = (props) => {
   const {
@@ -21,7 +26,10 @@ const StudioCompositeBlocks = (props) => {
     processCompositeBlock,
     onSubmitCompositeBlocks,
     loadingSubmitCompositeBlocks,
+    DeleteCompositeBlocks,
   } = props;
+
+  const { openModal } = useStore();
 
   const list1 = getList1FromData(compositeBlocksTypes);
   const list2 = getList2FromData(compositeBlocksTypes, compositeBlocks.type);
@@ -41,6 +49,22 @@ const StudioCompositeBlocks = (props) => {
     console.log("type= ", typeOfLabel);
   };
 
+  const onClickPlay = (id, event) => {
+    openModal("play-composite-blocks", {
+      id,
+    });
+  };
+
+  const onClickEdit = (id, event) => {
+    openModal("edit-composite-blocks", {
+      id,
+    });
+  };
+
+  const onClickDelete = (id, event) => {
+    DeleteCompositeBlocks(id);
+  };
+
   const renderBlockResult = (block) => {
     if (block.loading) {
       return (
@@ -56,6 +80,24 @@ const StudioCompositeBlocks = (props) => {
       return <img src={block.img} alt={block.img} width="100%" />;
     }
   };
+
+  const actions = [
+    {
+      label: "play",
+      icon: <PlayArrow sx={{ color: grey[700] }} />,
+      onClick: onClickPlay,
+    },
+    {
+      label: "edit",
+      icon: <Edit sx={{ color: grey[700] }} />,
+      onClick: onClickEdit,
+    },
+    {
+      label: "delete",
+      icon: <DeleteForever color="error" />,
+      onClick: onClickDelete,
+    },
+  ];
 
   return (
     <div className={styles["studio-composite-blocks"]}>
@@ -93,14 +135,22 @@ const StudioCompositeBlocks = (props) => {
       </div>
       <div className={styles.blocks}>
         {compositeBlocks?.areas?.map((block) => (
-          <div key={block.id} className={styles.block}>
-            <MuiSelect
-              value={block.type}
-              onChange={(e) => onChange(block.id, "type", e.target.value)}
-              list={["", ...list2]}
-            />
-            {renderBlockResult(block)}
-          </div>
+          <AreaItem
+            id={block.id}
+            isOpen={block.open}
+            title={compositeBlocks.type}
+            actions={actions}
+          >
+            <p>some content</p>
+          </AreaItem>
+          // <div key={block.id} className={styles.block}>
+          //   <MuiSelect
+          //     value={block.type}
+          //     onChange={(e) => onChange(block.id, "type", e.target.value)}
+          //     list={["", ...list2]}
+          //   />
+          //   {renderBlockResult(block)}
+          // </div>
         ))}
       </div>
 

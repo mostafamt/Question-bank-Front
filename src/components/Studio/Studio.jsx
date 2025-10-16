@@ -77,7 +77,7 @@ const Studio = (props) => {
   );
   const activePageId = pages?.[activePageIndex]?._id;
 
-  const { openModal: openModalGlobal } = useStore();
+  const { openModal } = useStore();
 
   const studioEditorRef = React.useRef(null);
   const [showStickyToolbar, setShowStickyToolbar] = React.useState(false);
@@ -352,7 +352,7 @@ const Studio = (props) => {
       if (found) {
         setActiveType(label);
         setTypeOfActiveType(typeOfLabel);
-        openModalGlobal("sub-object", {
+        openModal("sub-object", {
           image: img,
           type: activeType,
           types: types,
@@ -428,6 +428,9 @@ const Studio = (props) => {
     setAreasProperties(newAreasProperties);
   };
 
+  ///////////////////////////////////////////////////
+  // Composite Blocks
+  /////////////////////////////////////////////////
   const onChangeCompositeBlocks = (id, key, value) => {
     if (!id) {
       setCompositeBlocks((prevState) => ({
@@ -448,6 +451,13 @@ const Studio = (props) => {
           return item;
         }),
       };
+    });
+  };
+
+  const DeleteCompositeBlocks = (id) => {
+    setCompositeBlocks((prevState) => {
+      const newAreas = prevState?.areas?.filter((item) => item.id !== id);
+      return { ...prevState, areas: newAreas };
     });
   };
 
@@ -531,6 +541,9 @@ const Studio = (props) => {
 
     setLoadingSubmitCompositeBlocks(false);
   };
+  ///////////////////////////////////////////////////
+  // End Of Composite Blocks
+  /////////////////////////////////////////////////
 
   const LEFT_COLUMNS = [
     {
@@ -605,6 +618,7 @@ const Studio = (props) => {
           processCompositeBlock={processCompositeBlock}
           onSubmitCompositeBlocks={onSubmitCompositeBlocks}
           loadingSubmitCompositeBlocks={loadingSubmitCompositeBlocks}
+          DeleteCompositeBlocks={DeleteCompositeBlocks}
         />
       ),
     },
