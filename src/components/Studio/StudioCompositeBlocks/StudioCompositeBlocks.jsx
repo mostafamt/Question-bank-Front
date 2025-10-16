@@ -1,6 +1,6 @@
 import React from "react";
 import MuiSelect from "../../MuiSelect/MuiSelect";
-import { CircularProgress, TextField, Button } from "@mui/material";
+import { CircularProgress, TextField, Button, IconButton } from "@mui/material";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -12,11 +12,14 @@ import {
 } from "../../../utils/studio";
 
 import { grey } from "@mui/material/colors";
-import { PlayArrow, Edit, DeleteForever } from "@mui/icons-material";
+import { PlayArrow, Edit, DeleteForever, BackHand } from "@mui/icons-material";
 
 import styles from "./studioCompositeBlocks.module.scss";
 import AreaItem from "../../AreaItem/AreaItem";
 import { useStore } from "../../../store/store";
+
+// large | medium | small
+const iconFontSize = "small";
 
 const StudioCompositeBlocks = (props) => {
   const {
@@ -27,6 +30,8 @@ const StudioCompositeBlocks = (props) => {
     onSubmitCompositeBlocks,
     loadingSubmitCompositeBlocks,
     DeleteCompositeBlocks,
+    highlight,
+    setHighlight,
   } = props;
 
   const { openModal } = useStore();
@@ -47,6 +52,11 @@ const StudioCompositeBlocks = (props) => {
     processCompositeBlock(id, typeOfLabel);
 
     console.log("type= ", typeOfLabel);
+  };
+
+  const handleToggle = (id, isOpen) => {
+    console.log("id= ", id);
+    onChangeCompositeBlocks(id, "open", !isOpen);
   };
 
   const onClickPlay = (id, event) => {
@@ -75,7 +85,14 @@ const StudioCompositeBlocks = (props) => {
     }
 
     if (block.text) {
-      return <TextField size="small" defaultValue={block.text} />;
+      return (
+        <TextField
+          size="small"
+          defaultValue={block.text}
+          sx={{ mt: 1 }}
+          multiline
+        />
+      );
     } else {
       return <img src={block.img} alt={block.img} width="100%" />;
     }
@@ -101,6 +118,17 @@ const StudioCompositeBlocks = (props) => {
 
   return (
     <div className={styles["studio-composite-blocks"]}>
+      <div className={styles["tool-box"]}>
+        <IconButton
+          aria-label="hand"
+          onClick={() => setHighlight(highlight === "hand" ? "" : "hand")}
+          sx={{
+            backgroundColor: highlight === "hand" ? "#ccc" : "transparent",
+          }}
+        >
+          <BackHand fontSize={iconFontSize} />
+        </IconButton>
+      </div>
       <div className={styles.header}>
         <TextField
           label="Name"
@@ -140,17 +168,18 @@ const StudioCompositeBlocks = (props) => {
             isOpen={block.open}
             title={compositeBlocks.type}
             actions={actions}
+            handleToggle={() => handleToggle(block.id, block.open)}
+            color={block.color}
           >
-            <p>some content</p>
+            <div key={block.id} className={styles.block}>
+              <MuiSelect
+                value={block.type}
+                onChange={(e) => onChange(block.id, "type", e.target.value)}
+                list={["", ...list2]}
+              />
+              {renderBlockResult(block)}
+            </div>
           </AreaItem>
-          // <div key={block.id} className={styles.block}>
-          //   <MuiSelect
-          //     value={block.type}
-          //     onChange={(e) => onChange(block.id, "type", e.target.value)}
-          //     list={["", ...list2]}
-          //   />
-          //   {renderBlockResult(block)}
-          // </div>
         ))}
       </div>
 

@@ -1,6 +1,10 @@
 .studio-composite-blocks {
   margin: 1rem;
 
+  & .tool-box {
+    margin: 1rem 0;
+  }
+
   & .header {
     display: flex;
     flex-direction: column;

@@ -619,6 +619,8 @@ const Studio = (props) => {
           onSubmitCompositeBlocks={onSubmitCompositeBlocks}
           loadingSubmitCompositeBlocks={loadingSubmitCompositeBlocks}
           DeleteCompositeBlocks={DeleteCompositeBlocks}
+          highlight={highlight}
+          setHighlight={setHighlight}
         />
       ),
     },

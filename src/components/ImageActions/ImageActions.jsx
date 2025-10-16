@@ -131,7 +131,7 @@ const ImageActions = React.forwardRef((props, ref) => {
         <span>|</span>
       </div>
 
-      <div>
+      {/* <div>
         <IconButton
           aria-label="hand"
           onClick={() => setHighlight(highlight === "hand" ? "" : "hand")}
@@ -141,11 +141,11 @@ const ImageActions = React.forwardRef((props, ref) => {
         >
           <BackHandIcon fontSize={iconFontSize} />
         </IconButton>
-      </div>
+      </div> */}
 
-      <div>
+      {/* <div>
         <span>|</span>
-      </div>
+      </div> */}
 
       <div>
         <IconButton aria-label="zoom-in" onClick={onClickZoomIn}>
