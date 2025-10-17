@@ -18,7 +18,7 @@ const AreaItem = ({
   title,
   color,
   isOpen,
-  handleToggle,
+  onToggle,
   actions = [],
   children,
 }) => {
@@ -32,7 +32,7 @@ const AreaItem = ({
       }}
     >
       <ListItemButton
-        onClick={() => handleToggle()}
+        onClick={onToggle}
         sx={{
           background: hexToRgbA(color),
         }}
