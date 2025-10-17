@@ -354,7 +354,7 @@ const Studio = (props) => {
         setTypeOfActiveType(typeOfLabel);
         openModal("sub-object", {
           image: img,
-          type: activeType,
+          type: typeOfLabel,
           types: types,
           updateAreaProperty: updateAreaProperty,
           typeOfActiveType: typeOfActiveType,
