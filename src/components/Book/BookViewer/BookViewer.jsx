@@ -62,6 +62,8 @@ const BookViewer = (props) => {
       <VirtualBlock
         key={`${label}`}
         label={label}
+        // openModal={openModal}
+        // setModalName={setModalName}
         checkedObject={virtualBlocks[label]}
         showVB={showVB}
         reader

@@ -12,6 +12,8 @@ const VirtualBlocks = (props) => {
     virtualBlocks,
     setVirtualBlocks,
     activePage,
+    openModal,
+    setModalName,
   } = props;
 
   const virtualBlocksRenders = [];
@@ -21,6 +23,8 @@ const VirtualBlocks = (props) => {
       <VirtualBlock
         key={`${activePage} ${label}`}
         label={label}
+        openModal={openModal}
+        setModalName={setModalName}
         checkedObject={virtualBlocks[label]}
         setCheckedObject={(value) => {
           const newVirtualBlocks = { ...virtualBlocks };
@@ -28,8 +32,6 @@ const VirtualBlocks = (props) => {
           setVirtualBlocks(newVirtualBlocks);
         }}
         showVB={showVB}
-        virtualBlocks={virtualBlocks}
-        setVirtualBlocks={setVirtualBlocks}
       />
     );
   }
