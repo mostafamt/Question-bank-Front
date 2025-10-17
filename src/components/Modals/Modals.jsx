@@ -5,36 +5,37 @@ import PlayObjectModal from "../Modal/PlayObjectModal/PlayObjectModal";
 import ObjectsTableModalContent from "../Modal/ObjectsTableModalContent/ObjectsTableModalContent";
 import AutoUiModal from "../Modal/AutoUiModal/AutoUiModal";
 import QuillModal from "../Modal/QuillModal/QuillModal";
-import SubObjectModal from "../Modal/SubObjectModal/SubObjectModal";
-import ObjectsTableModalContent2 from "../Modal/ObjectsTableModalContent2/ObjectsTableModalContent2";
-import PlayObjectModal2 from "../Modal/PlayObjectModal2/PlayObjectModal2";
 
 const Modals = () => {
-  const { modal, closeModal } = useStore();
+  const { data: state, setFormState } = useStore();
 
-  const name = modal.name || "";
-  const size = modal.size || "xl";
-  const opened = modal.opened || false;
+  const name = state.modal.name || "";
+  const size = state.modal.size || "xl";
+  const opened = state.modal.opened || false;
+
+  const closeModal = () => {
+    setFormState({
+      ...state,
+      modal: {
+        ...state.modal,
+        opened: false,
+      },
+    });
+  };
 
   let modalContent;
 
   switch (name) {
     case "play-object":
       modalContent = (
-        <PlayObjectModal {...modal.props} handleCloseModal={closeModal} />
-      );
-      break;
-
-    case "play-object-2":
-      modalContent = (
-        <PlayObjectModal2 {...modal.props} handleCloseModal={closeModal} />
+        <PlayObjectModal {...state.modal.props} handleCloseModal={closeModal} />
       );
       break;
 
     case "tabs":
       modalContent = (
         <ObjectsTableModalContent
-          {...modal.props}
+          {...state.modal.props}
           handleCloseModal={closeModal}
         />
       );
@@ -42,28 +43,13 @@ const Modals = () => {
 
     case "quill":
       modalContent = (
-        <QuillModal {...modal.props} handleCloseModal={closeModal} />
+        <QuillModal {...state.modal.props} handleCloseModal={closeModal} />
       );
       break;
 
     case "auto-ui":
       modalContent = (
-        <AutoUiModal {...modal.props} handleCloseModal={closeModal} />
-      );
-      break;
-
-    case "sub-object":
-      modalContent = (
-        <SubObjectModal {...modal.props} handleCloseModal={closeModal} />
-      );
-      break;
-
-    case "virtual-blocks":
-      modalContent = (
-        <ObjectsTableModalContent2
-          {...modal.props}
-          handleCloseModal={closeModal}
-        />
+        <AutoUiModal {...state.modal.props} handleCloseModal={closeModal} />
       );
       break;
 

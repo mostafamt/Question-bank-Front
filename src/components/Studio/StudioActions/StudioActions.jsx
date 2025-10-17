@@ -22,6 +22,8 @@ const StudioActions = (props) => {
     types,
     onChangeLabel,
     subObject,
+    setModalName,
+    openModal,
     setWorkingArea,
     tOfActiveType: typeOfActiveType,
     onSubmitAutoGenerate,
@@ -94,6 +96,8 @@ const StudioActions = (props) => {
                             types={types}
                             onChangeLabel={onChangeLabel}
                             subObject={subObject}
+                            setModalName={setModalName}
+                            openModal={openModal}
                             setWorkingArea={setWorkingArea}
                             typeOfActiveType={typeOfActiveType}
                           />

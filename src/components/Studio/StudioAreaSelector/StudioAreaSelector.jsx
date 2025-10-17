@@ -18,6 +18,8 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
     onChangeHandler,
     pages,
     showVB,
+    openModal,
+    setModalName,
     virtualBlocks,
     setVirtualBlocks,
     activeRightTab,
@@ -128,6 +130,8 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
       virtualBlocks={virtualBlocks}
       setVirtualBlocks={setVirtualBlocks}
       activePage={activePage}
+      openModal={openModal}
+      setModalName={setModalName}
     >
       <div
         className={styles.block}
