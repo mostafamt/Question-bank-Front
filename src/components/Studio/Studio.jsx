@@ -77,7 +77,7 @@ const Studio = (props) => {
   );
   const activePageId = pages?.[activePageIndex]?._id;
 
-  const { openModal: openModalGlobal } = useStore();
+  const { openModal: openModalGlobal, setFormState } = useStore();
 
   const studioEditorRef = React.useRef(null);
   const [showStickyToolbar, setShowStickyToolbar] = React.useState(false);
@@ -153,12 +153,26 @@ const Studio = (props) => {
   const canvasRef = React.createRef();
   const [imageScaleFactor, setImageScaleFactor] = React.useState(1);
   // To Extract Sub Object
+  const [modalState, setModalState] = React.useState({
+    open: false,
+    source: null,
+  });
   const [activeType, setActiveType] = React.useState("");
   const [typeOfActiveType, setTypeOfActiveType] = React.useState("");
+  const [activeImage, setActiveImage] = React.useState("");
 
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
+  const [modalName, setModalName] = React.useState("");
+  const [workingArea, setWorkingArea] = React.useState();
   const [language, setLanguage] = React.useState(
     lang === "en" ? ENGLISH : ARABIC
+  );
+
+  const [checkedObjects, setCheckedObjects] = React.useState(
+    tabNames.map((e) => ({
+      label: e,
+      objects: [],
+    }))
   );
   const [virtualBlocks, setVirtualBlocks] = React.useState(
     subObject ? [] : parseVirtualBlocksFromPages(pages)
@@ -326,6 +340,7 @@ const Studio = (props) => {
       areas,
       id
     );
+    setActiveImage(img);
     area = { ...area, label, typeOfLabel: typeOfLabel, image: img };
 
     updateAreaProperty(idx, area);
@@ -350,6 +365,7 @@ const Studio = (props) => {
       // open modal if it has a supported type
       let found = COMPLEX_TYPES.find((type) => type === typeOfLabel);
       if (found) {
+        setWorkingArea(area);
         setActiveType(label);
         setTypeOfActiveType(typeOfLabel);
         openModalGlobal("sub-object", {
@@ -582,6 +598,7 @@ const Studio = (props) => {
       types={types}
       onChangeLabel={onChangeLabel}
       subObject={subObject}
+      setWorkingArea={setWorkingArea}
       tOfActiveType={tOfActiveType}
       onSubmitAutoGenerate={onSubmitAutoGenerate}
       loadingAutoGenerate={loadingAutoGenerate}
