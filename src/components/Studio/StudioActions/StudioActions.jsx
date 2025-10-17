@@ -22,6 +22,7 @@ const StudioActions = (props) => {
     types,
     onChangeLabel,
     subObject,
+    setWorkingArea,
     tOfActiveType: typeOfActiveType,
     onSubmitAutoGenerate,
     loadingAutoGenerate,
@@ -93,6 +94,7 @@ const StudioActions = (props) => {
                             types={types}
                             onChangeLabel={onChangeLabel}
                             subObject={subObject}
+                            setWorkingArea={setWorkingArea}
                             typeOfActiveType={typeOfActiveType}
                           />
                         </div>
