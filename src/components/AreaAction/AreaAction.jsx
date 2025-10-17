@@ -28,6 +28,10 @@ const AreaAction = (props) => {
 
   const { openModal } = useStore();
 
+  const onClick = () => {
+    updateAreaProperty(idx, { open: !area.open });
+  };
+
   const handleToggle = () => updateAreaProperty(idx, { open: !area.open });
 
   const handlePlay = (id, event) => {
