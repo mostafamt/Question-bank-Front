@@ -96,21 +96,28 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
   };
 
   const renderBlocks = () => {
-    return areas[activePage].map((area, idx) => (
-      <div
-        key={idx}
-        style={{
-          position: "absolute",
-          top: `${area.y}px`,
-          left: `${area.x}px`,
-          width: `${area.width}px`,
-          height: `${area.height}px`,
-          backgroundColor: "rgba(0, 0, 0, 0.2)",
-          cursor: "pointer",
-        }}
-        onClick={() => onPickAreaForCompositeBlocks(idx)}
-      />
-    ));
+    return areas[activePage]
+      .map((area, idx) => ({ area, idx })) // Preserve index
+      .filter(({ idx }) => {
+        // Filter out SimpleItem blocks
+        const areaProps = areasProperties[activePage][idx];
+        return areaProps.type !== "Simple item";
+      })
+      .map(({ area, idx }) => (
+        <div
+          key={idx}
+          style={{
+            position: "absolute",
+            top: `${area.y}px`,
+            left: `${area.x}px`,
+            width: `${area.width}px`,
+            height: `${area.height}px`,
+            backgroundColor: "rgba(0, 0, 0, 0.2)",
+            cursor: "pointer",
+          }}
+          onClick={() => onPickAreaForCompositeBlocks(idx)}
+        />
+      ));
   };
 
   const renderedAreas =
