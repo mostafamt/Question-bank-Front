@@ -84,7 +84,7 @@ const Studio = (props) => {
   const [showVB, setShowVB] = React.useState(false);
   const { bookId, chapterId } = useParams();
   const [compositeBlocks, setCompositeBlocks] = React.useState({
-    name: "",
+    name: `Composite Block ${uuidv4().slice(0, 8)}`,
     type: "",
     areas: [],
   });
