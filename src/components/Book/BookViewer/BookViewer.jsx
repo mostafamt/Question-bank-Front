@@ -89,14 +89,16 @@ const BookViewer = (props) => {
           style={{
             gridColumn: showVB ? "2 / 6" : "1 / 8",
             gridRow: showVB ? "2 / 8" : "1 / 8",
-            backgroundImage: `url(${activePage?.url})`,
-            backgroundSize: "cover",
-            backgroundRepeat: "no-repeat",
-            height: showVB ? "94%" : "99%",
           }}
           ref={ref}
         >
-          {/* {activePage && <img src={activePage.url} alt={activePage.url} />} */}
+          {activePage && (
+            <img
+              src={activePage.url}
+              alt={`Page ${activePage.pageNumber || ''}`}
+              className={styles["page-image"]}
+            />
+          )}
           {areas?.map((area) => (
             <button
               key={area.blockId}

@@ -1,10 +1,8 @@
 .book-viewer {
   position: relative;
-  flex: 0 1 auto;
-  overflow: scroll;
-  overflow-y: scroll;
-  // height: 120vh;
-  height: 100%;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  max-height: 100%;
 
   & .actions {
     border-bottom: 2px solid #ccc;
@@ -14,12 +12,12 @@
   }
 
   & .blocks {
-    height: 94%;
+    min-height: 100%;
 
     $block-size: 4rem;
     display: grid;
     grid-template-columns: $block-size repeat(4, 1fr) $block-size;
-    grid-template-rows: $block-size repeat(6, 1fr) $block-size;
+    grid-template-rows: $block-size repeat(6, minmax(auto, 1fr)) $block-size;
 
     & div:nth-child(1),
     & div:nth-child(16) {
@@ -40,21 +38,15 @@
     grid-column: 2 / 6;
     grid-row: 2 / 8;
 
-    height: 100%;
     position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
 
-    & img {
-      position: absolute;
-      top: 0;
-      left: 0;
+    & .page-image {
       width: 100%;
-      // height: 100%;
-      // object-fit: contain;
-      overflow-y: scroll;
-      // width: 100%;
-      height: 100%;
-      object-fit: contain;
-      overflow-y: scroll;
+      height: auto;
+      display: block;
     }
 
     & .area-button {
