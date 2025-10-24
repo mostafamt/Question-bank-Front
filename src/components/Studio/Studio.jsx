@@ -357,7 +357,7 @@ const Studio = (props) => {
           type: typeOfLabel,
           types: types,
           updateAreaProperty: updateAreaProperty,
-          typeOfActiveType: typeOfActiveType,
+          typeOfActiveType: typeOfLabel,
         });
       }
     }
