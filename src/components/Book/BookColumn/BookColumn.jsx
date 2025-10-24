@@ -1,6 +1,6 @@
 import React from "react";
 import BookColumnHeader from "../BookColumnHeader/BookColumnHeader";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import { getColumnIcon } from "../../../utils/book-icons";
 
 import styles from "./bookColumn.module.scss";
 
@@ -32,12 +32,15 @@ const BookColumn = (props) => {
   } else {
     content = (
       <div className={styles["tabs"]}>
-        {COLUMNS.map((column) => (
-          <button key={column.id} onClick={() => onChangeActiveTab(column)}>
-            <span>{column.label}</span>
-            <ContentCopyIcon />
-          </button>
-        ))}
+        {COLUMNS.map((column) => {
+          const IconComponent = getColumnIcon(column.label);
+          return (
+            <button key={column.id} onClick={() => onChangeActiveTab(column)}>
+              <span>{column.label}</span>
+              <IconComponent />
+            </button>
+          );
+        })}
       </div>
     );
   }
