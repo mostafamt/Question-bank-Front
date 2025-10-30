@@ -598,6 +598,8 @@ const Studio = (props) => {
       tOfActiveType={tOfActiveType}
       onSubmitAutoGenerate={onSubmitAutoGenerate}
       loadingAutoGenerate={loadingAutoGenerate}
+      onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
+      showVB={showVB}
     />
   );
 
