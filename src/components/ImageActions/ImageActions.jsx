@@ -26,13 +26,9 @@ const ImageActions = React.forwardRef((props, ref) => {
     setAreas,
     activePage,
     areasProperties,
-    showVB,
-    onClickToggleVirutalBlocks,
     onImageLoad,
     pages,
     onClickImage,
-    highlight,
-    setHighlight,
   } = props;
 
   const [oldAreas, setOldAreas] = React.useState(areas[activePage] || []);
@@ -131,22 +127,6 @@ const ImageActions = React.forwardRef((props, ref) => {
         <span>|</span>
       </div>
 
-      {/* <div>
-        <IconButton
-          aria-label="hand"
-          onClick={() => setHighlight(highlight === "hand" ? "" : "hand")}
-          sx={{
-            backgroundColor: highlight === "hand" ? "#ccc" : "transparent",
-          }}
-        >
-          <BackHandIcon fontSize={iconFontSize} />
-        </IconButton>
-      </div> */}
-
-      {/* <div>
-        <span>|</span>
-      </div> */}
-
       <div>
         <IconButton aria-label="zoom-in" onClick={onClickZoomIn}>
           <ZoomInIcon fontSize={iconFontSize} />
@@ -158,22 +138,6 @@ const ImageActions = React.forwardRef((props, ref) => {
 
         <IconButton aria-label="zoom-out" onClick={onClickZoomOut}>
           <ZoomOutIcon fontSize={iconFontSize} />
-        </IconButton>
-      </div>
-      <div>
-        <span>|</span>
-      </div>
-
-      <div>
-        <IconButton
-          aria-label="visibility-icon"
-          onClick={onClickToggleVirutalBlocks}
-        >
-          {showVB ? (
-            <VisibilityIcon fontSize={iconFontSize} />
-          ) : (
-            <VisibilityOffIcon fontSize={iconFontSize} />
-          )}
         </IconButton>
       </div>
     </div>

@@ -1,11 +1,17 @@
 import React from "react";
-import { Button, CircularProgress, List } from "@mui/material";
+import { Button, CircularProgress, List, IconButton } from "@mui/material";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import AreaAction from "../../AreaAction/AreaAction";
 import { DELETED, reorder } from "../../../utils/ocr";
 import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
 import styles from "./studioActions.module.scss";
+
+// large | medium | small
+const iconFontSize = "medium";
+// const text
 
 const StudioActions = (props) => {
   const {
@@ -25,6 +31,8 @@ const StudioActions = (props) => {
     tOfActiveType: typeOfActiveType,
     onSubmitAutoGenerate,
     loadingAutoGenerate,
+    onClickToggleVirutalBlocks,
+    showVB,
   } = props;
 
   const onDragEnd = (result) => {
@@ -61,6 +69,20 @@ const StudioActions = (props) => {
 
   return (
     <div className={styles["studio-actions"]}>
+      <div>
+        <div>
+          <IconButton
+            aria-label="visibility-icon"
+            onClick={onClickToggleVirutalBlocks}
+          >
+            {showVB ? (
+              <VisibilityIcon fontSize={iconFontSize} />
+            ) : (
+              <VisibilityOffIcon fontSize={iconFontSize} />
+            )}
+          </IconButton>
+        </div>
+      </div>
       <List sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="droppable-id">
