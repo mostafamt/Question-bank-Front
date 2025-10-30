@@ -78,7 +78,12 @@ export const PAGES = Array(20)
   }));
 
 export const mapTableOfContents = (TABLES_OF_CONTENTS) => {
-  return TABLES_OF_CONTENTS?.map((item) => {
+  // Handle non-array inputs gracefully
+  if (!TABLES_OF_CONTENTS || !Array.isArray(TABLES_OF_CONTENTS)) {
+    return [];
+  }
+
+  return TABLES_OF_CONTENTS.map((item) => {
     return {
       id: uuidv4(),
       title: item.title,
