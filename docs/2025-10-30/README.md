@@ -1,12 +1,77 @@
-# Upload System Documentation - 2025-10-30
+# Documentation - 2025-10-30
 
-This directory contains documentation for the improved file upload system.
+This directory contains documentation for various fixes and improvements made to the Question Bank application.
 
-## Overview
+## Table of Contents
 
-The upload system has been enhanced to address file extension issues and provide a more robust upload API.
+### Issues Fixed
+1. [Table of Contents Map Error](#1-table-of-contents-map-error) - Fixed "map is not a function" error
+2. [Studio Area Coordinates Issue](#2-studio-area-coordinates-issue) - Area display problem after navigation
 
-## Problem Statement
+### New Features
+3. [Upload System Enhancement](#3-upload-system-enhancement) - Improved file upload with proper extensions
+
+---
+
+## 1. Table of Contents Map Error
+
+**File:** [table-of-contents-map-error-fix.md](./table-of-contents-map-error-fix.md)
+
+**Issue:** `TABLES_OF_CONTENTS.map is not a function` error when loading Table of Contents
+
+**Status:** ✅ Fixed
+
+**Summary:** API error handler returned empty string `""` instead of empty array `[]`, causing `.map()` to fail.
+
+**Solution:**
+- Changed `getChapterTOC` to return `[]` on error instead of `""`
+- Added type checking in `mapTableOfContents` function
+
+---
+
+## 2. Studio Area Coordinates Issue
+
+**Files:**
+- [studio-area-coordinates-issue.md](./studio-area-coordinates-issue.md) - Problem analysis & solution
+- [studio-fix-implementation-summary.md](./studio-fix-implementation-summary.md) - Initial implementation
+- [studio-fix-additional-improvements.md](./studio-fix-additional-improvements.md) - Additional fixes after testing
+
+**Issue:** Area coordinates don't display properly after navigating between pages in Studio
+
+**Status:** ✅ Fixed
+
+**Summary:** When users create areas on a page, navigate away, and return, the areas appear at wrong positions or wrong sizes due to lost coordinate metadata.
+
+**Root Causes:**
+1. Lost metadata (`_unit`, `_updated`) during state updates
+2. Missing metadata on newly created areas
+3. No coordinate recalculation on page navigation
+4. Missing safety checks in conversion logic
+
+**Solution Implemented:**
+- ✅ Preserve `_unit` and `_updated` in all state updates
+- ✅ Set proper metadata on new areas
+- ✅ Force recalculation on page changes (reset `_updated` flag)
+- ✅ Add null checks and dimension validation
+- ✅ Trigger recalculation on zoom changes
+- ✅ Store percentage coordinates directly in area objects
+- ✅ Use stored coordinates for conversion (no dependency on areasProperties)
+
+**Files Modified:**
+- `src/components/Studio/Studio.jsx` (4 functions modified, 1 useEffect enhanced, ~170 lines total)
+
+---
+
+## 3. Upload System Enhancement
+
+**Files:**
+- [NewUpload-API-Documentation.md](./NewUpload-API-Documentation.md) - Complete API reference
+- [File-Extension-Upload-Guide.md](./File-Extension-Upload-Guide.md) - Troubleshooting guide
+- [upload-refactoring-plan.md](./upload-refactoring-plan.md) - Original analysis
+
+**Status:** ✅ Implemented
+
+**Issue:** Uploaded files return URLs without proper file extensions or blob URLs
 
 Previously, uploaded files would sometimes return URLs without proper file extensions or blob URLs, making them:
 - Unable to be viewed directly in browser tabs

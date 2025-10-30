@@ -188,29 +188,111 @@ const Studio = (props) => {
     };
   }, []);
 
+  // Recalculate areas when image scale factor changes
+  React.useEffect(() => {
+    if (imageScaleFactor) {
+      // Reset _updated flag for active page to force reconversion on zoom
+      setAreas((prevState) => {
+        const newAreas = [...prevState];
+        if (newAreas[activePageIndex]) {
+          newAreas[activePageIndex] = newAreas[activePageIndex].map((area) => ({
+            ...area,
+            _updated: false,
+          }));
+        }
+        return newAreas;
+      });
+
+      // Delay to ensure state is updated before recalculation
+      setTimeout(() => {
+        onImageLoad();
+      }, 10);
+    }
+  }, [imageScaleFactor]);
+
   const onImageLoad = () => {
     setAreas((prevState) => {
       return prevState?.map((page, idx1) => {
         return page?.map((block, idx2) => {
-          if (block._unit === "percentage") {
+          // Safety check: ensure ref exists
+          if (!studioEditorRef.current?.studioEditorSelectorRef?.current) {
+            return {
+              ...block,
+              _unit: block._unit || "px",
+              _updated: block._updated || false,
+              _percentX: block._percentX,
+              _percentY: block._percentY,
+              _percentWidth: block._percentWidth,
+              _percentHeight: block._percentHeight,
+            };
+          }
+
+          // Convert percentage to pixels only if not already updated
+          if (block._unit === "percentage" && !block._updated) {
             const { clientHeight, clientWidth } =
               studioEditorRef.current.studioEditorSelectorRef.current;
 
-            const properties = areasProperties[idx1][idx2];
+            // Safety check: ensure valid dimensions
+            if (!clientWidth || !clientHeight) {
+              return {
+                ...block,
+                _unit: block._unit,
+                _updated: false,
+                _percentX: block._percentX,
+                _percentY: block._percentY,
+                _percentWidth: block._percentWidth,
+                _percentHeight: block._percentHeight,
+              };
+            }
+
+            // Use stored percentage coordinates or fall back to areasProperties
+            let percentX, percentY, percentWidth, percentHeight;
+
+            if (block._percentX !== undefined) {
+              // Use stored percentage coordinates from the area itself
+              percentX = block._percentX;
+              percentY = block._percentY;
+              percentWidth = block._percentWidth;
+              percentHeight = block._percentHeight;
+            } else {
+              // Fall back to areasProperties for backward compatibility
+              const properties = areasProperties[idx1]?.[idx2];
+              if (!properties) {
+                return {
+                  ...block,
+                  _unit: block._unit,
+                  _updated: false,
+                  _percentX: block._percentX,
+                  _percentY: block._percentY,
+                  _percentWidth: block._percentWidth,
+                  _percentHeight: block._percentHeight,
+                };
+              }
+              percentX = properties.x;
+              percentY = properties.y;
+              percentWidth = properties.width;
+              percentHeight = properties.height;
+            }
 
             return {
-              x: (properties.x / 100) * clientWidth,
-              y: (properties.y / 100) * clientHeight,
-              width: (properties.width / 100) * clientWidth,
-              height: (properties.height / 100) * clientHeight,
+              x: (percentX / 100) * clientWidth,
+              y: (percentY / 100) * clientHeight,
+              width: (percentWidth / 100) * clientWidth,
+              height: (percentHeight / 100) * clientHeight,
               unit: "px",
               isChanging: true,
               isNew: true,
               _updated: true,
               _unit: block._unit,
+              // Preserve percentage coordinates
+              _percentX: percentX,
+              _percentY: percentY,
+              _percentWidth: percentWidth,
+              _percentHeight: percentHeight,
             };
           }
 
+          // Preserve all metadata for non-percentage blocks
           return {
             x: block.x,
             y: block.y,
@@ -219,6 +301,13 @@ const Studio = (props) => {
             unit: "px",
             isChanging: true,
             isNew: true,
+            _unit: block._unit || "px",
+            _updated: block._updated || false,
+            // Preserve percentage coordinates if they exist
+            _percentX: block._percentX,
+            _percentY: block._percentY,
+            _percentWidth: block._percentWidth,
+            _percentHeight: block._percentHeight,
           };
         });
       });
@@ -228,6 +317,23 @@ const Studio = (props) => {
   const onClickImage = (idx) => {
     setActivePageIndex(idx);
     localStorage.setItem("author_page", `${idx}`);
+
+    // Reset _updated flag for the target page to force reconversion
+    setAreas((prevState) => {
+      const newAreas = [...prevState];
+      if (newAreas[idx]) {
+        newAreas[idx] = newAreas[idx].map((area) => ({
+          ...area,
+          _updated: false, // Reset to force reconversion
+        }));
+      }
+      return newAreas;
+    });
+
+    // Force recalculation when changing pages
+    setTimeout(() => {
+      onImageLoad();
+    }, 50);
 
     console.log("thumbnailsRef= ", thumbnailsRef);
 
@@ -273,8 +379,40 @@ const Studio = (props) => {
         syncAreasProperties();
       }
 
+      // Add metadata to new areas
+      const areasWithMetadata = areasParam.map((area, idx) => {
+        // Check if this is an existing area
+        const existingArea = areas[activePageIndex]?.[idx];
+
+        if (existingArea) {
+          // Preserve metadata from existing area
+          return {
+            ...area,
+            _unit: existingArea._unit || "percentage",
+            _updated: existingArea._updated || false,
+            // Preserve or store percentage coordinates
+            _percentX: existingArea._percentX ?? area.x,
+            _percentY: existingArea._percentY ?? area.y,
+            _percentWidth: existingArea._percentWidth ?? area.width,
+            _percentHeight: existingArea._percentHeight ?? area.height,
+          };
+        } else {
+          // New area - set metadata (AreaSelector uses percentage)
+          return {
+            ...area,
+            _unit: "percentage",
+            _updated: false,
+            // Store original percentage coordinates
+            _percentX: area.x,
+            _percentY: area.y,
+            _percentWidth: area.width,
+            _percentHeight: area.height,
+          };
+        }
+      });
+
       const newAreasParam = [...areas];
-      newAreasParam[activePageIndex] = areasParam;
+      newAreasParam[activePageIndex] = areasWithMetadata;
       setAreas(newAreasParam);
     }
   };
