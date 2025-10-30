@@ -67,4 +67,4 @@ const uploadForStudio = async (base64Data) => {
   return url;
 };
 
-export { upload, uploadBase64, uploadForStudio };
+export { upload, uploadBase64, uploadForStudio, baseUploadBase64 };

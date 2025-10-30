@@ -1,7 +1,12 @@
 import React from "react";
 import Studio from "../../components/Studio/Studio";
 import { useLocation, useParams } from "react-router-dom";
-import { uploadBase64 } from "../../utils/upload";
+import {
+  baseUploadBase64,
+  uploadBase64,
+  uploadForStudio,
+} from "../../utils/upload";
+import { uploadBase64 as newUpload } from "../../utils/NewUpload";
 import { saveBlocks } from "../../services/api";
 import {
   getChapterPages,
@@ -42,6 +47,12 @@ const ScanAndUpload = () => {
   });
 
   const handleSubmit = async (pageId, areas, virtualBlocks) => {
+    console.log("areas= ", areas);
+    // let image = areas[1].image;
+    // console.log("image= ", image);
+    // let url = await newUpload(image);
+    // console.log("url= ", url);
+    // return;
     const blocks = await Promise.all(
       [...areas]
         .sort((a, b) => a.order - b.order)
@@ -59,9 +70,7 @@ const ScanAndUpload = () => {
               },
               contentType: item.label,
               contentValue:
-                item.typeOfLabel === "image"
-                  ? await uploadBase64(item.image)
-                  : item.text,
+                item.typeOfLabel === "image" ? item.image : item.text,
             };
           } else if (item.status === CREATED) {
             return {
@@ -77,7 +86,7 @@ const ScanAndUpload = () => {
               contentType: item.label,
               contentValue:
                 item.typeOfLabel === "image"
-                  ? await uploadBase64(item.image)
+                  ? await newUpload(item.image)
                   : item.text,
             };
           } else {
@@ -94,9 +103,7 @@ const ScanAndUpload = () => {
               },
               contentType: item.label,
               contentValue:
-                item.typeOfLabel === "image"
-                  ? await uploadBase64(item.image)
-                  : item.text,
+                item.typeOfLabel === "image" ? item.image : item.text,
             };
           }
         })
