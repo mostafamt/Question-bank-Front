@@ -247,6 +247,75 @@ console.log(file.name); // "message.txt"
 
 ---
 
+### `ensureFileExtension(file)`
+
+Ensure a file has the correct extension based on its MIME type. Corrects missing or wrong extensions.
+
+**Parameters:**
+- `file` (File) - The file to check/correct
+
+**Returns:** `File` - File with corrected extension
+
+**Example:**
+```javascript
+import { ensureFileExtension } from '@/utils/NewUpload';
+
+// File with no extension
+const file1 = new File(['data'], 'myfile', { type: 'image/png' });
+const corrected1 = ensureFileExtension(file1);
+console.log(corrected1.name); // "myfile.png"
+
+// File with wrong extension
+const file2 = new File(['data'], 'image.txt', { type: 'image/png' });
+const corrected2 = ensureFileExtension(file2);
+console.log(corrected2.name); // "image.png"
+
+// File with correct extension (unchanged)
+const file3 = new File(['data'], 'photo.jpg', { type: 'image/jpeg' });
+const corrected3 = ensureFileExtension(file3);
+console.log(corrected3.name); // "photo.jpg"
+```
+
+---
+
+### `uploadWithExtension(file, options)`
+
+Upload a file with guaranteed proper extension. Automatically corrects the file extension before uploading if needed.
+
+**Parameters:**
+- `file` (File) - The file to upload
+- `options` (Object, optional) - Upload options (see uploadFile)
+
+**Returns:** `Promise<Object>` - Upload response data
+
+**Throws:** `Error` - If file is invalid or upload fails
+
+**Example:**
+```javascript
+import { uploadWithExtension } from '@/utils/NewUpload';
+
+// Automatically corrects extension before upload
+const file = new File(['data'], 'document', { type: 'application/pdf' });
+const result = await uploadWithExtension(file);
+// File will be uploaded as "document.pdf"
+
+// With progress tracking
+const result = await uploadWithExtension(file, {
+  onProgress: (percent) => console.log(`${percent}%`),
+  timeout: 30000
+});
+
+// Use case: User uploaded file with wrong extension
+const handleFileUpload = async (event) => {
+  const file = event.target.files[0];
+  // Ensure proper extension before upload
+  const result = await uploadWithExtension(file);
+  console.log('Uploaded with correct extension:', result.url);
+};
+```
+
+---
+
 ### `getExtensionFromMimeType(mimeType)`
 
 Get file extension from MIME type.
@@ -636,6 +705,8 @@ const uploadWithFallback = async (file) => {
 | `uploadBase64(base64)` | `uploadBase64(base64, options)` | Added error handling, timeout, progress support |
 | `baseUploadBase64(blob)` | `uploadBlob(blob, name, options)` | Renamed for clarity, blob parameter is now correctly named |
 | `uploadForStudio(base64)` | `uploadBase64(base64, options)` | No longer needed, use uploadBase64 directly |
+| N/A | `uploadWithExtension(file, options)` | NEW: Ensures file has proper extension before upload |
+| N/A | `ensureFileExtension(file)` | NEW: Utility to correct file extensions |
 
 ### Migration Examples
 
@@ -668,15 +739,44 @@ const result = await uploadBase64(base64, {
 
 // Studio upload (just use uploadBase64)
 const result = await uploadBase64(base64);
+
+// NEW: Ensure proper file extensions
+const result = await uploadWithExtension(file); // Auto-corrects extension
 ```
+
+### Ensuring File Extensions
+
+One of the key improvements in NewUpload is automatic handling of file extensions. If your uploaded files previously had URLs without extensions, use these new functions:
+
+```javascript
+import { uploadWithExtension, ensureFileExtension } from '@/utils/NewUpload';
+
+// Option 1: Upload with automatic extension correction
+const result = await uploadWithExtension(file);
+
+// Option 2: Manual correction before upload
+const correctedFile = ensureFileExtension(file);
+const result = await upload(correctedFile);
+
+// Both ensure the server receives files with proper extensions
+// Result URLs will have extensions like: https://cdn.com/file.png
+```
+
+**Why this matters:**
+- Files can be viewed directly in browser tabs
+- Proper Content-Type detection by browsers
+- Better file management and organization
+- No more blob URLs or extensionless files
 
 ### Migration Checklist
 
 - [ ] Replace import statements from `upload.js` to `NewUpload.js`
 - [ ] Update `baseUploadBase64` calls to `uploadBlob`
 - [ ] Replace `uploadForStudio` with `uploadBase64`
+- [ ] Consider using `uploadWithExtension` to ensure proper file extensions
 - [ ] Add progress tracking where needed (optional)
 - [ ] Test all upload flows thoroughly
+- [ ] Verify uploaded files have extensions in URLs
 - [ ] Update error handling if using custom toast logic
 
 ---

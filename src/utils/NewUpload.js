@@ -304,6 +304,77 @@ const uploadBlob = async (blob, customName = null, options = {}) => {
   }
 };
 
+/**
+ * Ensure file has proper extension based on its MIME type
+ * Useful when dealing with files that might have missing or wrong extensions
+ * @param {File} file - Original file
+ * @returns {File} File with corrected extension
+ * @example
+ * // File with no extension
+ * const file = new File(['data'], 'myfile', { type: 'image/png' });
+ * const corrected = ensureFileExtension(file);
+ * console.log(corrected.name); // "myfile.png"
+ *
+ * // File with wrong extension
+ * const file = new File(['data'], 'image.txt', { type: 'image/png' });
+ * const corrected = ensureFileExtension(file);
+ * console.log(corrected.name); // "image.png"
+ */
+const ensureFileExtension = (file) => {
+  if (!(file instanceof File)) {
+    throw new Error("Invalid file object. Expected File instance.");
+  }
+
+  const fileName = file.name;
+  const hasExtension = fileName.includes(".");
+  const currentExtension = hasExtension
+    ? fileName.split(".").pop().toLowerCase()
+    : "";
+  const expectedExtension = getExtensionFromMimeType(file.type);
+
+  // Check if file already has correct extension
+  if (currentExtension === expectedExtension) {
+    return file;
+  }
+
+  // File has no extension or wrong extension
+  const baseName = hasExtension
+    ? fileName.substring(0, fileName.lastIndexOf("."))
+    : fileName;
+
+  const newFileName = `${baseName}.${expectedExtension}`;
+
+  console.log(
+    `File extension corrected: "${fileName}" → "${newFileName}"`
+  );
+
+  return new File([file], newFileName, { type: file.type });
+};
+
+/**
+ * Upload with guaranteed file extension
+ * Automatically corrects missing or wrong file extensions before uploading
+ * @param {File} file - File to upload
+ * @param {Object} [options={}] - Upload options
+ * @returns {Promise<Object>} Upload response
+ * @throws {Error} If file is invalid or upload fails
+ * @example
+ * // Automatically ensures file has correct extension
+ * const file = new File(['data'], 'document', { type: 'application/pdf' });
+ * const result = await uploadWithExtension(file);
+ * // File will be uploaded as "document.pdf"
+ *
+ * // With options
+ * const result = await uploadWithExtension(file, {
+ *   onProgress: (p) => console.log(`${p}%`),
+ *   timeout: 30000
+ * });
+ */
+const uploadWithExtension = async (file, options = {}) => {
+  const correctedFile = ensureFileExtension(file);
+  return upload(correctedFile, options);
+};
+
 // Export all functions
 export {
   // Main upload functions
@@ -311,9 +382,11 @@ export {
   uploadBase64,
   uploadBlob,
   uploadFile,
+  uploadWithExtension,
   // Utility functions
   base64ToBlob,
   blobToFile,
+  ensureFileExtension,
   getExtensionFromMimeType,
   getMimeTypeFromExtension,
   newAbortSignal,
