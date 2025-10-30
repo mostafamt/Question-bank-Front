@@ -27,11 +27,6 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
     highlight,
   } = props;
 
-  const [_areas, _setAreas] = React.useState({
-    name: "",
-    areas: [],
-  });
-
   const onClickExistedArea = (areaProps) => {
     const newAreasProperties = [...areasProperties];
     const idx = areaProps.areaNumber - 1;
