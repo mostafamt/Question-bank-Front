@@ -7,6 +7,7 @@ import ObjectsTableModalContent from "./ObjectsTableModalContent/ObjectsTableMod
 import ObjectsTableModalContent2 from "./ObjectsTableModalContent2/ObjectsTableModalContent2";
 import AutoUiModal from "./AutoUiModal/AutoUiModal";
 import QuillModal from "./QuillModal/QuillModal";
+import TextEditorModal from "./TextEditorModal/TextEditorModal";
 import SubObjectModal from "./SubObjectModal/SubObjectModal";
 import PlayCompositeBlocks from "./PlayCompositeBlocks/PlayCompositeBlocks";
 import EditCompositeBlocks from "./EditCompositeBlocks/EditCompositeBlocks";
@@ -19,6 +20,7 @@ const MODAL_COMPONENTS = {
   "virtual-blocks": ObjectsTableModalContent2,
   "auto-ui": AutoUiModal,
   quill: QuillModal,
+  "text-editor": TextEditorModal,
   "sub-object": SubObjectModal,
   "play-composite-blocks": PlayCompositeBlocks,
   "edit-composite-blocks": EditCompositeBlocks,

@@ -9,11 +9,11 @@ const QuillModal = (props) => {
   const { workingArea, updateAreaPropertyById } = props;
   console.log("workingArea= ", workingArea);
   const [value, setValue] = React.useState(
-    workingArea.typeOfLabel === "image"
+    workingArea?.typeOfLabel === "image"
       ? `<img src=${workingArea.image} />`
       : workingArea?.contentType === "Picture"
       ? `<img src=${workingArea.contentValue} />`
-      : workingArea.text || workingArea.contentValue
+      : workingArea?.text || workingArea.contentValue
   );
 
   console.log("value= ", value);
