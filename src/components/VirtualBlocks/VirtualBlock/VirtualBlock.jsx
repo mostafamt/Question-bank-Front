@@ -8,8 +8,6 @@ import {
   VIRTUAL_BLOCK_MENU,
 } from "../../../utils/virtual-blocks";
 import IconButton from "@mui/material/IconButton";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import CloseIcon from "@mui/icons-material/Close";
 import { DeleteForever } from "@mui/icons-material";
 import axios from "../../../axios";
 import { toast } from "react-toastify";
@@ -18,6 +16,19 @@ import clsx from "clsx";
 
 import styles from "./virtualBlock.module.scss";
 
+/**
+ * VirtualBlock Component
+ * Manages virtual blocks (notes, summaries, interactive objects) for book pages
+ *
+ * @param {Object} props
+ * @param {Object} props.checkedObject - Currently selected virtual block
+ * @param {Function} props.setCheckedObject - Update checked object state
+ * @param {string} props.label - Block label identifier
+ * @param {boolean} props.showVB - Whether to show the virtual block
+ * @param {boolean} props.reader - Whether component is in reader mode
+ * @param {Array} props.virtualBlocks - List of virtual blocks
+ * @param {Function} props.setVirtualBlocks - Update virtual blocks list
+ */
 const VirtualBlock = (props) => {
   const {
     checkedObject,
@@ -29,190 +40,278 @@ const VirtualBlock = (props) => {
     setVirtualBlocks,
   } = props;
 
-  const [value, setValue] = React.useState("");
+  // Local state
   const [header, setHeader] = React.useState("");
-
-  const [url, setUrl] = React.useState("");
-  const [name, setName] = React.useState("");
-
+  const [textValue, setTextValue] = React.useState("");
+  const [objectName, setObjectName] = React.useState("");
   const [loading, setLoading] = React.useState(false);
 
-  const { data: state, setFormState, openModal: openModalGlobal } = useStore();
+  // Global store
+  const { data: state, setFormState, openModal, closeModal } = useStore();
 
-  const getData = React.useCallback(async (id) => {
+  /**
+   * Fetch interactive object data by ID
+   */
+  const fetchObjectData = React.useCallback(async (id) => {
     if (!id) return;
+
     setLoading(true);
     try {
       const res = await axios.get(`/interactive-objects/${id}`);
-      setName(res.data?.questionName);
-      setUrl(res.data?.url);
+      setObjectName(res.data?.questionName || "");
     } catch (error) {
-      console.log(error);
-      toast.error(`${error?.message}, please try again later!`);
+      console.error("Failed to fetch object data:", error);
+      toast.error(`Failed to load object: ${error?.message}`);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
+  /**
+   * Load object data when checkedObject changes
+   */
   React.useEffect(() => {
-    if (
-      showVB &&
-      checkedObject.label !== NOTES &&
-      checkedObject.label !== SUMMARY
-    ) {
-      getData(checkedObject?.id);
+    const isTextBlock =
+      checkedObject.label === NOTES || checkedObject.label === SUMMARY;
+
+    if (showVB && !isTextBlock && checkedObject?.id) {
+      fetchObjectData(checkedObject.id);
     }
-  }, [checkedObject?.id, getData, showVB]);
+  }, [checkedObject?.id, checkedObject?.label, fetchObjectData, showVB]);
 
-  const onClickSubmitForText = (header, value) => {
-    console.log("value= ", value);
-    setFormState({
-      ...state,
-      virtual_block_label: header,
-      virtual_block_key: label,
-    });
-    setCheckedObject({
-      label: header,
-      id: value,
-      status: CREATED,
-    });
-  };
-
-  const onChange = (e) => {
-    const _header = e.target.value;
-    setHeader(_header);
-    if (_header === NOTES || _header === SUMMARY) {
+  /**
+   * Handle text block submission (Notes/Summary)
+   */
+  const handleTextBlockSubmit = React.useCallback(
+    (blockType, content) => {
+      // Update form state for text blocks
       setFormState({
         ...state,
-        modal: {
-          ...state.modal,
-          name: "quill-modal",
-          opened: true,
-          props: {
-            value,
-            setValue,
-            onClickSubmit: (value) => onClickSubmitForText(_header, value),
-          },
-        },
+        virtual_block_label: blockType,
+        virtual_block_key: label,
       });
-    } else {
-      openModalGlobal("virtual-blocks", {
+
+      // Update checked object with new content
+      setCheckedObject({
+        label: blockType,
+        id: content,
+        status: CREATED,
+      });
+
+      // Close modal
+      closeModal();
+    },
+    [state, label, setFormState, setCheckedObject, closeModal]
+  );
+
+  /**
+   * Open text editor modal for Notes/Summary
+   */
+  const openTextEditorModal = React.useCallback(
+    (blockType, initialValue = "") => {
+      openModal("text-editor", {
+        value: initialValue,
+        setValue: setTextValue,
+        onClickSubmit: (content) => handleTextBlockSubmit(blockType, content),
+      });
+    },
+    [openModal, handleTextBlockSubmit]
+  );
+
+  /**
+   * Open virtual blocks selection modal for interactive objects
+   */
+  const openVirtualBlocksModal = React.useCallback(
+    (blockType) => {
+      openModal("virtual-blocks", {
         virtualBlocks: virtualBlocks,
         setVirtualBlocks: setVirtualBlocks,
       });
+
+      // Update form state for interactive objects
       setFormState({
         ...state,
-        virtual_block_label: _header,
+        virtual_block_label: blockType,
         virtual_block_key: label,
       });
+
+      // Update checked object
       setCheckedObject({
-        label: _header,
-        id: checkedObject?.id,
+        label: blockType,
+        id: checkedObject?.id || "",
         status: CREATED,
       });
-    }
-  };
+    },
+    [
+      openModal,
+      virtualBlocks,
+      setVirtualBlocks,
+      setFormState,
+      state,
+      label,
+      setCheckedObject,
+      checkedObject?.id,
+    ]
+  );
 
-  const onClickCloseButton = () => {
+  /**
+   * Handle block type selection from dropdown
+   */
+  const handleBlockTypeChange = React.useCallback(
+    (e) => {
+      const selectedType = e.target.value;
+      setHeader(selectedType);
+
+      // Determine whether this is a text block or interactive object
+      const isTextBlock = selectedType === NOTES || selectedType === SUMMARY;
+
+      if (isTextBlock) {
+        // Open text editor for Notes/Summary
+        openTextEditorModal(selectedType, textValue);
+      } else {
+        // Open virtual blocks modal for interactive objects
+        openVirtualBlocksModal(selectedType);
+      }
+    },
+    [textValue, openTextEditorModal, openVirtualBlocksModal]
+  );
+
+  /**
+   * Handle delete/close button click
+   */
+  const handleDelete = React.useCallback(() => {
     setHeader("");
     setCheckedObject({
       ...checkedObject,
       status: DELETED,
     });
-  };
+  }, [checkedObject, setCheckedObject]);
 
-  const onClickPlayButton = () => {
-    if (checkedObject.label === NOTES || checkedObject.label === SUMMARY) {
-      setFormState({
-        ...state,
-        modal: {
-          ...state.modal,
-          name: "quill-modal",
-          opened: true,
-          props: {
-            value: checkedObject.id,
-            setValue,
-            onClickSubmit: (value) =>
-              onClickSubmitForText(checkedObject.label, value),
-          },
-        },
-      });
+  /**
+   * Handle play button click (edit mode)
+   */
+  const handlePlayEdit = React.useCallback(() => {
+    const isTextBlock =
+      checkedObject.label === NOTES || checkedObject.label === SUMMARY;
+
+    if (isTextBlock) {
+      // Open text editor with existing content
+      openTextEditorModal(checkedObject.label, checkedObject.id);
     } else {
-      openModalGlobal("play-object-2", {});
+      // Open interactive object player
+      openModal("play-object-2", {});
       setFormState({
         ...state,
         activeId: checkedObject?.id,
       });
     }
-  };
+  }, [checkedObject, openTextEditorModal, openModal, setFormState, state]);
 
-  const onClickPlayButtonForReader = () => {
-    console.log("checkedObject= ", checkedObject);
-    setFormState({
-      ...state,
-      modal: {
-        ...state.modal,
-        name: "play-object",
-        opened: true,
-        id: checkedObject.id,
-      },
+  /**
+   * Handle play button click (reader mode)
+   */
+  const handlePlayReader = React.useCallback(() => {
+    openModal("play-object", {
+      id: checkedObject.id,
     });
-  };
+  }, [checkedObject.id, openModal]);
 
-  const selectedItem = VIRTUAL_BLOCK_MENU.find(
-    (item) => item.label === checkedObject?.label
-  );
+  /**
+   * Get icon for selected virtual block type
+   */
+  const selectedBlockIcon = React.useMemo(() => {
+    const selectedItem = VIRTUAL_BLOCK_MENU.find(
+      (item) => item.label === checkedObject?.label
+    );
+    return selectedItem?.iconSrc;
+  }, [checkedObject?.label]);
 
-  return (
-    <div
-      className={clsx(styles["virtual-block"], styles["reader"])}
-      style={{ display: showVB ? "block" : "none" }}
-    >
-      {checkedObject?.status && checkedObject?.status !== DELETED ? (
+  /**
+   * Get display label without emoji
+   */
+  const displayLabel = React.useMemo(() => {
+    if (!checkedObject?.label) return "";
+    return checkedObject.label
+      .replace(/\p{Emoji_Presentation}|\p{Emoji}\uFE0F/gu, "")
+      .trim();
+  }, [checkedObject?.label]);
+
+  // Don't render if virtual blocks are hidden
+  if (!showVB) {
+    return null;
+  }
+
+  // Check if block exists and is not deleted
+  const hasActiveBlock =
+    checkedObject?.status && checkedObject.status !== DELETED;
+
+  /**
+   * Render active virtual block
+   */
+  if (hasActiveBlock) {
+    return (
+      <div className={clsx(styles["virtual-block"], styles["reader"])}>
         <div className={styles.block}>
-          {reader ? (
-            <div></div>
-          ) : (
+          {/* Delete button - only show in edit mode */}
+          {!reader && (
             <div className={styles.header}>
               <IconButton
                 color="inherit"
-                aria-label="close"
+                aria-label="delete virtual block"
                 size="small"
-                onClick={onClickCloseButton}
+                onClick={handleDelete}
+                disabled={loading}
               >
                 <DeleteForever color="error" />
               </IconButton>
             </div>
           )}
+
+          {/* Block icon and label */}
           <div style={{ display: "flex", flexDirection: "column" }}>
             <IconButton
               color="primary"
-              aria-label="play"
-              onClick={reader ? onClickPlayButtonForReader : onClickPlayButton}
+              aria-label="play virtual block"
+              onClick={reader ? handlePlayReader : handlePlayEdit}
               sx={{ padding: 0 }}
+              disabled={loading}
             >
-              <img src={selectedItem?.iconSrc} alt="compass" width="50px" />
+              {selectedBlockIcon && (
+                <img
+                  src={selectedBlockIcon}
+                  alt={displayLabel}
+                  width="50px"
+                  loading="lazy"
+                />
+              )}
             </IconButton>
-            <div>
-              {checkedObject?.label
-                .replace(/\p{Emoji_Presentation}|\p{Emoji}\uFE0F/gu, "")
-                .trim()}
-            </div>
+            <div>{displayLabel}</div>
           </div>
-          {/* <div>{name}</div> */}
         </div>
-      ) : reader ? (
-        <div></div>
-      ) : (
+      </div>
+    );
+  }
+
+  /**
+   * Render block type selector (edit mode only)
+   */
+  if (!reader) {
+    return (
+      <div className={clsx(styles["virtual-block"], styles["reader"])}>
         <div className={styles["select"]}>
           <MuiSelect
             list={VIRTUAL_BLOCK_MENU.map((item) => item.label)}
             value={header}
-            onChange={onChange}
+            onChange={handleBlockTypeChange}
+            disabled={loading}
           />
         </div>
-      )}
-    </div>
-  );
+      </div>
+    );
+  }
+
+  // Reader mode with no active block - render nothing
+  return null;
 };
 
 export default VirtualBlock;
