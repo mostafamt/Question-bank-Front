@@ -67,6 +67,36 @@ A menu system for educational content blocks (`src/utils/virtual-blocks.js`):
 - Predefined block types: Overview, Notes, Recall, Example, Check Yourself, Quizz, Activity, Summary, etc.
 - Each block has category (object/text), label, and icon
 
+#### Studio Component (Refactoring in Progress - Phase 1)
+The Studio component (`src/components/Studio/`) is a content authoring tool for creating educational blocks on book pages. It's currently being refactored for better maintainability:
+
+**Current Structure (Phase 1 - Foundation):**
+- `types/studio.types.js` - JSDoc type definitions for all Studio data structures (Area, AreaProperty, VirtualBlock, etc.)
+- `constants/` - Extracted constants for tabs, timeouts, storage keys, and defaults
+  - `tabs.constants.js` - Tab names (LEFT_TAB_NAMES, RIGHT_TAB_NAMES)
+  - `studio.constants.js` - Timeouts, defaults, OCR languages, storage keys
+  - `index.js` - Barrel export for all constants
+- `hooks/` - Custom hooks (planned for Phase 2)
+- `services/` - Business logic services (planned for Phase 3)
+- `utils/` - Helper functions (planned for Phase 2-3)
+- `components/` - Sub-components (planned for Phase 4)
+- `context/` - Context providers (planned for Phase 2)
+
+**Usage:**
+- Import constants: `import { LEFT_TAB_NAMES, TIMEOUTS, STORAGE_KEYS } from './constants'`
+- Type definitions provide IDE autocomplete and documentation
+- All magic strings/numbers have been extracted to constants
+
+**Key Features:**
+- Page navigation and thumbnail management
+- Area selection for block creation (using @bmunozg/react-image-area)
+- OCR text extraction from selected areas
+- Composite block creation and management
+- Virtual blocks for educational content organization
+- Coordinate conversion (percentage ↔ pixels)
+
+**Refactoring Plan:** See `docs/2025-11-06/STUDIO_REFACTORING_PLAN.md` and `docs/2025-11-06/PHASE_1_REFACTORING.md` for details
+
 ### Component Structure
 Components are organized by feature/domain:
 - `components/DrawnUI/` - Auto-generated form components (Text, Image, Video, Boolean, Select, ArrayUI, ObjectUI)

@@ -7,6 +7,7 @@ import clsx from "clsx";
 import styles from "./studioAreaSelector.module.scss";
 import VirtualBlocks from "../../VirtualBlocks/VirtualBlocks";
 import { getList2FromData } from "../../../utils/studio";
+import { RIGHT_TAB_NAMES } from "../constants";
 
 const StudioAreaSelector = React.forwardRef((props, ref) => {
   const {
@@ -152,8 +153,8 @@ const StudioAreaSelector = React.forwardRef((props, ref) => {
               onLoad={onImageLoad}
             />
           </div>
-        ) : activeRightTab.label === "Block Authoring" ||
-          activeRightTab.label === "Composite Blocks" ? (
+        ) : activeRightTab.label === RIGHT_TAB_NAMES.BLOCK_AUTHORING ||
+          activeRightTab.label === RIGHT_TAB_NAMES.COMPOSITE_BLOCKS ? (
           <AreaSelector
             areas={renderedAreas}
             onChange={onChangeHandler}

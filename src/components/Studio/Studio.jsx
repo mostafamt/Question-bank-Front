@@ -21,6 +21,16 @@ import {
   onEditTextField,
   updateAreasProperties,
 } from "../../utils/ocr";
+import {
+  LEFT_TAB_NAMES,
+  RIGHT_TAB_NAMES,
+  TIMEOUTS,
+  STORAGE_KEYS,
+  DEFAULTS,
+  OCR_LANGUAGES,
+  LANGUAGE_CODES,
+  COMPOSITE_BLOCK,
+} from "./constants";
 
 import StudioActions from "./StudioActions/StudioActions";
 import LanguageSwitcher from "./LanguageSwitcher/LanguageSwitcher";
@@ -38,19 +48,7 @@ import TableOfContents from "../Book/TableOfContents/TableOfContents";
 import GlossaryAndKeywords from "../Tabs/GlossaryAndKeywords/GlossaryAndKeywords";
 import { useStore } from "../../store/store";
 
-const RECALLS = "Recalls";
-const MICRO_LEARNING = "Micro Learning";
-const ENRICHING_CONTENT = "Enriching Content";
-const CHECK_YOURSELF = "Check Yourself";
-const ILLUSTRATIVE_INTERACTIONS = "Illustrative Interactions";
-
-const tabNames = [
-  RECALLS,
-  MICRO_LEARNING,
-  ENRICHING_CONTENT,
-  CHECK_YOURSELF,
-  ILLUSTRATIVE_INTERACTIONS,
-];
+// Tab names now imported from constants/tabs.constants.js
 
 const Studio = (props) => {
   const {
@@ -70,10 +68,10 @@ const Studio = (props) => {
 
   const [activePageIndex, setActivePageIndex] = React.useState(
     subObject
-      ? 0
-      : localStorage.getItem("author_page")
-      ? Number.parseInt(localStorage.getItem("author_page"))
-      : 0
+      ? DEFAULTS.ACTIVE_PAGE_INDEX
+      : localStorage.getItem(STORAGE_KEYS.AUTHOR_PAGE)
+      ? Number.parseInt(localStorage.getItem(STORAGE_KEYS.AUTHOR_PAGE))
+      : DEFAULTS.ACTIVE_PAGE_INDEX
   );
   const activePageId = pages?.[activePageIndex]?._id;
 
@@ -84,7 +82,10 @@ const Studio = (props) => {
   const [showVB, setShowVB] = React.useState(false);
   const { bookId, chapterId } = useParams();
   const [compositeBlocks, setCompositeBlocks] = React.useState({
-    name: `Composite Block ${uuidv4().slice(0, 8)}`,
+    name: `${COMPOSITE_BLOCK.NAME_PREFIX} ${uuidv4().slice(
+      0,
+      COMPOSITE_BLOCK.UUID_SLICE_LENGTH
+    )}`,
     type: "",
     areas: [],
   });
@@ -147,18 +148,20 @@ const Studio = (props) => {
     setShowVB((prevState) => !prevState);
     setTimeout(() => {
       onImageLoad();
-    }, 20);
+    }, TIMEOUTS.VIRTUAL_BLOCKS_TOGGLE_DELAY);
   };
 
   const canvasRef = React.createRef();
-  const [imageScaleFactor, setImageScaleFactor] = React.useState(1);
+  const [imageScaleFactor, setImageScaleFactor] = React.useState(
+    DEFAULTS.IMAGE_SCALE_FACTOR
+  );
   // To Extract Sub Object
   const [activeType, setActiveType] = React.useState("");
   const [typeOfActiveType, setTypeOfActiveType] = React.useState("");
 
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
   const [language, setLanguage] = React.useState(
-    lang === "en" ? ENGLISH : ARABIC
+    lang === LANGUAGE_CODES.ENGLISH ? ENGLISH : ARABIC
   );
   const [virtualBlocks, setVirtualBlocks] = React.useState(
     subObject ? [] : parseVirtualBlocksFromPages(pages)
@@ -206,7 +209,7 @@ const Studio = (props) => {
       // Delay to ensure state is updated before recalculation
       setTimeout(() => {
         onImageLoad();
-      }, 10);
+      }, TIMEOUTS.IMAGE_LOAD_DELAY);
     }
   }, [imageScaleFactor]);
 
@@ -316,7 +319,7 @@ const Studio = (props) => {
 
   const onClickImage = (idx) => {
     setActivePageIndex(idx);
-    localStorage.setItem("author_page", `${idx}`);
+    localStorage.setItem(STORAGE_KEYS.AUTHOR_PAGE, `${idx}`);
 
     // Reset _updated flag for the target page to force reconversion
     setAreas((prevState) => {
@@ -333,7 +336,7 @@ const Studio = (props) => {
     // Force recalculation when changing pages
     setTimeout(() => {
       onImageLoad();
-    }, 50);
+    }, TIMEOUTS.PAGE_NAVIGATION_DELAY);
 
     console.log("thumbnailsRef= ", thumbnailsRef);
 
@@ -367,7 +370,7 @@ const Studio = (props) => {
   };
 
   const onChangeHandler = (areasParam) => {
-    if (activeRightTab.label === "Composite Blocks") {
+    if (activeRightTab.label === RIGHT_TAB_NAMES.COMPOSITE_BLOCKS) {
       const compositeBlocksWithPropsAreas = addPropsToAreasForCompositeBlocks(
         compositeBlocks,
         areasParam
@@ -686,7 +689,7 @@ const Studio = (props) => {
   const LEFT_COLUMNS = [
     {
       id: uuidv4(),
-      label: "Thumbnails",
+      label: LEFT_TAB_NAMES.THUMBNAILS,
       component: (
         <StudioThumbnails
           pages={pages}
@@ -698,23 +701,34 @@ const Studio = (props) => {
     },
     {
       id: uuidv4(),
-      label: RECALLS,
-      component: <List chapterId={chapterId} tabName={RECALLS} />,
+      label: LEFT_TAB_NAMES.RECALLS,
+      component: (
+        <List chapterId={chapterId} tabName={LEFT_TAB_NAMES.RECALLS} />
+      ),
     },
     {
       id: uuidv4(),
-      label: MICRO_LEARNING,
-      component: <List chapterId={chapterId} tabName={MICRO_LEARNING} />,
+      label: LEFT_TAB_NAMES.MICRO_LEARNING,
+      component: (
+        <List chapterId={chapterId} tabName={LEFT_TAB_NAMES.MICRO_LEARNING} />
+      ),
     },
     {
       id: uuidv4(),
-      label: ENRICHING_CONTENT,
-      component: <List chapterId={chapterId} tabName={ENRICHING_CONTENT} />,
+      label: LEFT_TAB_NAMES.ENRICHING_CONTENT,
+      component: (
+        <List
+          chapterId={chapterId}
+          tabName={LEFT_TAB_NAMES.ENRICHING_CONTENT}
+        />
+      ),
     },
     {
       id: uuidv4(),
-      label: CHECK_YOURSELF,
-      component: <List chapterId={chapterId} tabName={CHECK_YOURSELF} />,
+      label: LEFT_TAB_NAMES.CHECK_YOURSELF,
+      component: (
+        <List chapterId={chapterId} tabName={LEFT_TAB_NAMES.CHECK_YOURSELF} />
+      ),
     },
   ];
 
@@ -744,12 +758,12 @@ const Studio = (props) => {
   let RIGHT_COLUMNS = [
     {
       id: uuidv4(),
-      label: "Block Authoring",
+      label: RIGHT_TAB_NAMES.BLOCK_AUTHORING,
       component: StudioActionsComponent,
     },
     {
       id: uuidv4(),
-      label: "Composite Blocks",
+      label: RIGHT_TAB_NAMES.COMPOSITE_BLOCKS,
       component: (
         <StudioCompositeBlocks
           compositeBlocks={compositeBlocks}
@@ -766,7 +780,7 @@ const Studio = (props) => {
     },
     {
       id: uuidv4(),
-      label: "Table Of Contents",
+      label: RIGHT_TAB_NAMES.TABLE_OF_CONTENTS,
       component: (
         <TableOfContents
           pages={pages}
@@ -775,7 +789,7 @@ const Studio = (props) => {
             const newIndex = pages.findIndex((p) => p._id === newPage._id);
             if (newIndex !== -1) {
               setActivePageIndex(newIndex);
-              localStorage.setItem("author_page", `${newIndex}`);
+              localStorage.setItem(STORAGE_KEYS.AUTHOR_PAGE, `${newIndex}`);
             }
           }}
         />
@@ -783,14 +797,17 @@ const Studio = (props) => {
     },
     {
       id: uuidv4(),
-      label: "Glossary & keywords",
+      label: RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS,
       component: <GlossaryAndKeywords chapterId={chapterId} />,
     },
     {
       id: uuidv4(),
-      label: ILLUSTRATIVE_INTERACTIONS,
+      label: RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS,
       component: (
-        <List chapterId={chapterId} tabName={ILLUSTRATIVE_INTERACTIONS} />
+        <List
+          chapterId={chapterId}
+          tabName={RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS}
+        />
       ),
     },
   ];
