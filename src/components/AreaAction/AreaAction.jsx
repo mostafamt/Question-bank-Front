@@ -26,6 +26,8 @@ const AreaAction = (props) => {
     typeOfActiveType,
   } = props;
 
+  console.log("props= ", props);
+
   const { openModal } = useStore();
 
   const handleToggle = () => updateAreaProperty(idx, { open: !area.open });
@@ -52,7 +54,7 @@ const AreaAction = (props) => {
   };
 
   const actions = [
-    area.isServer && isComplexType(area.label) ? (
+    area.type !== "Simple item" ? (
       {
         label: "play",
         icon: <PlayArrow sx={{ color: grey[700] }} />,
