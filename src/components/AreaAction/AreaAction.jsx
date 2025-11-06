@@ -26,8 +26,6 @@ const AreaAction = (props) => {
     typeOfActiveType,
   } = props;
 
-  console.log("props= ", props);
-
   const { openModal } = useStore();
 
   const handleToggle = () => updateAreaProperty(idx, { open: !area.open });
