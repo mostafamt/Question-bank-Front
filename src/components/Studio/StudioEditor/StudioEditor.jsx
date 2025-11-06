@@ -7,53 +7,55 @@ import { constructBoxColors } from "../../../utils/ocr";
 import styles from "./studioEditor.module.scss";
 import StudioAreaSelector from "../StudioAreaSelector/StudioAreaSelector";
 
-const StudioEditor = React.forwardRef((props, ref) => {
-  const {
-    areasProperties,
-    setAreasProperties,
-    activePage,
-    imageScaleFactor,
-    setImageScaleFactor,
-    areas,
-    setAreas,
-    onChangeHandler,
-    pages,
-    onImageLoad,
-    showVB,
-    onClickImage,
-  } = props;
+const StudioEditor = React.memo(
+  React.forwardRef((props, ref) => {
+    const {
+      areasProperties,
+      setAreasProperties,
+      activePage,
+      imageScaleFactor,
+      setImageScaleFactor,
+      areas,
+      setAreas,
+      onChangeHandler,
+      pages,
+      onImageLoad,
+      showVB,
+      onClickImage,
+    } = props;
 
-  const studioEditorSelectorRef = React.useRef(null);
-  const imageActionsRef = React.useRef(null);
+    const studioEditorSelectorRef = React.useRef(null);
+    const imageActionsRef = React.useRef(null);
 
-  React.useImperativeHandle(ref, () => {
-    return {
-      studioEditorSelectorRef: studioEditorSelectorRef,
-      imageActionsRef: imageActionsRef,
-    };
-  });
+    React.useImperativeHandle(ref, () => {
+      return {
+        studioEditorSelectorRef: studioEditorSelectorRef,
+        imageActionsRef: imageActionsRef,
+      };
+    });
 
-  return (
-    <div className={styles["studio-editor"]}>
-      <ImageActions
-        imageScaleFactor={imageScaleFactor}
-        setImageScaleFactor={setImageScaleFactor}
-        areas={areas}
-        setAreas={setAreas}
-        activePage={activePage}
-        areasProperties={areasProperties}
-        onImageLoad={onImageLoad}
-        ref={imageActionsRef}
-        pages={pages}
-        onClickImage={onClickImage}
-      />
-      <StudioAreaSelector
-        {...props}
-        showVB={showVB}
-        ref={studioEditorSelectorRef}
-      />
-    </div>
-  );
-});
+    return (
+      <div className={styles["studio-editor"]}>
+        <ImageActions
+          imageScaleFactor={imageScaleFactor}
+          setImageScaleFactor={setImageScaleFactor}
+          areas={areas}
+          setAreas={setAreas}
+          activePage={activePage}
+          areasProperties={areasProperties}
+          onImageLoad={onImageLoad}
+          ref={imageActionsRef}
+          pages={pages}
+          onClickImage={onClickImage}
+        />
+        <StudioAreaSelector
+          {...props}
+          showVB={showVB}
+          ref={studioEditorSelectorRef}
+        />
+      </div>
+    );
+  })
+);
 
 export default StudioEditor;
