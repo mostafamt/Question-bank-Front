@@ -510,7 +510,7 @@ const Studio = (props) => {
       const id = await handleSubmit(areasProperties[activePageIndex]);
       props.updateAreaProperty(-1, { text: id });
       id && toast.success("Sub-Object created successfully!");
-      handleClose();
+      // handleClose();
     } else {
       const id = await handleSubmit(
         activePageId,

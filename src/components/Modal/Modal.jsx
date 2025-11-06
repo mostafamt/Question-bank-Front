@@ -29,8 +29,6 @@ const MODAL_COMPONENTS = {
 const Modal = () => {
   const { modal, closeModal } = useStore();
 
-  console.log("modal= ", modal);
-
   const { name = "", size = "xl", opened = false, props = {} } = modal;
 
   // Get modal component by name
