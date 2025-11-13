@@ -101,6 +101,7 @@ const StudioActions = (props) => {
                           key={area.id}
                           style={{
                             display: area.status === DELETED ? "none" : "block",
+                            overflow: "hidden",
                           }}
                         >
                           <AreaAction

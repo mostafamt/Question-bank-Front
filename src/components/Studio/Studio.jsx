@@ -108,6 +108,7 @@ const Studio = (props) => {
           isNew: true,
           _unit: block.coordinates.unit,
           _updated: false,
+          name: block.objectName,
         };
       })
     ) || Array(pages?.length || 1).fill([])
@@ -136,6 +137,7 @@ const Studio = (props) => {
             open: false,
             isServer: "true",
             blockId: block.blockId,
+            name: block.objectName,
           };
         }) || []
     ) || Array(pages?.length || 1).fill([])

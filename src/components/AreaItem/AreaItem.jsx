@@ -19,9 +19,11 @@ const AreaItem = ({
   color,
   isOpen,
   handleToggle,
+  area,
   actions = [],
   children,
 }) => {
+  console.log("area= ", area);
   return (
     <div
       className={styles["area-item"]}
@@ -38,6 +40,9 @@ const AreaItem = ({
         <div className={styles.header}>
           <ListItemText primary={title} />
           {isOpen ? <RemoveIcon /> : <AddIcon />}
+        </div>
+        <div style={{ alignSelf: "flex-start", whiteSpace: "nowrap" }}>
+          {area?.name}
         </div>
 
         <div
