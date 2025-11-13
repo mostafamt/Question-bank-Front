@@ -29,10 +29,6 @@ const StudioAreaSelector = React.memo(
       highlight,
     } = props;
 
-    // Infinite loop breaker - track render count (must be before early return)
-    const renderCount = React.useRef(0);
-    const renderTimestamp = React.useRef(Date.now());
-
     const onClickExistedArea = useCallback(
       (areaProps) => {
         setAreasProperties((prevAreasProperties) => {
@@ -182,27 +178,6 @@ const StudioAreaSelector = React.memo(
       }),
       []
     );
-
-    // Check for infinite loop AFTER all hooks are called
-    renderCount.current++;
-    const now = Date.now();
-    const timeSinceStart = now - renderTimestamp.current;
-
-    // If more than 50 renders in 1 second, something's wrong
-    if (renderCount.current > 50 && timeSinceStart < 1000) {
-      console.error("INFINITE LOOP DETECTED! Stopping renders.");
-      return (
-        <div style={{ padding: "20px", color: "red", fontSize: "18px" }}>
-          Error: Infinite loop detected. Check console for details.
-        </div>
-      );
-    }
-
-    // Reset counter every second
-    if (timeSinceStart > 1000) {
-      renderCount.current = 0;
-      renderTimestamp.current = now;
-    }
 
     return (
       <VirtualBlocks
