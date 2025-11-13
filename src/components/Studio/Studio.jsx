@@ -40,6 +40,7 @@ import { parseVirtualBlocksFromPages } from "../../utils/virtual-blocks";
 import StudioStickyToolbar from "./StudioStickyToolbar/StudioStickyToolbar";
 import StudioCompositeBlocks from "./StudioCompositeBlocks/StudioCompositeBlocks";
 import { addPropsToAreasForCompositeBlocks } from "../../utils/studio";
+import { processAreasForImageLoad } from "./services/coordinate.service";
 
 import styles from "./studio.module.scss";
 import { saveCompositeBlocks } from "../../services/api";
@@ -213,143 +214,37 @@ const Studio = (props) => {
     }
   }, [imageScaleFactor]);
 
-  // const onImageLoad = () => {
-  //   setAreas((prevState) => {
-  //     return prevState?.map((page, idx1) => {
-  //       return page?.map((block, idx2) => {
-  //         // Safety check: ensure ref exists
-  //         if (!studioEditorRef.current?.studioEditorSelectorRef?.current) {
-  //           return {
-  //             ...block,
-  //             _unit: block._unit || "px",
-  //             _updated: block._updated || false,
-  //             _percentX: block._percentX,
-  //             _percentY: block._percentY,
-  //             _percentWidth: block._percentWidth,
-  //             _percentHeight: block._percentHeight,
-  //           };
-  //         }
-
-  //         // Convert percentage to pixels only if not already updated
-  //         if (block._unit === "percentage" && !block._updated) {
-  //           const { clientHeight, clientWidth } =
-  //             studioEditorRef.current.studioEditorSelectorRef.current;
-
-  //           // Safety check: ensure valid dimensions
-  //           if (!clientWidth || !clientHeight) {
-  //             return {
-  //               ...block,
-  //               _unit: block._unit,
-  //               _updated: false,
-  //               _percentX: block._percentX,
-  //               _percentY: block._percentY,
-  //               _percentWidth: block._percentWidth,
-  //               _percentHeight: block._percentHeight,
-  //             };
-  //           }
-
-  //           // Use stored percentage coordinates or fall back to areasProperties
-  //           let percentX, percentY, percentWidth, percentHeight;
-
-  //           if (block._percentX !== undefined) {
-  //             // Use stored percentage coordinates from the area itself
-  //             percentX = block._percentX;
-  //             percentY = block._percentY;
-  //             percentWidth = block._percentWidth;
-  //             percentHeight = block._percentHeight;
-  //           } else {
-  //             // Fall back to areasProperties for backward compatibility
-  //             const properties = areasProperties[idx1]?.[idx2];
-  //             if (!properties) {
-  //               return {
-  //                 ...block,
-  //                 _unit: block._unit,
-  //                 _updated: false,
-  //                 _percentX: block._percentX,
-  //                 _percentY: block._percentY,
-  //                 _percentWidth: block._percentWidth,
-  //                 _percentHeight: block._percentHeight,
-  //               };
-  //             }
-  //             percentX = properties.x;
-  //             percentY = properties.y;
-  //             percentWidth = properties.width;
-  //             percentHeight = properties.height;
-  //           }
-
-  //           return {
-  //             x: (percentX / 100) * clientWidth,
-  //             y: (percentY / 100) * clientHeight,
-  //             width: (percentWidth / 100) * clientWidth,
-  //             height: (percentHeight / 100) * clientHeight,
-  //             unit: "px",
-  //             isChanging: true,
-  //             isNew: true,
-  //             _updated: true,
-  //             _unit: block._unit,
-  //             // Preserve percentage coordinates
-  //             _percentX: percentX,
-  //             _percentY: percentY,
-  //             _percentWidth: percentWidth,
-  //             _percentHeight: percentHeight,
-  //           };
-  //         }
-
-  //         // Preserve all metadata for non-percentage blocks
-  //         return {
-  //           x: block.x,
-  //           y: block.y,
-  //           width: block.width,
-  //           height: block.height,
-  //           unit: "px",
-  //           isChanging: true,
-  //           isNew: true,
-  //           _unit: block._unit || "px",
-  //           _updated: block._updated || false,
-  //           // Preserve percentage coordinates if they exist
-  //           _percentX: block._percentX,
-  //           _percentY: block._percentY,
-  //           _percentWidth: block._percentWidth,
-  //           _percentHeight: block._percentHeight,
-  //         };
-  //       });
-  //     });
-  //   });
-  // };
+  /**
+   * Recalculates area pixel coordinates based on the currently loaded image's dimensions.
+   *
+   * This function is triggered when:
+   * - An image finishes loading (via onLoad event)
+   * - The user zooms in/out (imageScaleFactor changes) - image scales
+   * - The user navigates to a different page - new image loads
+   * - Virtual blocks are toggled on/off - layout changes
+   *
+   * Why this is needed:
+   * Areas are stored with percentage coordinates to be resolution-independent.
+   * When the image loads or its size changes, we need to recalculate the pixel
+   * positions based on the image's current rendered size. This ensures areas
+   * stay properly aligned with the image content at any zoom level.
+   *
+   * The recalculation logic is delegated to the coordinate service layer which:
+   * 1. Validates the image is fully loaded
+   * 2. Extracts current dimensions from the DOM element
+   * 3. Converts percentage coordinates to pixels
+   * 4. Preserves metadata for future recalculations
+   */
   const onImageLoad = () => {
     setAreas((prevState) => {
-      return prevState?.map((page, idx1) => {
-        return page?.map((block, idx2) => {
-          if (block._unit === "percentage") {
-            const { clientHeight, clientWidth } =
-              studioEditorRef.current.studioEditorSelectorRef.current;
+      const processedAreas = processAreasForImageLoad(
+        prevState,
+        areasProperties,
+        studioEditorRef
+      );
 
-            const properties = areasProperties[idx1][idx2];
-
-            return {
-              x: (properties.x / 100) * clientWidth,
-              y: (properties.y / 100) * clientHeight,
-              width: (properties.width / 100) * clientWidth,
-              height: (properties.height / 100) * clientHeight,
-              unit: "px",
-              isChanging: true,
-              isNew: true,
-              _updated: true,
-              _unit: block._unit,
-            };
-          }
-
-          return {
-            x: block.x,
-            y: block.y,
-            width: block.width,
-            height: block.height,
-            unit: "px",
-            isChanging: true,
-            isNew: true,
-          };
-        });
-      });
+      // Return processed areas if successful, otherwise keep previous state
+      return processedAreas || prevState;
     });
   };
 

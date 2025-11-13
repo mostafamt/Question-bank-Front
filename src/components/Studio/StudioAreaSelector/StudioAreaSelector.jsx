@@ -55,7 +55,8 @@ const StudioAreaSelector = React.memo(
               onClick={() => onClickExistedArea(areaProps)}
             >
               <div className={styles.type}>
-                {areasProperties[activePage]?.[areaProps.areaNumber - 1]?.type} -
+                {areasProperties[activePage]?.[areaProps.areaNumber - 1]?.type}{" "}
+                -
                 {areasProperties[activePage]?.[areaProps.areaNumber - 1]?.label}
               </div>
             </div>
@@ -104,9 +105,6 @@ const StudioAreaSelector = React.memo(
             ],
           }));
         }
-
-        console.log("area= ", areasProperties[activePage][idx]);
-        console.log("list= ", list);
       },
       [
         areasProperties,
@@ -150,27 +148,20 @@ const StudioAreaSelector = React.memo(
       const prevProps = prevPropsRef.current;
       const changedProps = {};
 
-      Object.keys(props).forEach(key => {
+      Object.keys(props).forEach((key) => {
         if (props[key] !== prevProps[key]) {
           changedProps[key] = {
             old: prevProps[key],
             new: props[key],
-            changed: true
+            changed: true,
           };
         }
       });
 
-      if (Object.keys(changedProps).length > 0) {
-        console.log('[StudioAreaSelector] Props that changed:', changedProps);
-      }
-
       prevPropsRef.current = props;
     });
 
-    console.log(`[StudioAreaSelector] Render #${renderCount.current}, activeRightTab=`, activeRightTab.label);
-
     const renderedAreas = useMemo(() => {
-      console.log("areas[activePage]=", areas[activePage]);
       return activeRightTab.label === "Composite Blocks"
         ? compositeBlocks.areas
         : areas[activePage];
@@ -199,8 +190,12 @@ const StudioAreaSelector = React.memo(
 
     // If more than 50 renders in 1 second, something's wrong
     if (renderCount.current > 50 && timeSinceStart < 1000) {
-      console.error('INFINITE LOOP DETECTED! Stopping renders.');
-      return <div style={{padding: '20px', color: 'red', fontSize: '18px'}}>Error: Infinite loop detected. Check console for details.</div>;
+      console.error("INFINITE LOOP DETECTED! Stopping renders.");
+      return (
+        <div style={{ padding: "20px", color: "red", fontSize: "18px" }}>
+          Error: Infinite loop detected. Check console for details.
+        </div>
+      );
     }
 
     // Reset counter every second
