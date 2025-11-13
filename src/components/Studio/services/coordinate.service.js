@@ -151,7 +151,7 @@ export function shouldConvertArea(area) {
     return false;
   }
 
-  return area._unit === "percentage" && !area._updated;
+  return area._unit === "percentage";
 }
 
 /**
