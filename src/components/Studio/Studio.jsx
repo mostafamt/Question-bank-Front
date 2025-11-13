@@ -213,89 +213,132 @@ const Studio = (props) => {
     }
   }, [imageScaleFactor]);
 
+  // const onImageLoad = () => {
+  //   setAreas((prevState) => {
+  //     return prevState?.map((page, idx1) => {
+  //       return page?.map((block, idx2) => {
+  //         // Safety check: ensure ref exists
+  //         if (!studioEditorRef.current?.studioEditorSelectorRef?.current) {
+  //           return {
+  //             ...block,
+  //             _unit: block._unit || "px",
+  //             _updated: block._updated || false,
+  //             _percentX: block._percentX,
+  //             _percentY: block._percentY,
+  //             _percentWidth: block._percentWidth,
+  //             _percentHeight: block._percentHeight,
+  //           };
+  //         }
+
+  //         // Convert percentage to pixels only if not already updated
+  //         if (block._unit === "percentage" && !block._updated) {
+  //           const { clientHeight, clientWidth } =
+  //             studioEditorRef.current.studioEditorSelectorRef.current;
+
+  //           // Safety check: ensure valid dimensions
+  //           if (!clientWidth || !clientHeight) {
+  //             return {
+  //               ...block,
+  //               _unit: block._unit,
+  //               _updated: false,
+  //               _percentX: block._percentX,
+  //               _percentY: block._percentY,
+  //               _percentWidth: block._percentWidth,
+  //               _percentHeight: block._percentHeight,
+  //             };
+  //           }
+
+  //           // Use stored percentage coordinates or fall back to areasProperties
+  //           let percentX, percentY, percentWidth, percentHeight;
+
+  //           if (block._percentX !== undefined) {
+  //             // Use stored percentage coordinates from the area itself
+  //             percentX = block._percentX;
+  //             percentY = block._percentY;
+  //             percentWidth = block._percentWidth;
+  //             percentHeight = block._percentHeight;
+  //           } else {
+  //             // Fall back to areasProperties for backward compatibility
+  //             const properties = areasProperties[idx1]?.[idx2];
+  //             if (!properties) {
+  //               return {
+  //                 ...block,
+  //                 _unit: block._unit,
+  //                 _updated: false,
+  //                 _percentX: block._percentX,
+  //                 _percentY: block._percentY,
+  //                 _percentWidth: block._percentWidth,
+  //                 _percentHeight: block._percentHeight,
+  //               };
+  //             }
+  //             percentX = properties.x;
+  //             percentY = properties.y;
+  //             percentWidth = properties.width;
+  //             percentHeight = properties.height;
+  //           }
+
+  //           return {
+  //             x: (percentX / 100) * clientWidth,
+  //             y: (percentY / 100) * clientHeight,
+  //             width: (percentWidth / 100) * clientWidth,
+  //             height: (percentHeight / 100) * clientHeight,
+  //             unit: "px",
+  //             isChanging: true,
+  //             isNew: true,
+  //             _updated: true,
+  //             _unit: block._unit,
+  //             // Preserve percentage coordinates
+  //             _percentX: percentX,
+  //             _percentY: percentY,
+  //             _percentWidth: percentWidth,
+  //             _percentHeight: percentHeight,
+  //           };
+  //         }
+
+  //         // Preserve all metadata for non-percentage blocks
+  //         return {
+  //           x: block.x,
+  //           y: block.y,
+  //           width: block.width,
+  //           height: block.height,
+  //           unit: "px",
+  //           isChanging: true,
+  //           isNew: true,
+  //           _unit: block._unit || "px",
+  //           _updated: block._updated || false,
+  //           // Preserve percentage coordinates if they exist
+  //           _percentX: block._percentX,
+  //           _percentY: block._percentY,
+  //           _percentWidth: block._percentWidth,
+  //           _percentHeight: block._percentHeight,
+  //         };
+  //       });
+  //     });
+  //   });
+  // };
   const onImageLoad = () => {
     setAreas((prevState) => {
       return prevState?.map((page, idx1) => {
         return page?.map((block, idx2) => {
-          // Safety check: ensure ref exists
-          if (!studioEditorRef.current?.studioEditorSelectorRef?.current) {
-            return {
-              ...block,
-              _unit: block._unit || "px",
-              _updated: block._updated || false,
-              _percentX: block._percentX,
-              _percentY: block._percentY,
-              _percentWidth: block._percentWidth,
-              _percentHeight: block._percentHeight,
-            };
-          }
-
-          // Convert percentage to pixels only if not already updated
-          if (block._unit === "percentage" && !block._updated) {
+          if (block._unit === "percentage") {
             const { clientHeight, clientWidth } =
               studioEditorRef.current.studioEditorSelectorRef.current;
 
-            // Safety check: ensure valid dimensions
-            if (!clientWidth || !clientHeight) {
-              return {
-                ...block,
-                _unit: block._unit,
-                _updated: false,
-                _percentX: block._percentX,
-                _percentY: block._percentY,
-                _percentWidth: block._percentWidth,
-                _percentHeight: block._percentHeight,
-              };
-            }
-
-            // Use stored percentage coordinates or fall back to areasProperties
-            let percentX, percentY, percentWidth, percentHeight;
-
-            if (block._percentX !== undefined) {
-              // Use stored percentage coordinates from the area itself
-              percentX = block._percentX;
-              percentY = block._percentY;
-              percentWidth = block._percentWidth;
-              percentHeight = block._percentHeight;
-            } else {
-              // Fall back to areasProperties for backward compatibility
-              const properties = areasProperties[idx1]?.[idx2];
-              if (!properties) {
-                return {
-                  ...block,
-                  _unit: block._unit,
-                  _updated: false,
-                  _percentX: block._percentX,
-                  _percentY: block._percentY,
-                  _percentWidth: block._percentWidth,
-                  _percentHeight: block._percentHeight,
-                };
-              }
-              percentX = properties.x;
-              percentY = properties.y;
-              percentWidth = properties.width;
-              percentHeight = properties.height;
-            }
+            const properties = areasProperties[idx1][idx2];
 
             return {
-              x: (percentX / 100) * clientWidth,
-              y: (percentY / 100) * clientHeight,
-              width: (percentWidth / 100) * clientWidth,
-              height: (percentHeight / 100) * clientHeight,
+              x: (properties.x / 100) * clientWidth,
+              y: (properties.y / 100) * clientHeight,
+              width: (properties.width / 100) * clientWidth,
+              height: (properties.height / 100) * clientHeight,
               unit: "px",
               isChanging: true,
               isNew: true,
               _updated: true,
               _unit: block._unit,
-              // Preserve percentage coordinates
-              _percentX: percentX,
-              _percentY: percentY,
-              _percentWidth: percentWidth,
-              _percentHeight: percentHeight,
             };
           }
 
-          // Preserve all metadata for non-percentage blocks
           return {
             x: block.x,
             y: block.y,
@@ -304,13 +347,6 @@ const Studio = (props) => {
             unit: "px",
             isChanging: true,
             isNew: true,
-            _unit: block._unit || "px",
-            _updated: block._updated || false,
-            // Preserve percentage coordinates if they exist
-            _percentX: block._percentX,
-            _percentY: block._percentY,
-            _percentWidth: block._percentWidth,
-            _percentHeight: block._percentHeight,
           };
         });
       });
