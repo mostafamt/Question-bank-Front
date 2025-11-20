@@ -9,6 +9,14 @@ import { IconButton } from "@mui/material";
 import styles from "./listItem.module.scss";
 
 const ListItem = ({ item, onPlay, onDelete, reader }) => {
+  const onClickUp = () => {
+    console.log("onClickUp");
+  };
+
+  const onClickDown = () => {
+    console.log("onClickDown");
+  };
+
   return (
     <li className={styles["list-item"]}>
       <span>{item.name}</span>
@@ -18,10 +26,10 @@ const ListItem = ({ item, onPlay, onDelete, reader }) => {
         </IconButton>
       </span>
       <span className={styles["up-down"]}>
-        <IconButton onClick={() => {}}>
+        <IconButton onClick={onClickUp}>
           <NorthIcon />
         </IconButton>
-        <IconButton onClick={() => {}}>
+        <IconButton onClick={onClickDown}>
           <SouthIcon />
         </IconButton>
       </span>

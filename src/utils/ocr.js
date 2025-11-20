@@ -86,7 +86,7 @@ export const getTypeOfLabel2 = (types, type, label) => {
   return Object.values(selectedLabel)[0];
 };
 
-export const constructBoxColors = (trialAreas) => {
+export const constructBoxColors = (trialAreas, highlightedBlockId) => {
   const values = trialAreas?.map((_, idx) => `& > div:nth-of-type(${idx + 2})`);
 
   const obj = trialAreas?.map((trialArea, idx) => {
@@ -99,12 +99,21 @@ export const constructBoxColors = (trialAreas) => {
           },
         };
       } else {
-        return {
-          [values[idx]]: {
-            border: `2px solid ${trialArea.color} !important`,
-            backgroundColor: `${hexToRgbA(trialArea.color)}`,
-          },
-        };
+        if (trialArea.id === highlightedBlockId) {
+          return {
+            [values[idx]]: {
+              border: `4px solid ${"#000"} !important`,
+              backgroundColor: `${hexToRgbA("#000")}`,
+            },
+          };
+        } else {
+          return {
+            [values[idx]]: {
+              border: `2px solid ${trialArea.color} !important`,
+              backgroundColor: `${hexToRgbA(trialArea.color)}`,
+            },
+          };
+        }
       }
     } else {
       return {};

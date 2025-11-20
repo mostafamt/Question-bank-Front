@@ -235,6 +235,7 @@ export function processPageAreas(pageAreas, pageProperties, dimensions) {
     if (!shouldConvertArea(area)) {
       // Return with preserved metadata (no conversion needed)
       return {
+        ...area, // Preserve all original properties (id, name, blockId, etc.)
         x: area.x,
         y: area.y,
         width: area.width,
