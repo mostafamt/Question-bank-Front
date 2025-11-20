@@ -114,6 +114,7 @@ export function convertPercentageToPixels(area, dimensions) {
   const percentHeight = area._percentHeight ?? area.height;
 
   return {
+    ...area, // Preserve all original properties (id, name, blockId, etc.)
     x: (percentX / 100) * clientWidth,
     y: (percentY / 100) * clientHeight,
     width: (percentWidth / 100) * clientWidth,
@@ -151,6 +152,7 @@ export function convertPixelsToPercentage(area, dimensions) {
   const { clientWidth, clientHeight } = dimensions;
 
   return {
+    ...area, // Preserve all original properties (id, name, blockId, etc.)
     x: (area.x / clientWidth) * 100,
     y: (area.y / clientHeight) * 100,
     width: (area.width / clientWidth) * 100,
@@ -197,7 +199,8 @@ export function preserveMetadata(originalArea, convertedArea) {
       : originalArea.height;
 
   return {
-    ...convertedArea,
+    ...originalArea, // Preserve all original properties first (id, name, blockId, etc.)
+    ...convertedArea, // Override with converted coordinates
     _unit: originalArea._unit || "percentage",
     _updated: true,
     _percentX: percentX,

@@ -23,7 +23,6 @@ const AreaItem = ({
   actions = [],
   children,
 }) => {
-  console.log("area= ", area);
   return (
     <div
       className={styles["area-item"]}

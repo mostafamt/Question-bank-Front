@@ -27,6 +27,7 @@ const StudioAreaSelector = React.memo(
       compositeBlocks,
       setCompositeBlocks,
       highlight,
+      highlightedBlockId,
     } = props;
 
     const onClickExistedArea = useCallback(
@@ -192,7 +193,10 @@ const StudioAreaSelector = React.memo(
       >
         <div
           className={styles.block}
-          css={constructBoxColors(areasProperties[activePage])}
+          css={constructBoxColors(
+            areasProperties[activePage],
+            highlightedBlockId
+          )}
         >
           {highlight === "hand" ? (
             <div style={{ position: "relative" }}>
@@ -212,7 +216,8 @@ const StudioAreaSelector = React.memo(
               />
             </div>
           ) : activeRightTab.label === RIGHT_TAB_NAMES.BLOCK_AUTHORING ||
-            activeRightTab.label === RIGHT_TAB_NAMES.COMPOSITE_BLOCKS ? (
+            activeRightTab.label === RIGHT_TAB_NAMES.COMPOSITE_BLOCKS ||
+            activeRightTab.label === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS ? (
             <AreaSelector
               areas={renderedAreas}
               onChange={onChangeHandler}

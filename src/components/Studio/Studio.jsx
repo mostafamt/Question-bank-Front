@@ -1,55 +1,51 @@
 import React from "react";
+import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { v4 as uuidv4 } from "uuid";
-import { colors } from "../../constants/highlight-color";
-
-import StudioThumbnails from "./StudioThumbnails/StudioThumbnails";
-import StudioEditor from "./StudioEditor/StudioEditor";
 import { Alert } from "@mui/material";
+
+import { colors } from "../../constants/highlight-color";
+import { parseVirtualBlocksFromPages } from "../../utils/virtual-blocks";
 import {
   ARABIC,
+  ENGLISH,
   COMPLEX_TYPES,
   DELETED,
-  ENGLISH,
   cropSelectedArea,
   deleteAreaByIndex,
   extractImage,
-  getTypeNameOfLabelKey,
   getTypeOfLabel,
   getTypeOfLabel2,
   ocr,
   onEditTextField,
   updateAreasProperties,
 } from "../../utils/ocr";
+import { addPropsToAreasForCompositeBlocks } from "../../utils/studio";
+
+import { processAreasForImageLoad } from "./services/coordinate.service";
+import { buildLeftColumns, buildRightColumns } from "./columns";
+
 import {
-  LEFT_TAB_NAMES,
   RIGHT_TAB_NAMES,
   TIMEOUTS,
   STORAGE_KEYS,
   DEFAULTS,
-  OCR_LANGUAGES,
   LANGUAGE_CODES,
-  COMPOSITE_BLOCK,
 } from "./constants";
 
-import StudioActions from "./StudioActions/StudioActions";
-import LanguageSwitcher from "./LanguageSwitcher/LanguageSwitcher";
-import BookColumn from "../Book/BookColumn/BookColumn";
-import List from "../Tabs/List/List";
-import { parseVirtualBlocksFromPages } from "../../utils/virtual-blocks";
-import StudioStickyToolbar from "./StudioStickyToolbar/StudioStickyToolbar";
-import StudioCompositeBlocks from "./StudioCompositeBlocks/StudioCompositeBlocks";
-import { addPropsToAreasForCompositeBlocks } from "../../utils/studio";
-import { processAreasForImageLoad } from "./services/coordinate.service";
+import {
+  initAreas,
+  initAreasProperties,
+  initCompositeBlocks,
+} from "./initializers";
 
-import styles from "./studio.module.scss";
+import StudioEditor from "./StudioEditor/StudioEditor";
+import LanguageSwitcher from "./LanguageSwitcher/LanguageSwitcher";
+import StudioStickyToolbar from "./StudioStickyToolbar/StudioStickyToolbar";
+import BookColumn from "../Book/BookColumn/BookColumn";
 import { saveCompositeBlocks } from "../../services/api";
-import { useParams } from "react-router-dom";
-import TableOfContents from "../Book/TableOfContents/TableOfContents";
-import GlossaryAndKeywords from "../Tabs/GlossaryAndKeywords/GlossaryAndKeywords";
 import { useStore } from "../../store/store";
 
-// Tab names now imported from constants/tabs.constants.js
+import styles from "./studio.module.scss";
 
 const Studio = (props) => {
   const {
@@ -82,65 +78,17 @@ const Studio = (props) => {
   const [showStickyToolbar, setShowStickyToolbar] = React.useState(false);
   const [showVB, setShowVB] = React.useState(false);
   const { bookId, chapterId } = useParams();
-  const [compositeBlocks, setCompositeBlocks] = React.useState({
-    name: `${COMPOSITE_BLOCK.NAME_PREFIX} ${uuidv4().slice(
-      0,
-      COMPOSITE_BLOCK.UUID_SLICE_LENGTH
-    )}`,
-    type: "",
-    areas: [],
-  });
+  const [compositeBlocks, setCompositeBlocks] =
+    React.useState(initCompositeBlocks);
   const [highlight, setHighlight] = React.useState("");
   const [loadingSubmitCompositeBlocks, setLoadingSubmitCompositeBlocks] =
     React.useState(false);
   const thumbnailsRef = React.useRef(null);
 
-  const [areas, setAreas] = React.useState(
-    pages?.map((page) =>
-      page.blocks?.map((block) => {
-        return {
-          x: block.coordinates.x,
-          y: block.coordinates.y,
-          width: block.coordinates.width,
-          height: block.coordinates.height,
-          unit: "px",
-          isChanging: true,
-          isNew: true,
-          _unit: block.coordinates.unit,
-          _updated: false,
-          name: block.objectName,
-        };
-      })
-    ) || Array(pages?.length || 1).fill([])
-  );
+  const [areas, setAreas] = React.useState(() => initAreas(pages));
 
-  const [areasProperties, setAreasProperties] = React.useState(
-    pages?.map(
-      (page) =>
-        page.blocks?.map((block, idx) => {
-          let typeName = getTypeNameOfLabelKey(types, block.contentType);
-          return {
-            x: block.coordinates.x,
-            y: block.coordinates.y,
-            width: block.coordinates.width,
-            height: block.coordinates.height,
-            id: uuidv4(),
-            color: colors[idx % colors.length],
-            loading: false,
-            text: block.contentValue,
-            image: block.contentValue,
-            type: typeName,
-            parameter: "",
-            label: block.contentType,
-            typeOfLabel: getTypeOfLabel(types, typeName, block.contentType),
-            order: idx,
-            open: false,
-            isServer: "true",
-            blockId: block.blockId,
-            name: block.objectName,
-          };
-        }) || []
-    ) || Array(pages?.length || 1).fill([])
+  const [areasProperties, setAreasProperties] = React.useState(() =>
+    initAreasProperties(pages, types)
   );
 
   const [colorIndex, setColorIndex] = React.useState(
@@ -161,6 +109,7 @@ const Studio = (props) => {
   // To Extract Sub Object
   const [activeType, setActiveType] = React.useState("");
   const [typeOfActiveType, setTypeOfActiveType] = React.useState("");
+  const [highlightedBlockId, setHighlightedBlockId] = React.useState(null);
 
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
   const [language, setLanguage] = React.useState(
@@ -250,45 +199,69 @@ const Studio = (props) => {
     });
   };
 
-  const onClickImage = (idx) => {
+  const getPageIndexFromPageId = (id) => {
+    if (!pages || !pages.length) return 0;
+
+    const index = pages.findIndex((p) => p._id === id);
+
+    // If the page was not found → return the current active page index
+    if (index === -1) {
+      console.warn(`Page with id "${id}" not found in pages list`);
+      return activePageIndex;
+    }
+
+    return index;
+  };
+
+  const changePageByIndex = (idx) => {
     setActivePageIndex(idx);
     localStorage.setItem(STORAGE_KEYS.AUTHOR_PAGE, `${idx}`);
+  };
 
-    // Reset _updated flag for the target page to force reconversion
-    setAreas((prevState) => {
-      const newAreas = [...prevState];
-      if (newAreas[idx]) {
-        newAreas[idx] = newAreas[idx].map((area) => ({
-          ...area,
-          _updated: false, // Reset to force reconversion
-        }));
+  const changePageById = (id) => {
+    const idx = getPageIndexFromPageId(id);
+    changePageByIndex(idx);
+  };
+
+  const getBlockFromBlockId = (id) => {
+    if (!id) return null;
+
+    // Search inside areas for all pages
+    for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+      const areaBlock = areasProperties[pageIndex]?.find((a) => {
+        return a.id === id;
+      });
+
+      if (areaBlock) {
+        return {
+          ...areaBlock,
+          pageIndex,
+          type: "area",
+        };
       }
-      return newAreas;
-    });
+    }
 
-    // Force recalculation when changing pages
-    setTimeout(() => {
-      onImageLoad();
-    }, TIMEOUTS.PAGE_NAVIGATION_DELAY);
+    console.warn(`Block with id "${id}" not found.`);
+    return null;
+  };
 
-    console.log("thumbnailsRef= ", thumbnailsRef);
+  const hightBlock = (id) => {
+    if (!id) return;
 
-    // if (thumbnailsRef.current) {
-    //   const container = thumbnailsRef.current;
-    //   const index = pages.findIndex((p) => p._id === newPage._id);
+    // 1) Find the block (we already have getBlockFromBlockId)
+    const block = getBlockFromBlockId(id);
+    if (!block) return;
 
-    //   if (index !== -1) {
-    //     const btn = container.querySelector(`button:nth-child(${index + 1})`);
-    //     if (btn) {
-    //       const offset = container.clientHeight * 0.03; // 3% of container height
+    setHighlightedBlockId(id);
+    // const { pageIndex } = block;
 
-    //       container.scrollTo({
-    //         top: btn.offsetTop - offset,
-    //         behavior: "smooth",
-    //       });
-    //     }
-    //   }
-    // }
+    // setAreasProperties((prev) => {
+    //   const newProps = [...prev];
+    //   newProps[pageIndex] = newProps[pageIndex].map((area) =>
+    //     area.id === id ? { ...area, color: "#000" } : area
+    //   );
+    //   return newProps;
+    // });
   };
 
   const syncAreasProperties = () => {
@@ -619,131 +592,49 @@ const Studio = (props) => {
   // End Of Composite Blocks
   /////////////////////////////////////////////////
 
-  const LEFT_COLUMNS = [
-    {
-      id: uuidv4(),
-      label: LEFT_TAB_NAMES.THUMBNAILS,
-      component: (
-        <StudioThumbnails
-          pages={pages}
-          activePage={activePageIndex}
-          onClickImage={onClickImage}
-          ref={thumbnailsRef}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: LEFT_TAB_NAMES.RECALLS,
-      component: (
-        <List chapterId={chapterId} tabName={LEFT_TAB_NAMES.RECALLS} />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: LEFT_TAB_NAMES.MICRO_LEARNING,
-      component: (
-        <List chapterId={chapterId} tabName={LEFT_TAB_NAMES.MICRO_LEARNING} />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: LEFT_TAB_NAMES.ENRICHING_CONTENT,
-      component: (
-        <List
-          chapterId={chapterId}
-          tabName={LEFT_TAB_NAMES.ENRICHING_CONTENT}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: LEFT_TAB_NAMES.CHECK_YOURSELF,
-      component: (
-        <List chapterId={chapterId} tabName={LEFT_TAB_NAMES.CHECK_YOURSELF} />
-      ),
-    },
-  ];
+  const LEFT_COLUMNS = buildLeftColumns({
+    pages,
+    chapterId,
+    activePageIndex,
+    changePageByIndex,
+    thumbnailsRef,
+  });
 
-  const StudioActionsComponent = (
-    <StudioActions
-      areasProperties={areasProperties}
-      setAreasProperties={setAreasProperties}
-      activePage={activePageIndex}
-      onEditText={onEditText}
-      onClickDeleteArea={onClickDeleteArea}
-      type={type}
-      onClickSubmit={onClickSubmit}
-      loadingSubmit={loadingSubmit}
-      updateAreaProperty={updateAreaProperty}
-      updateAreaPropertyById={updateAreaPropertyById}
-      types={types}
-      onChangeLabel={onChangeLabel}
-      subObject={subObject}
-      tOfActiveType={tOfActiveType}
-      onSubmitAutoGenerate={onSubmitAutoGenerate}
-      loadingAutoGenerate={loadingAutoGenerate}
-      onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
-      showVB={showVB}
-    />
-  );
-
-  let RIGHT_COLUMNS = [
-    {
-      id: uuidv4(),
-      label: RIGHT_TAB_NAMES.BLOCK_AUTHORING,
-      component: StudioActionsComponent,
-    },
-    {
-      id: uuidv4(),
-      label: RIGHT_TAB_NAMES.COMPOSITE_BLOCKS,
-      component: (
-        <StudioCompositeBlocks
-          compositeBlocks={compositeBlocks}
-          compositeBlocksTypes={compositeBlocksTypes}
-          onChangeCompositeBlocks={onChangeCompositeBlocks}
-          processCompositeBlock={processCompositeBlock}
-          onSubmitCompositeBlocks={onSubmitCompositeBlocks}
-          loadingSubmitCompositeBlocks={loadingSubmitCompositeBlocks}
-          DeleteCompositeBlocks={DeleteCompositeBlocks}
-          highlight={highlight}
-          setHighlight={setHighlight}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: RIGHT_TAB_NAMES.TABLE_OF_CONTENTS,
-      component: (
-        <TableOfContents
-          pages={pages}
-          chapterId={chapterId}
-          onChangeActivePage={(newPage) => {
-            const newIndex = pages.findIndex((p) => p._id === newPage._id);
-            if (newIndex !== -1) {
-              setActivePageIndex(newIndex);
-              localStorage.setItem(STORAGE_KEYS.AUTHOR_PAGE, `${newIndex}`);
-            }
-          }}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS,
-      component: <GlossaryAndKeywords chapterId={chapterId} />,
-    },
-    {
-      id: uuidv4(),
-      label: RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS,
-      component: (
-        <List
-          chapterId={chapterId}
-          tabName={RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS}
-        />
-      ),
-    },
-  ];
+  const RIGHT_COLUMNS = buildRightColumns({
+    areasProperties,
+    setAreasProperties,
+    activePageIndex,
+    onEditText,
+    onClickDeleteArea,
+    type,
+    onClickSubmit,
+    loadingSubmit,
+    updateAreaProperty,
+    updateAreaPropertyById,
+    types,
+    onChangeLabel,
+    subObject,
+    tOfActiveType,
+    onSubmitAutoGenerate,
+    loadingAutoGenerate,
+    onClickToggleVirutalBlocks,
+    showVB,
+    compositeBlocks,
+    compositeBlocksTypes,
+    onChangeCompositeBlocks,
+    processCompositeBlock,
+    onSubmitCompositeBlocks,
+    loadingSubmitCompositeBlocks,
+    DeleteCompositeBlocks,
+    highlight,
+    setHighlight,
+    chapterId,
+    pages,
+    setActivePageIndex,
+    changePageById,
+    getBlockFromBlockId,
+    hightBlock,
+  });
 
   const [activeLeftTab, setActiveLeftTab] = React.useState(LEFT_COLUMNS[0]);
   const [activeRightTab, setActiveRightTab] = React.useState(RIGHT_COLUMNS[0]);
@@ -766,7 +657,7 @@ const Studio = (props) => {
         onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
         onImageLoad={onImageLoad}
         pages={pages}
-        onClickImage={onClickImage}
+        onClickImage={changePageByIndex}
       />
       <LanguageSwitcher language={language} setLanguage={setLanguage} />
       <div className={styles.studio}>
@@ -798,13 +689,14 @@ const Studio = (props) => {
           }
           showVB={showVB}
           onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
-          onClickImage={onClickImage}
+          onClickImage={changePageByIndex}
           activeRightTab={activeRightTab}
           compositeBlocksTypes={compositeBlocksTypes}
           compositeBlocks={compositeBlocks}
           setCompositeBlocks={setCompositeBlocks}
           highlight={highlight}
           setHighlight={setHighlight}
+          highlightedBlockId={highlightedBlockId}
         />
         <BookColumn
           COLUMNS={RIGHT_COLUMNS}
