@@ -7,22 +7,52 @@
  * Left column tab names
  */
 export const LEFT_TAB_NAMES = {
-  THUMBNAILS: "Thumbnails",
-  RECALLS: "Recalls",
-  MICRO_LEARNING: "Micro Learning",
-  ENRICHING_CONTENT: "Enriching Content",
-  CHECK_YOURSELF: "Check Yourself",
+  THUMBNAILS: {
+    label: "Thumbnails",
+    name: "thumbnails",
+  },
+  RECALLS: {
+    label: "Recalls",
+    name: "recalls",
+  },
+  MICRO_LEARNING: {
+    label: "Micro Learning",
+    name: "micro-los",
+  },
+  ENRICHING_CONTENT: {
+    label: "Enriching Content",
+    name: "enriching-contents",
+  },
+  CHECK_YOURSELF: {
+    label: "Check Yourself",
+    name: "exercises",
+  },
 };
 
 /**
  * Right column tab names
  */
 export const RIGHT_TAB_NAMES = {
-  BLOCK_AUTHORING: "Block Authoring",
-  COMPOSITE_BLOCKS: "Composite Blocks",
-  TABLE_OF_CONTENTS: "Table Of Contents",
-  GLOSSARY_KEYWORDS: "Glossary & keywords",
-  ILLUSTRATIVE_INTERACTIONS: "Illustrative Interactions",
+  BLOCK_AUTHORING: {
+    label: "Block Authoring",
+    name: "block-authoring",
+  },
+  COMPOSITE_BLOCKS: {
+    label: "Composite Blocks",
+    name: "composite-blocks",
+  },
+  TABLE_OF_CONTENTS: {
+    label: "Table of Contents",
+    name: "table-of-contents",
+  },
+  GLOSSARY_KEYWORDS: {
+    label: "Glossary & Keywords",
+    name: "glossary",
+  },
+  ILLUSTRATIVE_INTERACTIONS: {
+    label: "Illustrative Interactions",
+    name: "illustrative-objects",
+  },
 };
 
 /**
