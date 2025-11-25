@@ -27,11 +27,8 @@ const StudioAreaSelector = React.memo(
       compositeBlocks,
       setCompositeBlocks,
       highlight,
+      highlightedBlockId,
     } = props;
-
-    // Infinite loop breaker - track render count (must be before early return)
-    const renderCount = React.useRef(0);
-    const renderTimestamp = React.useRef(Date.now());
 
     const onClickExistedArea = useCallback(
       (areaProps) => {
@@ -55,7 +52,8 @@ const StudioAreaSelector = React.memo(
               onClick={() => onClickExistedArea(areaProps)}
             >
               <div className={styles.type}>
-                {areasProperties[activePage]?.[areaProps.areaNumber - 1]?.type} -
+                {areasProperties[activePage]?.[areaProps.areaNumber - 1]?.type}{" "}
+                -
                 {areasProperties[activePage]?.[areaProps.areaNumber - 1]?.label}
               </div>
             </div>
@@ -104,9 +102,6 @@ const StudioAreaSelector = React.memo(
             ],
           }));
         }
-
-        console.log("area= ", areasProperties[activePage][idx]);
-        console.log("list= ", list);
       },
       [
         areasProperties,
@@ -150,27 +145,20 @@ const StudioAreaSelector = React.memo(
       const prevProps = prevPropsRef.current;
       const changedProps = {};
 
-      Object.keys(props).forEach(key => {
+      Object.keys(props).forEach((key) => {
         if (props[key] !== prevProps[key]) {
           changedProps[key] = {
             old: prevProps[key],
             new: props[key],
-            changed: true
+            changed: true,
           };
         }
       });
 
-      if (Object.keys(changedProps).length > 0) {
-        console.log('[StudioAreaSelector] Props that changed:', changedProps);
-      }
-
       prevPropsRef.current = props;
     });
 
-    console.log(`[StudioAreaSelector] Render #${renderCount.current}, activeRightTab=`, activeRightTab.label);
-
     const renderedAreas = useMemo(() => {
-      console.log("areas[activePage]=", areas[activePage]);
       return activeRightTab.label === "Composite Blocks"
         ? compositeBlocks.areas
         : areas[activePage];
@@ -192,23 +180,6 @@ const StudioAreaSelector = React.memo(
       []
     );
 
-    // Check for infinite loop AFTER all hooks are called
-    renderCount.current++;
-    const now = Date.now();
-    const timeSinceStart = now - renderTimestamp.current;
-
-    // If more than 50 renders in 1 second, something's wrong
-    if (renderCount.current > 50 && timeSinceStart < 1000) {
-      console.error('INFINITE LOOP DETECTED! Stopping renders.');
-      return <div style={{padding: '20px', color: 'red', fontSize: '18px'}}>Error: Infinite loop detected. Check console for details.</div>;
-    }
-
-    // Reset counter every second
-    if (timeSinceStart > 1000) {
-      renderCount.current = 0;
-      renderTimestamp.current = now;
-    }
-
     return (
       <VirtualBlocks
         className={clsx(
@@ -222,7 +193,10 @@ const StudioAreaSelector = React.memo(
       >
         <div
           className={styles.block}
-          css={constructBoxColors(areasProperties[activePage])}
+          css={constructBoxColors(
+            areasProperties[activePage],
+            highlightedBlockId
+          )}
         >
           {highlight === "hand" ? (
             <div style={{ position: "relative" }}>
@@ -242,7 +216,8 @@ const StudioAreaSelector = React.memo(
               />
             </div>
           ) : activeRightTab.label === RIGHT_TAB_NAMES.BLOCK_AUTHORING ||
-            activeRightTab.label === RIGHT_TAB_NAMES.COMPOSITE_BLOCKS ? (
+            activeRightTab.label === RIGHT_TAB_NAMES.COMPOSITE_BLOCKS ||
+            activeRightTab.label === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS ? (
             <AreaSelector
               areas={renderedAreas}
               onChange={onChangeHandler}
