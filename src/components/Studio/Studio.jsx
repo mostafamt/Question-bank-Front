@@ -370,7 +370,7 @@ const Studio = (props) => {
   };
 
   const onChangeHandler = (areasParam) => {
-    if (activeRightTab.label === RIGHT_TAB_NAMES.COMPOSITE_BLOCKS) {
+    if (activeRightTab.label === RIGHT_TAB_NAMES.COMPOSITE_BLOCKS.label) {
       const compositeBlocksWithPropsAreas = addPropsToAreasForCompositeBlocks(
         compositeBlocks,
         areasParam
@@ -689,7 +689,7 @@ const Studio = (props) => {
   const LEFT_COLUMNS = [
     {
       id: uuidv4(),
-      label: LEFT_TAB_NAMES.THUMBNAILS,
+      label: LEFT_TAB_NAMES.THUMBNAILS.label,
       component: (
         <StudioThumbnails
           pages={pages}
@@ -701,33 +701,39 @@ const Studio = (props) => {
     },
     {
       id: uuidv4(),
-      label: LEFT_TAB_NAMES.RECALLS,
+      label: LEFT_TAB_NAMES.RECALLS.label,
       component: (
-        <List chapterId={chapterId} tabName={LEFT_TAB_NAMES.RECALLS} />
+        <List chapterId={chapterId} tab={LEFT_TAB_NAMES.RECALLS} />
       ),
     },
     {
       id: uuidv4(),
-      label: LEFT_TAB_NAMES.MICRO_LEARNING,
-      component: (
-        <List chapterId={chapterId} tabName={LEFT_TAB_NAMES.MICRO_LEARNING} />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: LEFT_TAB_NAMES.ENRICHING_CONTENT,
+      label: LEFT_TAB_NAMES.MICRO_LEARNING.label,
       component: (
         <List
           chapterId={chapterId}
-          tabName={LEFT_TAB_NAMES.ENRICHING_CONTENT}
+          tab={LEFT_TAB_NAMES.MICRO_LEARNING}
         />
       ),
     },
     {
       id: uuidv4(),
-      label: LEFT_TAB_NAMES.CHECK_YOURSELF,
+      label: LEFT_TAB_NAMES.ENRICHING_CONTENT.label,
       component: (
-        <List chapterId={chapterId} tabName={LEFT_TAB_NAMES.CHECK_YOURSELF} />
+        <List
+          chapterId={chapterId}
+          tab={LEFT_TAB_NAMES.ENRICHING_CONTENT}
+        />
+      ),
+    },
+    {
+      id: uuidv4(),
+      label: LEFT_TAB_NAMES.CHECK_YOURSELF.label,
+      component: (
+        <List
+          chapterId={chapterId}
+          tab={LEFT_TAB_NAMES.CHECK_YOURSELF}
+        />
       ),
     },
   ];
@@ -758,12 +764,12 @@ const Studio = (props) => {
   let RIGHT_COLUMNS = [
     {
       id: uuidv4(),
-      label: RIGHT_TAB_NAMES.BLOCK_AUTHORING,
+      label: RIGHT_TAB_NAMES.BLOCK_AUTHORING.label,
       component: StudioActionsComponent,
     },
     {
       id: uuidv4(),
-      label: RIGHT_TAB_NAMES.COMPOSITE_BLOCKS,
+      label: RIGHT_TAB_NAMES.COMPOSITE_BLOCKS.label,
       component: (
         <StudioCompositeBlocks
           compositeBlocks={compositeBlocks}
@@ -780,7 +786,7 @@ const Studio = (props) => {
     },
     {
       id: uuidv4(),
-      label: RIGHT_TAB_NAMES.TABLE_OF_CONTENTS,
+      label: RIGHT_TAB_NAMES.TABLE_OF_CONTENTS.label,
       component: (
         <TableOfContents
           pages={pages}
@@ -797,16 +803,18 @@ const Studio = (props) => {
     },
     {
       id: uuidv4(),
-      label: RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS,
-      component: <GlossaryAndKeywords chapterId={chapterId} />,
+      label: RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.label,
+      component: (
+        <List chapterId={chapterId} tab={RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS} />
+      ),
     },
     {
       id: uuidv4(),
-      label: RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS,
+      label: RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS.label,
       component: (
         <List
           chapterId={chapterId}
-          tabName={RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS}
+          tab={RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS}
         />
       ),
     },

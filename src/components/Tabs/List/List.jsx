@@ -8,25 +8,21 @@ import ListItem from "../ListItem/ListItem";
 import { useForm } from "react-hook-form";
 
 import styles from "./list.module.scss";
-
-const tabsMapping = {
-  Recalls: "recalls",
-  "Micro Learning": "micro-los",
-  "Enriching Content": "enriching-contents",
-  "Check Yourself": "exercises",
-  "Illustrative Interactions": "illustrative-objects",
-};
+import { RIGHT_TAB_NAMES } from "../../Studio/constants";
+import GlossaryListItem from "../GlossaryListItem/GlossaryListItem";
 
 const List = (props) => {
-  const { tabName, chapterId, reader } = props;
+  const { tab, chapterId, reader } = props;
 
   const { openModal, setFormState } = useStore();
+
+  const [open, setOpen] = React.useState([]);
 
   const { handleSubmit } = useForm();
 
   const { data: tabObjects, isFetching } = useQuery({
-    queryKey: [`tab-objects-${tabName}`],
-    queryFn: () => getTabObjects(chapterId, tabsMapping[tabName]),
+    queryKey: [`tab-objects-${tab.name}`],
+    queryFn: () => getTabObjects(chapterId, tab.name),
     refetchOnWindowFocus: false,
   });
 
@@ -35,29 +31,41 @@ const List = (props) => {
   console.log("tabObjects= ", tabObjects);
 
   const mutation = useMutation({
-    mutationFn: (bodyData) =>
-      updateTabObjects(chapterId, tabsMapping[tabName], bodyData),
+    mutationFn: (bodyData) => updateTabObjects(chapterId, tab.name, bodyData),
   });
 
   React.useEffect(() => {
     setFormState((prevState) => ({
       ...prevState,
-      activeTab: tabName,
+      activeTab: tab.name,
     }));
   }, []);
+
+  React.useEffect(() => {
+    setOpen(Array(tabObjects?.length).fill(false));
+  }, [tabObjects]);
 
   React.useEffect(() => {
     if (!tabObjects) return;
 
     setObjects(tabObjects);
-  }, [tabObjects, tabName, setObjects]);
+  }, [tabObjects, tab, setObjects]);
 
   const onClickPlus = () => {
     openModal("tabs", {
       checkedObjects: objects,
       setCheckedObjects: setObjects,
-      source: tabName,
+      source: tab.name,
     });
+  };
+
+  const handleClick = (idx) => {
+    console.log("handleClick");
+    console.log("idx= ", idx);
+    console.log("open= ", open);
+    setOpen((prevState) =>
+      prevState.map((item, id) => (id === idx ? !item : item))
+    );
   };
 
   const handlePlay = React.useCallback(
@@ -92,18 +100,32 @@ const List = (props) => {
 
   const objectsList = React.useMemo(() => {
     if (isFetching) return <CircularProgress size="1rem" />;
-    if (!objects.length) return <p>{tabName} is empty</p>;
+    if (!objects.length) return <p>{tab.label} is empty</p>;
 
-    return objects.map((item) => (
-      <ListItem
-        key={item._id}
-        item={item}
-        onPlay={() => handlePlay(item)}
-        onDelete={() => handleDelete(item._id)}
-        reader={reader}
-      />
-    ));
-  }, [objects, tabName, isFetching, handleDelete, handlePlay]);
+    if (tab.name === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.name) {
+      return objects.map((item, idx) => (
+        // item, handleClick, idx, open
+        <GlossaryListItem
+          key={item.id || idx}
+          item={item}
+          handleClick={handleClick}
+          idx={idx}
+          open={false}
+          reader={reader}
+        />
+      ));
+    } else {
+      return objects.map((item) => (
+        <ListItem
+          key={item._id}
+          item={item}
+          onPlay={() => handlePlay(item)}
+          onDelete={() => handleDelete(item._id)}
+          reader={reader}
+        />
+      ));
+    }
+  }, [objects, tab, isFetching, handleDelete, handlePlay]);
 
   return (
     <form
