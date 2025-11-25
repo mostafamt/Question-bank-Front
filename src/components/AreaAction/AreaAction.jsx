@@ -80,6 +80,7 @@ const AreaAction = (props) => {
       title={area.label}
       handleToggle={handleToggle}
       isOpen={area.open}
+      area={area}
     >
       <AreaActionHeader
         parameter={parameter}
