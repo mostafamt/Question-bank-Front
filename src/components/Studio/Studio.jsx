@@ -44,8 +44,14 @@ import StudioStickyToolbar from "./StudioStickyToolbar/StudioStickyToolbar";
 import BookColumn from "../Book/BookColumn/BookColumn";
 import { saveCompositeBlocks } from "../../services/api";
 import { useStore } from "../../store/store";
+import { v4 as uuidv4 } from "uuid";
+import StudioActions from "./StudioActions/StudioActions";
 
 import styles from "./studio.module.scss";
+import StudioCompositeBlocks from "./StudioCompositeBlocks/StudioCompositeBlocks";
+import TableOfContents from "../Book/TableOfContents/TableOfContents";
+import List from "../Tabs/List/List";
+import GlossaryAndKeywords from "../Tabs/GlossaryAndKeywords/GlossaryAndKeywords";
 
 const Studio = (props) => {
   const {
@@ -629,12 +635,12 @@ const Studio = (props) => {
   let RIGHT_COLUMNS = [
     {
       id: uuidv4(),
-      label: RIGHT_TAB_NAMES.BLOCK_AUTHORING,
+      label: RIGHT_TAB_NAMES.BLOCK_AUTHORING.label,
       component: StudioActionsComponent,
     },
     {
       id: uuidv4(),
-      label: RIGHT_TAB_NAMES.COMPOSITE_BLOCKS,
+      label: RIGHT_TAB_NAMES.COMPOSITE_BLOCKS.label,
       component: (
         <StudioCompositeBlocks
           compositeBlocks={compositeBlocks}
@@ -651,7 +657,7 @@ const Studio = (props) => {
     },
     {
       id: uuidv4(),
-      label: RIGHT_TAB_NAMES.TABLE_OF_CONTENTS,
+      label: RIGHT_TAB_NAMES.TABLE_OF_CONTENTS.label,
       component: (
         <TableOfContents
           pages={pages}
@@ -668,16 +674,16 @@ const Studio = (props) => {
     },
     {
       id: uuidv4(),
-      label: RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS,
+      label: RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.label,
       component: <GlossaryAndKeywords chapterId={chapterId} />,
     },
     {
       id: uuidv4(),
-      label: RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS,
+      label: RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS.label,
       component: (
         <List
           chapterId={chapterId}
-          tabName={RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS}
+          tab={RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS}
         />
       ),
     },

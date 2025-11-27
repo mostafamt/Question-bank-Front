@@ -22,11 +22,11 @@ import styles from "./bookTabsLayout.module.scss";
 import List from "../../components/Tabs/List/List";
 import GlossaryAndKeywords from "../../components/Tabs/GlossaryAndKeywords/GlossaryAndKeywords";
 
-const RECALLS = "Recalls";
-const MICRO_LEARNING = "Micro Learning";
-const ENRICHING_CONTENT = "Enriching Content";
-const CHECK_YOURSELF = "Check Yourself";
-const ILLUSTRATIVE_INTERACTIONS = "Illustrative Interactions";
+const RECALLS = { label: "Recalls", name: "recalls" };
+const MICRO_LEARNING = { label: "Micro Learning", name: "micro-los" };
+const ENRICHING_CONTENT = { label: "Enriching Content", name: "enriching-contents" };
+const CHECK_YOURSELF = { label: "Check Yourself", name: "exercises" };
+const ILLUSTRATIVE_INTERACTIONS = { label: "Illustrative Interactions", name: "illustrative-objects" };
 
 const BookTabsLayout = React.forwardRef((props, ref) => {
   const {
@@ -115,7 +115,7 @@ const BookTabsLayout = React.forwardRef((props, ref) => {
       component: (
         <List
           chapterId={chapterId}
-          tabName={RECALLS}
+          tab={RECALLS}
           reader
           changePageById={changePageById}
           navigateToBlock={navigateToBlock}
@@ -129,7 +129,7 @@ const BookTabsLayout = React.forwardRef((props, ref) => {
       component: (
         <List
           chapterId={chapterId}
-          tabName={MICRO_LEARNING}
+          tab={MICRO_LEARNING}
           reader
           changePageById={changePageById}
           navigateToBlock={navigateToBlock}
@@ -143,7 +143,7 @@ const BookTabsLayout = React.forwardRef((props, ref) => {
       component: (
         <List
           chapterId={chapterId}
-          tabName={ENRICHING_CONTENT}
+          tab={ENRICHING_CONTENT}
           reader
           changePageById={changePageById}
           navigateToBlock={navigateToBlock}
@@ -185,7 +185,7 @@ const BookTabsLayout = React.forwardRef((props, ref) => {
       component: (
         <List
           chapterId={chapterId}
-          tabName={ILLUSTRATIVE_INTERACTIONS}
+          tab={ILLUSTRATIVE_INTERACTIONS}
           reader
           changePageById={changePageById}
           navigateToBlock={navigateToBlock}
@@ -199,7 +199,7 @@ const BookTabsLayout = React.forwardRef((props, ref) => {
       component: (
         <List
           chapterId={chapterId}
-          tabName={CHECK_YOURSELF}
+          tab={CHECK_YOURSELF}
           reader
           changePageById={changePageById}
           navigateToBlock={navigateToBlock}

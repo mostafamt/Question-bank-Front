@@ -215,11 +215,11 @@ const StudioAreaSelector = React.memo(
                 onLoad={onImageLoad}
               />
             </div>
-          ) : activeRightTab.label === RIGHT_TAB_NAMES.BLOCK_AUTHORING ||
-            activeRightTab.label === RIGHT_TAB_NAMES.COMPOSITE_BLOCKS ||
-            activeRightTab.label === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS ||
+          ) : activeRightTab.label === RIGHT_TAB_NAMES.BLOCK_AUTHORING.label ||
+            activeRightTab.label === RIGHT_TAB_NAMES.COMPOSITE_BLOCKS.label ||
+            activeRightTab.label === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.label ||
             activeRightTab.label ===
-              RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS ? (
+              RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS.label ? (
             <AreaSelector
               areas={renderedAreas}
               onChange={onChangeHandler}
