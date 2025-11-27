@@ -1,32 +1,12 @@
 import React from "react";
-import BookThumnails from "../../components/Book/BookThumnails/BookThumnails";
-import {
-  changePage,
-  getColumn,
-  getColumnsByPosition,
-  INITIAL_PAGE,
-  INITIAL_PAGE_INDEX,
-  PAGES,
-  toggleColumn,
-  LEFT_POSITION,
-  ALL_COLUMNS,
-  RIGHT_POSITION,
-} from "../../utils/book";
-
-import { v4 as uuidv4 } from "uuid";
-import TableOfContents from "../../components/Book/TableOfContents/TableOfContents";
 import BookColumns2 from "../../components/Book/BookColumn2/BookColumn2";
 import { getNavigationDelay } from "../../config/highlighting";
+import {
+  buildReaderLeftColumns,
+  buildReaderRightColumns,
+} from "../../components/Studio/columns";
 
 import styles from "./bookTabsLayout.module.scss";
-import List from "../../components/Tabs/List/List";
-import GlossaryAndKeywords from "../../components/Tabs/GlossaryAndKeywords/GlossaryAndKeywords";
-
-const RECALLS = { label: "Recalls", name: "recalls" };
-const MICRO_LEARNING = { label: "Micro Learning", name: "micro-los" };
-const ENRICHING_CONTENT = { label: "Enriching Content", name: "enriching-contents" };
-const CHECK_YOURSELF = { label: "Check Yourself", name: "exercises" };
-const ILLUSTRATIVE_INTERACTIONS = { label: "Illustrative Interactions", name: "illustrative-objects" };
 
 const BookTabsLayout = React.forwardRef((props, ref) => {
   const {
@@ -39,19 +19,6 @@ const BookTabsLayout = React.forwardRef((props, ref) => {
     getBlockFromBlockId,
     hightBlock,
   } = props;
-
-  const [modalState, setModalState] = React.useState({
-    open: false,
-    source: null,
-  });
-
-  const openModal = (source = null) => {
-    console.log("source= ", source);
-    setModalState({
-      open: true,
-      source: source,
-    });
-  };
 
   // Navigation function to change page by ID
   const changePageById = React.useCallback(
@@ -93,120 +60,26 @@ const BookTabsLayout = React.forwardRef((props, ref) => {
     [changePageById, hightBlock]
   );
 
-  const LEFT_COLUMNS = [
-    {
-      id: uuidv4(),
-      label: "Thumbnails",
-      position: LEFT_POSITION,
-      component: (
-        <BookThumnails
-          pages={newPages}
-          activePage={activePage}
-          setActivePage={setActivePage}
-          onChangeActivePage={onChangeActivePage}
-          ref={ref}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: "Recalls",
-      position: LEFT_POSITION,
-      component: (
-        <List
-          chapterId={chapterId}
-          tab={RECALLS}
-          reader
-          changePageById={changePageById}
-          navigateToBlock={navigateToBlock}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: "Micro Learning",
-      position: LEFT_POSITION,
-      component: (
-        <List
-          chapterId={chapterId}
-          tab={MICRO_LEARNING}
-          reader
-          changePageById={changePageById}
-          navigateToBlock={navigateToBlock}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: "Enriching Contents",
-      position: LEFT_POSITION,
-      component: (
-        <List
-          chapterId={chapterId}
-          tab={ENRICHING_CONTENT}
-          reader
-          changePageById={changePageById}
-          navigateToBlock={navigateToBlock}
-        />
-      ),
-    },
-  ];
+  // Build columns using centralized reader builders
+  const LEFT_COLUMNS = buildReaderLeftColumns({
+    pages: newPages,
+    activePage,
+    setActivePage,
+    onChangeActivePage,
+    changePageById,
+    navigateToBlock,
+    chapterId,
+    thumbnailsRef: ref,
+  });
 
-  const RIGHT_COLUMNS = [
-    {
-      id: uuidv4(),
-      label: "Table Of Contents",
-      position: LEFT_POSITION,
-      component: (
-        <TableOfContents
-          pages={newPages}
-          setActivePage={setActivePage}
-          chapterId={chapterId}
-          onChangeActivePage={onChangeActivePage}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: "Glossary & keywords",
-      position: LEFT_POSITION,
-      component: (
-        <GlossaryAndKeywords
-          chapterId={chapterId}
-          changePageById={changePageById}
-          navigateToBlock={navigateToBlock}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: "Illustrative Interactions",
-      position: LEFT_POSITION,
-      component: (
-        <List
-          chapterId={chapterId}
-          tab={ILLUSTRATIVE_INTERACTIONS}
-          reader
-          changePageById={changePageById}
-          navigateToBlock={navigateToBlock}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: "Check Yourself",
-      position: LEFT_POSITION,
-      component: (
-        <List
-          chapterId={chapterId}
-          tab={CHECK_YOURSELF}
-          reader
-          changePageById={changePageById}
-          navigateToBlock={navigateToBlock}
-        />
-      ),
-    },
-  ];
+  const RIGHT_COLUMNS = buildReaderRightColumns({
+    pages: newPages,
+    setActivePage,
+    onChangeActivePage,
+    changePageById,
+    navigateToBlock,
+    chapterId,
+  });
 
   return (
     <div className={styles["book-content-layout"]}>

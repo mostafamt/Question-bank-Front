@@ -1,10 +1,11 @@
 import React from "react";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import DeleteIcon from "@mui/icons-material/Delete";
-import StraightIcon from "@mui/icons-material/Straight";
 import NorthIcon from "@mui/icons-material/North";
 import SouthIcon from "@mui/icons-material/South";
 import { IconButton } from "@mui/material";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
 import styles from "./listItem.module.scss";
 
@@ -44,14 +45,14 @@ const ListItem = ({ item, onPlay, onDelete, onMoveUp, onMoveDown, reader }) => {
             disabled={!hasReferences}
             sx={{ opacity: hasReferences ? 1 : 0.3 }}
           >
-            <NorthIcon />
+            <KeyboardArrowUpIcon />
           </IconButton>
           <IconButton
             onClick={onClickDown}
             disabled={!hasReferences}
             sx={{ opacity: hasReferences ? 1 : 0.3 }}
           >
-            <SouthIcon />
+            <KeyboardArrowDownIcon />
           </IconButton>
         </span>
       )}
