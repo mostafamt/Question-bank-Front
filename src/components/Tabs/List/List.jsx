@@ -202,7 +202,18 @@ const List = (props) => {
         />
       ));
     }
-  }, [objects, tab, isFetching, open, handleClick, handleDelete, handleEdit, handlePlay, handleMoveUp, handleMoveDown]);
+  }, [
+    objects,
+    tab,
+    isFetching,
+    open,
+    handleClick,
+    handleDelete,
+    handleEdit,
+    handlePlay,
+    handleMoveUp,
+    handleMoveDown,
+  ]);
 
   return (
     <form
@@ -211,8 +222,8 @@ const List = (props) => {
     >
       {!reader && (
         <div>
-          <IconButton onClick={onClickPlus} color="primary">
-            <AddIcon color="primary" />
+          <IconButton onClick={onClickPlus} color="primary" size="large">
+            <AddIcon color="primary" fontSize="large" />
           </IconButton>
         </div>
       )}
