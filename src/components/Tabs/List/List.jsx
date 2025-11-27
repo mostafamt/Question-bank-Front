@@ -52,11 +52,28 @@ const List = (props) => {
   }, [tabObjects, tab, setObjects]);
 
   const onClickPlus = () => {
-    openModal("tabs", {
-      checkedObjects: objects,
-      setCheckedObjects: setObjects,
-      source: tab.name,
-    });
+    if (tab.name === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.name) {
+      // Open glossary modal for adding new term
+      openModal("glossary", {
+        title: "Add Glossary Term",
+        onSubmit: (term, definition) => {
+          // Add the new glossary item to the list
+          const newItem = {
+            _id: Date.now().toString(), // Temporary ID
+            term,
+            definition,
+            references: [],
+          };
+          setObjects((prevState) => [...prevState, newItem]);
+        },
+      });
+    } else {
+      openModal("tabs", {
+        checkedObjects: objects,
+        setCheckedObjects: setObjects,
+        source: tab.name,
+      });
+    }
   };
 
   const handleClick = (idx) => {
@@ -88,6 +105,25 @@ const List = (props) => {
       setObjects((prevState) => prevState.filter((item) => item._id !== id));
     },
     [setObjects]
+  );
+
+  const handleEdit = React.useCallback(
+    (item) => {
+      openModal("glossary", {
+        term: item.term,
+        definition: item.definition,
+        title: "Edit Glossary Term",
+        onSubmit: (term, definition) => {
+          // Update the item in the list
+          setObjects((prevState) =>
+            prevState.map((obj) =>
+              obj._id === item._id ? { ...obj, term, definition } : obj
+            )
+          );
+        },
+      });
+    },
+    [openModal, setObjects]
   );
 
   const handleMoveUp = React.useCallback(
@@ -141,13 +177,17 @@ const List = (props) => {
 
     if (tab.name === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.name) {
       return objects.map((item, idx) => (
-        // item, handleClick, idx, open
         <GlossaryListItem
           key={item.id || idx}
           item={item}
           handleClick={handleClick}
           idx={idx}
-          open={false}
+          open={open}
+          onPlay={() => handlePlay(item)}
+          onEdit={() => handleEdit(item)}
+          onDelete={() => handleDelete(item._id)}
+          onMoveUp={() => handleMoveUp(item)}
+          onMoveDown={() => handleMoveDown(item)}
           reader={reader}
         />
       ));
@@ -162,7 +202,7 @@ const List = (props) => {
         />
       ));
     }
-  }, [objects, tab, isFetching, handleDelete, handlePlay]);
+  }, [objects, tab, isFetching, open, handleClick, handleDelete, handleEdit, handlePlay, handleMoveUp, handleMoveDown]);
 
   return (
     <form
