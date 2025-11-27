@@ -598,6 +598,9 @@ const Studio = (props) => {
     activePageIndex,
     changePageByIndex,
     thumbnailsRef,
+    changePageById,
+    getBlockFromBlockId,
+    hightBlock,
   });
 
   const RIGHT_COLUMNS = buildRightColumns({

@@ -17,8 +17,14 @@ import { useStore } from "../../store/store";
 import styles from "./studyBook.module.scss";
 
 const StudyBook = (props) => {
-  const { pages, activePage, setActivePage, newPages, onChangeActivePage } =
-    props;
+  const {
+    pages,
+    activePage,
+    setActivePage,
+    newPages,
+    onChangeActivePage,
+    highlightedBlockId,
+  } = props;
   const [activeBlock, setActiveBlock] = React.useState({});
   const { openModal } = useStore();
 
@@ -54,6 +60,7 @@ const StudyBook = (props) => {
         onClickArea={onClickArea}
         newPages={pages}
         onChangeActivePage={onChangeActivePage}
+        highlightedBlockId={highlightedBlockId}
       />
     </>
   );

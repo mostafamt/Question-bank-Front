@@ -24,7 +24,13 @@ const GlossaryAndKeywords = (props) => {
     );
   };
 
-  const { chapterId, changePageById, getBlockFromBlockId, hightBlock } = props;
+  const {
+    chapterId,
+    changePageById,
+    getBlockFromBlockId,
+    hightBlock,
+    navigateToBlock,
+  } = props;
 
   const { data: tabObjects, isFetching } = useQuery({
     queryKey: ["tab-objects-glossary"],
@@ -40,18 +46,42 @@ const GlossaryAndKeywords = (props) => {
 
   const onClickUp = (event, references) => {
     event.stopPropagation();
-    const { pageId, blockId } = references?.[0];
-    changePageById(pageId);
-    const blockDetails = getBlockFromBlockId(blockId);
-    hightBlock(blockId);
+    if (!references?.length) {
+      console.warn("No references available");
+      return;
+    }
+
+    const { pageId, blockId } = references[0];
+
+    if (navigateToBlock) {
+      // Use new unified navigation function
+      navigateToBlock(pageId, blockId);
+    } else {
+      // Fallback to original implementation (for Studio context)
+      changePageById?.(pageId);
+      const blockDetails = getBlockFromBlockId?.(blockId);
+      hightBlock?.(blockId);
+    }
   };
 
   const onClickDown = (event, references) => {
     event.stopPropagation();
-    const { pageId, blockId } = references?.[0];
-    changePageById(pageId);
-    const blockDetails = getBlockFromBlockId(blockId);
-    hightBlock(blockId);
+    if (!references?.length) {
+      console.warn("No references available");
+      return;
+    }
+
+    const { pageId, blockId } = references[0];
+
+    if (navigateToBlock) {
+      // Use new unified navigation function
+      navigateToBlock(pageId, blockId);
+    } else {
+      // Fallback to original implementation (for Studio context)
+      changePageById?.(pageId);
+      const blockDetails = getBlockFromBlockId?.(blockId);
+      hightBlock?.(blockId);
+    }
   };
 
   return (

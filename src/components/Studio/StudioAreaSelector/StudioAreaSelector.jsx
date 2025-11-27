@@ -217,7 +217,9 @@ const StudioAreaSelector = React.memo(
             </div>
           ) : activeRightTab.label === RIGHT_TAB_NAMES.BLOCK_AUTHORING ||
             activeRightTab.label === RIGHT_TAB_NAMES.COMPOSITE_BLOCKS ||
-            activeRightTab.label === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS ? (
+            activeRightTab.label === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS ||
+            activeRightTab.label ===
+              RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS ? (
             <AreaSelector
               areas={renderedAreas}
               onChange={onChangeHandler}

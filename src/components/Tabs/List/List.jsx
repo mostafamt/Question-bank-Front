@@ -18,7 +18,7 @@ const tabsMapping = {
 };
 
 const List = (props) => {
-  const { tabName, chapterId, reader } = props;
+  const { tabName, chapterId, reader, changePageById, navigateToBlock } = props;
 
   const { openModal, setFormState } = useStore();
 
@@ -82,6 +82,43 @@ const List = (props) => {
     [setObjects]
   );
 
+  const handleMoveUp = React.useCallback(
+    (item) => {
+      if (!item?.references?.length) {
+        console.warn("Item has no references:", item);
+        return;
+      }
+
+      const { pageId, blockId } = item.references[0];
+
+      if (navigateToBlock) {
+        navigateToBlock(pageId, blockId);
+      } else if (changePageById) {
+        changePageById(pageId);
+      }
+    },
+    [navigateToBlock, changePageById]
+  );
+
+  const handleMoveDown = React.useCallback(
+    (item) => {
+      if (!item?.references?.length) {
+        console.warn("Item has no references:", item);
+        return;
+      }
+
+      // Navigate to first reference (same as handleMoveUp for now)
+      const { pageId, blockId } = item.references[0];
+
+      if (navigateToBlock) {
+        navigateToBlock(pageId, blockId);
+      } else if (changePageById) {
+        changePageById(pageId);
+      }
+    },
+    [navigateToBlock, changePageById]
+  );
+
   const onSubmitHandler = async () => {
     const ids = {
       ids: objects.map((item) => item._id),
@@ -100,10 +137,12 @@ const List = (props) => {
         item={item}
         onPlay={() => handlePlay(item)}
         onDelete={() => handleDelete(item._id)}
+        onMoveUp={() => handleMoveUp(item)}
+        onMoveDown={() => handleMoveDown(item)}
         reader={reader}
       />
     ));
-  }, [objects, tabName, isFetching, handleDelete, handlePlay]);
+  }, [objects, tabName, isFetching, handleDelete, handlePlay, handleMoveUp, handleMoveDown]);
 
   return (
     <form
