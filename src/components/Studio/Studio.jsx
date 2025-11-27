@@ -44,14 +44,8 @@ import StudioStickyToolbar from "./StudioStickyToolbar/StudioStickyToolbar";
 import BookColumn from "../Book/BookColumn/BookColumn";
 import { saveCompositeBlocks } from "../../services/api";
 import { useStore } from "../../store/store";
-import { v4 as uuidv4 } from "uuid";
-import StudioActions from "./StudioActions/StudioActions";
 
 import styles from "./studio.module.scss";
-import StudioCompositeBlocks from "./StudioCompositeBlocks/StudioCompositeBlocks";
-import TableOfContents from "../Book/TableOfContents/TableOfContents";
-import List from "../Tabs/List/List";
-import GlossaryAndKeywords from "../Tabs/GlossaryAndKeywords/GlossaryAndKeywords";
 
 const Studio = (props) => {
   const {
@@ -609,85 +603,42 @@ const Studio = (props) => {
     hightBlock,
   });
 
-  const StudioActionsComponent = (
-    <StudioActions
-      areasProperties={areasProperties}
-      setAreasProperties={setAreasProperties}
-      activePage={activePageIndex}
-      onEditText={onEditText}
-      onClickDeleteArea={onClickDeleteArea}
-      type={type}
-      onClickSubmit={onClickSubmit}
-      loadingSubmit={loadingSubmit}
-      updateAreaProperty={updateAreaProperty}
-      updateAreaPropertyById={updateAreaPropertyById}
-      types={types}
-      onChangeLabel={onChangeLabel}
-      subObject={subObject}
-      tOfActiveType={tOfActiveType}
-      onSubmitAutoGenerate={onSubmitAutoGenerate}
-      loadingAutoGenerate={loadingAutoGenerate}
-      onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
-      showVB={showVB}
-    />
-  );
-
-  let RIGHT_COLUMNS = [
-    {
-      id: uuidv4(),
-      label: RIGHT_TAB_NAMES.BLOCK_AUTHORING.label,
-      component: StudioActionsComponent,
-    },
-    {
-      id: uuidv4(),
-      label: RIGHT_TAB_NAMES.COMPOSITE_BLOCKS.label,
-      component: (
-        <StudioCompositeBlocks
-          compositeBlocks={compositeBlocks}
-          compositeBlocksTypes={compositeBlocksTypes}
-          onChangeCompositeBlocks={onChangeCompositeBlocks}
-          processCompositeBlock={processCompositeBlock}
-          onSubmitCompositeBlocks={onSubmitCompositeBlocks}
-          loadingSubmitCompositeBlocks={loadingSubmitCompositeBlocks}
-          DeleteCompositeBlocks={DeleteCompositeBlocks}
-          highlight={highlight}
-          setHighlight={setHighlight}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: RIGHT_TAB_NAMES.TABLE_OF_CONTENTS.label,
-      component: (
-        <TableOfContents
-          pages={pages}
-          chapterId={chapterId}
-          onChangeActivePage={(newPage) => {
-            const newIndex = pages.findIndex((p) => p._id === newPage._id);
-            if (newIndex !== -1) {
-              setActivePageIndex(newIndex);
-              localStorage.setItem(STORAGE_KEYS.AUTHOR_PAGE, `${newIndex}`);
-            }
-          }}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.label,
-      component: <GlossaryAndKeywords chapterId={chapterId} />,
-    },
-    {
-      id: uuidv4(),
-      label: RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS.label,
-      component: (
-        <List
-          chapterId={chapterId}
-          tab={RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS}
-        />
-      ),
-    },
-  ];
+  const RIGHT_COLUMNS = buildRightColumns({
+    areasProperties,
+    setAreasProperties,
+    activePageIndex,
+    onEditText,
+    onClickDeleteArea,
+    type,
+    onClickSubmit,
+    loadingSubmit,
+    updateAreaProperty,
+    updateAreaPropertyById,
+    types,
+    onChangeLabel,
+    subObject,
+    tOfActiveType,
+    onSubmitAutoGenerate,
+    loadingAutoGenerate,
+    onClickToggleVirutalBlocks,
+    showVB,
+    compositeBlocks,
+    compositeBlocksTypes,
+    onChangeCompositeBlocks,
+    processCompositeBlock,
+    onSubmitCompositeBlocks,
+    loadingSubmitCompositeBlocks,
+    DeleteCompositeBlocks,
+    highlight,
+    setHighlight,
+    chapterId,
+    pages,
+    setActivePageIndex,
+    changePageById,
+    getBlockFromBlockId,
+    hightBlock,
+    changePageByIndex,
+  });
 
   const [activeLeftTab, setActiveLeftTab] = React.useState(LEFT_COLUMNS[0]);
   const [activeRightTab, setActiveRightTab] = React.useState(RIGHT_COLUMNS[0]);

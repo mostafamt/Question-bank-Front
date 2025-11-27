@@ -123,6 +123,7 @@ export const buildRightColumns = ({
   changePageById,
   getBlockFromBlockId,
   hightBlock,
+  changePageByIndex,
 }) => {
   // Create navigation function that combines page change and highlighting
   const navigateToBlock = (pageId, blockId) => {
@@ -186,7 +187,9 @@ export const buildRightColumns = ({
           chapterId={chapterId}
           onChangeActivePage={(newPage) => {
             const newIndex = pages.findIndex((p) => p._id === newPage._id);
-            if (newIndex !== -1) setActivePageIndex(newIndex);
+            if (newIndex !== -1 && changePageByIndex) {
+              changePageByIndex(newIndex);
+            }
           }}
         />
       ),
