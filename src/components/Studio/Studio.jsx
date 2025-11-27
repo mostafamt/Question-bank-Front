@@ -276,7 +276,7 @@ const Studio = (props) => {
   };
 
   const onChangeHandler = (areasParam) => {
-    if (activeRightTab.label === RIGHT_TAB_NAMES.COMPOSITE_BLOCKS) {
+    if (activeRightTab.label === RIGHT_TAB_NAMES.COMPOSITE_BLOCKS.label) {
       const compositeBlocksWithPropsAreas = addPropsToAreasForCompositeBlocks(
         compositeBlocks,
         areasParam
@@ -603,41 +603,85 @@ const Studio = (props) => {
     hightBlock,
   });
 
-  const RIGHT_COLUMNS = buildRightColumns({
-    areasProperties,
-    setAreasProperties,
-    activePageIndex,
-    onEditText,
-    onClickDeleteArea,
-    type,
-    onClickSubmit,
-    loadingSubmit,
-    updateAreaProperty,
-    updateAreaPropertyById,
-    types,
-    onChangeLabel,
-    subObject,
-    tOfActiveType,
-    onSubmitAutoGenerate,
-    loadingAutoGenerate,
-    onClickToggleVirutalBlocks,
-    showVB,
-    compositeBlocks,
-    compositeBlocksTypes,
-    onChangeCompositeBlocks,
-    processCompositeBlock,
-    onSubmitCompositeBlocks,
-    loadingSubmitCompositeBlocks,
-    DeleteCompositeBlocks,
-    highlight,
-    setHighlight,
-    chapterId,
-    pages,
-    setActivePageIndex,
-    changePageById,
-    getBlockFromBlockId,
-    hightBlock,
-  });
+  const StudioActionsComponent = (
+    <StudioActions
+      areasProperties={areasProperties}
+      setAreasProperties={setAreasProperties}
+      activePage={activePageIndex}
+      onEditText={onEditText}
+      onClickDeleteArea={onClickDeleteArea}
+      type={type}
+      onClickSubmit={onClickSubmit}
+      loadingSubmit={loadingSubmit}
+      updateAreaProperty={updateAreaProperty}
+      updateAreaPropertyById={updateAreaPropertyById}
+      types={types}
+      onChangeLabel={onChangeLabel}
+      subObject={subObject}
+      tOfActiveType={tOfActiveType}
+      onSubmitAutoGenerate={onSubmitAutoGenerate}
+      loadingAutoGenerate={loadingAutoGenerate}
+      onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
+      showVB={showVB}
+    />
+  );
+
+  let RIGHT_COLUMNS = [
+    {
+      id: uuidv4(),
+      label: RIGHT_TAB_NAMES.BLOCK_AUTHORING,
+      component: StudioActionsComponent,
+    },
+    {
+      id: uuidv4(),
+      label: RIGHT_TAB_NAMES.COMPOSITE_BLOCKS,
+      component: (
+        <StudioCompositeBlocks
+          compositeBlocks={compositeBlocks}
+          compositeBlocksTypes={compositeBlocksTypes}
+          onChangeCompositeBlocks={onChangeCompositeBlocks}
+          processCompositeBlock={processCompositeBlock}
+          onSubmitCompositeBlocks={onSubmitCompositeBlocks}
+          loadingSubmitCompositeBlocks={loadingSubmitCompositeBlocks}
+          DeleteCompositeBlocks={DeleteCompositeBlocks}
+          highlight={highlight}
+          setHighlight={setHighlight}
+        />
+      ),
+    },
+    {
+      id: uuidv4(),
+      label: RIGHT_TAB_NAMES.TABLE_OF_CONTENTS,
+      component: (
+        <TableOfContents
+          pages={pages}
+          chapterId={chapterId}
+          onChangeActivePage={(newPage) => {
+            const newIndex = pages.findIndex((p) => p._id === newPage._id);
+            if (newIndex !== -1) {
+              setActivePageIndex(newIndex);
+              localStorage.setItem(STORAGE_KEYS.AUTHOR_PAGE, `${newIndex}`);
+            }
+          }}
+        />
+      ),
+    },
+    {
+      id: uuidv4(),
+      label: RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS,
+      component: <GlossaryAndKeywords chapterId={chapterId} />,
+    },
+    {
+      id: uuidv4(),
+      label: RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS,
+      component: (
+        <List
+          chapterId={chapterId}
+          tabName={RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS}
+        />
+      ),
+    },
+  ];
 
   const [activeLeftTab, setActiveLeftTab] = React.useState(LEFT_COLUMNS[0]);
   const [activeRightTab, setActiveRightTab] = React.useState(RIGHT_COLUMNS[0]);
