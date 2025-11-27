@@ -12,7 +12,7 @@ import { RIGHT_TAB_NAMES } from "../../Studio/constants";
 import GlossaryListItem from "../GlossaryListItem/GlossaryListItem";
 
 const List = (props) => {
-  const { tabName, chapterId, reader, changePageById, navigateToBlock } = props;
+  const { tab, chapterId, reader, changePageById, navigateToBlock } = props;
 
   const { openModal, setFormState } = useStore();
 

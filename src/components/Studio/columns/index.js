@@ -28,7 +28,7 @@ export const buildLeftColumns = ({
   return [
     {
       id: uuidv4(),
-      label: LEFT_TAB_NAMES.THUMBNAILS,
+      label: LEFT_TAB_NAMES.THUMBNAILS.label,
       component: (
         <StudioThumbnails
           pages={pages}
@@ -40,11 +40,11 @@ export const buildLeftColumns = ({
     },
     {
       id: uuidv4(),
-      label: LEFT_TAB_NAMES.RECALLS,
+      label: LEFT_TAB_NAMES.RECALLS.label,
       component: (
         <List
           chapterId={chapterId}
-          tabName={LEFT_TAB_NAMES.RECALLS}
+          tab={LEFT_TAB_NAMES.RECALLS}
           changePageById={changePageById}
           navigateToBlock={navigateToBlock}
         />
@@ -52,11 +52,11 @@ export const buildLeftColumns = ({
     },
     {
       id: uuidv4(),
-      label: LEFT_TAB_NAMES.MICRO_LEARNING,
+      label: LEFT_TAB_NAMES.MICRO_LEARNING.label,
       component: (
         <List
           chapterId={chapterId}
-          tabName={LEFT_TAB_NAMES.MICRO_LEARNING}
+          tab={LEFT_TAB_NAMES.MICRO_LEARNING}
           changePageById={changePageById}
           navigateToBlock={navigateToBlock}
         />
@@ -64,11 +64,11 @@ export const buildLeftColumns = ({
     },
     {
       id: uuidv4(),
-      label: LEFT_TAB_NAMES.ENRICHING_CONTENT,
+      label: LEFT_TAB_NAMES.ENRICHING_CONTENT.label,
       component: (
         <List
           chapterId={chapterId}
-          tabName={LEFT_TAB_NAMES.ENRICHING_CONTENT}
+          tab={LEFT_TAB_NAMES.ENRICHING_CONTENT}
           changePageById={changePageById}
           navigateToBlock={navigateToBlock}
         />
@@ -76,11 +76,11 @@ export const buildLeftColumns = ({
     },
     {
       id: uuidv4(),
-      label: LEFT_TAB_NAMES.CHECK_YOURSELF,
+      label: LEFT_TAB_NAMES.CHECK_YOURSELF.label,
       component: (
         <List
           chapterId={chapterId}
-          tabName={LEFT_TAB_NAMES.CHECK_YOURSELF}
+          tab={LEFT_TAB_NAMES.CHECK_YOURSELF}
           changePageById={changePageById}
           navigateToBlock={navigateToBlock}
         />
@@ -157,12 +157,12 @@ export const buildRightColumns = ({
   return [
     {
       id: uuidv4(),
-      label: RIGHT_TAB_NAMES.BLOCK_AUTHORING,
+      label: RIGHT_TAB_NAMES.BLOCK_AUTHORING.label,
       component: actionsComponent,
     },
     {
       id: uuidv4(),
-      label: RIGHT_TAB_NAMES.COMPOSITE_BLOCKS,
+      label: RIGHT_TAB_NAMES.COMPOSITE_BLOCKS.label,
       component: (
         <StudioCompositeBlocks
           compositeBlocks={compositeBlocks}
@@ -179,7 +179,7 @@ export const buildRightColumns = ({
     },
     {
       id: uuidv4(),
-      label: RIGHT_TAB_NAMES.TABLE_OF_CONTENTS,
+      label: RIGHT_TAB_NAMES.TABLE_OF_CONTENTS.label,
       component: (
         <TableOfContents
           pages={pages}
@@ -193,7 +193,7 @@ export const buildRightColumns = ({
     },
     {
       id: uuidv4(),
-      label: RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS,
+      label: RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.label,
       component: (
         <GlossaryAndKeywords
           chapterId={chapterId}
@@ -206,11 +206,11 @@ export const buildRightColumns = ({
     },
     {
       id: uuidv4(),
-      label: RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS,
+      label: RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS.label,
       component: (
         <List
           chapterId={chapterId}
-          tabName={RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS}
+          tab={RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS}
           changePageById={changePageById}
           navigateToBlock={navigateToBlock}
         />

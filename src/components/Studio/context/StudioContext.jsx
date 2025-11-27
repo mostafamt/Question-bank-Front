@@ -59,12 +59,12 @@ export const StudioProvider = ({ children, studioProps }) => {
   // Tab state - Initialize with label objects to prevent null errors
   const [activeLeftTab, setActiveLeftTab] = useState({
     id: 'initial',
-    label: LEFT_TAB_NAMES.THUMBNAILS,
+    label: LEFT_TAB_NAMES.THUMBNAILS.label,
     component: null,
   });
   const [activeRightTab, setActiveRightTab] = useState({
     id: 'initial',
-    label: RIGHT_TAB_NAMES.BLOCK_AUTHORING,
+    label: RIGHT_TAB_NAMES.BLOCK_AUTHORING.label,
     component: null,
   });
 
