@@ -12,6 +12,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import NorthIcon from "@mui/icons-material/North";
 import SouthIcon from "@mui/icons-material/South";
 import EditIcon from "@mui/icons-material/Edit";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
 import styles from "./glossaryListItem.module.scss";
 
@@ -97,7 +99,7 @@ const GlossaryListItem = (props) => {
                 disabled={!hasReferences}
                 sx={{ opacity: hasReferences ? 1 : 0.3 }}
               >
-                <NorthIcon fontSize="small" />
+                <KeyboardArrowUpIcon fontSize="small" />
               </IconButton>
               <IconButton
                 size="small"
@@ -105,7 +107,7 @@ const GlossaryListItem = (props) => {
                 disabled={!hasReferences}
                 sx={{ opacity: hasReferences ? 1 : 0.3 }}
               >
-                <SouthIcon fontSize="small" />
+                <KeyboardArrowDownIcon fontSize="small" />
               </IconButton>
             </Box>
           )}

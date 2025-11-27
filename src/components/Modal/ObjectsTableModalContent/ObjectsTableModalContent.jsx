@@ -29,7 +29,7 @@ const ObjectsTableModalContent = (props) => {
             sx={{ margin: "2rem 0", display: "flex", justifyContent: "center" }}
           >
             <Button variant="contained" type="submit">
-              Submit
+              Select
             </Button>
           </Box>
         </form>
