@@ -8,13 +8,25 @@ import { IconButton } from "@mui/material";
 
 import styles from "./listItem.module.scss";
 
-const ListItem = ({ item, onPlay, onDelete, reader }) => {
-  const onClickUp = () => {
-    console.log("onClickUp");
+const ListItem = ({ item, onPlay, onDelete, onMoveUp, onMoveDown, reader }) => {
+  const hasReferences = item?.references?.length > 0;
+
+  const onClickUp = (e) => {
+    e.stopPropagation();
+    if (onMoveUp) {
+      onMoveUp();
+    } else {
+      console.log("onClickUp - no handler provided");
+    }
   };
 
-  const onClickDown = () => {
-    console.log("onClickDown");
+  const onClickDown = (e) => {
+    e.stopPropagation();
+    if (onMoveDown) {
+      onMoveDown();
+    } else {
+      console.log("onClickDown - no handler provided");
+    }
   };
 
   return (
@@ -26,10 +38,18 @@ const ListItem = ({ item, onPlay, onDelete, reader }) => {
         </IconButton>
       </span>
       <span className={styles["up-down"]}>
-        <IconButton onClick={onClickUp}>
+        <IconButton
+          onClick={onClickUp}
+          disabled={!hasReferences}
+          sx={{ opacity: hasReferences ? 1 : 0.3 }}
+        >
           <NorthIcon />
         </IconButton>
-        <IconButton onClick={onClickDown}>
+        <IconButton
+          onClick={onClickDown}
+          disabled={!hasReferences}
+          sx={{ opacity: hasReferences ? 1 : 0.3 }}
+        >
           <SouthIcon />
         </IconButton>
       </span>

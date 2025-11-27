@@ -14,46 +14,80 @@ export const buildLeftColumns = ({
   activePageIndex,
   changePageByIndex,
   thumbnailsRef,
-}) => [
-  {
-    id: uuidv4(),
-    label: LEFT_TAB_NAMES.THUMBNAILS,
-    component: (
-      <StudioThumbnails
-        pages={pages}
-        activePage={activePageIndex}
-        onClickImage={changePageByIndex}
-        ref={thumbnailsRef}
-      />
-    ),
-  },
-  {
-    id: uuidv4(),
-    label: LEFT_TAB_NAMES.RECALLS,
-    component: <List chapterId={chapterId} tabName={LEFT_TAB_NAMES.RECALLS} />,
-  },
-  {
-    id: uuidv4(),
-    label: LEFT_TAB_NAMES.MICRO_LEARNING,
-    component: (
-      <List chapterId={chapterId} tabName={LEFT_TAB_NAMES.MICRO_LEARNING} />
-    ),
-  },
-  {
-    id: uuidv4(),
-    label: LEFT_TAB_NAMES.ENRICHING_CONTENT,
-    component: (
-      <List chapterId={chapterId} tabName={LEFT_TAB_NAMES.ENRICHING_CONTENT} />
-    ),
-  },
-  {
-    id: uuidv4(),
-    label: LEFT_TAB_NAMES.CHECK_YOURSELF,
-    component: (
-      <List chapterId={chapterId} tabName={LEFT_TAB_NAMES.CHECK_YOURSELF} />
-    ),
-  },
-];
+  changePageById,
+  getBlockFromBlockId,
+  hightBlock,
+}) => {
+  // Create navigation function that combines page change and highlighting
+  const navigateToBlock = (pageId, blockId) => {
+    if (changePageById) changePageById(pageId);
+    if (getBlockFromBlockId) getBlockFromBlockId(blockId);
+    if (hightBlock) hightBlock(blockId);
+  };
+
+  return [
+    {
+      id: uuidv4(),
+      label: LEFT_TAB_NAMES.THUMBNAILS,
+      component: (
+        <StudioThumbnails
+          pages={pages}
+          activePage={activePageIndex}
+          onClickImage={changePageByIndex}
+          ref={thumbnailsRef}
+        />
+      ),
+    },
+    {
+      id: uuidv4(),
+      label: LEFT_TAB_NAMES.RECALLS,
+      component: (
+        <List
+          chapterId={chapterId}
+          tabName={LEFT_TAB_NAMES.RECALLS}
+          changePageById={changePageById}
+          navigateToBlock={navigateToBlock}
+        />
+      ),
+    },
+    {
+      id: uuidv4(),
+      label: LEFT_TAB_NAMES.MICRO_LEARNING,
+      component: (
+        <List
+          chapterId={chapterId}
+          tabName={LEFT_TAB_NAMES.MICRO_LEARNING}
+          changePageById={changePageById}
+          navigateToBlock={navigateToBlock}
+        />
+      ),
+    },
+    {
+      id: uuidv4(),
+      label: LEFT_TAB_NAMES.ENRICHING_CONTENT,
+      component: (
+        <List
+          chapterId={chapterId}
+          tabName={LEFT_TAB_NAMES.ENRICHING_CONTENT}
+          changePageById={changePageById}
+          navigateToBlock={navigateToBlock}
+        />
+      ),
+    },
+    {
+      id: uuidv4(),
+      label: LEFT_TAB_NAMES.CHECK_YOURSELF,
+      component: (
+        <List
+          chapterId={chapterId}
+          tabName={LEFT_TAB_NAMES.CHECK_YOURSELF}
+          changePageById={changePageById}
+          navigateToBlock={navigateToBlock}
+        />
+      ),
+    },
+  ];
+};
 
 export const buildRightColumns = ({
   areasProperties,
@@ -90,6 +124,13 @@ export const buildRightColumns = ({
   getBlockFromBlockId,
   hightBlock,
 }) => {
+  // Create navigation function that combines page change and highlighting
+  const navigateToBlock = (pageId, blockId) => {
+    if (changePageById) changePageById(pageId);
+    if (getBlockFromBlockId) getBlockFromBlockId(blockId);
+    if (hightBlock) hightBlock(blockId);
+  };
+
   const actionsComponent = (
     <StudioActions
       areasProperties={areasProperties}
@@ -159,6 +200,7 @@ export const buildRightColumns = ({
           changePageById={changePageById}
           getBlockFromBlockId={getBlockFromBlockId}
           hightBlock={hightBlock}
+          navigateToBlock={navigateToBlock}
         />
       ),
     },
@@ -169,6 +211,8 @@ export const buildRightColumns = ({
         <List
           chapterId={chapterId}
           tabName={RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS}
+          changePageById={changePageById}
+          navigateToBlock={navigateToBlock}
         />
       ),
     },
