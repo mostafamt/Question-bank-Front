@@ -3,6 +3,10 @@ import { hexToRgbA } from "./helper";
 import { trimText } from "./data";
 import { useStore } from "../store/store";
 import { v4 as uuidv4 } from "uuid";
+import {
+  getStudioHighlightStyles,
+  getDeletedBlockStyles,
+} from "../config/highlighting";
 
 export const ocr = async (language = "eng", dataUrl) => {
   let text = "";
@@ -88,22 +92,26 @@ export const getTypeOfLabel2 = (types, type, label) => {
 
 export const constructBoxColors = (trialAreas, highlightedBlockId) => {
   const values = trialAreas?.map((_, idx) => `& > div:nth-of-type(${idx + 2})`);
+  const highlightStyles = getStudioHighlightStyles();
+  const deletedStyles = getDeletedBlockStyles();
 
   const obj = trialAreas?.map((trialArea, idx) => {
     if (values[idx]) {
       if (trialArea.status === DELETED) {
         return {
           [values[idx]]: {
-            border: `2px solid #000 !important`,
-            backgroundColor: `rgba(0, 0, 0, 0.5)`,
+            border: `${deletedStyles.border} !important`,
+            backgroundColor: deletedStyles.backgroundColor,
           },
         };
       } else {
         if (trialArea.id === highlightedBlockId) {
           return {
             [values[idx]]: {
-              border: `4px solid ${"#000"} !important`,
-              backgroundColor: `${hexToRgbA("#000")}`,
+              border: `${highlightStyles.border} !important`,
+              backgroundColor: highlightStyles.backgroundColor,
+              boxShadow: highlightStyles.boxShadow,
+              transition: highlightStyles.transition,
             },
           };
         } else {

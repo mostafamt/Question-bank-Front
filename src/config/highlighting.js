@@ -91,6 +91,27 @@ export const HIGHLIGHT_CONFIG = {
    * @default true (helpful for development)
    */
   ENABLE_DEBUG_LOGS: true,
+
+  // ==================== Studio Highlighting ====================
+
+  /**
+   * Styles for Studio component highlighting
+   * Matches Book reader for consistency
+   */
+  STUDIO_STYLES: {
+    border: "4px solid #000",
+    backgroundColor: "rgba(0, 0, 0, 0.2)",
+    boxShadow: "0 0 15px rgba(0, 0, 0, 0.5)",
+    transition: "all 0.3s ease-in-out",
+  },
+
+  /**
+   * Styles for deleted blocks in Studio
+   */
+  DELETED_BLOCK_STYLES: {
+    border: "2px solid #000",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
 };
 
 /**
@@ -125,4 +146,20 @@ export const getNavigationDelay = () => {
  */
 export const isDebugEnabled = () => {
   return HIGHLIGHT_CONFIG.ENABLE_DEBUG_LOGS;
+};
+
+/**
+ * Helper function to get highlight styles for Studio component
+ * @returns {Object} Styles object for highlighted blocks in Studio
+ */
+export const getStudioHighlightStyles = () => {
+  return HIGHLIGHT_CONFIG.STUDIO_STYLES;
+};
+
+/**
+ * Helper function to get deleted block styles for Studio component
+ * @returns {Object} Styles object for deleted blocks
+ */
+export const getDeletedBlockStyles = () => {
+  return HIGHLIGHT_CONFIG.DELETED_BLOCK_STYLES;
 };

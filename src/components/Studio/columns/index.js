@@ -198,8 +198,9 @@ export const buildRightColumns = ({
       id: uuidv4(),
       label: RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.label,
       component: (
-        <GlossaryAndKeywords
+        <List
           chapterId={chapterId}
+          tab={RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS}
           changePageById={changePageById}
           getBlockFromBlockId={getBlockFromBlockId}
           hightBlock={hightBlock}

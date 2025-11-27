@@ -11,6 +11,7 @@ import TextEditorModal from "./TextEditorModal/TextEditorModal";
 import SubObjectModal from "./SubObjectModal/SubObjectModal";
 import PlayCompositeBlocks from "./PlayCompositeBlocks/PlayCompositeBlocks";
 import EditCompositeBlocks from "./EditCompositeBlocks/EditCompositeBlocks";
+import GlossaryModal from "./GlossaryModal/GlossaryModal";
 
 // Modal registry
 const MODAL_COMPONENTS = {
@@ -24,6 +25,7 @@ const MODAL_COMPONENTS = {
   "sub-object": SubObjectModal,
   "play-composite-blocks": PlayCompositeBlocks,
   "edit-composite-blocks": EditCompositeBlocks,
+  glossary: GlossaryModal,
 };
 
 const Modal = () => {
