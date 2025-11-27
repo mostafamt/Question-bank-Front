@@ -89,24 +89,26 @@ const GlossaryListItem = (props) => {
             </IconButton>
           )}
 
-          <Box className={styles["up-down"]}>
-            <IconButton
-              size="small"
-              onClick={handleMoveUp}
-              disabled={!hasReferences}
-              sx={{ opacity: hasReferences ? 1 : 0.3 }}
-            >
-              <NorthIcon fontSize="small" />
-            </IconButton>
-            <IconButton
-              size="small"
-              onClick={handleMoveDown}
-              disabled={!hasReferences}
-              sx={{ opacity: hasReferences ? 1 : 0.3 }}
-            >
-              <SouthIcon fontSize="small" />
-            </IconButton>
-          </Box>
+          {reader && (
+            <Box className={styles["up-down"]}>
+              <IconButton
+                size="small"
+                onClick={handleMoveUp}
+                disabled={!hasReferences}
+                sx={{ opacity: hasReferences ? 1 : 0.3 }}
+              >
+                <NorthIcon fontSize="small" />
+              </IconButton>
+              <IconButton
+                size="small"
+                onClick={handleMoveDown}
+                disabled={!hasReferences}
+                sx={{ opacity: hasReferences ? 1 : 0.3 }}
+              >
+                <SouthIcon fontSize="small" />
+              </IconButton>
+            </Box>
+          )}
 
           {!reader && (
             <IconButton size="small" onClick={handleDelete}>

@@ -37,22 +37,24 @@ const ListItem = ({ item, onPlay, onDelete, onMoveUp, onMoveDown, reader }) => {
           <PlayArrowIcon />
         </IconButton>
       </span>
-      <span className={styles["up-down"]}>
-        <IconButton
-          onClick={onClickUp}
-          disabled={!hasReferences}
-          sx={{ opacity: hasReferences ? 1 : 0.3 }}
-        >
-          <NorthIcon />
-        </IconButton>
-        <IconButton
-          onClick={onClickDown}
-          disabled={!hasReferences}
-          sx={{ opacity: hasReferences ? 1 : 0.3 }}
-        >
-          <SouthIcon />
-        </IconButton>
-      </span>
+      {reader && (
+        <span className={styles["up-down"]}>
+          <IconButton
+            onClick={onClickUp}
+            disabled={!hasReferences}
+            sx={{ opacity: hasReferences ? 1 : 0.3 }}
+          >
+            <NorthIcon />
+          </IconButton>
+          <IconButton
+            onClick={onClickDown}
+            disabled={!hasReferences}
+            sx={{ opacity: hasReferences ? 1 : 0.3 }}
+          >
+            <SouthIcon />
+          </IconButton>
+        </span>
+      )}
       {reader ? (
         <></>
       ) : (
