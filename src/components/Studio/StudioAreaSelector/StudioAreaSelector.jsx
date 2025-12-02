@@ -174,7 +174,7 @@ const StudioAreaSelector = React.memo(
     const areaPropsConfig = useMemo(
       () => ({
         onClick: (event, area) => {
-          console.log("here");
+          // console.log("here");
         },
       }),
       []

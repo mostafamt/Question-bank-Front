@@ -28,8 +28,6 @@ const List = (props) => {
 
   const [objects, setObjects] = React.useState([]);
 
-  console.log("tabObjects= ", tabObjects);
-
   const mutation = useMutation({
     mutationFn: (bodyData) => updateTabObjects(chapterId, tab.name, bodyData),
   });
@@ -77,9 +75,6 @@ const List = (props) => {
   };
 
   const handleClick = (idx) => {
-    console.log("handleClick");
-    console.log("idx= ", idx);
-    console.log("open= ", open);
     setOpen((prevState) =>
       prevState.map((item, id) => (id === idx ? !item : item))
     );

@@ -38,7 +38,6 @@ const StudyBook = (props) => {
   const onClickArea = (block) => {
     setActiveBlock(block);
     let isComplex = isComplexType(activeBlock.contentType);
-    console.log("isComplex= ", isComplex);
     if (isComplex) {
       openModal("play-object", {
         workingArea: block,
