@@ -1,7 +1,5 @@
 import React from "react";
 import ImageActions from "../../ImageActions/ImageActions";
-import { AreaSelector } from "@bmunozg/react-image-area";
-import { constructBoxColors } from "../../../utils/ocr";
 /** @jsxImportSource @emotion/react */
 
 import styles from "./studioEditor.module.scss";

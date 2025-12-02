@@ -47,8 +47,6 @@ const StudioActions = (props) => {
 
     const orderArray = areasProperties[activePage].map((area) => area.order);
 
-    console.log("orderArray= ", orderArray);
-
     const newOrderArray = reorder(
       orderArray,
       result.source.index,

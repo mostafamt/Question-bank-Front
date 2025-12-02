@@ -50,12 +50,9 @@ const StudioCompositeBlocks = (props) => {
     onChangeCompositeBlocks(id, "text", typeOfLabel);
 
     processCompositeBlock(id, typeOfLabel);
-
-    console.log("type= ", typeOfLabel);
   };
 
   const handleToggle = (id, isOpen) => {
-    console.log("id= ", id);
     onChangeCompositeBlocks(id, "open", !isOpen);
   };
 
