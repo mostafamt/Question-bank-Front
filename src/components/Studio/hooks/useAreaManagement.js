@@ -1,7 +1,11 @@
 import React from "react";
 import { initAreas, initAreasProperties } from "../initializers";
 import { processAreasForImageLoad } from "../services/coordinate.service";
-import { deleteAreaByIndex, DELETED } from "../../../utils/ocr";
+import {
+  deleteAreaByIndex,
+  DELETED,
+  updateAreasProperties,
+} from "../../../utils/ocr";
 
 const useAreaManagement = ({
   pages,
@@ -107,6 +111,22 @@ const useAreaManagement = ({
     }
   };
 
+  const updateAreaPropertyById = (id, property) => {
+    const newAreasProperties = [...areasProperties];
+    newAreasProperties[activePageIndex] = newAreasProperties[
+      activePageIndex
+    ].map((area) => {
+      if (area.id === id) {
+        return {
+          ...area,
+          ...property,
+        };
+      }
+      return area;
+    });
+    setAreasProperties(newAreasProperties);
+  };
+
   return {
     areas,
     setAreas,
@@ -116,6 +136,7 @@ const useAreaManagement = ({
     recalculateAreas,
     updateAreaProperty,
     onClickDeleteArea,
+    updateAreaPropertyById,
   };
 };
 
