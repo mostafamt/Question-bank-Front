@@ -8,9 +8,7 @@ import {
   ARABIC,
   ENGLISH,
   COMPLEX_TYPES,
-  DELETED,
   cropSelectedArea,
-  deleteAreaByIndex,
   extractImage,
   getTypeOfLabel,
   getTypeOfLabel2,
@@ -19,23 +17,16 @@ import {
   updateAreasProperties,
 } from "../../utils/ocr";
 import { addPropsToAreasForCompositeBlocks } from "../../utils/studio";
-
-import { processAreasForImageLoad } from "./services/coordinate.service";
 import { buildLeftColumns, buildRightColumns } from "./columns";
 
 import {
   RIGHT_TAB_NAMES,
   TIMEOUTS,
-  STORAGE_KEYS,
   DEFAULTS,
   LANGUAGE_CODES,
 } from "./constants";
 
-import {
-  initAreas,
-  initAreasProperties,
-  initCompositeBlocks,
-} from "./initializers";
+import { initCompositeBlocks } from "./initializers";
 
 import StudioEditor from "./StudioEditor/StudioEditor";
 import LanguageSwitcher from "./LanguageSwitcher/LanguageSwitcher";
@@ -45,6 +36,8 @@ import { saveCompositeBlocks } from "../../services/api";
 import { useStore } from "../../store/store";
 
 import styles from "./studio.module.scss";
+import usePageManagement from "./hooks/usePageNavigation";
+import useAreaManagement from "./hooks/useAreaManagement";
 
 const Studio = (props) => {
   const {
@@ -62,18 +55,37 @@ const Studio = (props) => {
     compositeBlocksTypes,
   } = props;
 
-  const [activePageIndex, setActivePageIndex] = React.useState(
-    subObject
-      ? DEFAULTS.ACTIVE_PAGE_INDEX
-      : localStorage.getItem(STORAGE_KEYS.AUTHOR_PAGE)
-      ? Number.parseInt(localStorage.getItem(STORAGE_KEYS.AUTHOR_PAGE))
-      : DEFAULTS.ACTIVE_PAGE_INDEX
-  );
-  const activePageId = pages?.[activePageIndex]?._id;
+  const {
+    activePageIndex,
+    setActivePageIndex,
+    activePageId,
+    changePageByIndex,
+    changePageById,
+  } = usePageManagement({
+    pages,
+    subObject,
+  });
+
+  const studioEditorRef = React.useRef(null);
+
+  const {
+    areas,
+    setAreas,
+    areasProperties,
+    setAreasProperties,
+    getBlockFromBlockId,
+    recalculateAreas,
+    updateAreaProperty,
+    onClickDeleteArea,
+  } = useAreaManagement({
+    pages,
+    activePageIndex,
+    types,
+    studioEditorRef,
+  });
 
   const { openModal } = useStore();
 
-  const studioEditorRef = React.useRef(null);
   const [showStickyToolbar, setShowStickyToolbar] = React.useState(false);
   const [showVB, setShowVB] = React.useState(false);
   const { bookId, chapterId } = useParams();
@@ -84,12 +96,6 @@ const Studio = (props) => {
     React.useState(false);
   const thumbnailsRef = React.useRef(null);
 
-  const [areas, setAreas] = React.useState(() => initAreas(pages));
-
-  const [areasProperties, setAreasProperties] = React.useState(() =>
-    initAreasProperties(pages, types)
-  );
-
   const [colorIndex, setColorIndex] = React.useState(
     Array(pages?.length || 1).fill(0)
   );
@@ -97,7 +103,7 @@ const Studio = (props) => {
   const onClickToggleVirutalBlocks = () => {
     setShowVB((prevState) => !prevState);
     setTimeout(() => {
-      onImageLoad();
+      recalculateAreas();
     }, TIMEOUTS.VIRTUAL_BLOCKS_TOGGLE_DELAY);
   };
 
@@ -159,90 +165,10 @@ const Studio = (props) => {
 
       // Delay to ensure state is updated before recalculation
       setTimeout(() => {
-        onImageLoad();
+        recalculateAreas();
       }, TIMEOUTS.IMAGE_LOAD_DELAY);
     }
   }, [imageScaleFactor]);
-
-  /**
-   * Recalculates area pixel coordinates based on the currently loaded image's dimensions.
-   *
-   * This function is triggered when:
-   * - An image finishes loading (via onLoad event)
-   * - The user zooms in/out (imageScaleFactor changes) - image scales
-   * - The user navigates to a different page - new image loads
-   * - Virtual blocks are toggled on/off - layout changes
-   *
-   * Why this is needed:
-   * Areas are stored with percentage coordinates to be resolution-independent.
-   * When the image loads or its size changes, we need to recalculate the pixel
-   * positions based on the image's current rendered size. This ensures areas
-   * stay properly aligned with the image content at any zoom level.
-   *
-   * The recalculation logic is delegated to the coordinate service layer which:
-   * 1. Validates the image is fully loaded
-   * 2. Extracts current dimensions from the DOM element
-   * 3. Converts percentage coordinates to pixels
-   * 4. Preserves metadata for future recalculations
-   */
-  const onImageLoad = () => {
-    setAreas((prevState) => {
-      const processedAreas = processAreasForImageLoad(
-        prevState,
-        areasProperties,
-        studioEditorRef
-      );
-
-      // Return processed areas if successful, otherwise keep previous state
-      return processedAreas || prevState;
-    });
-  };
-
-  const getPageIndexFromPageId = (id) => {
-    if (!pages || !pages.length) return 0;
-
-    const index = pages.findIndex((p) => p._id === id);
-
-    // If the page was not found → return the current active page index
-    if (index === -1) {
-      console.warn(`Page with id "${id}" not found in pages list`);
-      return activePageIndex;
-    }
-
-    return index;
-  };
-
-  const changePageByIndex = (idx) => {
-    setActivePageIndex(idx);
-    localStorage.setItem(STORAGE_KEYS.AUTHOR_PAGE, `${idx}`);
-  };
-
-  const changePageById = (id) => {
-    const idx = getPageIndexFromPageId(id);
-    changePageByIndex(idx);
-  };
-
-  const getBlockFromBlockId = (id) => {
-    if (!id) return null;
-
-    // Search inside areas for all pages
-    for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
-      const areaBlock = areasProperties[pageIndex]?.find((a) => {
-        return a.id === id;
-      });
-
-      if (areaBlock) {
-        return {
-          ...areaBlock,
-          pageIndex,
-          type: "area",
-        };
-      }
-    }
-
-    console.warn(`Block with id "${id}" not found.`);
-    return null;
-  };
 
   const hightBlock = (id) => {
     if (!id) return;
@@ -322,23 +248,6 @@ const Studio = (props) => {
       const newAreasParam = [...areas];
       newAreasParam[activePageIndex] = areasWithMetadata;
       setAreas(newAreasParam);
-    }
-  };
-
-  const onClickDeleteArea = (idx) => {
-    const { isServer } = areasProperties[activePageIndex][idx];
-    if (isServer) {
-      updateAreaProperty(idx, { status: DELETED });
-    } else {
-      const newAreas = deleteAreaByIndex(areas, activePageIndex, idx);
-      setAreas(newAreas);
-
-      const newAreasProperties = deleteAreaByIndex(
-        areasProperties,
-        activePageIndex,
-        idx
-      );
-      setAreasProperties(newAreasProperties);
     }
   };
 
@@ -427,25 +336,6 @@ const Studio = (props) => {
     }
     // clear();
     setLoadingSubmit(false);
-  };
-
-  const updateAreaProperty = (idx, property) => {
-    setAreasProperties((prevState) => {
-      let newTrialAreas = [...prevState];
-      if (idx === -1) {
-        const lastIndex = idx + areasProperties[activePageIndex].length;
-        newTrialAreas[activePageIndex][lastIndex] = {
-          ...newTrialAreas[activePageIndex][lastIndex],
-          ...property,
-        };
-      } else {
-        newTrialAreas[activePageIndex][idx] = {
-          ...newTrialAreas[activePageIndex][idx],
-          ...property,
-        };
-      }
-      return newTrialAreas;
-    });
   };
 
   const updateAreaPropertyById = (id, property) => {
@@ -658,7 +548,7 @@ const Studio = (props) => {
         areasProperties={areasProperties}
         showVB={showVB}
         onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
-        onImageLoad={onImageLoad}
+        onImageLoad={recalculateAreas}
         pages={pages}
         onClickImage={changePageByIndex}
       />
@@ -667,7 +557,7 @@ const Studio = (props) => {
         <BookColumn
           COLUMNS={LEFT_COLUMNS}
           activeColumn={LEFT_COLUMNS[0]}
-          onImageLoad={onImageLoad}
+          onImageLoad={recalculateAreas}
           activeTab={activeLeftTab}
           setActiveTab={setActiveLeftTab}
         />
@@ -682,7 +572,7 @@ const Studio = (props) => {
           onChangeHandler={onChangeHandler}
           pages={pages}
           ref={studioEditorRef}
-          onImageLoad={onImageLoad}
+          onImageLoad={recalculateAreas}
           virtualBlocks={virtualBlocks[activePageIndex]}
           setVirtualBlocks={(value) =>
             setVirtualBlocks((prevState) => {
@@ -704,7 +594,7 @@ const Studio = (props) => {
         <BookColumn
           COLUMNS={RIGHT_COLUMNS}
           activeColumn={RIGHT_COLUMNS[0]}
-          onImageLoad={onImageLoad}
+          onImageLoad={recalculateAreas}
           activeTab={activeRightTab}
           setActiveTab={setActiveRightTab}
         />
