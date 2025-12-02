@@ -85,41 +85,48 @@ const StudioActions = (props) => {
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="droppable-id">
             {(provided, snapshot) => (
-              <div {...provided.droppableProps} ref={provided.innerRef}>
+              <div
+                key={snapshot}
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+              >
                 {[...areasProperties[activePage]]
                   // ?.sort((a, b) => a.order - b.order)
                   .filter((item) => item.status !== DELETED)
-                  ?.map((area, idx) => (
-                    <Draggable key={area.id} draggableId={area.id} index={idx}>
-                      {(provided, snaphost) => (
-                        <div
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          ref={provided.innerRef}
-                          key={area.id}
-                          style={{
-                            display: area.status === DELETED ? "none" : "block",
-                            overflow: "hidden",
-                          }}
-                        >
-                          <AreaAction
-                            parameter={area.parameter}
-                            idx={idx}
-                            onClickDeleteArea={onClickDeleteArea}
-                            onEditText={onEditText}
-                            type={type}
-                            area={area}
-                            updateAreaProperty={updateAreaProperty}
-                            updateAreaPropertyById={updateAreaPropertyById}
-                            types={types}
-                            onChangeLabel={onChangeLabel}
-                            subObject={subObject}
-                            typeOfActiveType={typeOfActiveType}
-                          />
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
+                  ?.map((area, idx) => {
+                    const key = area.id || `area-${idx}`;
+                    return (
+                      <Draggable key={key} draggableId={key} index={idx}>
+                        {(provided, snaphost) => (
+                          <div
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            ref={provided.innerRef}
+                            style={{
+                              display:
+                                area.status === DELETED ? "none" : "block",
+                              overflow: "hidden",
+                            }}
+                          >
+                            <AreaAction
+                              parameter={area.parameter}
+                              idx={idx}
+                              onClickDeleteArea={onClickDeleteArea}
+                              onEditText={onEditText}
+                              type={type}
+                              area={area}
+                              updateAreaProperty={updateAreaProperty}
+                              updateAreaPropertyById={updateAreaPropertyById}
+                              types={types}
+                              onChangeLabel={onChangeLabel}
+                              subObject={subObject}
+                              typeOfActiveType={typeOfActiveType}
+                            />
+                          </div>
+                        )}
+                      </Draggable>
+                    );
+                  })}
                 {provided.placeholder}
               </div>
             )}
