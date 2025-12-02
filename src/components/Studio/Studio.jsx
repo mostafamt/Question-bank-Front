@@ -2,7 +2,6 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Alert } from "@mui/material";
-
 import { colors } from "../../constants/highlight-color";
 import { parseVirtualBlocksFromPages } from "../../utils/virtual-blocks";
 import {
