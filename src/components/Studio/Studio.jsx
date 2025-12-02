@@ -38,6 +38,7 @@ import { useStore } from "../../store/store";
 import styles from "./studio.module.scss";
 import usePageManagement from "./hooks/usePageNavigation";
 import useAreaManagement from "./hooks/useAreaManagement";
+import useCompositeBlocks from "./hooks/useCompositeBlocks";
 
 const Studio = (props) => {
   const {
@@ -77,6 +78,7 @@ const Studio = (props) => {
     recalculateAreas,
     updateAreaProperty,
     onClickDeleteArea,
+    updateAreaPropertyById,
   } = useAreaManagement({
     pages,
     activePageIndex,
@@ -84,16 +86,23 @@ const Studio = (props) => {
     studioEditorRef,
   });
 
+  const {
+    compositeBlocks,
+    setCompositeBlocks,
+    loadingSubmitCompositeBlocks,
+    setLoadingSubmitCompositeBlocks,
+    onChangeCompositeBlocks,
+    DeleteCompositeBlocks,
+  } = useCompositeBlocks();
+
   const { openModal } = useStore();
 
   const [showStickyToolbar, setShowStickyToolbar] = React.useState(false);
   const [showVB, setShowVB] = React.useState(false);
   const { bookId, chapterId } = useParams();
-  const [compositeBlocks, setCompositeBlocks] =
-    React.useState(initCompositeBlocks);
+
   const [highlight, setHighlight] = React.useState("");
-  const [loadingSubmitCompositeBlocks, setLoadingSubmitCompositeBlocks] =
-    React.useState(false);
+
   const thumbnailsRef = React.useRef(null);
 
   const [colorIndex, setColorIndex] = React.useState(
@@ -338,22 +347,6 @@ const Studio = (props) => {
     setLoadingSubmit(false);
   };
 
-  const updateAreaPropertyById = (id, property) => {
-    const newAreasProperties = [...areasProperties];
-    newAreasProperties[activePageIndex] = newAreasProperties[
-      activePageIndex
-    ].map((area) => {
-      if (area.id === id) {
-        return {
-          ...area,
-          ...property,
-        };
-      }
-      return area;
-    });
-    setAreasProperties(newAreasProperties);
-  };
-
   const onEditText = (id, text) => {
     const newAreasProperties = onEditTextField(
       areasProperties,
@@ -367,35 +360,6 @@ const Studio = (props) => {
   ///////////////////////////////////////////////////
   // Composite Blocks
   /////////////////////////////////////////////////
-  const onChangeCompositeBlocks = (id, key, value) => {
-    if (!id) {
-      setCompositeBlocks((prevState) => ({
-        ...prevState,
-        [key]: value,
-        areas: [],
-      }));
-      return;
-    }
-
-    setCompositeBlocks((prevState) => {
-      return {
-        ...prevState,
-        areas: prevState?.areas?.map((item) => {
-          if (item.id === id) {
-            item = { ...item, [key]: value };
-          }
-          return item;
-        }),
-      };
-    });
-  };
-
-  const DeleteCompositeBlocks = (id) => {
-    setCompositeBlocks((prevState) => {
-      const newAreas = prevState?.areas?.filter((item) => item.id !== id);
-      return { ...prevState, areas: newAreas };
-    });
-  };
 
   const processCompositeBlock = async (id, typeOfLabel) => {
     setCompositeBlocks((prevState) => {
