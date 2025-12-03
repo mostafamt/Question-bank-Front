@@ -8,13 +8,10 @@ import {
   ARABIC,
   ENGLISH,
   COMPLEX_TYPES,
-  cropSelectedArea,
   extractImage,
   getTypeOfLabel,
   getTypeOfLabel2,
   ocr,
-  onEditTextField,
-  updateAreasProperties,
 } from "../../utils/ocr";
 import { addPropsToAreasForCompositeBlocks } from "../../utils/studio";
 import { buildLeftColumns, buildRightColumns } from "./columns";
@@ -26,19 +23,19 @@ import {
   LANGUAGE_CODES,
 } from "./constants";
 
-import { initCompositeBlocks } from "./initializers";
-
 import StudioEditor from "./StudioEditor/StudioEditor";
 import LanguageSwitcher from "./LanguageSwitcher/LanguageSwitcher";
 import StudioStickyToolbar from "./StudioStickyToolbar/StudioStickyToolbar";
 import BookColumn from "../Book/BookColumn/BookColumn";
-import { saveCompositeBlocks } from "../../services/api";
 import { useStore } from "../../store/store";
 
 import styles from "./studio.module.scss";
 import usePageManagement from "./hooks/usePageNavigation";
 import useAreaManagement from "./hooks/useAreaManagement";
 import useCompositeBlocks from "./hooks/useCompositeBlocks";
+import useStudioActions from "./hooks/useStudioActions";
+import useVirtualBlocks from "./hooks/useVirtualBlocks";
+import useStudioState from "./hooks/useStudioState";
 
 const Studio = (props) => {
   const {
@@ -68,6 +65,10 @@ const Studio = (props) => {
   });
 
   const studioEditorRef = React.useRef(null);
+  const canvasRef = React.createRef();
+
+  // const studioState =
+  //   useStudioState({ areas, setAreas, areasProperties, setAreasProperties });
 
   const {
     areas,
@@ -79,29 +80,60 @@ const Studio = (props) => {
     updateAreaProperty,
     onClickDeleteArea,
     updateAreaPropertyById,
+    onEditText,
+    syncAreasProperties,
+    onChangeArea,
+    onClickSubmit,
   } = useAreaManagement({
     pages,
     activePageIndex,
     types,
     studioEditorRef,
+    subObject,
+    type,
+    handleSubmit,
+    updateAreaPropertyForParent: props.updateAreaProperty,
+    activePageId,
+    virtualBlocks,
+    refetch,
   });
+
+  const {
+    virtualBlocks,
+    setVirtualBlocks,
+    showVB,
+    setShowVB,
+    onClickToggleVirutalBlocks,
+  } = useVirtualBlocks({
+    pages,
+    subObject,
+    recalculateAreas,
+  });
+
+  const [language, setLanguage] = React.useState(
+    lang === LANGUAGE_CODES.ENGLISH ? ENGLISH : ARABIC
+  );
+  const { bookId, chapterId } = useParams();
 
   const {
     compositeBlocks,
     setCompositeBlocks,
     loadingSubmitCompositeBlocks,
-    setLoadingSubmitCompositeBlocks,
     onChangeCompositeBlocks,
     DeleteCompositeBlocks,
-  } = useCompositeBlocks();
+    processCompositeBlock,
+    onSubmitCompositeBlocks,
+    onChangeCompositeBlockArea,
+  } = useCompositeBlocks({ canvasRef, studioEditorRef, language, chapterId });
+
+  const { highlight, setHighlight, highlightedBlockId, hightBlock } =
+    useStudioActions({
+      getBlockFromBlockId,
+    });
 
   const { openModal } = useStore();
 
   const [showStickyToolbar, setShowStickyToolbar] = React.useState(false);
-  const [showVB, setShowVB] = React.useState(false);
-  const { bookId, chapterId } = useParams();
-
-  const [highlight, setHighlight] = React.useState("");
 
   const thumbnailsRef = React.useRef(null);
 
@@ -109,29 +141,14 @@ const Studio = (props) => {
     Array(pages?.length || 1).fill(0)
   );
 
-  const onClickToggleVirutalBlocks = () => {
-    setShowVB((prevState) => !prevState);
-    setTimeout(() => {
-      recalculateAreas();
-    }, TIMEOUTS.VIRTUAL_BLOCKS_TOGGLE_DELAY);
-  };
-
-  const canvasRef = React.createRef();
   const [imageScaleFactor, setImageScaleFactor] = React.useState(
     DEFAULTS.IMAGE_SCALE_FACTOR
   );
   // To Extract Sub Object
   const [activeType, setActiveType] = React.useState("");
   const [typeOfActiveType, setTypeOfActiveType] = React.useState("");
-  const [highlightedBlockId, setHighlightedBlockId] = React.useState(null);
 
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
-  const [language, setLanguage] = React.useState(
-    lang === LANGUAGE_CODES.ENGLISH ? ENGLISH : ARABIC
-  );
-  const [virtualBlocks, setVirtualBlocks] = React.useState(
-    subObject ? [] : parseVirtualBlocksFromPages(pages)
-  );
 
   React.useEffect(() => {
     const observer = new IntersectionObserver(
@@ -179,84 +196,11 @@ const Studio = (props) => {
     }
   }, [imageScaleFactor]);
 
-  const hightBlock = (id) => {
-    if (!id) return;
-
-    // 1) Find the block (we already have getBlockFromBlockId)
-    const block = getBlockFromBlockId(id);
-    if (!block) return;
-
-    setHighlightedBlockId(id);
-    // const { pageIndex } = block;
-
-    // setAreasProperties((prev) => {
-    //   const newProps = [...prev];
-    //   newProps[pageIndex] = newProps[pageIndex].map((area) =>
-    //     area.id === id ? { ...area, color: "#000" } : area
-    //   );
-    //   return newProps;
-    // });
-  };
-
-  const syncAreasProperties = () => {
-    const newAreasProperties = updateAreasProperties(
-      areasProperties,
-      activePageIndex,
-      areas,
-      subObject,
-      type
-    );
-    setAreasProperties(newAreasProperties);
-  };
-
   const onChangeHandler = (areasParam) => {
     if (activeRightTab.label === RIGHT_TAB_NAMES.COMPOSITE_BLOCKS.label) {
-      const compositeBlocksWithPropsAreas = addPropsToAreasForCompositeBlocks(
-        compositeBlocks,
-        areasParam
-      );
-
-      setCompositeBlocks(compositeBlocksWithPropsAreas);
+      onChangeCompositeBlockArea(areasParam);
     } else {
-      if (areasParam.length > areasProperties[activePageIndex].length) {
-        syncAreasProperties();
-      }
-
-      // Add metadata to new areas
-      const areasWithMetadata = areasParam.map((area, idx) => {
-        // Check if this is an existing area
-        const existingArea = areas[activePageIndex]?.[idx];
-
-        if (existingArea) {
-          // Preserve metadata from existing area
-          return {
-            ...area,
-            _unit: existingArea._unit || "percentage",
-            _updated: existingArea._updated || false,
-            // Preserve or store percentage coordinates
-            _percentX: existingArea._percentX ?? area.x,
-            _percentY: existingArea._percentY ?? area.y,
-            _percentWidth: existingArea._percentWidth ?? area.width,
-            _percentHeight: existingArea._percentHeight ?? area.height,
-          };
-        } else {
-          // New area - set metadata (AreaSelector uses percentage)
-          return {
-            ...area,
-            _unit: "percentage",
-            _updated: false,
-            // Store original percentage coordinates
-            _percentX: area.x,
-            _percentY: area.y,
-            _percentWidth: area.width,
-            _percentHeight: area.height,
-          };
-        }
-      });
-
-      const newAreasParam = [...areas];
-      newAreasParam[activePageIndex] = areasWithMetadata;
-      setAreas(newAreasParam);
+      onChangeArea(areasParam);
     }
   };
 
@@ -326,124 +270,6 @@ const Studio = (props) => {
       }
     }
   };
-
-  const onClickSubmit = async () => {
-    setLoadingSubmit(true);
-    if (subObject) {
-      const id = await handleSubmit(areasProperties[activePageIndex]);
-      props.updateAreaProperty(-1, { text: id });
-      id && toast.success("Sub-Object created successfully!");
-      // handleClose();
-    } else {
-      const id = await handleSubmit(
-        activePageId,
-        areasProperties[activePageIndex],
-        virtualBlocks[activePageIndex]
-      );
-      id && toast.success("Object created successfully!");
-      refetch();
-    }
-    // clear();
-    setLoadingSubmit(false);
-  };
-
-  const onEditText = (id, text) => {
-    const newAreasProperties = onEditTextField(
-      areasProperties,
-      activePageIndex,
-      id,
-      text
-    );
-    setAreasProperties(newAreasProperties);
-  };
-
-  ///////////////////////////////////////////////////
-  // Composite Blocks
-  /////////////////////////////////////////////////
-
-  const processCompositeBlock = async (id, typeOfLabel) => {
-    setCompositeBlocks((prevState) => {
-      const newAreas = prevState?.areas?.map((item) => {
-        if (item.id === id) {
-          item.loading = true;
-        }
-        return item;
-      });
-      return { ...prevState, areas: newAreas };
-    });
-
-    const { naturalWidth, clientWidth, clientHeight } =
-      studioEditorRef.current.studioEditorSelectorRef.current;
-
-    const ratio = naturalWidth / clientWidth;
-
-    const selecedBlock = compositeBlocks.areas.find((item) => item.id === id);
-    const x = ((selecedBlock.x * ratio) / 100) * clientWidth;
-    const y = ((selecedBlock.y * ratio) / 100) * clientHeight;
-    const width = ((selecedBlock.width * ratio) / 100) * clientWidth;
-    const height = ((selecedBlock.height * ratio) / 100) * clientHeight;
-
-    const img = cropSelectedArea(
-      canvasRef,
-      studioEditorRef.current.studioEditorSelectorRef,
-      x,
-      y,
-      width,
-      height
-    );
-
-    let text = "";
-    if (typeOfLabel === "text") {
-      text = await ocr(language, img);
-    }
-
-    setCompositeBlocks((prevState) => {
-      const newAreas = prevState?.areas?.map((item) => {
-        if (item.id === id) {
-          item = {
-            ...item,
-            loading: false,
-            img: img,
-            text: text,
-          };
-        }
-        return item;
-      });
-      return { ...prevState, areas: newAreas };
-    });
-  };
-
-  const onSubmitCompositeBlocks = async () => {
-    setLoadingSubmitCompositeBlocks(true);
-
-    const blocks = compositeBlocks.areas.map(
-      ({ type, text, x, y, width, height, unit }) => ({
-        contentType: type,
-        contentValue: text,
-        coordinates: {
-          height,
-          unit: unit === "%" ? "percentage" : "px",
-          width,
-          x,
-          y,
-        },
-      })
-    );
-
-    const data = {
-      name: compositeBlocks.name,
-      type: compositeBlocks.type,
-      chapterId,
-      blocks,
-    };
-
-    const id = await saveCompositeBlocks(data);
-
-    setLoadingSubmitCompositeBlocks(false);
-  };
-  ///////////////////////////////////////////////////
-  // End Of Composite Blocks
-  /////////////////////////////////////////////////
 
   const LEFT_COLUMNS = buildLeftColumns({
     pages,
