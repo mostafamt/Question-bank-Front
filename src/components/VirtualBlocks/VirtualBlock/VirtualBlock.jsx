@@ -42,9 +42,13 @@ const VirtualBlock = (props) => {
 
   // Local state
   const [header, setHeader] = React.useState("");
+  const [contentType, setContentType] = React.useState("");
   const [textValue, setTextValue] = React.useState("");
   const [objectName, setObjectName] = React.useState("");
   const [loading, setLoading] = React.useState(false);
+
+  // Content type options
+  const CONTENT_TYPES = ["text", "link", "object"];
 
   // Global store
   const { data: state, setFormState, openModal, closeModal } = useStore();
@@ -96,6 +100,33 @@ const VirtualBlock = (props) => {
         label: blockType,
         id: content,
         status: CREATED,
+        contentType: "text",
+      });
+
+      // Close modal
+      closeModal();
+    },
+    [state, label, setFormState, setCheckedObject, closeModal]
+  );
+
+  /**
+   * Handle link block submission
+   */
+  const handleLinkBlockSubmit = React.useCallback(
+    (blockType, linkUrl) => {
+      // Update form state for link blocks
+      setFormState({
+        ...state,
+        virtual_block_label: blockType,
+        virtual_block_key: label,
+      });
+
+      // Update checked object with new link
+      setCheckedObject({
+        label: blockType,
+        id: linkUrl,
+        status: CREATED,
+        contentType: "link",
       });
 
       // Close modal
@@ -116,6 +147,19 @@ const VirtualBlock = (props) => {
       });
     },
     [openModal, handleTextBlockSubmit]
+  );
+
+  /**
+   * Open link editor modal for link content
+   */
+  const openLinkEditorModal = React.useCallback(
+    (blockType, initialLink = "") => {
+      openModal("link-editor", {
+        value: initialLink,
+        onClickSubmit: (linkUrl) => handleLinkBlockSubmit(blockType, linkUrl),
+      });
+    },
+    [openModal, handleLinkBlockSubmit]
   );
 
   /**
@@ -140,6 +184,7 @@ const VirtualBlock = (props) => {
         label: blockType,
         id: checkedObject?.id || "",
         status: CREATED,
+        contentType: "object",
       });
     },
     [
@@ -157,23 +202,46 @@ const VirtualBlock = (props) => {
   /**
    * Handle block type selection from dropdown
    */
-  const handleBlockTypeChange = React.useCallback(
+  const handleBlockTypeChange = React.useCallback((e) => {
+    const selectedType = e.target.value;
+    setHeader(selectedType);
+    // Reset content type when block type changes
+    setContentType("");
+  }, []);
+
+  /**
+   * Handle content type selection from second dropdown
+   */
+  const handleContentTypeChange = React.useCallback(
     (e) => {
-      const selectedType = e.target.value;
-      setHeader(selectedType);
+      const selectedContentType = e.target.value;
+      setContentType(selectedContentType);
 
-      // Determine whether this is a text block or interactive object
-      const isTextBlock = selectedType === NOTES || selectedType === SUMMARY;
-
-      if (isTextBlock) {
-        // Open text editor for Notes/Summary
-        openTextEditorModal(selectedType, textValue);
-      } else {
-        // Open virtual blocks modal for interactive objects
-        openVirtualBlocksModal(selectedType);
+      // Route to appropriate modal based on content type
+      switch (selectedContentType) {
+        case "text":
+          // Open text editor modal
+          openTextEditorModal(header, textValue);
+          break;
+        case "link":
+          // Open link editor modal
+          openLinkEditorModal(header, "");
+          break;
+        case "object":
+          // Open virtual blocks modal for interactive objects
+          openVirtualBlocksModal(header);
+          break;
+        default:
+          break;
       }
     },
-    [textValue, openTextEditorModal, openVirtualBlocksModal]
+    [
+      header,
+      textValue,
+      openTextEditorModal,
+      openLinkEditorModal,
+      openVirtualBlocksModal,
+    ]
   );
 
   /**
@@ -191,30 +259,68 @@ const VirtualBlock = (props) => {
    * Handle play button click (edit mode)
    */
   const handlePlayEdit = React.useCallback(() => {
-    const isTextBlock =
-      checkedObject.label === NOTES || checkedObject.label === SUMMARY;
+    const contentType = checkedObject.contentType || "";
 
-    if (isTextBlock) {
+    // Route based on content type
+    if (contentType === "text") {
       // Open text editor with existing content
       openTextEditorModal(checkedObject.label, checkedObject.id);
-    } else {
+    } else if (contentType === "link") {
+      // Open link editor with existing link
+      openLinkEditorModal(checkedObject.label, checkedObject.id);
+    } else if (contentType === "object") {
       // Open interactive object player
       openModal("play-object-2", {});
       setFormState({
         ...state,
         activeId: checkedObject?.id,
       });
+    } else {
+      // Fallback for legacy blocks without contentType
+      const isTextBlock =
+        checkedObject.label === NOTES || checkedObject.label === SUMMARY;
+
+      if (isTextBlock) {
+        openTextEditorModal(checkedObject.label, checkedObject.id);
+      } else {
+        openModal("play-object-2", {});
+        setFormState({
+          ...state,
+          activeId: checkedObject?.id,
+        });
+      }
     }
-  }, [checkedObject, openTextEditorModal, openModal, setFormState, state]);
+  }, [
+    checkedObject,
+    openTextEditorModal,
+    openLinkEditorModal,
+    openModal,
+    setFormState,
+    state,
+  ]);
 
   /**
    * Handle play button click (reader mode)
    */
   const handlePlayReader = React.useCallback(() => {
-    openModal("play-object", {
-      id: checkedObject.id,
-    });
-  }, [checkedObject.id, openModal]);
+    const contentType = checkedObject.contentType || "";
+
+    if (contentType === "link") {
+      // Open link in new tab for reader mode
+      window.open(checkedObject.id, "_blank", "noopener,noreferrer");
+    } else if (contentType === "text") {
+      // Show text content in modal
+      openModal("text-viewer", {
+        content: checkedObject.id,
+        title: checkedObject.label,
+      });
+    } else {
+      // Open interactive object player (default behavior)
+      openModal("play-object", {
+        id: checkedObject.id,
+      });
+    }
+  }, [checkedObject, openModal]);
 
   /**
    * Get icon for selected virtual block type
@@ -306,6 +412,16 @@ const VirtualBlock = (props) => {
             disabled={loading}
           />
         </div>
+        {header && (
+          <div className={styles["select"]}>
+            <MuiSelect
+              list={CONTENT_TYPES}
+              value={contentType}
+              onChange={handleContentTypeChange}
+              disabled={loading}
+            />
+          </div>
+        )}
       </div>
     );
   }
