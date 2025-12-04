@@ -70,92 +70,139 @@ export const VIRTUAL_BLOCKS = {
     label: "",
     id: "",
     status: "",
+    contentType: "",
   },
   TM: {
     label: "",
     id: "",
     status: "",
+    contentType: "",
   },
   TR: {
     label: "",
     id: "",
     status: "",
+    contentType: "",
   },
   L1: {
     label: "",
     id: "",
     status: "",
+    contentType: "",
   },
   L2: {
     label: "",
     id: "",
     status: "",
+    contentType: "",
   },
   L3: {
     label: "",
     id: "",
     status: "",
+    contentType: "",
   },
   L4: {
     label: "",
     id: "",
     status: "",
+    contentType: "",
   },
   L5: {
     label: "",
     id: "",
     status: "",
+    contentType: "",
   },
   L6: {
     label: "",
     id: "",
     status: "",
+    contentType: "",
   },
   R1: {
     label: "",
     id: "",
     status: "",
+    contentType: "",
   },
   R2: {
     label: "",
     id: "",
     status: "",
+    contentType: "",
   },
   R3: {
     label: "",
     id: "",
     status: "",
+    contentType: "",
   },
   R4: {
     label: "",
     id: "",
     status: "",
+    contentType: "",
   },
   R5: {
     label: "",
     id: "",
     status: "",
+    contentType: "",
   },
   R6: {
     label: "",
     id: "",
     status: "",
+    contentType: "",
   },
   BL: {
     label: "",
     id: "",
     status: "",
+    contentType: "",
   },
   BM: {
     label: "",
     id: "",
     status: "",
+    contentType: "",
   },
   BR: {
     label: "",
     id: "",
     status: "",
+    contentType: "",
   },
+};
+
+/**
+ * Infer content type from block data for backward compatibility
+ * @param {Object} block - Virtual block data
+ * @returns {string} - Content type: 'text', 'link', or 'object'
+ */
+const inferContentType = (block) => {
+  // If contentFormat is already specified, use it
+  if (block.contentFormat) {
+    return block.contentFormat;
+  }
+
+  // Check if it's a known text block
+  if (block.contentType === NOTES || block.contentType === SUMMARY) {
+    return "text";
+  }
+
+  // Check if contentValue is a URL pattern
+  if (
+    block.contentValue &&
+    typeof block.contentValue === "string" &&
+    /^https?:\/\//.test(block.contentValue)
+  ) {
+    return "link";
+  }
+
+  // Default to object (interactive content)
+  return "object";
 };
 
 export const parseVirtualBlocksFromPages = (pages) => {
@@ -167,6 +214,7 @@ export const parseVirtualBlocksFromPages = (pages) => {
         id: v_block.contentValue,
         label: v_block.contentType,
         status: SERVER,
+        contentType: inferContentType(v_block),
       };
     });
 
@@ -184,6 +232,7 @@ export const parseVirtualBlocksFromActivePage = (page) => {
       id: v_block.contentValue,
       label: v_block.contentType,
       status: SERVER,
+      contentType: inferContentType(v_block),
     };
   });
 
