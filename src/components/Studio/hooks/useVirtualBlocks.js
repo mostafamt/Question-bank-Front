@@ -2,10 +2,13 @@ import React from "react";
 import { parseVirtualBlocksFromPages } from "../../../utils/virtual-blocks";
 import { TIMEOUTS } from "../constants";
 
-const useVirtualBlocks = ({ pages, subObject = false, recalculateAreas }) => {
-  const [virtualBlocks, setVirtualBlocks] = React.useState(
-    subObject ? [] : parseVirtualBlocksFromPages(pages)
-  );
+const useVirtualBlocks = ({
+  virtualBlocks,
+  setVirtualBlocks,
+  pages,
+  subObject = false,
+  recalculateAreas,
+}) => {
   const [showVB, setShowVB] = React.useState(false);
 
   const onClickToggleVirutalBlocks = () => {
@@ -16,8 +19,6 @@ const useVirtualBlocks = ({ pages, subObject = false, recalculateAreas }) => {
   };
 
   return {
-    virtualBlocks,
-    setVirtualBlocks,
     showVB,
     setShowVB,
     onClickToggleVirutalBlocks,

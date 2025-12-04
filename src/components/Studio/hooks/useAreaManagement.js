@@ -22,6 +22,7 @@ const useAreaManagement = ({
   handleSubmit,
   updateAreaPropertyForParent,
   activePageId,
+  virtualBlocks,
   refetch,
 }) => {
   const [areas, setAreas] = React.useState(() => initAreas(pages));
@@ -32,9 +33,6 @@ const useAreaManagement = ({
     initAreasProperties(pages, types)
   );
 
-  const [virtualBlocks, setVirtualBlocks] = React.useState(
-    subObject ? [] : parseVirtualBlocksFromPages(pages)
-  );
   const [showVB, setShowVB] = React.useState(false);
 
   const getBlockFromBlockId = (id) => {
@@ -250,7 +248,6 @@ const useAreaManagement = ({
     onChangeArea,
     onClickSubmit,
     onClickToggleVirutalBlocks,
-    
   };
 };
 

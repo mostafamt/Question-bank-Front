@@ -67,6 +67,10 @@ const Studio = (props) => {
   const studioEditorRef = React.useRef(null);
   const canvasRef = React.createRef();
 
+  const [virtualBlocks, setVirtualBlocks] = React.useState(
+    subObject ? [] : parseVirtualBlocksFromPages(pages)
+  );
+
   // const studioState =
   //   useStudioState({ areas, setAreas, areasProperties, setAreasProperties });
 
@@ -98,13 +102,9 @@ const Studio = (props) => {
     refetch,
   });
 
-  const {
+  const { showVB, setShowVB, onClickToggleVirutalBlocks } = useVirtualBlocks({
     virtualBlocks,
     setVirtualBlocks,
-    showVB,
-    setShowVB,
-    onClickToggleVirutalBlocks,
-  } = useVirtualBlocks({
     pages,
     subObject,
     recalculateAreas,
