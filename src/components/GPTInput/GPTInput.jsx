@@ -3,8 +3,10 @@ import React from "react";
 import styles from "./gPtInput.module.scss";
 import { Button, CircularProgress, TextField } from "@mui/material";
 import { toast } from "react-toastify";
-import { createObjectGPT } from "../../services/api";
+import { createObjectGPT, newSaveObject } from "../../services/api";
 import { useStore } from "../../store/store";
+import SaveIcon from "@mui/icons-material/Save";
+import { v4 as uuidv4 } from "uuid";
 
 const GPTInput = () => {
   const { data: state, setFormState } = useStore();
@@ -12,6 +14,7 @@ const GPTInput = () => {
   const [json, setJson] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [result, setResult] = React.useState("");
+  const [loadingSave, setLoadingSave] = React.useState(false);
 
   const onClickSubmit = async (e) => {
     e.preventDefault();
@@ -39,6 +42,27 @@ const GPTInput = () => {
     setLoading(false);
   };
 
+  const onClickSave = async (e) => {
+    setLoadingSave(true);
+    console.log("onClickSave");
+    const data = {
+      questionName: state.questionName || `object ${uuidv4().slice(0, 4)}`,
+      objectOwner: "me",
+      domainId: "ea593b9efe036879f9329e46051356af",
+      subDomainId: "8922af923453305fb60e39f5c205ccdb",
+      topic: "topic",
+      language: "en",
+      type: state.type,
+      IR: "test",
+      domainName: "Scube Test Domain",
+      subDomainName: "Scube Test Sub Domain",
+      parameters: json,
+    };
+    const res = await newSaveObject(data);
+    toast.success("Object Saved Successfully");
+    setLoadingSave(false);
+  };
+
   return (
     <div className={styles["gpt"]}>
       <form onSubmit={onClickSubmit}>
@@ -59,7 +83,22 @@ const GPTInput = () => {
           </Button>
         </div>
       </form>
-      <div>{result}</div>
+      {result && (
+        <div className={styles["result"]}>
+          <span>{result}</span>
+          <Button
+            variant="contained"
+            type="button"
+            endIcon={
+              loadingSave ? <CircularProgress size="1rem" /> : <SaveIcon />
+            }
+            onClick={onClickSave}
+            disabled={loadingSave}
+          >
+            Save
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

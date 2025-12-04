@@ -135,3 +135,15 @@ export const getQuestionTypes = async () => {
   // const res = await axios.get("interactive-object-types");
   // return res;
 };
+
+export const newSaveObject = async (data) => {
+  try {
+    const res = await axios.post("/interactive-objects", data);
+    return res.data;
+  } catch (error) {
+    toast.error(error?.message);
+    toast.error(error?.response?.data);
+    toast.error(error?.response?.data?.message);
+    return null;
+  }
+};
