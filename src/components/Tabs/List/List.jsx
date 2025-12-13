@@ -97,9 +97,18 @@ const List = (props) => {
   const handleDelete = React.useCallback(
     (id) => {
       if (!id) return;
-      setObjects((prevState) => prevState.filter((item) => item._id !== id));
+
+      if (tab.name === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.name) {
+        setObjects((prevState) =>
+          prevState.map((item) =>
+            item._id === id ? { ...item, status: "deleted" } : item
+          )
+        );
+      } else {
+        setObjects((prevState) => prevState.filter((item) => item._id !== id));
+      }
     },
-    [setObjects]
+    [setObjects, tab.name]
   );
 
   const handleEdit = React.useCallback(
@@ -163,7 +172,12 @@ const List = (props) => {
       ids: objects.map((item) => item._id),
     };
 
-    mutation.mutate(ids);
+    if (tab.name === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.name) {
+      console.log("objects= ", objects);
+      mutation.mutate(objects);
+    } else {
+      mutation.mutate(ids);
+    }
   };
 
   const objectsList = React.useMemo(() => {
@@ -171,21 +185,23 @@ const List = (props) => {
     if (!objects.length) return <p>{tab.label} is empty</p>;
 
     if (tab.name === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.name) {
-      return objects.map((item, idx) => (
-        <GlossaryListItem
-          key={item.id || idx}
-          item={item}
-          handleClick={handleClick}
-          idx={idx}
-          open={open}
-          onPlay={() => handlePlay(item)}
-          onEdit={() => handleEdit(item)}
-          onDelete={() => handleDelete(item._id)}
-          onMoveUp={() => handleMoveUp(item)}
-          onMoveDown={() => handleMoveDown(item)}
-          reader={reader}
-        />
-      ));
+      return objects
+        .filter((item) => item.status !== "deleted")
+        .map((item, idx) => (
+          <GlossaryListItem
+            key={item.id || idx}
+            item={item}
+            handleClick={handleClick}
+            idx={idx}
+            open={open}
+            onPlay={() => handlePlay(item)}
+            onEdit={() => handleEdit(item)}
+            onDelete={() => handleDelete(item._id)}
+            onMoveUp={() => handleMoveUp(item)}
+            onMoveDown={() => handleMoveDown(item)}
+            reader={reader}
+          />
+        ));
     } else {
       return objects.map((item) => (
         <ListItem

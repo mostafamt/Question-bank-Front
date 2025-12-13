@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import newTypes from "./NewTypes.json";
 import { useStore } from "../store/store";
+import { RIGHT_TAB_NAMES } from "../components/Studio/constants";
 
 export const wait = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -127,6 +128,16 @@ export const getTabObjects = async (chapterId, tabName) => {
   try {
     const res = await axios2.get(`/chapters/${chapterId}/${tabName}`);
     const data = res.data;
+
+    if (tabName === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.name) {
+      return data.map((item) => {
+        if (!item._id) {
+          return { ...item, _id: uuidv4() };
+        }
+        return item;
+      });
+    }
+
     return data;
   } catch (error) {
     toast.error(error?.message);
