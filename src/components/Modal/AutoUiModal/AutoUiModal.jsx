@@ -15,7 +15,7 @@ const AutoUiModal = (props) => {
       </BootstrapModal.Header>
       <BootstrapModal.Body>
         <DrawnUI
-          type={workingArea.label}
+          type={workingArea.typeOfLabel}
           id={workingArea.text}
           fromOCR={true}
         />

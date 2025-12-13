@@ -10,6 +10,8 @@ import AreaItem from "../AreaItem/AreaItem";
 
 import styles from "./areaAction.module.scss";
 
+const SIMPLE_ITEM = "Simple item";
+
 const AreaAction = (props) => {
   const {
     parameter,
@@ -40,7 +42,7 @@ const AreaAction = (props) => {
   const handleEdit = (id, event) => {
     event.stopPropagation();
 
-    openModal(isComplexType(area.label) ? "auto-ui" : "quill", {
+    openModal(area.type !== SIMPLE_ITEM ? "auto-ui" : "quill", {
       workingArea: area,
       updateAreaPropertyById: updateAreaPropertyById,
     });
