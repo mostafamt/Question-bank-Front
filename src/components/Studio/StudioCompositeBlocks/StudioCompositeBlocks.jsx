@@ -10,6 +10,7 @@ import {
   getList2FromData,
   getTypeOfLabelForCompositeBlocks,
 } from "../../../utils/studio";
+import { colors } from "../../../constants/highlight-color";
 
 import { grey } from "@mui/material/colors";
 import { PlayArrow, Edit, DeleteForever, BackHand } from "@mui/icons-material";
@@ -36,6 +37,9 @@ const StudioCompositeBlocks = (props) => {
 
   const { openModal } = useStore();
 
+  // Track color index for sequential color assignment
+  const [compositeColorIndex, setCompositeColorIndex] = React.useState(0);
+
   const list1 = getList1FromData(compositeBlocksTypes);
   const list2 = getList2FromData(compositeBlocksTypes, compositeBlocks.type);
 
@@ -46,8 +50,15 @@ const StudioCompositeBlocks = (props) => {
       value
     );
 
+    // Get next color from palette using modulo for cycling
+    const nextColor = colors[compositeColorIndex % colors.length];
+
     onChangeCompositeBlocks(id, type, value);
     onChangeCompositeBlocks(id, "text", typeOfLabel);
+    onChangeCompositeBlocks(id, "color", nextColor);
+
+    // Increment color index for next assignment
+    setCompositeColorIndex((prev) => prev + 1);
 
     processCompositeBlock(id, typeOfLabel);
   };
