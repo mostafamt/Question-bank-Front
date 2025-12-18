@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from "react";
 import { AreaSelector } from "@bmunozg/react-image-area";
-import { constructBoxColors } from "../../../utils/ocr";
+import { constructBoxColors } from "../services/styling.service";
 import clsx from "clsx";
 /** @jsxImportSource @emotion/react */
 
@@ -29,6 +29,8 @@ const StudioAreaSelector = React.memo(
       highlight,
       highlightedBlockId,
     } = props;
+
+    console.log("compositeBlocks= ", compositeBlocks);
 
     const onClickExistedArea = useCallback(
       (areaProps) => {
@@ -194,7 +196,9 @@ const StudioAreaSelector = React.memo(
         <div
           className={styles.block}
           css={constructBoxColors(
-            areasProperties[activePage],
+            activeRightTab.label === "Composite Blocks"
+              ? compositeBlocks.areas
+              : areasProperties[activePage],
             highlightedBlockId
           )}
         >
