@@ -26,7 +26,7 @@ const addPropsToAreasForCompositeBlocks = (compositeBlocks, areasParam) => {
         id: uuidv4(),
         type: "",
         open: false,
-        color: colors[idx % colors.length],
+        // color: colors[idx % colors.length],
       };
     }
     return item;
