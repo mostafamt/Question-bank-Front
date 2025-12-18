@@ -30,8 +30,6 @@ const StudioAreaSelector = React.memo(
       highlightedBlockId,
     } = props;
 
-    console.log("compositeBlocks= ", compositeBlocks);
-
     const onClickExistedArea = useCallback(
       (areaProps) => {
         setAreasProperties((prevAreasProperties) => {
@@ -48,21 +46,43 @@ const StudioAreaSelector = React.memo(
     const customRender = useCallback(
       (areaProps) => {
         if (!areaProps.isChanging) {
-          return (
-            <div
-              key={areaProps.areaNumber}
-              onClick={() => onClickExistedArea(areaProps)}
-            >
-              <div className={styles.type}>
-                {areasProperties[activePage]?.[areaProps.areaNumber - 1]?.type}{" "}
-                -
-                {areasProperties[activePage]?.[areaProps.areaNumber - 1]?.label}
+          const isCompositeBlocksTab =
+            activeRightTab.label === "Composite Blocks";
+          const areaIndex = areaProps.areaNumber - 1;
+
+          let areaType, areaLabel;
+
+          if (isCompositeBlocksTab) {
+            const area = compositeBlocks.areas?.[areaIndex];
+            areaType = area?.type;
+            areaLabel = compositeBlocks?.type;
+          } else {
+            const area = areasProperties[activePage]?.[areaIndex];
+            areaType = area?.type;
+            areaLabel = area?.label;
+          }
+
+          if (areaType) {
+            return (
+              <div
+                key={areaProps.areaNumber}
+                onClick={() => onClickExistedArea(areaProps)}
+              >
+                <div className={styles.type}>
+                  {areaType} - {areaLabel}
+                </div>
               </div>
-            </div>
-          );
+            );
+          }
         }
       },
-      [onClickExistedArea, activePage]
+      [
+        onClickExistedArea,
+        activePage,
+        activeRightTab.label,
+        compositeBlocks,
+        areasProperties,
+      ]
     );
 
     const onImageLoad = useCallback(() => {
