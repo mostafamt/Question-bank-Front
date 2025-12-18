@@ -20,6 +20,8 @@ const StudioEditor = React.memo(
       onImageLoad,
       showVB,
       onClickImage,
+      readOnly = false,
+      onAreaClick,
     } = props;
 
     const studioEditorSelectorRef = React.useRef(null);

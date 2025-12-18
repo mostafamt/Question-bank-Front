@@ -8,6 +8,7 @@ import styles from "./studioAreaSelector.module.scss";
 import VirtualBlocks from "../../VirtualBlocks/VirtualBlocks";
 import { getList2FromData } from "../../../utils/studio";
 import { RIGHT_TAB_NAMES } from "../constants";
+import { hexToRgbA } from "../../../utils/helper";
 
 const StudioAreaSelector = React.memo(
   React.forwardRef((props, ref) => {
@@ -28,6 +29,8 @@ const StudioAreaSelector = React.memo(
       setCompositeBlocks,
       highlight,
       highlightedBlockId,
+      readOnly = false,
+      onAreaClick,
     } = props;
 
     const onClickExistedArea = useCallback(
@@ -66,7 +69,14 @@ const StudioAreaSelector = React.memo(
             return (
               <div
                 key={areaProps.areaNumber}
-                onClick={() => onClickExistedArea(areaProps)}
+                onClick={() => {
+                  if (readOnly && onAreaClick) {
+                    onAreaClick(areaProps);
+                  } else {
+                    onClickExistedArea(areaProps);
+                  }
+                }}
+                style={{ cursor: readOnly ? "pointer" : "default" }}
               >
                 <div className={styles.type}>
                   {areaType} - {areaLabel}
@@ -82,6 +92,8 @@ const StudioAreaSelector = React.memo(
         activeRightTab.label,
         compositeBlocks,
         areasProperties,
+        readOnly,
+        onAreaClick,
       ]
     );
 
@@ -222,7 +234,50 @@ const StudioAreaSelector = React.memo(
             highlightedBlockId
           )}
         >
-          {highlight === "hand" ? (
+          {readOnly ? (
+            <div style={{ position: "relative" }}>
+              {areas[activePage]?.map((area, idx) => {
+                const areaProps = areasProperties[activePage]?.[idx];
+                if (!areaProps?.blockId) return null;
+
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      position: "absolute",
+                      top: `${area.y}%`,
+                      left: `${area.x}%`,
+                      width: `${area.width}%`,
+                      height: `${area.height}%`,
+                      border: `2px solid ${areaProps.color || "#000"}`,
+                      backgroundColor: areaProps.color
+                        ? hexToRgbA(areaProps.color)
+                        : "rgba(0, 0, 0, 0.2)",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                    onClick={() => onAreaClick?.({ areaNumber: idx + 1 })}
+                  >
+                    {customRender({ areaNumber: idx + 1, isChanging: false })}
+                  </div>
+                );
+              })}
+              <img
+                src={pages[activePage]?.url}
+                alt={pages[activePage]?.url || pages[activePage]}
+                crossOrigin="anonymous"
+                ref={ref}
+                style={{
+                  width: `${imageScaleFactor * 100}%`,
+                  height: `${imageScaleFactor * 100}%`,
+                  overflow: "scroll",
+                }}
+                onLoad={onImageLoad}
+              />
+            </div>
+          ) : highlight === "hand" ? (
             <div style={{ position: "relative" }}>
               {blocksToRender}
               <img

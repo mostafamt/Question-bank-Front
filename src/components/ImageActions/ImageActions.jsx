@@ -31,7 +31,7 @@ const ImageActions = React.forwardRef((props, ref) => {
     onClickImage,
   } = props;
 
-  const [oldAreas, setOldAreas] = React.useState(areas[activePage] || []);
+  const [oldAreas, setOldAreas] = React.useState(areas?.[activePage] || []);
 
   const onClickZoomIn = () => {
     setImageScaleFactor(imageScaleFactor + DEGREE);

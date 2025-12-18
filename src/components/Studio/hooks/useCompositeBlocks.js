@@ -9,6 +9,9 @@ const useCompositeBlocks = ({
   studioEditorRef,
   language,
   chapterId,
+  openModal,
+  pages,
+  areasProperties,
 }) => {
   const [compositeBlocks, setCompositeBlocks] =
     React.useState(initCompositeBlocks);
@@ -80,6 +83,15 @@ const useCompositeBlocks = ({
     let text = "";
     if (typeOfLabel === "text") {
       text = await ocr(language, img);
+    } else if (typeOfLabel === "Object" || typeOfLabel === "QObject") {
+      openModal("composite-blocks-modal", {
+        compositeBlockAreaId: id,
+        onSelectObject: (blockId) => {
+          onChangeCompositeBlocks(id, "text", blockId);
+        },
+        pages,
+        areasProperties,
+      });
     }
 
     setCompositeBlocks((prevState) => {
@@ -122,7 +134,10 @@ const useCompositeBlocks = ({
       blocks,
     };
 
-    const id = await saveCompositeBlocks(data);
+    const response = await saveCompositeBlocks(data);
+    if (response) {
+      setCompositeBlocks(initCompositeBlocks);
+    }
 
     setLoadingSubmitCompositeBlocks(false);
   };

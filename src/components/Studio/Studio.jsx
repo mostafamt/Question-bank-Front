@@ -115,6 +115,8 @@ const Studio = (props) => {
   );
   const { bookId, chapterId } = useParams();
 
+  const { openModal } = useStore();
+
   const {
     compositeBlocks,
     setCompositeBlocks,
@@ -124,14 +126,20 @@ const Studio = (props) => {
     processCompositeBlock,
     onSubmitCompositeBlocks,
     onChangeCompositeBlockArea,
-  } = useCompositeBlocks({ canvasRef, studioEditorRef, language, chapterId });
+  } = useCompositeBlocks({
+    canvasRef,
+    studioEditorRef,
+    language,
+    chapterId,
+    openModal,
+    pages,
+    areasProperties,
+  });
 
   const { highlight, setHighlight, highlightedBlockId, hightBlock } =
     useStudioActions({
       getBlockFromBlockId,
     });
-
-  const { openModal } = useStore();
 
   const [showStickyToolbar, setShowStickyToolbar] = React.useState(false);
 

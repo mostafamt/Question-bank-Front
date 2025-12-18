@@ -57,6 +57,7 @@ export const saveBlocks = async (data) => {
 export const saveCompositeBlocks = async (data) => {
   try {
     const res = await axios2.post("/composite-objects", data);
+    toast.success("Composite Blocks submitted successfully");
     return res.data;
   } catch (error) {
     toast.error(error?.message);
