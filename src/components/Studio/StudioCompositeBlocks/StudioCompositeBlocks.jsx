@@ -96,9 +96,16 @@ const StudioCompositeBlocks = (props) => {
       return (
         <TextField
           size="small"
-          defaultValue={block.text}
+          value={block.text}
           sx={{ mt: 1 }}
           multiline
+          fullWidth
+          onChange={(e) => {
+            const newText = e.target.value;
+
+            // update compositeBlocksState
+            onChangeCompositeBlocks(block.id, "text", newText);
+          }}
         />
       );
     } else {
@@ -126,17 +133,6 @@ const StudioCompositeBlocks = (props) => {
 
   return (
     <div className={styles["studio-composite-blocks"]}>
-      <div className={styles["tool-box"]}>
-        <IconButton
-          aria-label="hand"
-          onClick={() => setHighlight(highlight === "hand" ? "" : "hand")}
-          sx={{
-            backgroundColor: highlight === "hand" ? "#ccc" : "transparent",
-          }}
-        >
-          <BackHand fontSize={iconFontSize} />
-        </IconButton>
-      </div>
       <div className={styles.header}>
         <TextField
           label="Name"
