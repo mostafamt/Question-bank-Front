@@ -1,8 +1,10 @@
 import React from "react";
+import { v4 as uuidv4 } from "uuid";
 import { initCompositeBlocks } from "../initializers";
 import { cropSelectedArea, ocr } from "../../../utils/ocr";
 import { saveCompositeBlocks } from "../../../services/api";
 import { addPropsToAreasForCompositeBlocks } from "../../../utils/studio";
+import { colors } from "../../../constants/highlight-color";
 
 const useCompositeBlocks = ({
   canvasRef,
@@ -20,6 +22,7 @@ const useCompositeBlocks = ({
     React.useState(false);
 
   const onChangeCompositeBlocks = (id, key, value) => {
+    // change type of composite blocks
     if (!id) {
       setCompositeBlocks((prevState) => ({
         ...prevState,
@@ -29,6 +32,7 @@ const useCompositeBlocks = ({
       return;
     }
 
+    // update area item
     setCompositeBlocks((prevState) => {
       return {
         ...prevState,
@@ -83,15 +87,6 @@ const useCompositeBlocks = ({
     let text = "";
     if (typeOfLabel === "text") {
       text = await ocr(language, img);
-    } else if (typeOfLabel === "Object" || typeOfLabel === "QObject") {
-      openModal("composite-blocks-modal", {
-        compositeBlockAreaId: id,
-        onSelectObject: (blockId) => {
-          onChangeCompositeBlocks(id, "text", blockId);
-        },
-        pages,
-        areasProperties,
-      });
     }
 
     setCompositeBlocks((prevState) => {
@@ -152,6 +147,56 @@ const useCompositeBlocks = ({
     setCompositeBlocks(compositeBlocksWithPropsAreas);
   };
 
+  const onClickHand = () => {
+    openModal("composite-blocks-modal", {
+      onSelectObject: (blockId) => {
+        // Find the selected object in areasProperties to get coordinates
+        let selectedObject = null;
+        let pageIndex = -1;
+
+        for (let i = 0; i < areasProperties.length; i++) {
+          const found = areasProperties[i].find(
+            (area) => area.blockId === blockId
+          );
+          if (found) {
+            selectedObject = found;
+            pageIndex = i;
+            break;
+          }
+        }
+
+        if (!selectedObject) {
+          console.error("Selected object not found in areasProperties");
+          return;
+        }
+
+        // Create new composite block area with object's coordinates
+        const newArea = {
+          id: uuidv4(),
+          x: selectedObject.x,
+          y: selectedObject.y,
+          width: selectedObject.width,
+          height: selectedObject.height,
+          unit: "%", // Use percentage for consistency
+          type: "", // Will be set by user in UI
+          text: blockId, // Set blockId as text
+          color: colors[compositeBlocks.areas.length % colors.length],
+          loading: false,
+          open: false,
+          img: null,
+        };
+
+        // Add new area to composite blocks
+        setCompositeBlocks((prevState) => ({
+          ...prevState,
+          areas: [...prevState.areas, newArea],
+        }));
+      },
+      pages,
+      areasProperties,
+    });
+  };
+
   return {
     compositeBlocks,
     setCompositeBlocks,
@@ -161,6 +206,7 @@ const useCompositeBlocks = ({
     processCompositeBlock,
     onSubmitCompositeBlocks,
     onChangeCompositeBlockArea,
+    onClickHand,
   };
 };
 

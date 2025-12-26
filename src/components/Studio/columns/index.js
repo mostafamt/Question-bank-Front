@@ -124,6 +124,7 @@ export const buildRightColumns = ({
   getBlockFromBlockId,
   hightBlock,
   changePageByIndex,
+  onClickHand,
 }) => {
   // Create navigation function that combines page change and highlighting
   const navigateToBlock = (pageId, blockId) => {
@@ -175,6 +176,7 @@ export const buildRightColumns = ({
           DeleteCompositeBlocks={DeleteCompositeBlocks}
           highlight={highlight}
           setHighlight={setHighlight}
+          onClickHand={onClickHand}
         />
       ),
     },
