@@ -126,6 +126,7 @@ const Studio = (props) => {
     processCompositeBlock,
     onSubmitCompositeBlocks,
     onChangeCompositeBlockArea,
+    onClickHand,
   } = useCompositeBlocks({
     canvasRef,
     studioEditorRef,
@@ -325,6 +326,7 @@ const Studio = (props) => {
     getBlockFromBlockId,
     hightBlock,
     changePageByIndex,
+    onClickHand,
   });
 
   const [activeLeftTab, setActiveLeftTab] = React.useState(LEFT_COLUMNS[0]);

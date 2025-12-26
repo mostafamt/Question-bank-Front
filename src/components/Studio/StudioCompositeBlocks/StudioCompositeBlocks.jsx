@@ -33,6 +33,7 @@ const StudioCompositeBlocks = (props) => {
     DeleteCompositeBlocks,
     highlight,
     setHighlight,
+    onClickHand,
   } = props;
 
   const { openModal } = useStore();
@@ -54,11 +55,15 @@ const StudioCompositeBlocks = (props) => {
     const nextColor = colors[compositeColorIndex % colors.length];
 
     onChangeCompositeBlocks(id, type, value);
-    onChangeCompositeBlocks(id, "text", typeOfLabel);
+    // onChangeCompositeBlocks(id, "text", typeOfLabel);
     onChangeCompositeBlocks(id, "color", nextColor);
 
     // Increment color index for next assignment
     setCompositeColorIndex((prev) => prev + 1);
+
+    if (typeOfLabel === "Object" || typeOfLabel === "QObject") {
+      return;
+    }
 
     processCompositeBlock(id, typeOfLabel);
   };
@@ -133,6 +138,17 @@ const StudioCompositeBlocks = (props) => {
 
   return (
     <div className={styles["studio-composite-blocks"]}>
+      <div>
+        <IconButton
+          aria-label="hand"
+          onClick={onClickHand}
+          sx={{
+            backgroundColor: highlight === "hand" ? "#ccc" : "transparent",
+          }}
+        >
+          <BackHand fontSize={iconFontSize} />
+        </IconButton>
+      </div>
       <div className={styles.header}>
         <TextField
           label="Name"
