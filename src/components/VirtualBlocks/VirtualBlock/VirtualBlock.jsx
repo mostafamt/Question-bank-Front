@@ -193,7 +193,7 @@ const VirtualBlock = (props) => {
             </IconButton>
             <div>
               {checkedObject?.label
-                .replace(/\p{Emoji_Presentation}|\p{Emoji}\uFE0F/gu, "")
+                ?.replace(/\p{Emoji_Presentation}|\p{Emoji}\uFE0F/gu, "")
                 .trim()}
             </div>
           </div>
