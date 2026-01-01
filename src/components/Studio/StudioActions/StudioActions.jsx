@@ -74,9 +74,9 @@ const StudioActions = (props) => {
             onClick={onClickToggleVirutalBlocks}
           >
             {showVB ? (
-              <VisibilityIcon fontSize={iconFontSize} />
-            ) : (
               <VisibilityOffIcon fontSize={iconFontSize} />
+            ) : (
+              <VisibilityIcon fontSize={iconFontSize} />
             )}
           </IconButton>
         </div>

@@ -41,7 +41,7 @@ const PlayObjectModal2 = () => {
   );
 
   return (
-    <div style={{ height: "50vh" }}>
+    <div style={{ height: "100vh" }}>
       <BootstrapModal.Header closeButton>
         <BootstrapModal.Title></BootstrapModal.Title>
       </BootstrapModal.Header>
