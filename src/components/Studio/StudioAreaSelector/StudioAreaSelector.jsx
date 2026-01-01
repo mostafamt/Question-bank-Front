@@ -9,6 +9,7 @@ import VirtualBlocks from "../../VirtualBlocks/VirtualBlocks";
 import { getList2FromData } from "../../../utils/studio";
 import { RIGHT_TAB_NAMES } from "../constants";
 import { hexToRgbA } from "../../../utils/helper";
+import { useAppMode } from "../../../utils/tabFiltering";
 
 const StudioAreaSelector = React.memo(
   React.forwardRef((props, ref) => {
@@ -31,7 +32,48 @@ const StudioAreaSelector = React.memo(
       highlightedBlockId,
       readOnly = false,
       onAreaClick,
+      onPlayBlock,
     } = props;
+
+    // Detect mode (reader vs studio)
+    const mode = useAppMode();
+    const isReaderMode = mode === "reader";
+
+    // Helper function to get block styles based on mode
+    const getBlockStyle = useCallback(
+      (area, idx) => {
+        console.log("area= ", area);
+        if (isReaderMode) {
+          // Reader mode: simple percentage positioning with no visual clutter
+          return {
+            position: "absolute",
+            top: `${area.y}px`,
+            left: `${area.x}px`,
+            width: `${area.width}px`,
+            height: `${area.height}px`,
+          };
+        } else {
+          // Studio mode: existing colored style for editing
+          const areaProps = areasProperties[activePage]?.[idx];
+          return {
+            position: "absolute",
+            top: `${area.y}%`,
+            left: `${area.x}%`,
+            width: `${area.width}%`,
+            height: `${area.height}%`,
+            border: `2px solid ${areaProps?.color || "#000"}`,
+            backgroundColor: areaProps?.color
+              ? hexToRgbA(areaProps.color)
+              : "rgba(0, 0, 0, 0.2)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          };
+        }
+      },
+      [isReaderMode, areasProperties, activePage]
+    );
 
     const onClickExistedArea = useCallback(
       (areaProps) => {
@@ -234,7 +276,36 @@ const StudioAreaSelector = React.memo(
             highlightedBlockId
           )}
         >
-          {readOnly ? (
+          {isReaderMode ? (
+            <div style={{ position: "relative" }}>
+              {areas[activePage]?.map((area, idx) => {
+                const areaProps = areasProperties[activePage]?.[idx];
+                if (!areaProps?.blockId) return null;
+
+                return (
+                  <button
+                    key={area.id || idx}
+                    className={styles["reader-area-button"]}
+                    style={getBlockStyle(area, idx)}
+                    onClick={() => onPlayBlock?.(area, areaProps)}
+                    aria-label={`Play ${areaProps.type || "content"}`}
+                  />
+                );
+              })}
+              <img
+                src={pages[activePage]?.url}
+                alt={pages[activePage]?.url || pages[activePage]}
+                crossOrigin="anonymous"
+                ref={ref}
+                style={{
+                  width: `${imageScaleFactor * 100}%`,
+                  height: `${imageScaleFactor * 100}%`,
+                  overflow: "scroll",
+                }}
+                onLoad={onImageLoad}
+              />
+            </div>
+          ) : readOnly ? (
             <div style={{ position: "relative" }}>
               {areas[activePage]?.map((area, idx) => {
                 const areaProps = areasProperties[activePage]?.[idx];
@@ -243,21 +314,7 @@ const StudioAreaSelector = React.memo(
                 return (
                   <div
                     key={idx}
-                    style={{
-                      position: "absolute",
-                      top: `${area.y}%`,
-                      left: `${area.x}%`,
-                      width: `${area.width}%`,
-                      height: `${area.height}%`,
-                      border: `2px solid ${areaProps.color || "#000"}`,
-                      backgroundColor: areaProps.color
-                        ? hexToRgbA(areaProps.color)
-                        : "rgba(0, 0, 0, 0.2)",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
+                    style={getBlockStyle(area, idx)}
                     onClick={() => onAreaClick?.({ areaNumber: idx + 1 })}
                   >
                     {customRender({ areaNumber: idx + 1, isChanging: false })}

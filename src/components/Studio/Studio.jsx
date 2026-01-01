@@ -12,6 +12,7 @@ import {
   getTypeOfLabel,
   getTypeOfLabel2,
   ocr,
+  isComplexType,
 } from "../../utils/ocr";
 import { addPropsToAreasForCompositeBlocks } from "../../utils/studio";
 import { useAppMode } from "../../utils/tabFiltering";
@@ -124,11 +125,11 @@ const Studio = (props) => {
 
   // Detect mode from URL (reader vs studio)
   const mode = useAppMode();
-  const isReaderMode = mode === 'reader';
+  const isReaderMode = mode === "reader";
 
   // Debug: Log mode detection
   React.useEffect(() => {
-    console.log('📍 Studio Mode Detection:', {
+    console.log("📍 Studio Mode Detection:", {
       mode,
       isReaderMode,
       pathname: location.pathname,
@@ -136,7 +137,44 @@ const Studio = (props) => {
     });
   }, [mode, isReaderMode, location.pathname]);
 
-  const { openModal } = useStore();
+  const { openModal, setFormState } = useStore();
+
+  // Handler for playing blocks in reader mode
+  const onPlayBlock = React.useCallback(
+    (area, areaProps) => {
+      if (!areaProps) return;
+
+      console.log("areaProps= ", areaProps);
+
+      // const isComplex = isComplexType(areaProps.type);
+      const isComplex =
+        areaProps.type === "Question" ||
+        areaProps.type === "Illustrative Object";
+
+      console.log("isComplex= ", isComplex);
+
+      if (isComplex) {
+        // Set the activeId in the store for PlayObjectModal2
+        setFormState({ activeId: areaProps.text });
+
+        // Open PlayObjectModal2
+        openModal("play-object-2");
+      } else {
+        // Handle text and image types in quill modal
+        openModal("quill", {
+          workingArea: {
+            blockId: areaProps.blockId,
+            contentType: areaProps.type,
+            text: areaProps.text,
+            typeOfLabel: areaProps.typeOfLabel,
+            image: areaProps.image,
+          },
+          updateAreaPropertyById: () => {},
+        });
+      }
+    },
+    [openModal, setFormState]
+  );
 
   const {
     compositeBlocks,
@@ -451,6 +489,7 @@ const Studio = (props) => {
           highlight={highlight}
           setHighlight={setHighlight}
           highlightedBlockId={highlightedBlockId}
+          onPlayBlock={onPlayBlock}
         />
         <BookColumn
           COLUMNS={RIGHT_COLUMNS}
