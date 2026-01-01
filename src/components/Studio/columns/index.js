@@ -7,6 +7,7 @@ import GlossaryAndKeywords from "../../Tabs/GlossaryAndKeywords/GlossaryAndKeywo
 import StudioCompositeBlocks from "../StudioCompositeBlocks/StudioCompositeBlocks";
 import StudioActions from "../StudioActions/StudioActions";
 import { LEFT_TAB_NAMES, RIGHT_TAB_NAMES } from "../constants";
+import { getTabsForSidebar } from "../../../utils/tabFiltering";
 
 export const buildLeftColumns = ({
   pages,
@@ -25,68 +26,87 @@ export const buildLeftColumns = ({
     if (hightBlock) hightBlock(blockId);
   };
 
-  return [
-    {
-      id: uuidv4(),
-      label: LEFT_TAB_NAMES.THUMBNAILS.label,
-      component: (
-        <StudioThumbnails
-          pages={pages}
-          activePage={activePageIndex}
-          onClickImage={changePageByIndex}
-          ref={thumbnailsRef}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: LEFT_TAB_NAMES.RECALLS.label,
-      component: (
-        <List
-          chapterId={chapterId}
-          tab={LEFT_TAB_NAMES.RECALLS}
-          changePageById={changePageById}
-          navigateToBlock={navigateToBlock}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: LEFT_TAB_NAMES.MICRO_LEARNING.label,
-      component: (
-        <List
-          chapterId={chapterId}
-          tab={LEFT_TAB_NAMES.MICRO_LEARNING}
-          changePageById={changePageById}
-          navigateToBlock={navigateToBlock}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: LEFT_TAB_NAMES.ENRICHING_CONTENT.label,
-      component: (
-        <List
-          chapterId={chapterId}
-          tab={LEFT_TAB_NAMES.ENRICHING_CONTENT}
-          changePageById={changePageById}
-          navigateToBlock={navigateToBlock}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: LEFT_TAB_NAMES.CHECK_YOURSELF.label,
-      component: (
-        <List
-          chapterId={chapterId}
-          tab={LEFT_TAB_NAMES.CHECK_YOURSELF}
-          changePageById={changePageById}
-          navigateToBlock={navigateToBlock}
-        />
-      ),
-    },
-  ];
+  // Get filtered tabs for studio mode
+  const tabConfigs = getTabsForSidebar('left', 'studio');
+
+  // Map tab configs to column objects
+  return tabConfigs.map(config => {
+    switch (config.id) {
+      case 'thumbnails':
+        return {
+          id: uuidv4(),
+          label: config.label,
+          component: (
+            <StudioThumbnails
+              pages={pages}
+              activePage={activePageIndex}
+              onClickImage={changePageByIndex}
+              ref={thumbnailsRef}
+            />
+          ),
+        };
+
+      case 'recalls':
+        return {
+          id: uuidv4(),
+          label: config.label,
+          component: (
+            <List
+              chapterId={chapterId}
+              tab={LEFT_TAB_NAMES.RECALLS}
+              changePageById={changePageById}
+              navigateToBlock={navigateToBlock}
+            />
+          ),
+        };
+
+      case 'micro-learning':
+        return {
+          id: uuidv4(),
+          label: config.label,
+          component: (
+            <List
+              chapterId={chapterId}
+              tab={LEFT_TAB_NAMES.MICRO_LEARNING}
+              changePageById={changePageById}
+              navigateToBlock={navigateToBlock}
+            />
+          ),
+        };
+
+      case 'enriching-content':
+        return {
+          id: uuidv4(),
+          label: config.label,
+          component: (
+            <List
+              chapterId={chapterId}
+              tab={LEFT_TAB_NAMES.ENRICHING_CONTENT}
+              changePageById={changePageById}
+              navigateToBlock={navigateToBlock}
+            />
+          ),
+        };
+
+      case 'check-yourself-left':
+        return {
+          id: uuidv4(),
+          label: config.label,
+          component: (
+            <List
+              chapterId={chapterId}
+              tab={LEFT_TAB_NAMES.CHECK_YOURSELF}
+              changePageById={changePageById}
+              navigateToBlock={navigateToBlock}
+            />
+          ),
+        };
+
+      default:
+        console.warn(`Unknown left tab ID: ${config.id}`);
+        return null;
+    }
+  }).filter(Boolean); // Remove nulls
 };
 
 export const buildRightColumns = ({
@@ -133,96 +153,113 @@ export const buildRightColumns = ({
     if (hightBlock) hightBlock(blockId);
   };
 
-  const actionsComponent = (
-    <StudioActions
-      areasProperties={areasProperties}
-      setAreasProperties={setAreasProperties}
-      activePage={activePageIndex}
-      onEditText={onEditText}
-      onClickDeleteArea={onClickDeleteArea}
-      type={type}
-      onClickSubmit={onClickSubmit}
-      loadingSubmit={loadingSubmit}
-      updateAreaProperty={updateAreaProperty}
-      updateAreaPropertyById={updateAreaPropertyById}
-      types={types}
-      onChangeLabel={onChangeLabel}
-      subObject={subObject}
-      tOfActiveType={tOfActiveType}
-      onSubmitAutoGenerate={onSubmitAutoGenerate}
-      loadingAutoGenerate={loadingAutoGenerate}
-      onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
-      showVB={showVB}
-    />
-  );
+  // Get filtered tabs for studio mode
+  const tabConfigs = getTabsForSidebar('right', 'studio');
 
-  return [
-    {
-      id: uuidv4(),
-      label: RIGHT_TAB_NAMES.BLOCK_AUTHORING.label,
-      component: actionsComponent,
-    },
-    {
-      id: uuidv4(),
-      label: RIGHT_TAB_NAMES.COMPOSITE_BLOCKS.label,
-      component: (
-        <StudioCompositeBlocks
-          compositeBlocks={compositeBlocks}
-          compositeBlocksTypes={compositeBlocksTypes}
-          onChangeCompositeBlocks={onChangeCompositeBlocks}
-          processCompositeBlock={processCompositeBlock}
-          onSubmitCompositeBlocks={onSubmitCompositeBlocks}
-          loadingSubmitCompositeBlocks={loadingSubmitCompositeBlocks}
-          DeleteCompositeBlocks={DeleteCompositeBlocks}
-          highlight={highlight}
-          setHighlight={setHighlight}
-          onClickHand={onClickHand}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: RIGHT_TAB_NAMES.TABLE_OF_CONTENTS.label,
-      component: (
-        <TableOfContents
-          pages={pages}
-          chapterId={chapterId}
-          onChangeActivePage={(newPage) => {
-            const newIndex = pages.findIndex((p) => p._id === newPage._id);
-            if (newIndex !== -1 && changePageByIndex) {
-              changePageByIndex(newIndex);
-            }
-          }}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.label,
-      component: (
-        <List
-          chapterId={chapterId}
-          tab={RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS}
-          changePageById={changePageById}
-          getBlockFromBlockId={getBlockFromBlockId}
-          hightBlock={hightBlock}
-          navigateToBlock={navigateToBlock}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS.label,
-      component: (
-        <List
-          chapterId={chapterId}
-          tab={RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS}
-          changePageById={changePageById}
-          navigateToBlock={navigateToBlock}
-        />
-      ),
-    },
-  ];
+  // Map tab configs to column objects
+  return tabConfigs.map(config => {
+    switch (config.id) {
+      case 'table-of-contents':
+        return {
+          id: uuidv4(),
+          label: config.label,
+          component: (
+            <TableOfContents
+              pages={pages}
+              chapterId={chapterId}
+              onChangeActivePage={(newPage) => {
+                const newIndex = pages.findIndex((p) => p._id === newPage._id);
+                if (newIndex !== -1 && changePageByIndex) {
+                  changePageByIndex(newIndex);
+                }
+              }}
+            />
+          ),
+        };
+
+      case 'glossary-keywords':
+        return {
+          id: uuidv4(),
+          label: config.label,
+          component: (
+            <List
+              chapterId={chapterId}
+              tab={RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS}
+              changePageById={changePageById}
+              getBlockFromBlockId={getBlockFromBlockId}
+              hightBlock={hightBlock}
+              navigateToBlock={navigateToBlock}
+            />
+          ),
+        };
+
+      case 'illustrative-interactions':
+        return {
+          id: uuidv4(),
+          label: config.label,
+          component: (
+            <List
+              chapterId={chapterId}
+              tab={RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS}
+              changePageById={changePageById}
+              navigateToBlock={navigateToBlock}
+            />
+          ),
+        };
+
+      case 'block-authoring':
+        return {
+          id: uuidv4(),
+          label: config.label,
+          component: (
+            <StudioActions
+              areasProperties={areasProperties}
+              setAreasProperties={setAreasProperties}
+              activePage={activePageIndex}
+              onEditText={onEditText}
+              onClickDeleteArea={onClickDeleteArea}
+              type={type}
+              onClickSubmit={onClickSubmit}
+              loadingSubmit={loadingSubmit}
+              updateAreaProperty={updateAreaProperty}
+              updateAreaPropertyById={updateAreaPropertyById}
+              types={types}
+              onChangeLabel={onChangeLabel}
+              subObject={subObject}
+              tOfActiveType={tOfActiveType}
+              onSubmitAutoGenerate={onSubmitAutoGenerate}
+              loadingAutoGenerate={loadingAutoGenerate}
+              onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
+              showVB={showVB}
+            />
+          ),
+        };
+
+      case 'composite-blocks':
+        return {
+          id: uuidv4(),
+          label: config.label,
+          component: (
+            <StudioCompositeBlocks
+              compositeBlocks={compositeBlocks}
+              compositeBlocksTypes={compositeBlocksTypes}
+              onChangeCompositeBlocks={onChangeCompositeBlocks}
+              processCompositeBlock={processCompositeBlock}
+              onSubmitCompositeBlocks={onSubmitCompositeBlocks}
+              loadingSubmitCompositeBlocks={loadingSubmitCompositeBlocks}
+              DeleteCompositeBlocks={DeleteCompositeBlocks}
+              highlight={highlight}
+              setHighlight={setHighlight}
+              onClickHand={onClickHand}
+            />
+          ),
+        };
+
+      default:
+        console.warn(`Unknown right tab ID: ${config.id}`);
+        return null;
+    }
+  }).filter(Boolean); // Remove nulls
 };
 
 // Export Reader builders

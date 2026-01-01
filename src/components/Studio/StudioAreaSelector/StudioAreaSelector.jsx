@@ -194,8 +194,8 @@ const StudioAreaSelector = React.memo(
 
     const renderedAreas = useMemo(() => {
       return activeRightTab.label === "Composite Blocks"
-        ? compositeBlocks.areas
-        : areas[activePage];
+        ? compositeBlocks.areas || []
+        : areas[activePage] || [];
     }, [activeRightTab.label, compositeBlocks.areas, areas, activePage]);
 
     const wrapperStyle = useMemo(
@@ -229,8 +229,8 @@ const StudioAreaSelector = React.memo(
           className={styles.block}
           css={constructBoxColors(
             activeRightTab.label === "Composite Blocks"
-              ? compositeBlocks.areas
-              : areasProperties[activePage],
+              ? compositeBlocks.areas || []
+              : areasProperties[activePage] || [],
             highlightedBlockId
           )}
         >

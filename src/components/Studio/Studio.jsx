@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Alert } from "@mui/material";
 import { colors } from "../../constants/highlight-color";
@@ -14,7 +14,13 @@ import {
   ocr,
 } from "../../utils/ocr";
 import { addPropsToAreasForCompositeBlocks } from "../../utils/studio";
-import { buildLeftColumns, buildRightColumns } from "./columns";
+import { useAppMode } from "../../utils/tabFiltering";
+import {
+  buildLeftColumns,
+  buildRightColumns,
+  buildReaderLeftColumns,
+  buildReaderRightColumns,
+} from "./columns";
 
 import {
   RIGHT_TAB_NAMES,
@@ -114,6 +120,21 @@ const Studio = (props) => {
     lang === LANGUAGE_CODES.ENGLISH ? ENGLISH : ARABIC
   );
   const { bookId, chapterId } = useParams();
+  const location = useLocation();
+
+  // Detect mode from URL (reader vs studio)
+  const mode = useAppMode();
+  const isReaderMode = mode === 'reader';
+
+  // Debug: Log mode detection
+  React.useEffect(() => {
+    console.log('📍 Studio Mode Detection:', {
+      mode,
+      isReaderMode,
+      pathname: location.pathname,
+      url: window.location.href,
+    });
+  }, [mode, isReaderMode, location.pathname]);
 
   const { openModal } = useStore();
 
@@ -280,54 +301,94 @@ const Studio = (props) => {
     }
   };
 
-  const LEFT_COLUMNS = buildLeftColumns({
-    pages,
-    chapterId,
-    activePageIndex,
-    changePageByIndex,
-    thumbnailsRef,
-    changePageById,
-    getBlockFromBlockId,
-    hightBlock,
-  });
+  // Create navigation function for reader mode
+  const navigateToBlock = (pageId, blockId) => {
+    if (changePageById) changePageById(pageId);
+    if (getBlockFromBlockId) getBlockFromBlockId(blockId);
+    if (hightBlock) hightBlock(blockId);
+  };
 
-  const RIGHT_COLUMNS = buildRightColumns({
-    areasProperties,
-    setAreasProperties,
-    activePageIndex,
-    onEditText,
-    onClickDeleteArea,
-    type,
-    onClickSubmit,
-    loadingSubmit,
-    updateAreaProperty,
-    updateAreaPropertyById,
-    types,
-    onChangeLabel,
-    subObject,
-    tOfActiveType,
-    onSubmitAutoGenerate,
-    loadingAutoGenerate,
-    onClickToggleVirutalBlocks,
-    showVB,
-    compositeBlocks,
-    compositeBlocksTypes,
-    onChangeCompositeBlocks,
-    processCompositeBlock,
-    onSubmitCompositeBlocks,
-    loadingSubmitCompositeBlocks,
-    DeleteCompositeBlocks,
-    highlight,
-    setHighlight,
-    chapterId,
-    pages,
-    setActivePageIndex,
-    changePageById,
-    getBlockFromBlockId,
-    hightBlock,
-    changePageByIndex,
-    onClickHand,
-  });
+  // Build columns based on mode
+  const LEFT_COLUMNS = isReaderMode
+    ? buildReaderLeftColumns({
+        pages,
+        activePage: pages?.[activePageIndex],
+        setActivePage: (page) => {
+          const newIndex = pages.findIndex((p) => p._id === page._id);
+          if (newIndex !== -1) changePageByIndex(newIndex);
+        },
+        onChangeActivePage: (page) => {
+          const newIndex = pages.findIndex((p) => p._id === page._id);
+          if (newIndex !== -1) changePageByIndex(newIndex);
+        },
+        changePageById,
+        navigateToBlock,
+        chapterId,
+        thumbnailsRef,
+      })
+    : buildLeftColumns({
+        pages,
+        chapterId,
+        activePageIndex,
+        changePageByIndex,
+        thumbnailsRef,
+        changePageById,
+        getBlockFromBlockId,
+        hightBlock,
+      });
+
+  const RIGHT_COLUMNS = isReaderMode
+    ? buildReaderRightColumns({
+        pages,
+        setActivePage: (page) => {
+          const newIndex = pages.findIndex((p) => p._id === page._id);
+          if (newIndex !== -1) changePageByIndex(newIndex);
+        },
+        onChangeActivePage: (page) => {
+          const newIndex = pages.findIndex((p) => p._id === page._id);
+          if (newIndex !== -1) changePageByIndex(newIndex);
+        },
+        changePageById,
+        navigateToBlock,
+        chapterId,
+      })
+    : buildRightColumns({
+        areasProperties,
+        setAreasProperties,
+        activePageIndex,
+        onEditText,
+        onClickDeleteArea,
+        type,
+        onClickSubmit,
+        loadingSubmit,
+        updateAreaProperty,
+        updateAreaPropertyById,
+        types,
+        onChangeLabel,
+        subObject,
+        tOfActiveType,
+        onSubmitAutoGenerate,
+        loadingAutoGenerate,
+        onClickToggleVirutalBlocks,
+        showVB,
+        compositeBlocks,
+        compositeBlocksTypes,
+        onChangeCompositeBlocks,
+        processCompositeBlock,
+        onSubmitCompositeBlocks,
+        loadingSubmitCompositeBlocks,
+        DeleteCompositeBlocks,
+        highlight,
+        setHighlight,
+        chapterId,
+        pages,
+        setActivePageIndex,
+        changePageById,
+        getBlockFromBlockId,
+        hightBlock,
+        changePageByIndex,
+        onClickHand,
+      });
 
   const [activeLeftTab, setActiveLeftTab] = React.useState(LEFT_COLUMNS[0]);
   const [activeRightTab, setActiveRightTab] = React.useState(RIGHT_COLUMNS[0]);
