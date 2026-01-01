@@ -14,6 +14,7 @@ import { colors } from "../../../constants/highlight-color";
 
 import { grey } from "@mui/material/colors";
 import { PlayArrow, Edit, DeleteForever, BackHand } from "@mui/icons-material";
+import Tooltip from "@mui/material/Tooltip";
 
 import styles from "./studioCompositeBlocks.module.scss";
 import AreaItem from "../../AreaItem/AreaItem";
@@ -139,15 +140,17 @@ const StudioCompositeBlocks = (props) => {
   return (
     <div className={styles["studio-composite-blocks"]}>
       <div>
-        <IconButton
-          aria-label="hand"
-          onClick={onClickHand}
-          sx={{
-            backgroundColor: highlight === "hand" ? "#ccc" : "transparent",
-          }}
-        >
-          <BackHand fontSize={iconFontSize} />
-        </IconButton>
+        <Tooltip title="Pick an object">
+          <IconButton
+            aria-label="hand"
+            onClick={onClickHand}
+            sx={{
+              backgroundColor: highlight === "hand" ? "#ccc" : "transparent",
+            }}
+          >
+            <BackHand fontSize={iconFontSize} />
+          </IconButton>
+        </Tooltip>
       </div>
       <div className={styles.header}>
         <TextField
