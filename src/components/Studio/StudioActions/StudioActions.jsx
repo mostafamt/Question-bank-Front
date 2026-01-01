@@ -45,7 +45,7 @@ const StudioActions = (props) => {
     // TODO
     // Need to fix
 
-    const orderArray = areasProperties[activePage].map((area) => area.order);
+    const orderArray = areasProperties[activePage]?.map((area) => area.order);
 
     const newOrderArray = reorder(
       orderArray,
@@ -55,7 +55,7 @@ const StudioActions = (props) => {
 
     const mergedOrderArray = [...areasProperties];
 
-    mergedOrderArray[activePage] = areasProperties[activePage].map(
+    mergedOrderArray[activePage] = areasProperties[activePage]?.map(
       (item, idx) => ({
         ...item,
         order: newOrderArray[idx],
@@ -90,10 +90,10 @@ const StudioActions = (props) => {
                 {...provided.droppableProps}
                 ref={provided.innerRef}
               >
-                {[...areasProperties[activePage]]
+                {(areasProperties[activePage] || [])
                   // ?.sort((a, b) => a.order - b.order)
                   .filter((item) => item.status !== DELETED)
-                  ?.map((area, idx) => {
+                  .map((area, idx) => {
                     const key = area.id || `area-${idx}`;
                     return (
                       <Draggable key={key} draggableId={key} index={idx}>
@@ -133,7 +133,7 @@ const StudioActions = (props) => {
           </Droppable>
         </DragDropContext>
 
-        {subObject && areasProperties[activePage]?.length === 0 && (
+        {subObject && (areasProperties[activePage] || []).length === 0 && (
           <div>
             <div>
               <Button
@@ -155,7 +155,7 @@ const StudioActions = (props) => {
           </div>
         )}
 
-        {areasProperties[activePage]?.length > 0 && (
+        {(areasProperties[activePage] || []).length > 0 && (
           <div>
             <Button
               variant="contained"
@@ -170,7 +170,7 @@ const StudioActions = (props) => {
             </Button>
           </div>
         )}
-        <div>Num of areas: {areasProperties[activePage]?.length}</div>
+        <div>Num of areas: {(areasProperties[activePage] || []).length}</div>
       </List>
     </div>
   );

@@ -1,10 +1,11 @@
 // reader.columns.js
 import { v4 as uuidv4 } from "uuid";
-import BookThumnails from "../../Book/BookThumnails/BookThumnails";
+import StudioThumbnails from "../StudioThumbnails/StudioThumbnails";
 import List from "../../Tabs/List/List";
 import TableOfContents from "../../Book/TableOfContents/TableOfContents";
 import GlossaryAndKeywords from "../../Tabs/GlossaryAndKeywords/GlossaryAndKeywords";
 import { LEFT_TAB_NAMES, RIGHT_TAB_NAMES } from "../constants";
+import { getTabsForSidebar } from "../../../utils/tabFiltering";
 
 /**
  * Build left columns for Book/Reader mode
@@ -29,60 +30,85 @@ export const buildReaderLeftColumns = ({
   chapterId,
   thumbnailsRef,
 }) => {
-  return [
-    {
-      id: uuidv4(),
-      label: LEFT_TAB_NAMES.THUMBNAILS.label,
-      component: (
-        <BookThumnails
-          pages={pages}
-          activePage={activePage}
-          setActivePage={setActivePage}
-          onChangeActivePage={onChangeActivePage}
-          ref={thumbnailsRef}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: LEFT_TAB_NAMES.RECALLS.label,
-      component: (
-        <List
-          chapterId={chapterId}
-          tab={LEFT_TAB_NAMES.RECALLS}
-          reader
-          changePageById={changePageById}
-          navigateToBlock={navigateToBlock}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: LEFT_TAB_NAMES.MICRO_LEARNING.label,
-      component: (
-        <List
-          chapterId={chapterId}
-          tab={LEFT_TAB_NAMES.MICRO_LEARNING}
-          reader
-          changePageById={changePageById}
-          navigateToBlock={navigateToBlock}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: LEFT_TAB_NAMES.ENRICHING_CONTENT.label,
-      component: (
-        <List
-          chapterId={chapterId}
-          tab={LEFT_TAB_NAMES.ENRICHING_CONTENT}
-          reader
-          changePageById={changePageById}
-          navigateToBlock={navigateToBlock}
-        />
-      ),
-    },
-  ];
+  // Get filtered tabs for reader mode
+  const tabConfigs = getTabsForSidebar("left", "reader");
+
+  // Map tab configs to column objects
+  return tabConfigs
+    .map((config) => {
+      switch (config.id) {
+        case "thumbnails":
+          // Find active page index for StudioThumbnails
+          const activePageIndex = pages?.findIndex((p) => p._id === activePage?._id) ?? 0;
+
+          return {
+            id: uuidv4(),
+            label: config.label,
+            component: (
+              <StudioThumbnails
+                pages={pages}
+                activePage={activePageIndex}
+                onClickImage={(index) => {
+                  const page = pages[index];
+                  if (page && setActivePage) setActivePage(page);
+                  if (page && onChangeActivePage) onChangeActivePage(page);
+                }}
+                ref={thumbnailsRef}
+              />
+            ),
+          };
+
+        case "recalls":
+          return {
+            id: uuidv4(),
+            label: config.label,
+            component: (
+              <List
+                chapterId={chapterId}
+                tab={LEFT_TAB_NAMES.RECALLS}
+                reader
+                changePageById={changePageById}
+                navigateToBlock={navigateToBlock}
+              />
+            ),
+          };
+
+        case "micro-learning":
+          return {
+            id: uuidv4(),
+            label: config.label,
+            component: (
+              <List
+                chapterId={chapterId}
+                tab={LEFT_TAB_NAMES.MICRO_LEARNING}
+                reader
+                changePageById={changePageById}
+                navigateToBlock={navigateToBlock}
+              />
+            ),
+          };
+
+        case "enriching-content":
+          return {
+            id: uuidv4(),
+            label: config.label,
+            component: (
+              <List
+                chapterId={chapterId}
+                tab={LEFT_TAB_NAMES.ENRICHING_CONTENT}
+                reader
+                changePageById={changePageById}
+                navigateToBlock={navigateToBlock}
+              />
+            ),
+          };
+
+        default:
+          console.warn(`Unknown reader left tab ID: ${config.id}`);
+          return null;
+      }
+    })
+    .filter(Boolean); // Remove nulls
 };
 
 /**
@@ -104,57 +130,76 @@ export const buildReaderRightColumns = ({
   navigateToBlock,
   chapterId,
 }) => {
-  return [
-    {
-      id: uuidv4(),
-      label: RIGHT_TAB_NAMES.TABLE_OF_CONTENTS.label,
-      component: (
-        <TableOfContents
-          pages={pages}
-          setActivePage={setActivePage}
-          chapterId={chapterId}
-          onChangeActivePage={onChangeActivePage}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.label,
-      component: (
-        <List
-          chapterId={chapterId}
-          tab={RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS}
-          reader
-          changePageById={changePageById}
-          navigateToBlock={navigateToBlock}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS.label,
-      component: (
-        <List
-          chapterId={chapterId}
-          tab={RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS}
-          reader
-          changePageById={changePageById}
-          navigateToBlock={navigateToBlock}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: LEFT_TAB_NAMES.CHECK_YOURSELF.label,
-      component: (
-        <List
-          chapterId={chapterId}
-          tab={LEFT_TAB_NAMES.CHECK_YOURSELF}
-          reader
-          changePageById={changePageById}
-          navigateToBlock={navigateToBlock}
-        />
-      ),
-    },
-  ];
+  // Get filtered tabs for reader mode
+  const tabConfigs = getTabsForSidebar("right", "reader");
+
+  // Map tab configs to column objects
+  return tabConfigs
+    .map((config) => {
+      switch (config.id) {
+        case "table-of-contents":
+          return {
+            id: uuidv4(),
+            label: config.label,
+            component: (
+              <TableOfContents
+                pages={pages}
+                setActivePage={setActivePage}
+                chapterId={chapterId}
+                onChangeActivePage={onChangeActivePage}
+              />
+            ),
+          };
+
+        case "glossary-keywords":
+          return {
+            id: uuidv4(),
+            label: config.label,
+            component: (
+              <List
+                chapterId={chapterId}
+                tab={RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS}
+                reader
+                changePageById={changePageById}
+                navigateToBlock={navigateToBlock}
+              />
+            ),
+          };
+
+        case "illustrative-interactions":
+          return {
+            id: uuidv4(),
+            label: config.label,
+            component: (
+              <List
+                chapterId={chapterId}
+                tab={RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS}
+                reader
+                changePageById={changePageById}
+                navigateToBlock={navigateToBlock}
+              />
+            ),
+          };
+
+        case "check-yourself-right":
+          return {
+            id: uuidv4(),
+            label: config.label,
+            component: (
+              <List
+                chapterId={chapterId}
+                tab={LEFT_TAB_NAMES.CHECK_YOURSELF}
+                reader
+                changePageById={changePageById}
+                navigateToBlock={navigateToBlock}
+              />
+            ),
+          };
+
+        default:
+          console.warn(`Unknown reader right tab ID: ${config.id}`);
+          return null;
+      }
+    })
+    .filter(Boolean); // Remove nulls
 };
