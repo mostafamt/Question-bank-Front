@@ -19,6 +19,7 @@ const StudioEditor = React.memo(
       pages,
       onImageLoad,
       showVB,
+      onClickToggleVirutalBlocks,
       onClickImage,
       readOnly = false,
       onAreaClick,
@@ -47,6 +48,8 @@ const StudioEditor = React.memo(
           ref={imageActionsRef}
           pages={pages}
           onClickImage={onClickImage}
+          showVB={showVB}
+          onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
         />
         <StudioAreaSelector
           {...props}

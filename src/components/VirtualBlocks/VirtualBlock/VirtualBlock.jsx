@@ -3,14 +3,11 @@ import MuiSelect from "../../MuiSelect/MuiSelect";
 import {
   CREATED,
   DELETED,
-  NOTES,
-  SUMMARY,
   VIRTUAL_BLOCK_MENU,
 } from "../../../utils/virtual-blocks";
 import IconButton from "@mui/material/IconButton";
+import Badge from "@mui/material/Badge";
 import { DeleteForever } from "@mui/icons-material";
-import axios from "../../../axios";
-import { toast } from "react-toastify";
 import { useStore } from "../../../store/store";
 import clsx from "clsx";
 
@@ -19,14 +16,15 @@ import styles from "./virtualBlock.module.scss";
 /**
  * VirtualBlock Component
  * Manages virtual blocks (notes, summaries, interactive objects) for book pages
+ * Now supports multiple content items per location
  *
  * @param {Object} props
- * @param {Object} props.checkedObject - Currently selected virtual block
+ * @param {Object} props.checkedObject - Currently selected virtual block with contents array
  * @param {Function} props.setCheckedObject - Update checked object state
- * @param {string} props.label - Block label identifier
+ * @param {string} props.label - Block label identifier (icon location)
  * @param {boolean} props.showVB - Whether to show the virtual block
  * @param {boolean} props.reader - Whether component is in reader mode
- * @param {Array} props.virtualBlocks - List of virtual blocks
+ * @param {Object} props.virtualBlocks - All virtual blocks
  * @param {Function} props.setVirtualBlocks - Update virtual blocks list
  */
 const VirtualBlock = (props) => {
@@ -40,319 +38,181 @@ const VirtualBlock = (props) => {
     setVirtualBlocks,
   } = props;
 
-  // Local state
-  const [header, setHeader] = React.useState("");
-  const [contentType, setContentType] = React.useState("");
-  const [textValue, setTextValue] = React.useState("");
-  const [objectName, setObjectName] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
-
-  // Content type options
-  const CONTENT_TYPES = ["text", "link", "object"];
-
   // Global store
-  const { data: state, setFormState, openModal, closeModal } = useStore();
+  const { openModal, closeModal } = useStore();
+
+  console.log("VirtualBlock render:", {
+    label,
+    checkedObject,
+    hasContents: checkedObject?.contents?.length > 0,
+  });
 
   /**
-   * Fetch interactive object data by ID
+   * Handle save contents from VirtualBlockContentModal
    */
-  const fetchObjectData = React.useCallback(async (id) => {
-    if (!id) return;
+  const handleSaveContents = React.useCallback(
+    (contents) => {
+      console.log("Saving contents:", contents);
 
-    setLoading(true);
-    try {
-      const res = await axios.get(`/interactive-objects/${id}`);
-      setObjectName(res.data?.questionName || "");
-    } catch (error) {
-      console.error("Failed to fetch object data:", error);
-      toast.error(`Failed to load object: ${error?.message}`);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  /**
-   * Load object data when checkedObject changes
-   */
-  React.useEffect(() => {
-    const isTextBlock =
-      checkedObject.label === NOTES || checkedObject.label === SUMMARY;
-
-    if (showVB && !isTextBlock && checkedObject?.id) {
-      fetchObjectData(checkedObject.id);
-    }
-  }, [checkedObject?.id, checkedObject?.label, fetchObjectData, showVB]);
-
-  /**
-   * Handle text block submission (Notes/Summary)
-   */
-  const handleTextBlockSubmit = React.useCallback(
-    (blockType, content) => {
-      // Update form state for text blocks
-      setFormState({
-        ...state,
-        virtual_block_label: blockType,
-        virtual_block_key: label,
-      });
-
-      // Update checked object with new content
+      // Update checked object with new contents array
       setCheckedObject({
-        label: blockType,
-        id: content,
-        status: CREATED,
-        contentType: "text",
+        contents: contents,
       });
 
       // Close modal
       closeModal();
     },
-    [state, label, setFormState, setCheckedObject, closeModal]
+    [setCheckedObject, closeModal]
   );
 
   /**
-   * Handle link block submission
+   * Handle label selection - opens VirtualBlockContentModal
    */
-  const handleLinkBlockSubmit = React.useCallback(
-    (blockType, linkUrl) => {
-      // Update form state for link blocks
-      setFormState({
-        ...state,
-        virtual_block_label: blockType,
-        virtual_block_key: label,
-      });
+  const handleLabelSelect = React.useCallback(
+    (selectedLabel) => {
+      console.log("Label selected:", selectedLabel);
 
-      // Update checked object with new link
-      setCheckedObject({
-        label: blockType,
-        id: linkUrl,
-        status: CREATED,
-        contentType: "link",
-      });
+      // Get existing contents for this location
+      const existingContents = checkedObject?.contents || [];
 
-      // Close modal
-      closeModal();
-    },
-    [state, label, setFormState, setCheckedObject, closeModal]
-  );
-
-  /**
-   * Open text editor modal for Notes/Summary
-   */
-  const openTextEditorModal = React.useCallback(
-    (blockType, initialValue = "") => {
-      openModal("text-editor", {
-        value: initialValue,
-        setValue: setTextValue,
-        onClickSubmit: (content) => handleTextBlockSubmit(blockType, content),
+      // Open modal with selected label and existing contents
+      openModal("virtual-block-content", {
+        selectedLabel: selectedLabel,
+        iconLocation: label,
+        existingContents: existingContents,
+        onSave: handleSaveContents,
       });
     },
-    [openModal, handleTextBlockSubmit]
+    [label, checkedObject?.contents, openModal, handleSaveContents]
   );
 
   /**
-   * Open link editor modal for link content
+   * Handle block type change from dropdown
    */
-  const openLinkEditorModal = React.useCallback(
-    (blockType, initialLink = "") => {
-      openModal("link-editor", {
-        value: initialLink,
-        onClickSubmit: (linkUrl) => handleLinkBlockSubmit(blockType, linkUrl),
-      });
-    },
-    [openModal, handleLinkBlockSubmit]
-  );
-
-  /**
-   * Open virtual blocks selection modal for interactive objects
-   */
-  const openVirtualBlocksModal = React.useCallback(
-    (blockType) => {
-      openModal("virtual-blocks", {
-        virtualBlocks: virtualBlocks,
-        setVirtualBlocks: setVirtualBlocks,
-      });
-
-      // Update form state for interactive objects
-      setFormState({
-        ...state,
-        virtual_block_label: blockType,
-        virtual_block_key: label,
-      });
-
-      // Update checked object
-      setCheckedObject({
-        label: blockType,
-        id: checkedObject?.id || "",
-        status: CREATED,
-        contentType: "object",
-      });
-    },
-    [
-      openModal,
-      virtualBlocks,
-      setVirtualBlocks,
-      setFormState,
-      state,
-      label,
-      setCheckedObject,
-      checkedObject?.id,
-    ]
-  );
-
-  /**
-   * Handle block type selection from dropdown
-   */
-  const handleBlockTypeChange = React.useCallback((e) => {
-    const selectedType = e.target.value;
-    setHeader(selectedType);
-    // Reset content type when block type changes
-    setContentType("");
-  }, []);
-
-  /**
-   * Handle content type selection from second dropdown
-   */
-  const handleContentTypeChange = React.useCallback(
+  const handleBlockTypeChange = React.useCallback(
     (e) => {
-      const selectedContentType = e.target.value;
-      setContentType(selectedContentType);
-
-      // Route to appropriate modal based on content type
-      switch (selectedContentType) {
-        case "text":
-          // Open text editor modal
-          openTextEditorModal(header, textValue);
-          break;
-        case "link":
-          // Open link editor modal
-          openLinkEditorModal(header, "");
-          break;
-        case "object":
-          // Open virtual blocks modal for interactive objects
-          openVirtualBlocksModal(header);
-          break;
-        default:
-          break;
+      const selectedLabel = e.target.value;
+      if (selectedLabel) {
+        handleLabelSelect(selectedLabel);
       }
     },
-    [
-      header,
-      textValue,
-      openTextEditorModal,
-      openLinkEditorModal,
-      openVirtualBlocksModal,
-    ]
+    [handleLabelSelect]
   );
 
   /**
-   * Handle delete/close button click
+   * Handle delete/clear button click
    */
   const handleDelete = React.useCallback(() => {
-    setHeader("");
     setCheckedObject({
-      ...checkedObject,
-      status: DELETED,
+      contents: [],
     });
-  }, [checkedObject, setCheckedObject]);
+  }, [setCheckedObject]);
 
   /**
-   * Handle play button click (edit mode)
+   * Handle edit button click - opens modal to edit contents
    */
-  const handlePlayEdit = React.useCallback(() => {
-    const contentType = checkedObject.contentType || "";
-
-    // Route based on content type
-    if (contentType === "text") {
-      // Open text editor with existing content
-      openTextEditorModal(checkedObject.label, checkedObject.id);
-    } else if (contentType === "link") {
-      // Open link editor with existing link
-      openLinkEditorModal(checkedObject.label, checkedObject.id);
-    } else if (contentType === "object") {
-      // Open interactive object player
-      openModal("play-object-2", {});
-      setFormState({
-        ...state,
-        activeId: checkedObject?.id,
-      });
-    } else {
-      // Fallback for legacy blocks without contentType
-      const isTextBlock =
-        checkedObject.label === NOTES || checkedObject.label === SUMMARY;
-
-      if (isTextBlock) {
-        openTextEditorModal(checkedObject.label, checkedObject.id);
-      } else {
-        openModal("play-object-2", {});
-        setFormState({
-          ...state,
-          activeId: checkedObject?.id,
-        });
-      }
+  const handleEdit = React.useCallback(() => {
+    if (!checkedObject?.contents || checkedObject.contents.length === 0) {
+      return;
     }
-  }, [
-    checkedObject,
-    openTextEditorModal,
-    openLinkEditorModal,
-    openModal,
-    setFormState,
-    state,
-  ]);
+
+    // Get the label from first content item
+    const firstContent = checkedObject.contents[0];
+    const blockLabel = firstContent.contentType;
+
+    // Open modal with existing contents
+    openModal("virtual-block-content", {
+      selectedLabel: blockLabel,
+      iconLocation: label,
+      existingContents: checkedObject.contents,
+      onSave: handleSaveContents,
+    });
+  }, [checkedObject?.contents, label, openModal, handleSaveContents]);
 
   /**
-   * Handle play button click (reader mode)
+   * Handle play button click in reader mode
+   * Opens modal to view all content items
    */
   const handlePlayReader = React.useCallback(() => {
-    const contentType = checkedObject.contentType || "";
+    if (!checkedObject?.contents || checkedObject.contents.length === 0) {
+      return;
+    }
 
-    if (contentType === "link") {
-      // Open link in new tab for reader mode
-      window.open(checkedObject.id, "_blank", "noopener,noreferrer");
-    } else if (contentType === "text") {
-      // Show text content in modal
-      openModal("text-viewer", {
-        content: checkedObject.id,
-        title: checkedObject.label,
-      });
+    // If only one item, play it directly
+    if (checkedObject.contents.length === 1) {
+      const item = checkedObject.contents[0];
+
+      if (item.type === "link") {
+        // Open link in new tab
+        window.open(item.contentValue, "_blank", "noopener,noreferrer");
+      } else if (item.type === "text") {
+        // Show text content in modal
+        openModal("text-editor", {
+          value: item.contentValue,
+          title: item.contentType,
+          onClickSubmit: null, // Read-only
+        });
+      } else if (item.type === "object") {
+        // Open interactive object player
+        openModal("play-object", {
+          id: item.contentValue,
+        });
+      }
     } else {
-      // Open interactive object player (default behavior)
-      openModal("play-object", {
-        id: checkedObject.id,
+      // Multiple items - open reader modal
+      const blockLabel = checkedObject.contents[0].contentType;
+      openModal("virtual-block-reader", {
+        blockLabel: blockLabel,
+        contents: checkedObject.contents,
       });
     }
-  }, [checkedObject, openModal]);
+  }, [checkedObject?.contents, openModal]);
 
   /**
    * Get icon for selected virtual block type
    */
   const selectedBlockIcon = React.useMemo(() => {
+    if (!checkedObject?.contents || checkedObject.contents.length === 0) {
+      return null;
+    }
+
+    const firstContent = checkedObject.contents[0];
     const selectedItem = VIRTUAL_BLOCK_MENU.find(
-      (item) => item.label === checkedObject?.label
+      (item) => item.label === firstContent.contentType
     );
     return selectedItem?.iconSrc;
-  }, [checkedObject?.label]);
+  }, [checkedObject?.contents]);
 
   /**
    * Get display label without emoji
    */
   const displayLabel = React.useMemo(() => {
-    if (!checkedObject?.label) return "";
-    return checkedObject.label
-      .replace(/\p{Emoji_Presentation}|\p{Emoji}\uFE0F/gu, "")
-      .trim();
-  }, [checkedObject?.label]);
+    if (!checkedObject?.contents || checkedObject.contents.length === 0) {
+      return "";
+    }
+
+    const firstContent = checkedObject.contents[0];
+    const label = firstContent.contentType || "";
+    return label.replace(/\p{Emoji_Presentation}|\p{Emoji}\uFE0F/gu, "").trim();
+  }, [checkedObject?.contents]);
+
+  /**
+   * Get content count
+   */
+  const contentCount = React.useMemo(() => {
+    return checkedObject?.contents?.length || 0;
+  }, [checkedObject?.contents]);
 
   // Don't render if virtual blocks are hidden
   if (!showVB) {
     return null;
   }
 
-  // Check if block exists and is not deleted
-  const hasActiveBlock =
-    checkedObject?.status && checkedObject.status !== DELETED;
+  // Check if block has active contents
+  const hasActiveBlock = contentCount > 0;
 
   /**
-   * Render active virtual block
+   * Render active virtual block with icon and badge
    */
   if (hasActiveBlock) {
     return (
@@ -366,31 +226,39 @@ const VirtualBlock = (props) => {
                 aria-label="delete virtual block"
                 size="small"
                 onClick={handleDelete}
-                disabled={loading}
               >
                 <DeleteForever color="error" />
               </IconButton>
             </div>
           )}
 
-          {/* Block icon and label */}
+          {/* Block icon with badge and label */}
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <IconButton
+            <Badge
+              badgeContent={contentCount}
               color="primary"
-              aria-label="play virtual block"
-              onClick={reader ? handlePlayReader : handlePlayEdit}
-              sx={{ padding: 0 }}
-              disabled={loading}
+              overlap="circular"
+              anchorOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
             >
-              {selectedBlockIcon && (
-                <img
-                  src={selectedBlockIcon}
-                  alt={displayLabel}
-                  width="50px"
-                  loading="lazy"
-                />
-              )}
-            </IconButton>
+              <IconButton
+                color="primary"
+                aria-label="view virtual block"
+                onClick={reader ? handlePlayReader : handleEdit}
+                sx={{ padding: 0 }}
+              >
+                {selectedBlockIcon && (
+                  <img
+                    src={selectedBlockIcon}
+                    alt={displayLabel}
+                    width="50px"
+                    loading="lazy"
+                  />
+                )}
+              </IconButton>
+            </Badge>
             <div>{displayLabel}</div>
           </div>
         </div>
@@ -407,21 +275,10 @@ const VirtualBlock = (props) => {
         <div className={styles["select"]}>
           <MuiSelect
             list={VIRTUAL_BLOCK_MENU.map((item) => item.label)}
-            value={header}
+            value=""
             onChange={handleBlockTypeChange}
-            disabled={loading}
           />
         </div>
-        {header && (
-          <div className={styles["select"]}>
-            <MuiSelect
-              list={CONTENT_TYPES}
-              value={contentType}
-              onChange={handleContentTypeChange}
-              disabled={loading}
-            />
-          </div>
-        )}
       </div>
     );
   }
