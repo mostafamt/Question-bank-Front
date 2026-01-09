@@ -266,6 +266,7 @@ const StudioAreaSelector = React.memo(
         virtualBlocks={virtualBlocks}
         setVirtualBlocks={setVirtualBlocks}
         activePage={activePage}
+        reader={isReaderMode}
       >
         <div
           className={styles.block}

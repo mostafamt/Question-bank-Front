@@ -16,6 +16,8 @@ import GlossaryModal from "./GlossaryModal/GlossaryModal";
 import CompositeBlocksModal from "./CompositeBlocksModal/CompositeBlocksModal";
 import VirtualBlockContentModal from "./VirtualBlockContentModal/VirtualBlockContentModal";
 import VirtualBlockReaderModal from "./VirtualBlockReaderModal/VirtualBlockReaderModal";
+import VirtualBlockReaderNavigationModal from "./VirtualBlockReaderNavigationModal/VirtualBlockReaderNavigationModal";
+import IframeDisplayModal from "./IframeDisplayModal/IframeDisplayModal";
 
 // Modal registry
 const MODAL_COMPONENTS = {
@@ -25,6 +27,8 @@ const MODAL_COMPONENTS = {
   "virtual-blocks": ObjectsTableModalContent2,
   "virtual-block-content": VirtualBlockContentModal,
   "virtual-block-reader": VirtualBlockReaderModal,
+  "virtual-block-reader-nav": VirtualBlockReaderNavigationModal,
+  "iframe-display": IframeDisplayModal,
   "auto-ui": AutoUiModal,
   quill: QuillModal,
   "text-editor": TextEditorModal,
