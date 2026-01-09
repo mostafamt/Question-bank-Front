@@ -14,6 +14,8 @@ import PlayCompositeBlocks from "./PlayCompositeBlocks/PlayCompositeBlocks";
 import EditCompositeBlocks from "./EditCompositeBlocks/EditCompositeBlocks";
 import GlossaryModal from "./GlossaryModal/GlossaryModal";
 import CompositeBlocksModal from "./CompositeBlocksModal/CompositeBlocksModal";
+import VirtualBlockContentModal from "./VirtualBlockContentModal/VirtualBlockContentModal";
+import VirtualBlockReaderModal from "./VirtualBlockReaderModal/VirtualBlockReaderModal";
 
 // Modal registry
 const MODAL_COMPONENTS = {
@@ -21,6 +23,8 @@ const MODAL_COMPONENTS = {
   "play-object-2": PlayObjectModal2,
   tabs: ObjectsTableModalContent,
   "virtual-blocks": ObjectsTableModalContent2,
+  "virtual-block-content": VirtualBlockContentModal,
+  "virtual-block-reader": VirtualBlockReaderModal,
   "auto-ui": AutoUiModal,
   quill: QuillModal,
   "text-editor": TextEditorModal,
