@@ -9,9 +9,12 @@ import {
   Box,
   Chip,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import { OpenInNew, Visibility, PlayArrow } from "@mui/icons-material";
 import { useStore } from "../../../store/store";
+import { toast } from "react-toastify";
+import { getObjectUrl } from "../../../utils/object-url";
 
 import styles from "./virtualBlockReaderModal.module.scss";
 
@@ -28,6 +31,9 @@ const VirtualBlockReaderModal = (props) => {
   const { blockLabel = "", contents = [], handleCloseModal } = props;
 
   const { openModal } = useStore();
+
+  // Loading state for fetching object URLs
+  const [loadingObjectUrl, setLoadingObjectUrl] = React.useState(false);
 
   console.log("VirtualBlockReaderModal opened with:", {
     blockLabel,
@@ -128,10 +134,11 @@ const VirtualBlockReaderModal = (props) => {
   /**
    * Handle viewing/playing a content item
    */
-  const handleViewContent = (item) => {
+  const handleViewContent = async (item) => {
     switch (item.type) {
       case "text":
-        // Open text viewer modal
+        // Text content - open text viewer (read-only)
+        console.log("Opening text content in text editor");
         openModal("text-editor", {
           value: item.contentValue,
           title: item.contentType,
@@ -140,15 +147,32 @@ const VirtualBlockReaderModal = (props) => {
         break;
 
       case "link":
-        // Open link in new tab
-        window.open(item.contentValue, "_blank", "noopener,noreferrer");
+        // Link content - open in iframe
+        console.log("Opening link content in iframe:", item.contentValue);
+        openModal("iframe-display", {
+          title: item.contentType,
+          url: item.contentValue,
+        });
         break;
 
       case "object":
-        // Open interactive object player
-        openModal("play-object", {
-          id: item.contentValue,
-        });
+        // Object content - fetch URL and open in iframe
+        console.log("Fetching URL for object:", item.contentValue);
+        setLoadingObjectUrl(true);
+        try {
+          const url = await getObjectUrl(item.contentValue);
+          console.log("Object URL retrieved:", url);
+
+          openModal("iframe-display", {
+            title: item.contentType,
+            url: url,
+          });
+        } catch (error) {
+          console.error("Failed to load object URL:", error);
+          toast.error(`Failed to load interactive object: ${error.message}`);
+        } finally {
+          setLoadingObjectUrl(false);
+        }
         break;
 
       default:
@@ -179,6 +203,34 @@ const VirtualBlockReaderModal = (props) => {
       </BootstrapModal.Header>
 
       <BootstrapModal.Body>
+        {/* Loading Overlay for Object URL Fetching */}
+        {loadingObjectUrl && (
+          <Box
+            sx={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "rgba(0, 0, 0, 0.7)",
+              zIndex: 9999,
+              gap: 2,
+            }}
+            role="status"
+            aria-live="assertive"
+            aria-label="Loading interactive object"
+          >
+            <CircularProgress size={60} sx={{ color: "white" }} />
+            <Typography variant="h6" sx={{ color: "white" }}>
+              Loading interactive object...
+            </Typography>
+          </Box>
+        )}
+
         <div
           className={styles.container}
           id="reader-modal-description"

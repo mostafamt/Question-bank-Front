@@ -12,6 +12,7 @@ const VirtualBlocks = (props) => {
     virtualBlocks,
     setVirtualBlocks,
     activePage,
+    reader = false,
   } = props;
 
   const virtualBlocksRenders = [];
@@ -30,6 +31,7 @@ const VirtualBlocks = (props) => {
         showVB={showVB}
         virtualBlocks={virtualBlocks}
         setVirtualBlocks={setVirtualBlocks}
+        reader={reader}
       />
     );
   }

@@ -9,6 +9,8 @@ import IconButton from "@mui/material/IconButton";
 import Badge from "@mui/material/Badge";
 import { DeleteForever } from "@mui/icons-material";
 import { useStore } from "../../../store/store";
+import { toast } from "react-toastify";
+import { getObjectUrl } from "../../../utils/object-url";
 import clsx from "clsx";
 
 import styles from "./virtualBlock.module.scss";
@@ -132,8 +134,10 @@ const VirtualBlock = (props) => {
   /**
    * Handle play button click in reader mode
    * Opens modal to view all content items
+   * For single items: displays directly in appropriate modal (text-editor or iframe-display)
+   * For multiple items: opens reader modal with list
    */
-  const handlePlayReader = React.useCallback(() => {
+  const handlePlayReader = React.useCallback(async () => {
     if (!checkedObject?.contents || checkedObject.contents.length === 0) {
       return;
     }
@@ -143,8 +147,11 @@ const VirtualBlock = (props) => {
       const item = checkedObject.contents[0];
 
       if (item.type === "link") {
-        // Open link in new tab
-        window.open(item.contentValue, "_blank", "noopener,noreferrer");
+        // Open link in iframe display modal
+        openModal("iframe-display", {
+          title: item.contentType,
+          url: item.contentValue,
+        });
       } else if (item.type === "text") {
         // Show text content in modal
         openModal("text-editor", {
@@ -153,17 +160,25 @@ const VirtualBlock = (props) => {
           onClickSubmit: null, // Read-only
         });
       } else if (item.type === "object") {
-        // Open interactive object player
-        openModal("play-object", {
-          id: item.contentValue,
-        });
+        // Fetch URL and open in iframe display modal
+        try {
+          const url = await getObjectUrl(item.contentValue);
+          openModal("iframe-display", {
+            title: item.contentType,
+            url: url,
+          });
+        } catch (error) {
+          toast.error("Failed to load interactive object");
+          console.error("Object URL fetch error:", error);
+        }
       }
     } else {
-      // Multiple items - open reader modal
+      // Multiple items - open navigation modal
       const blockLabel = checkedObject.contents[0].contentType;
-      openModal("virtual-block-reader", {
+      openModal("virtual-block-reader-nav", {
         blockLabel: blockLabel,
         contents: checkedObject.contents,
+        initialIndex: 0, // Start from first item
       });
     }
   }, [checkedObject?.contents, openModal]);
@@ -283,8 +298,8 @@ const VirtualBlock = (props) => {
     );
   }
 
-  // Reader mode with no active block - render nothing
-  return null;
+  // Reader mode with no active block - render empty placeholder to maintain grid layout
+  return <div className={clsx(styles["virtual-block"], styles["reader"])} />;
 };
 
 export default VirtualBlock;
