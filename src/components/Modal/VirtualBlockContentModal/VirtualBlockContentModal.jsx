@@ -34,7 +34,8 @@ const VirtualBlockContentModal = (props) => {
 
   // Local state for managing content items
   const [contents, setContents] = React.useState(existingContents);
-  const [showForm, setShowForm] = React.useState(false);
+  // Show form initially if no existing contents (new virtual block)
+  const [showForm, setShowForm] = React.useState(existingContents.length === 0);
   const [editingIndex, setEditingIndex] = React.useState(null);
 
   /**
@@ -179,7 +180,7 @@ const VirtualBlockContentModal = (props) => {
         </div>
       </BootstrapModal.Body>
 
-      <BootstrapModal.Footer>
+      <BootstrapModal.Footer style={{ display: 'flex', justifyContent: 'space-between' }}>
         <Button
           variant="outlined"
           color="secondary"

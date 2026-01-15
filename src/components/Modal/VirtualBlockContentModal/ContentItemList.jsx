@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import IconButton from "@mui/material/IconButton";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Edit, Delete, PlayArrow } from "@mui/icons-material";
@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 
 import { useStore } from "../../../store/store";
 import { getObjectUrl } from "../../../utils/object-url";
+import { getObject } from "../../../api/bookapi";
 import styles from "./virtualBlockContentModal.module.scss";
 
 /**
@@ -25,8 +26,62 @@ const ContentItemList = (props) => {
   // Get openModal function from Zustand store
   const openModal = useStore((state) => state.openModal);
 
-  // Track loading state for object URL fetching
+  // Track loading state for object URL fetching (play button)
   const [loadingIndex, setLoadingIndex] = useState(null);
+
+  // Track object metadata and loading state
+  const [objectMetadata, setObjectMetadata] = useState({});
+  const [loadingMetadata, setLoadingMetadata] = useState(true);
+
+  /**
+   * Fetch metadata for all object-type items on mount
+   */
+  useEffect(() => {
+    const fetchObjectMetadata = async () => {
+      // Filter out object-type items
+      const objectItems = contents.filter((item) => item.type === "object");
+
+      // If no objects, set loading to false and return
+      if (objectItems.length === 0) {
+        setLoadingMetadata(false);
+        return;
+      }
+
+      setLoadingMetadata(true);
+
+      try {
+        // Fetch all objects in parallel
+        const promises = objectItems.map((item) =>
+          getObject(item.contentValue)
+            .then((data) => ({ id: item.contentValue, data }))
+            .catch((err) => ({ id: item.contentValue, error: err }))
+        );
+
+        const results = await Promise.all(promises);
+
+        // Build metadata map
+        const metadataMap = {};
+        results.forEach((result) => {
+          if (result.data && result.data._id) {
+            metadataMap[result.id] = {
+              name: result.data.questionName || "Unnamed Object",
+              type: result.data.type || result.data.baseType || "Unknown Type",
+              domain: result.data.domainName || "",
+              subDomain: result.data.subDomainName || "",
+            };
+          }
+        });
+
+        setObjectMetadata(metadataMap);
+      } catch (error) {
+        console.error("Error fetching object metadata:", error);
+      } finally {
+        setLoadingMetadata(false);
+      }
+    };
+
+    fetchObjectMetadata();
+  }, [contents]);
 
   /**
    * Get display icon for content type
@@ -80,6 +135,37 @@ const ContentItemList = (props) => {
         return item.contentValue;
 
       case "object":
+        // Get metadata for this object
+        const metadata = objectMetadata[item.contentValue];
+
+        // Loading state
+        if (loadingMetadata) {
+          return "Loading object details...";
+        }
+
+        // Display metadata if available
+        if (metadata) {
+          const objectName =
+            metadata.name.length > maxLength
+              ? metadata.name.substring(0, maxLength) + "..."
+              : metadata.name;
+
+          // Build type and domain string
+          let typeInfo = `Type: ${metadata.type}`;
+          if (metadata.domain) {
+            typeInfo += ` • ${metadata.domain}`;
+          }
+
+          return (
+            <>
+              <strong>{objectName}</strong>
+              <br />
+              <span style={{ fontSize: "0.85em" }}>{typeInfo}</span>
+            </>
+          );
+        }
+
+        // Fallback if metadata not available
         return `Object ID: ${item.contentValue}`;
 
       default:
