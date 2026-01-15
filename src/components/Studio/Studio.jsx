@@ -28,6 +28,8 @@ import {
   TIMEOUTS,
   DEFAULTS,
   LANGUAGE_CODES,
+  QUESTION,
+  ILLUSTRATIVE_OBJECT,
 } from "./constants";
 
 import StudioEditor from "./StudioEditor/StudioEditor";
@@ -148,8 +150,7 @@ const Studio = (props) => {
 
       // const isComplex = isComplexType(areaProps.type);
       const isComplex =
-        areaProps.type === "Question" ||
-        areaProps.type === "Illustrative Object";
+        areaProps.type === QUESTION || areaProps.type === ILLUSTRATIVE_OBJECT;
 
       console.log("isComplex= ", isComplex);
 

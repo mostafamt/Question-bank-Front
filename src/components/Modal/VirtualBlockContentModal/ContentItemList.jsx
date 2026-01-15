@@ -1,21 +1,32 @@
-import React from "react";
+import React, { useState } from "react";
 import IconButton from "@mui/material/IconButton";
-import { Edit, Delete } from "@mui/icons-material";
+import CircularProgress from "@mui/material/CircularProgress";
+import { Edit, Delete, PlayArrow } from "@mui/icons-material";
 import { Card, CardContent, Typography, Box, Chip } from "@mui/material";
+import { toast } from "react-toastify";
 
+import { useStore } from "../../../store/store";
+import { getObjectUrl } from "../../../utils/object-url";
 import styles from "./virtualBlockContentModal.module.scss";
 
 /**
  * ContentItemList Component
- * Displays list of content items with edit/delete actions
+ * Displays list of content items with play/edit/delete actions
  *
  * @param {Object} props
  * @param {Array} props.contents - Array of content items
+ * @param {string} props.selectedLabel - The block label (e.g., "Notes 📝")
  * @param {Function} props.onEdit - Edit handler, receives index
  * @param {Function} props.onDelete - Delete handler, receives index
  */
 const ContentItemList = (props) => {
-  const { contents = [], onEdit, onDelete } = props;
+  const { contents = [], selectedLabel = "", onEdit, onDelete } = props;
+
+  // Get openModal function from Zustand store
+  const openModal = useStore((state) => state.openModal);
+
+  // Track loading state for object URL fetching
+  const [loadingIndex, setLoadingIndex] = useState(null);
 
   /**
    * Get display icon for content type
@@ -76,6 +87,55 @@ const ContentItemList = (props) => {
     }
   };
 
+  /**
+   * Handle play/preview content item
+   * Opens appropriate modal based on content type
+   */
+  const handlePlay = async (index) => {
+    const item = contents[index];
+    const title = `${selectedLabel} - Preview`;
+
+    try {
+      if (item.type === "text") {
+        // Open text editor modal in read-only mode
+        openModal("text-editor", {
+          value: item.contentValue,
+          title,
+          onClickSubmit: null, // Read-only mode
+        });
+      } else if (item.type === "link") {
+        // Open iframe modal with link URL
+        openModal("iframe-display", {
+          title,
+          url: item.contentValue,
+        });
+      } else if (item.type === "object") {
+        // Fetch object URL then open iframe modal
+        setLoadingIndex(index);
+        try {
+          const url = await getObjectUrl(item.contentValue);
+          if (url) {
+            openModal("iframe-display", {
+              title,
+              url,
+            });
+          } else {
+            toast.error("Unable to load object. Please try again.");
+          }
+        } catch (error) {
+          console.error("Error fetching object URL:", error);
+          toast.error("Failed to load object preview.");
+        } finally {
+          setLoadingIndex(null);
+        }
+      }
+    } catch (error) {
+      console.error("Error playing content:", error);
+      toast.error("Failed to open preview.");
+      setLoadingIndex(null);
+    }
+  };
+
   return (
     <div className={styles["content-list"]}>
       {contents.map((item, index) => (
@@ -112,19 +172,40 @@ const ContentItemList = (props) => {
 
               {/* Action Buttons */}
               <Box display="flex" gap={0.5}>
+                {/* Play Button */}
+                <IconButton
+                  size="small"
+                  color="primary"
+                  onClick={() => handlePlay(index)}
+                  disabled={loadingIndex === index}
+                  aria-label="preview content"
+                  title="Preview content"
+                >
+                  {loadingIndex === index ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <PlayArrow fontSize="small" />
+                  )}
+                </IconButton>
+
+                {/* Edit Button */}
                 <IconButton
                   size="small"
                   color="primary"
                   onClick={() => onEdit(index)}
                   aria-label="edit content"
+                  title="Edit content"
                 >
                   <Edit fontSize="small" />
                 </IconButton>
+
+                {/* Delete Button */}
                 <IconButton
                   size="small"
                   color="error"
                   onClick={() => onDelete(index)}
                   aria-label="delete content"
+                  title="Delete content"
                 >
                   <Delete fontSize="small" />
                 </IconButton>

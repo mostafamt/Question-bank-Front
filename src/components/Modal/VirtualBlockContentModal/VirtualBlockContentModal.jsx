@@ -135,6 +135,7 @@ const VirtualBlockContentModal = (props) => {
               </h6>
               <ContentItemList
                 contents={contents}
+                selectedLabel={selectedLabel}
                 onEdit={handleEditContent}
                 onDelete={handleDeleteContent}
               />
