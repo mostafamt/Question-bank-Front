@@ -12,6 +12,7 @@ import SearchOffIcon from "@mui/icons-material/SearchOff";
 import BackHandIcon from "@mui/icons-material/BackHand";
 
 import styles from "./styles.module.scss";
+import { useAppMode } from "../../utils/tabFiltering";
 
 const DEGREE = 0.1;
 // large | medium | small
@@ -26,12 +27,17 @@ const ImageActions = React.forwardRef((props, ref) => {
     setAreas,
     activePage,
     areasProperties,
+    showVB,
+    onClickToggleVirutalBlocks,
     onImageLoad,
     pages,
     onClickImage,
   } = props;
 
   const [oldAreas, setOldAreas] = React.useState(areas?.[activePage] || []);
+
+  const mode = useAppMode();
+  const isReaderMode = mode === "reader";
 
   const onClickZoomIn = () => {
     setImageScaleFactor(imageScaleFactor + DEGREE);
@@ -140,6 +146,26 @@ const ImageActions = React.forwardRef((props, ref) => {
           <ZoomOutIcon fontSize={iconFontSize} />
         </IconButton>
       </div>
+      {isReaderMode && (
+        <>
+          <div>
+            <span>|</span>
+          </div>
+
+          <div>
+            <IconButton
+              aria-label="visibility-icon"
+              onClick={onClickToggleVirutalBlocks}
+            >
+              {showVB ? (
+                <VisibilityOffIcon fontSize={iconFontSize} />
+              ) : (
+                <VisibilityIcon fontSize={iconFontSize} />
+              )}
+            </IconButton>
+          </div>
+        </>
+      )}
     </div>
   );
 });

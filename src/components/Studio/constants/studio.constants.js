@@ -112,3 +112,6 @@ export const COORDINATE_RATIOS = {
   /** Conversion factor from percentage to pixels */
   PERCENT_TO_PX: 100,
 };
+
+export const QUESTION = "Question";
+export const ILLUSTRATIVE_OBJECT = "Illustrative object";

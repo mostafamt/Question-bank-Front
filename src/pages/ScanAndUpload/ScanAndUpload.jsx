@@ -15,6 +15,7 @@ import {
 } from "../../api/bookapi";
 import { useQuery } from "@tanstack/react-query";
 import { Box, CircularProgress } from "@mui/material";
+import { formatVirtualBlocksForSubmission } from "../../utils/virtual-blocks";
 
 import styles from "./scanAndUpload.module.scss";
 import { CREATED, DELETED, UPDATED } from "../../utils/ocr";
@@ -109,23 +110,13 @@ const ScanAndUpload = () => {
         })
     );
 
-    const v_blocks = [];
-    for (const key in virtualBlocks) {
-      const { label, id, status } = virtualBlocks[key];
-      if (id) {
-        v_blocks.push({
-          pageId,
-          status,
-          iconLocation: key,
-          contentType: label,
-          contentValue: id,
-        });
-      }
-    }
+    // Format virtual blocks for submission using new structure
+    const formattedVBlocks = formatVirtualBlocksForSubmission(virtualBlocks, pageId);
 
+    // Only include v_blocks if there are any contents
     const data = {
       blocks,
-      v_blocks,
+      ...(formattedVBlocks && { v_blocks: [formattedVBlocks] }),
     };
 
     const id = await saveBlocks(data);

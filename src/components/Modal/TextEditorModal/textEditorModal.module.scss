@@ -1,5 +1,30 @@
 .text-editor-modal {
   height: 500px;
+
+  // Read-only mode styling
+  :global(.ql-container.ql-snow) {
+    border: 1px solid #ccc;
+  }
+
+  // Hide toolbar in read-only mode
+  :global(.ql-toolbar.ql-snow) {
+    &:empty {
+      display: none;
+      border: none;
+    }
+  }
+
+  // Read-only editor styling
+  :global(.ql-editor) {
+    &[contenteditable="false"] {
+      background-color: #f9f9f9;
+      cursor: default;
+
+      :global(.ql-container.ql-snow) {
+        border: none;
+      }
+    }
+  }
 }
 
 .wrapper {
