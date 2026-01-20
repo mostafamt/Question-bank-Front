@@ -2,6 +2,7 @@ import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
 import Button from "@mui/material/Button";
 import QuillEditor from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import { quillModules } from "../../../utils/quill";
 
 import styles from "./textEditorModal.module.scss";
@@ -34,6 +35,9 @@ const TextEditorModal = (props) => {
     hasSubmitHandler: !!onClickSubmit,
   });
 
+  // Determine if modal is in read-only mode
+  const isReadOnly = !onClickSubmit;
+
   /**
    * Handle content changes
    */
@@ -57,7 +61,7 @@ const TextEditorModal = (props) => {
   };
 
   /**
-   * Handle cancel
+   * Handle cancel/close
    */
   const handleCancel = () => {
     if (handleCloseModal) {
@@ -77,25 +81,40 @@ const TextEditorModal = (props) => {
           theme="snow"
           value={value}
           onChange={onChange}
-          modules={quillModules}
+          readOnly={isReadOnly}
+          modules={isReadOnly ? { toolbar: false } : quillModules}
         />
       </BootstrapModal.Body>
 
       <BootstrapModal.Footer>
-        <Button
-          variant="outlined"
-          color="secondary"
-          onClick={handleCancel}
-        >
-          Cancel
-        </Button>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleSubmit}
-        >
-          Save
-        </Button>
+        {isReadOnly ? (
+          // Read-only mode: Only show Close button
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleCancel}
+          >
+            Close
+          </Button>
+        ) : (
+          // Edit mode: Show Cancel and Save buttons
+          <>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={handleCancel}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSubmit}
+            >
+              Save
+            </Button>
+          </>
+        )}
       </BootstrapModal.Footer>
     </div>
   );
