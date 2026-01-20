@@ -21,7 +21,13 @@ export {
   useLayoutState,
   useOCRSettings,
   useSubObjectState,
+  useLabelManagement,
+  usePlayBlock,
+  useStudioColumns,
 } from "./hooks";
+
+// Sub-components
+export { StudioHeader, StudioLayout } from "./components";
 
 // Services (business logic)
 export * from "./services";

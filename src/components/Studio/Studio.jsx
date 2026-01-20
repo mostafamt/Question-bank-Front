@@ -1,31 +1,19 @@
 /**
  * @file Studio.jsx
  * @description Main Studio component for content authoring
- * Refactored to use custom hooks and services for better maintainability
+ * Refactored to use custom hooks, services, and sub-components
  */
 
 import React from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { Alert } from "@mui/material";
 import { parseVirtualBlocksFromPages } from "../../utils/virtual-blocks";
 import { useAppMode } from "../../utils/tabFiltering";
-import {
-  buildLeftColumns,
-  buildRightColumns,
-  buildReaderLeftColumns,
-  buildReaderRightColumns,
-} from "./columns";
-
-import { RIGHT_TAB_NAMES, DEFAULTS, LANGUAGE_CODES } from "./constants";
 import { ENGLISH, ARABIC } from "../../utils/ocr";
-
-import StudioEditor from "./StudioEditor/StudioEditor";
-import LanguageSwitcher from "./LanguageSwitcher/LanguageSwitcher";
-import StudioStickyToolbar from "./StudioStickyToolbar/StudioStickyToolbar";
-import BookColumn from "../Book/BookColumn/BookColumn";
 import { useStore } from "../../store/store";
 
-import styles from "./studio.module.scss";
+import { RIGHT_TAB_NAMES, DEFAULTS, LANGUAGE_CODES } from "./constants";
+import { StudioHeader, StudioLayout } from "./components";
 
 // Import hooks
 import usePageNavigation from "./hooks/usePageNavigation";
@@ -35,6 +23,7 @@ import useStudioActions from "./hooks/useStudioActions";
 import useVirtualBlocks from "./hooks/useVirtualBlocks";
 import useLabelManagement from "./hooks/useLabelManagement";
 import usePlayBlock from "./hooks/usePlayBlock";
+import useStudioColumns from "./hooks/useStudioColumns";
 
 /**
  * Studio Component - Content authoring tool for book pages
@@ -60,28 +49,21 @@ const Studio = (props) => {
   const canvasRef = React.useRef(null);
   const thumbnailsRef = React.useRef(null);
 
-  // ============ ROUTER ============
+  // ============ ROUTER & MODE ============
   const { chapterId } = useParams();
-  const location = useLocation();
-
-  // ============ MODE DETECTION ============
   const mode = useAppMode();
   const isReaderMode = mode === "reader";
 
   // ============ GLOBAL STORE ============
   const { openModal, setFormState } = useStore();
 
-  // ============ LANGUAGE STATE ============
+  // ============ LOCAL STATE ============
   const [language, setLanguage] = React.useState(
     langProp === LANGUAGE_CODES.ENGLISH ? ENGLISH : ARABIC
   );
-
-  // ============ VIRTUAL BLOCKS STATE ============
   const [virtualBlocks, setVirtualBlocks] = React.useState(() =>
     subObject ? [] : parseVirtualBlocksFromPages(pages)
   );
-
-  // ============ LAYOUT STATE ============
   const [showStickyToolbar, setShowStickyToolbar] = React.useState(false);
   const [imageScaleFactor, setImageScaleFactor] = React.useState(
     DEFAULTS.IMAGE_SCALE_FACTOR
@@ -176,135 +158,58 @@ const Studio = (props) => {
     openModal,
   });
 
-  // ============ PLAY BLOCK (Reader Mode) ============
+  // ============ PLAY BLOCK ============
   const { onPlayBlock } = usePlayBlock({ openModal, setFormState });
 
-  // ============ TAB STATE ============
-  // Build columns first, then initialize tab state
-  const LEFT_COLUMNS = React.useMemo(
-    () =>
-      isReaderMode
-        ? buildReaderLeftColumns({
-            pages,
-            activePage: pages?.[activePageIndex],
-            setActivePage: (page) => {
-              const idx = pages.findIndex((p) => p._id === page._id);
-              if (idx !== -1) changePageByIndex(idx);
-            },
-            onChangeActivePage: (page) => {
-              const idx = pages.findIndex((p) => p._id === page._id);
-              if (idx !== -1) changePageByIndex(idx);
-            },
-            changePageById,
-            navigateToBlock: (pageId, blockId) => {
-              changePageById(pageId);
-              hightBlock(blockId);
-            },
-            chapterId,
-            thumbnailsRef,
-          })
-        : buildLeftColumns({
-            pages,
-            chapterId,
-            activePageIndex,
-            changePageByIndex,
-            thumbnailsRef,
-            changePageById,
-            getBlockFromBlockId,
-            hightBlock,
-          }),
-    [
-      isReaderMode,
-      pages,
-      activePageIndex,
-      chapterId,
-      changePageByIndex,
-      changePageById,
-      getBlockFromBlockId,
-      hightBlock,
-    ]
-  );
-
-  const RIGHT_COLUMNS = React.useMemo(
-    () =>
-      isReaderMode
-        ? buildReaderRightColumns({
-            pages,
-            setActivePage: (page) => {
-              const idx = pages.findIndex((p) => p._id === page._id);
-              if (idx !== -1) changePageByIndex(idx);
-            },
-            onChangeActivePage: (page) => {
-              const idx = pages.findIndex((p) => p._id === page._id);
-              if (idx !== -1) changePageByIndex(idx);
-            },
-            changePageById,
-            navigateToBlock: (pageId, blockId) => {
-              changePageById(pageId);
-              hightBlock(blockId);
-            },
-            chapterId,
-          })
-        : buildRightColumns({
-            areasProperties,
-            setAreasProperties,
-            activePageIndex,
-            onEditText,
-            onClickDeleteArea,
-            type,
-            onClickSubmit,
-            loadingSubmit,
-            updateAreaProperty,
-            updateAreaPropertyById,
-            types,
-            onChangeLabel,
-            subObject,
-            tOfActiveType,
-            onSubmitAutoGenerate,
-            loadingAutoGenerate,
-            onClickToggleVirutalBlocks,
-            showVB,
-            compositeBlocks,
-            compositeBlocksTypes,
-            onChangeCompositeBlocks,
-            processCompositeBlock,
-            onSubmitCompositeBlocks,
-            loadingSubmitCompositeBlocks,
-            DeleteCompositeBlocks,
-            highlight,
-            setHighlight,
-            chapterId,
-            pages,
-            setActivePageIndex,
-            changePageById,
-            getBlockFromBlockId,
-            hightBlock,
-            changePageByIndex,
-            onClickHand,
-          }),
-    [
-      isReaderMode,
-      pages,
+  // ============ COLUMNS ============
+  const {
+    leftColumns,
+    rightColumns,
+    activeLeftTab,
+    setActiveLeftTab,
+    activeRightTab,
+    setActiveRightTab,
+  } = useStudioColumns({
+    isReaderMode,
+    pages,
+    activePageIndex,
+    chapterId,
+    thumbnailsRef,
+    changePageByIndex,
+    changePageById,
+    getBlockFromBlockId,
+    hightBlock,
+    rightColumnProps: {
       areasProperties,
-      activePageIndex,
+      setAreasProperties,
+      onEditText,
+      onClickDeleteArea,
       type,
+      onClickSubmit,
+      loadingSubmit,
+      updateAreaProperty,
+      updateAreaPropertyById,
       types,
+      onChangeLabel,
       subObject,
       tOfActiveType,
-      loadingSubmit,
+      onSubmitAutoGenerate,
+      loadingAutoGenerate,
+      onClickToggleVirutalBlocks,
       showVB,
       compositeBlocks,
       compositeBlocksTypes,
+      onChangeCompositeBlocks,
+      processCompositeBlock,
+      onSubmitCompositeBlocks,
       loadingSubmitCompositeBlocks,
+      DeleteCompositeBlocks,
       highlight,
-      chapterId,
-      onSubmitAutoGenerate,
-      loadingAutoGenerate,
-    ]
-  );
-
-  const [activeLeftTab, setActiveLeftTab] = React.useState(LEFT_COLUMNS[0]);
-  const [activeRightTab, setActiveRightTab] = React.useState(RIGHT_COLUMNS[0]);
+      setHighlight,
+      setActivePageIndex,
+      onClickHand,
+    },
+  });
 
   // ============ EFFECTS ============
 
@@ -331,7 +236,6 @@ const Studio = (props) => {
   React.useEffect(() => {
     if (!imageScaleFactor) return;
 
-    // Reset _updated flag for active page
     setAreas((prev) => {
       const newAreas = [...prev];
       if (newAreas[activePageIndex]) {
@@ -349,7 +253,6 @@ const Studio = (props) => {
 
   // ============ HANDLERS ============
 
-  /** Route area changes based on active tab */
   const onChangeHandler = React.useCallback(
     (areasParam) => {
       if (activeRightTab?.label === RIGHT_TAB_NAMES.COMPOSITE_BLOCKS.label) {
@@ -361,7 +264,6 @@ const Studio = (props) => {
     [activeRightTab, onChangeCompositeBlockArea, onChangeArea]
   );
 
-  /** Update virtual blocks for current page */
   const handleSetVirtualBlocks = React.useCallback(
     (value) => {
       setVirtualBlocks((prev) => {
@@ -381,67 +283,54 @@ const Studio = (props) => {
 
   return (
     <>
-      <StudioStickyToolbar
-        show={showStickyToolbar}
+      <StudioHeader
+        showStickyToolbar={showStickyToolbar}
         imageScaleFactor={imageScaleFactor}
         setImageScaleFactor={setImageScaleFactor}
         areas={areas}
         setAreas={setAreas}
-        activePage={activePageIndex}
+        activePageIndex={activePageIndex}
         areasProperties={areasProperties}
         showVB={showVB}
-        onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
+        onClickToggleVirtualBlocks={onClickToggleVirutalBlocks}
         onImageLoad={recalculateAreas}
         pages={pages}
         onClickImage={changePageByIndex}
+        language={language}
+        setLanguage={setLanguage}
       />
 
-      <LanguageSwitcher language={language} setLanguage={setLanguage} />
-
-      <div className={styles.studio}>
-        <BookColumn
-          COLUMNS={LEFT_COLUMNS}
-          activeColumn={LEFT_COLUMNS[0]}
-          onImageLoad={recalculateAreas}
-          activeTab={activeLeftTab}
-          setActiveTab={setActiveLeftTab}
-        />
-
-        <StudioEditor
-          ref={studioEditorRef}
-          areasProperties={areasProperties}
-          setAreasProperties={setAreasProperties}
-          activePage={activePageIndex}
-          imageScaleFactor={imageScaleFactor}
-          setImageScaleFactor={setImageScaleFactor}
-          areas={areas}
-          setAreas={setAreas}
-          onChangeHandler={onChangeHandler}
-          pages={pages}
-          onImageLoad={recalculateAreas}
-          virtualBlocks={virtualBlocks[activePageIndex]}
-          setVirtualBlocks={handleSetVirtualBlocks}
-          showVB={showVB}
-          onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
-          onClickImage={changePageByIndex}
-          activeRightTab={activeRightTab}
-          compositeBlocksTypes={compositeBlocksTypes}
-          compositeBlocks={compositeBlocks}
-          setCompositeBlocks={setCompositeBlocks}
-          highlight={highlight}
-          setHighlight={setHighlight}
-          highlightedBlockId={highlightedBlockId}
-          onPlayBlock={onPlayBlock}
-        />
-
-        <BookColumn
-          COLUMNS={RIGHT_COLUMNS}
-          activeColumn={RIGHT_COLUMNS[0]}
-          onImageLoad={recalculateAreas}
-          activeTab={activeRightTab}
-          setActiveTab={setActiveRightTab}
-        />
-      </div>
+      <StudioLayout
+        ref={studioEditorRef}
+        leftColumns={leftColumns}
+        activeLeftTab={activeLeftTab}
+        setActiveLeftTab={setActiveLeftTab}
+        rightColumns={rightColumns}
+        activeRightTab={activeRightTab}
+        setActiveRightTab={setActiveRightTab}
+        areasProperties={areasProperties}
+        setAreasProperties={setAreasProperties}
+        activePageIndex={activePageIndex}
+        imageScaleFactor={imageScaleFactor}
+        setImageScaleFactor={setImageScaleFactor}
+        areas={areas}
+        setAreas={setAreas}
+        onChangeHandler={onChangeHandler}
+        pages={pages}
+        onImageLoad={recalculateAreas}
+        virtualBlocks={virtualBlocks[activePageIndex]}
+        setVirtualBlocks={handleSetVirtualBlocks}
+        showVB={showVB}
+        onClickToggleVirtualBlocks={onClickToggleVirutalBlocks}
+        onClickImage={changePageByIndex}
+        compositeBlocksTypes={compositeBlocksTypes}
+        compositeBlocks={compositeBlocks}
+        setCompositeBlocks={setCompositeBlocks}
+        highlight={highlight}
+        setHighlight={setHighlight}
+        highlightedBlockId={highlightedBlockId}
+        onPlayBlock={onPlayBlock}
+      />
 
       <canvas ref={canvasRef} style={{ display: "none" }} />
     </>
