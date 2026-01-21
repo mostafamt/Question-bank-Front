@@ -205,15 +205,43 @@ const useStudioColumns = ({
   const [activeRightTab, setActiveRightTab] = React.useState(rightColumns[0]);
 
   // Sync tabs when columns change
+  // Use id/label comparison instead of reference equality
+  // Don't reset if tab is intentionally closed (falsy value like "")
   React.useEffect(() => {
-    if (leftColumns.length > 0 && !leftColumns.includes(activeLeftTab)) {
-      setActiveLeftTab(leftColumns[0]);
+    if (!activeLeftTab) return;
+    if (leftColumns.length > 0) {
+      // Find matching column by id or label (not reference equality)
+      const matchingColumn = leftColumns.find(
+        (col) => col.id === activeLeftTab.id || col.label === activeLeftTab.label
+      );
+      if (matchingColumn) {
+        // Update to new reference if content matches but reference changed
+        if (matchingColumn !== activeLeftTab) {
+          setActiveLeftTab(matchingColumn);
+        }
+      } else {
+        // Tab no longer exists in columns, reset to first
+        setActiveLeftTab(leftColumns[0]);
+      }
     }
   }, [leftColumns, activeLeftTab]);
 
   React.useEffect(() => {
-    if (rightColumns.length > 0 && !rightColumns.includes(activeRightTab)) {
-      setActiveRightTab(rightColumns[0]);
+    if (!activeRightTab) return;
+    if (rightColumns.length > 0) {
+      // Find matching column by id or label (not reference equality)
+      const matchingColumn = rightColumns.find(
+        (col) => col.id === activeRightTab.id || col.label === activeRightTab.label
+      );
+      if (matchingColumn) {
+        // Update to new reference if content matches but reference changed
+        if (matchingColumn !== activeRightTab) {
+          setActiveRightTab(matchingColumn);
+        }
+      } else {
+        // Tab no longer exists in columns, reset to first
+        setActiveRightTab(rightColumns[0]);
+      }
     }
   }, [rightColumns, activeRightTab]);
 

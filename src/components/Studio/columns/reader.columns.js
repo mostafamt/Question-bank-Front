@@ -1,5 +1,4 @@
 // reader.columns.js
-import { v4 as uuidv4 } from "uuid";
 import StudioThumbnails from "../StudioThumbnails/StudioThumbnails";
 import List from "../../Tabs/List/List";
 import TableOfContents from "../../Book/TableOfContents/TableOfContents";
@@ -42,7 +41,7 @@ export const buildReaderLeftColumns = ({
           const activePageIndex = pages?.findIndex((p) => p._id === activePage?._id) ?? 0;
 
           return {
-            id: uuidv4(),
+            id: config.id,
             label: config.label,
             component: (
               <StudioThumbnails
@@ -60,7 +59,7 @@ export const buildReaderLeftColumns = ({
 
         case "recalls":
           return {
-            id: uuidv4(),
+            id: config.id,
             label: config.label,
             component: (
               <List
@@ -75,7 +74,7 @@ export const buildReaderLeftColumns = ({
 
         case "micro-learning":
           return {
-            id: uuidv4(),
+            id: config.id,
             label: config.label,
             component: (
               <List
@@ -90,7 +89,7 @@ export const buildReaderLeftColumns = ({
 
         case "enriching-content":
           return {
-            id: uuidv4(),
+            id: config.id,
             label: config.label,
             component: (
               <List
@@ -139,7 +138,7 @@ export const buildReaderRightColumns = ({
       switch (config.id) {
         case "table-of-contents":
           return {
-            id: uuidv4(),
+            id: config.id,
             label: config.label,
             component: (
               <TableOfContents
@@ -153,7 +152,7 @@ export const buildReaderRightColumns = ({
 
         case "glossary-keywords":
           return {
-            id: uuidv4(),
+            id: config.id,
             label: config.label,
             component: (
               <List
@@ -168,7 +167,7 @@ export const buildReaderRightColumns = ({
 
         case "illustrative-interactions":
           return {
-            id: uuidv4(),
+            id: config.id,
             label: config.label,
             component: (
               <List
@@ -183,7 +182,7 @@ export const buildReaderRightColumns = ({
 
         case "check-yourself-right":
           return {
-            id: uuidv4(),
+            id: config.id,
             label: config.label,
             component: (
               <List
