@@ -4,7 +4,13 @@
  * Centralizes the complex column building logic from Studio.jsx
  */
 
-import React from "react";
+import React, {
+  useRef,
+  useCallback,
+  useMemo,
+  useState,
+  useEffect,
+} from "react";
 import {
   buildLeftColumns,
   buildRightColumns,
@@ -39,39 +45,62 @@ const useStudioColumns = ({
   hightBlock,
   rightColumnProps = {},
 }) => {
-  /**
-   * Navigate to a specific block
-   */
-  const navigateToBlock = React.useCallback(
-    (pageId, blockId) => {
-      changePageById(pageId);
-      hightBlock(blockId);
-    },
-    [changePageById, hightBlock]
-  );
+  // Store callback functions in refs to avoid dependency changes
+  const changePageByIdRef = useRef(changePageById);
+  const hightBlockRef = useRef(hightBlock);
+  const changePageByIndexRef = useRef(changePageByIndex);
+  const getBlockFromBlockIdRef = useRef(getBlockFromBlockId);
+  const pagesRef = useRef(pages);
+
+  // Update refs only when values actually change (with proper dependency arrays)
+  useEffect(() => {
+    changePageByIdRef.current = changePageById;
+  }, [changePageById]);
+
+  useEffect(() => {
+    hightBlockRef.current = hightBlock;
+  }, [hightBlock]);
+
+  useEffect(() => {
+    changePageByIndexRef.current = changePageByIndex;
+  }, [changePageByIndex]);
+
+  useEffect(() => {
+    getBlockFromBlockIdRef.current = getBlockFromBlockId;
+  }, [getBlockFromBlockId]);
+
+  useEffect(() => {
+    pagesRef.current = pages;
+  }, [pages]);
 
   /**
-   * Set active page from page object
+   * Navigate to a specific block - stable reference using refs
    */
-  const setActivePage = React.useCallback(
-    (page) => {
-      const idx = pages.findIndex((p) => p._id === page._id);
-      if (idx !== -1) changePageByIndex(idx);
-    },
-    [pages, changePageByIndex]
-  );
+  const navigateToBlock = useCallback((pageId, blockId) => {
+    changePageByIdRef.current(pageId);
+    hightBlockRef.current(blockId);
+  }, []);
+
+  /**
+   * Set active page from page object - stable reference using refs
+   */
+  const setActivePage = useCallback((page) => {
+    const idx = pagesRef.current.findIndex((p) => p._id === page._id);
+    if (idx !== -1) changePageByIndexRef.current(idx);
+  }, []);
 
   /**
    * Build left columns based on mode
+   * Uses stable callback references to minimize recalculations
    */
-  const leftColumns = React.useMemo(() => {
+  const leftColumns = useMemo(() => {
     if (isReaderMode) {
       return buildReaderLeftColumns({
         pages,
         activePage: pages?.[activePageIndex],
         setActivePage,
         onChangeActivePage: setActivePage,
-        changePageById,
+        changePageById: changePageByIdRef.current,
         navigateToBlock,
         chapterId,
         thumbnailsRef,
@@ -82,11 +111,11 @@ const useStudioColumns = ({
       pages,
       chapterId,
       activePageIndex,
-      changePageByIndex,
+      changePageByIndex: changePageByIndexRef.current,
       thumbnailsRef,
-      changePageById,
-      getBlockFromBlockId,
-      hightBlock,
+      changePageById: changePageByIdRef.current,
+      getBlockFromBlockId: getBlockFromBlockIdRef.current,
+      hightBlock: hightBlockRef.current,
     });
   }, [
     isReaderMode,
@@ -94,28 +123,34 @@ const useStudioColumns = ({
     activePageIndex,
     chapterId,
     thumbnailsRef,
-    changePageByIndex,
-    changePageById,
-    getBlockFromBlockId,
-    hightBlock,
     setActivePage,
     navigateToBlock,
   ]);
 
+  // Store rightColumnProps in ref for stable access
+  const rightColumnPropsRef = useRef(rightColumnProps);
+  useEffect(() => {
+    rightColumnPropsRef.current = rightColumnProps;
+  }, [rightColumnProps]);
+
   /**
    * Build right columns based on mode
+   * Uses refs for stable access - removes rightColumnProps from dependencies
    */
-  const rightColumns = React.useMemo(() => {
+  const rightColumns = useMemo(() => {
     if (isReaderMode) {
       return buildReaderRightColumns({
         pages,
         setActivePage,
         onChangeActivePage: setActivePage,
-        changePageById,
+        changePageById: changePageByIdRef.current,
         navigateToBlock,
         chapterId,
       });
     }
+
+    // Read from ref to avoid dependency on unstable object
+    const props = rightColumnPropsRef.current;
 
     // Destructure right column props for studio mode
     const {
@@ -147,7 +182,7 @@ const useStudioColumns = ({
       setHighlight,
       setActivePageIndex,
       onClickHand,
-    } = rightColumnProps;
+    } = props;
 
     return buildRightColumns({
       areasProperties,
@@ -180,10 +215,10 @@ const useStudioColumns = ({
       chapterId,
       pages,
       setActivePageIndex,
-      changePageById,
-      getBlockFromBlockId,
-      hightBlock,
-      changePageByIndex,
+      changePageById: changePageByIdRef.current,
+      getBlockFromBlockId: getBlockFromBlockIdRef.current,
+      hightBlock: hightBlockRef.current,
+      changePageByIndex: changePageByIndexRef.current,
       onClickHand,
     });
   }, [
@@ -193,57 +228,59 @@ const useStudioColumns = ({
     chapterId,
     setActivePage,
     navigateToBlock,
-    changePageById,
-    getBlockFromBlockId,
-    hightBlock,
-    changePageByIndex,
-    rightColumnProps,
+    // rightColumnProps removed - read from ref instead
   ]);
 
-  // Tab state
-  const [activeLeftTab, setActiveLeftTab] = React.useState(leftColumns[0]);
-  const [activeRightTab, setActiveRightTab] = React.useState(rightColumns[0]);
+  // Tab state - use lazy initializer to avoid issues with computed values
+  const [activeLeftTab, setActiveLeftTab] = useState(
+    () => leftColumns[0] || null
+  );
+  const [activeRightTab, setActiveRightTab] = useState(
+    () => rightColumns[0] || null
+  );
 
-  // Sync tabs when columns change
-  // Use id/label comparison instead of reference equality
-  // Don't reset if tab is intentionally closed (falsy value like "")
-  React.useEffect(() => {
-    if (!activeLeftTab) return;
-    if (leftColumns.length > 0) {
-      // Find matching column by id or label (not reference equality)
-      const matchingColumn = leftColumns.find(
-        (col) => col.id === activeLeftTab.id || col.label === activeLeftTab.label
-      );
-      if (matchingColumn) {
-        // Update to new reference if content matches but reference changed
-        if (matchingColumn !== activeLeftTab) {
-          setActiveLeftTab(matchingColumn);
-        }
-      } else {
-        // Tab no longer exists in columns, reset to first
-        setActiveLeftTab(leftColumns[0]);
-      }
-    }
-  }, [leftColumns, activeLeftTab]);
+  // Store active tab labels in refs to avoid dependency issues
+  const activeLeftTabLabelRef = useRef(activeLeftTab?.label);
+  const activeRightTabLabelRef = useRef(activeRightTab?.label);
 
-  React.useEffect(() => {
-    if (!activeRightTab) return;
-    if (rightColumns.length > 0) {
-      // Find matching column by id or label (not reference equality)
-      const matchingColumn = rightColumns.find(
-        (col) => col.id === activeRightTab.id || col.label === activeRightTab.label
-      );
-      if (matchingColumn) {
-        // Update to new reference if content matches but reference changed
-        if (matchingColumn !== activeRightTab) {
-          setActiveRightTab(matchingColumn);
-        }
-      } else {
-        // Tab no longer exists in columns, reset to first
-        setActiveRightTab(rightColumns[0]);
-      }
+  // Update refs when tabs change (with proper dependencies)
+  useEffect(() => {
+    activeLeftTabLabelRef.current = activeLeftTab?.label;
+  }, [activeLeftTab]);
+
+  useEffect(() => {
+    activeRightTabLabelRef.current = activeRightTab?.label;
+  }, [activeRightTab]);
+
+  // Sync left tab when columns change
+  // Key fix: Compare by VALUE (label), not reference - only setState when label actually changes
+  useEffect(() => {
+    if (!leftColumns.length) return;
+
+    const next =
+      leftColumns.find((col) => col.label === activeLeftTabLabelRef.current) ||
+      leftColumns[0];
+
+    // Only update if the label actually changed
+    if (next.label !== activeLeftTabLabelRef.current) {
+      setActiveLeftTab(next);
     }
-  }, [rightColumns, activeRightTab]);
+  }, [leftColumns]);
+
+  // Sync right tab when columns change
+  // Key fix: Compare by VALUE (label), not reference - only setState when label actually changes
+  useEffect(() => {
+    if (!rightColumns.length) return;
+
+    const next =
+      rightColumns.find((col) => col.label === activeRightTabLabelRef.current) ||
+      rightColumns[0];
+
+    // Only update if the label actually changed
+    if (next.label !== activeRightTabLabelRef.current) {
+      setActiveRightTab(next);
+    }
+  }, [rightColumns]);
 
   return {
     // Columns

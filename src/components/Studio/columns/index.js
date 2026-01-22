@@ -5,6 +5,7 @@ import TableOfContents from "../../Book/TableOfContents/TableOfContents";
 import GlossaryAndKeywords from "../../Tabs/GlossaryAndKeywords/GlossaryAndKeywords";
 import StudioCompositeBlocks from "../StudioCompositeBlocks/StudioCompositeBlocks";
 import StudioActions from "../StudioActions/StudioActions";
+import ExerciseTab from "../components/ExerciseTab/ExerciseTab";
 import { LEFT_TAB_NAMES, RIGHT_TAB_NAMES } from "../constants";
 import { getTabsForSidebar } from "../../../utils/tabFiltering";
 
@@ -99,6 +100,13 @@ export const buildLeftColumns = ({
               navigateToBlock={navigateToBlock}
             />
           ),
+        };
+
+      case 'exercise-left':
+        return {
+          id: config.id,
+          label: config.label,
+          component: <ExerciseTab chapterId={chapterId} />,
         };
 
       default:
