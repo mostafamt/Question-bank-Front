@@ -59,6 +59,17 @@
         "enabled": true,
         "description": "Self-assessment questions",
         "note": "In reader mode, this appears on the right sidebar"
+      },
+      {
+        "id": "exercise-left",
+        "label": "Exercise",
+        "icon": "FitnessCenterIcon",
+        "modes": ["studio"],
+        "position": "left",
+        "order": 6,
+        "component": "ExerciseTab",
+        "enabled": true,
+        "description": "Exercise sets with multiple questions"
       }
     ],
     "right": [
@@ -128,6 +139,17 @@
         "enabled": true,
         "description": "Self-assessment questions",
         "note": "In studio mode, this appears on the left sidebar"
+      },
+      {
+        "id": "exercise-right",
+        "label": "Exercise",
+        "icon": "FitnessCenterIcon",
+        "modes": ["reader"],
+        "position": "right",
+        "order": 5,
+        "component": "ExerciseTab",
+        "enabled": true,
+        "description": "Exercise sets with multiple questions"
       }
     ]
   }

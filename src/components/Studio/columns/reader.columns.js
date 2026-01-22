@@ -3,6 +3,7 @@ import StudioThumbnails from "../StudioThumbnails/StudioThumbnails";
 import List from "../../Tabs/List/List";
 import TableOfContents from "../../Book/TableOfContents/TableOfContents";
 import GlossaryAndKeywords from "../../Tabs/GlossaryAndKeywords/GlossaryAndKeywords";
+import ExerciseTab from "../components/ExerciseTab/ExerciseTab";
 import { LEFT_TAB_NAMES, RIGHT_TAB_NAMES } from "../constants";
 import { getTabsForSidebar } from "../../../utils/tabFiltering";
 
@@ -193,6 +194,13 @@ export const buildReaderRightColumns = ({
                 navigateToBlock={navigateToBlock}
               />
             ),
+          };
+
+        case "exercise-right":
+          return {
+            id: config.id,
+            label: config.label,
+            component: <ExerciseTab chapterId={chapterId} />,
           };
 
         default:

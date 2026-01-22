@@ -27,6 +27,10 @@ export const LEFT_TAB_NAMES = {
     label: "Check Yourself",
     name: "exercises",
   },
+  EXERCISE: {
+    label: "Exercise",
+    name: "exercise",
+  },
 };
 
 /**

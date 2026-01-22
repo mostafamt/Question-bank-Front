@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import MuiSelect from "../../MuiSelect/MuiSelect";
 import {
   CREATED,
@@ -26,56 +26,50 @@ import styles from "./virtualBlock.module.scss";
  * @param {string} props.label - Block label identifier (icon location)
  * @param {boolean} props.showVB - Whether to show the virtual block
  * @param {boolean} props.reader - Whether component is in reader mode
- * @param {Object} props.virtualBlocks - All virtual blocks
- * @param {Function} props.setVirtualBlocks - Update virtual blocks list
  */
-const VirtualBlock = (props) => {
+const VirtualBlock = React.memo((props) => {
   const {
     checkedObject,
     setCheckedObject,
     label,
     showVB,
     reader,
-    virtualBlocks,
-    setVirtualBlocks,
   } = props;
 
   // Global store
   const { openModal, closeModal } = useStore();
 
-  console.log("VirtualBlock render:", {
-    label,
-    checkedObject,
-    hasContents: checkedObject?.contents?.length > 0,
-  });
+  // Use ref to access current contents without causing dependency changes
+  const contentsRef = useRef(checkedObject?.contents);
+  contentsRef.current = checkedObject?.contents;
 
   /**
    * Handle save contents from VirtualBlockContentModal
+   * Uses closeModal first, then defers state update to prevent re-render loop
    */
   const handleSaveContents = React.useCallback(
     (contents) => {
-      console.log("Saving contents:", contents);
-
-      // Update checked object with new contents array
-      setCheckedObject({
-        contents: contents,
-      });
-
-      // Close modal
+      // Close modal first to prevent re-render during modal unmount
       closeModal();
+
+      // Defer state update to next tick to avoid render loop
+      requestAnimationFrame(() => {
+        setCheckedObject({
+          contents: contents,
+        });
+      });
     },
     [setCheckedObject, closeModal]
   );
 
   /**
    * Handle label selection - opens VirtualBlockContentModal
+   * Uses ref for contents to avoid unstable dependency
    */
   const handleLabelSelect = React.useCallback(
     (selectedLabel) => {
-      console.log("Label selected:", selectedLabel);
-
-      // Get existing contents for this location
-      const existingContents = checkedObject?.contents || [];
+      // Get existing contents from ref (stable reference)
+      const existingContents = contentsRef.current || [];
 
       // Open modal with selected label and existing contents
       openModal("virtual-block-content", {
@@ -85,7 +79,7 @@ const VirtualBlock = (props) => {
         onSave: handleSaveContents,
       });
     },
-    [label, checkedObject?.contents, openModal, handleSaveContents]
+    [label, openModal, handleSaveContents]
   );
 
   /**
@@ -112,39 +106,43 @@ const VirtualBlock = (props) => {
 
   /**
    * Handle edit button click - opens modal to edit contents
+   * Uses ref for contents to avoid unstable dependency
    */
   const handleEdit = React.useCallback(() => {
-    if (!checkedObject?.contents || checkedObject.contents.length === 0) {
+    const contents = contentsRef.current;
+    if (!contents || contents.length === 0) {
       return;
     }
 
     // Get the label from first content item
-    const firstContent = checkedObject.contents[0];
+    const firstContent = contents[0];
     const blockLabel = firstContent.contentType;
 
     // Open modal with existing contents
     openModal("virtual-block-content", {
       selectedLabel: blockLabel,
       iconLocation: label,
-      existingContents: checkedObject.contents,
+      existingContents: contents,
       onSave: handleSaveContents,
     });
-  }, [checkedObject?.contents, label, openModal, handleSaveContents]);
+  }, [label, openModal, handleSaveContents]);
 
   /**
    * Handle play button click in reader mode
    * Opens modal to view all content items
    * For single items: displays directly in appropriate modal (text-editor or iframe-display)
    * For multiple items: opens reader modal with list
+   * Uses ref for contents to avoid unstable dependency
    */
   const handlePlayReader = React.useCallback(async () => {
-    if (!checkedObject?.contents || checkedObject.contents.length === 0) {
+    const contents = contentsRef.current;
+    if (!contents || contents.length === 0) {
       return;
     }
 
     // If only one item, play it directly
-    if (checkedObject.contents.length === 1) {
-      const item = checkedObject.contents[0];
+    if (contents.length === 1) {
+      const item = contents[0];
 
       if (item.type === "link") {
         // Open link in iframe display modal
@@ -174,14 +172,14 @@ const VirtualBlock = (props) => {
       }
     } else {
       // Multiple items - open navigation modal
-      const blockLabel = checkedObject.contents[0].contentType;
+      const blockLabel = contents[0].contentType;
       openModal("virtual-block-reader-nav", {
         blockLabel: blockLabel,
-        contents: checkedObject.contents,
+        contents: contents,
         initialIndex: 0, // Start from first item
       });
     }
-  }, [checkedObject?.contents, openModal]);
+  }, [openModal]);
 
   /**
    * Get icon for selected virtual block type
@@ -300,6 +298,8 @@ const VirtualBlock = (props) => {
 
   // Reader mode with no active block - render empty placeholder to maintain grid layout
   return <div className={clsx(styles["virtual-block"], styles["reader"])} />;
-};
+});
+
+VirtualBlock.displayName = "VirtualBlock";
 
 export default VirtualBlock;

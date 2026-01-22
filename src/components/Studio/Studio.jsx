@@ -48,6 +48,7 @@ const Studio = (props) => {
   const studioEditorRef = React.useRef(null);
   const canvasRef = React.useRef(null);
   const thumbnailsRef = React.useRef(null);
+  const recalculateAreasRef = React.useRef(null);
 
   // ============ ROUTER & MODE ============
   const { chapterId } = useParams();
@@ -108,6 +109,11 @@ const Studio = (props) => {
     refetch,
   });
 
+  // Keep recalculateAreas ref updated (to avoid dependency in useEffect)
+  React.useEffect(() => {
+    recalculateAreasRef.current = recalculateAreas;
+  }, [recalculateAreas]);
+
   // ============ VIRTUAL BLOCKS ============
   const { showVB, onClickToggleVirutalBlocks } = useVirtualBlocks({
     virtualBlocks,
@@ -162,24 +168,10 @@ const Studio = (props) => {
   const { onPlayBlock } = usePlayBlock({ openModal, setFormState });
 
   // ============ COLUMNS ============
-  const {
-    leftColumns,
-    rightColumns,
-    activeLeftTab,
-    setActiveLeftTab,
-    activeRightTab,
-    setActiveRightTab,
-  } = useStudioColumns({
-    isReaderMode,
-    pages,
-    activePageIndex,
-    chapterId,
-    thumbnailsRef,
-    changePageByIndex,
-    changePageById,
-    getBlockFromBlockId,
-    hightBlock,
-    rightColumnProps: {
+
+  // Memoize rightColumnProps to prevent new object reference every render
+  const rightColumnProps = React.useMemo(
+    () => ({
       areasProperties,
       setAreasProperties,
       onEditText,
@@ -208,7 +200,57 @@ const Studio = (props) => {
       setHighlight,
       setActivePageIndex,
       onClickHand,
-    },
+    }),
+    [
+      areasProperties,
+      setAreasProperties,
+      onEditText,
+      onClickDeleteArea,
+      type,
+      onClickSubmit,
+      loadingSubmit,
+      updateAreaProperty,
+      updateAreaPropertyById,
+      types,
+      onChangeLabel,
+      subObject,
+      tOfActiveType,
+      onSubmitAutoGenerate,
+      loadingAutoGenerate,
+      onClickToggleVirutalBlocks,
+      showVB,
+      compositeBlocks,
+      compositeBlocksTypes,
+      onChangeCompositeBlocks,
+      processCompositeBlock,
+      onSubmitCompositeBlocks,
+      loadingSubmitCompositeBlocks,
+      DeleteCompositeBlocks,
+      highlight,
+      setHighlight,
+      setActivePageIndex,
+      onClickHand,
+    ]
+  );
+
+  const {
+    leftColumns,
+    rightColumns,
+    activeLeftTab,
+    setActiveLeftTab,
+    activeRightTab,
+    setActiveRightTab,
+  } = useStudioColumns({
+    isReaderMode,
+    pages,
+    activePageIndex,
+    chapterId,
+    thumbnailsRef,
+    changePageByIndex,
+    changePageById,
+    getBlockFromBlockId,
+    hightBlock,
+    rightColumnProps,
   });
 
   // ============ EFFECTS ============
@@ -233,23 +275,33 @@ const Studio = (props) => {
   }, []);
 
   // Recalculate areas on zoom change
+  // Fixed: Guard setAreas to only update when needed, use ref for recalculateAreas
   React.useEffect(() => {
     if (!imageScaleFactor) return;
 
     setAreas((prev) => {
+      const currentPageAreas = prev[activePageIndex];
+      if (!currentPageAreas) return prev;
+
+      // Check if any area actually needs the _updated flag reset
+      const needsUpdate = currentPageAreas.some(
+        (area) => area._updated !== false
+      );
+      if (!needsUpdate) return prev; // Same reference = no re-render
+
+      // Only create new array when actually needed
       const newAreas = [...prev];
-      if (newAreas[activePageIndex]) {
-        newAreas[activePageIndex] = newAreas[activePageIndex].map((area) => ({
-          ...area,
-          _updated: false,
-        }));
-      }
+      newAreas[activePageIndex] = currentPageAreas.map((area) => ({
+        ...area,
+        _updated: false,
+      }));
       return newAreas;
     });
 
-    const timer = setTimeout(recalculateAreas, 10);
+    // Use ref to avoid unstable dependency
+    const timer = setTimeout(() => recalculateAreasRef.current?.(), 10);
     return () => clearTimeout(timer);
-  }, [imageScaleFactor, activePageIndex, setAreas, recalculateAreas]);
+  }, [imageScaleFactor, activePageIndex, setAreas]);
 
   // ============ HANDLERS ============
 

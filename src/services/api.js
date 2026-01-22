@@ -158,3 +158,13 @@ export const getGlossaryAndKeywords = async () => {
     return null;
   }
 };
+
+export const getExercises = async (chapterId) => {
+  try {
+    const res = await axios2.get(`/chapters/${chapterId}/exercises`);
+    return res.data;
+  } catch (error) {
+    toast.error(error?.message);
+    return [];
+  }
+};
