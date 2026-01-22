@@ -1,57 +1,50 @@
 import React from "react";
+import { useParams, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
-import { v4 as uuidv4 } from "uuid";
-import { colors } from "../../constants/highlight-color";
-
-import StudioThumbnails from "./StudioThumbnails/StudioThumbnails";
-import StudioEditor from "./StudioEditor/StudioEditor";
 import { Alert } from "@mui/material";
+import { colors } from "../../constants/highlight-color";
+import { parseVirtualBlocksFromPages } from "../../utils/virtual-blocks";
 import {
   ARABIC,
-  COMPLEX_TYPES,
-  DELETED,
   ENGLISH,
-  cropSelectedArea,
-  deleteAreaByIndex,
+  COMPLEX_TYPES,
   extractImage,
-  getTypeNameOfLabelKey,
   getTypeOfLabel,
   getTypeOfLabel2,
   ocr,
-  onEditTextField,
-  updateAreasProperties,
+  isComplexType,
 } from "../../utils/ocr";
-
-import StudioActions from "./StudioActions/StudioActions";
-import LanguageSwitcher from "./LanguageSwitcher/LanguageSwitcher";
-import StudioModals from "./StudioModals/StudioModals";
-import { LEFT_POSITION } from "../../utils/book";
-import BookColumn from "../Book/BookColumn/BookColumn";
-import List from "../Tabs/List/List";
-import { parseVirtualBlocksFromPages } from "../../utils/virtual-blocks";
-import StudioStickyToolbar from "./StudioStickyToolbar/StudioStickyToolbar";
-import StudioCompositeBlocks from "./StudioCompositeBlocks/StudioCompositeBlocks";
 import { addPropsToAreasForCompositeBlocks } from "../../utils/studio";
+import { useAppMode } from "../../utils/tabFiltering";
+import {
+  buildLeftColumns,
+  buildRightColumns,
+  buildReaderLeftColumns,
+  buildReaderRightColumns,
+} from "./columns";
+
+import {
+  RIGHT_TAB_NAMES,
+  TIMEOUTS,
+  DEFAULTS,
+  LANGUAGE_CODES,
+  QUESTION,
+  ILLUSTRATIVE_OBJECT,
+} from "./constants";
+
+import StudioEditor from "./StudioEditor/StudioEditor";
+import LanguageSwitcher from "./LanguageSwitcher/LanguageSwitcher";
+import StudioStickyToolbar from "./StudioStickyToolbar/StudioStickyToolbar";
+import BookColumn from "../Book/BookColumn/BookColumn";
+import { useStore } from "../../store/store";
 
 import styles from "./studio.module.scss";
-import { saveCompositeBlocks } from "../../services/api";
-import { useParams } from "react-router-dom";
-import TableOfContents from "../Book/TableOfContents/TableOfContents";
-import GlossaryAndKeywords from "../Tabs/GlossaryAndKeywords/GlossaryAndKeywords";
-
-const RECALLS = "Recalls";
-const MICRO_LEARNING = "Micro Learning";
-const ENRICHING_CONTENT = "Enriching Content";
-const CHECK_YOURSELF = "Check Yourself";
-const ILLUSTRATIVE_INTERACTIONS = "Illustrative Interactions";
-
-const tabNames = [
-  RECALLS,
-  MICRO_LEARNING,
-  ENRICHING_CONTENT,
-  CHECK_YOURSELF,
-  ILLUSTRATIVE_INTERACTIONS,
-];
+import usePageManagement from "./hooks/usePageNavigation";
+import useAreaManagement from "./hooks/useAreaManagement";
+import useCompositeBlocks from "./hooks/useCompositeBlocks";
+import useStudioActions from "./hooks/useStudioActions";
+import useVirtualBlocks from "./hooks/useVirtualBlocks";
+import useStudioState from "./hooks/useStudioState";
 
 const Studio = (props) => {
   const {
@@ -69,113 +62,162 @@ const Studio = (props) => {
     compositeBlocksTypes,
   } = props;
 
-  const [activePageIndex, setActivePageIndex] = React.useState(
-    subObject
-      ? 0
-      : localStorage.getItem("author_page")
-      ? Number.parseInt(localStorage.getItem("author_page"))
-      : 0
-  );
-  const activePageId = pages?.[activePageIndex]?._id;
+  const {
+    activePageIndex,
+    setActivePageIndex,
+    activePageId,
+    changePageByIndex,
+    changePageById,
+  } = usePageManagement({
+    pages,
+    subObject,
+  });
 
   const studioEditorRef = React.useRef(null);
-  const [showStickyToolbar, setShowStickyToolbar] = React.useState(false);
-  const [showVB, setShowVB] = React.useState(false);
-  const { bookId, chapterId } = useParams();
-  const [compositeBlocks, setCompositeBlocks] = React.useState({
-    name: "",
-    type: "",
-    areas: [],
+  const canvasRef = React.createRef();
+
+  const [virtualBlocks, setVirtualBlocks] = React.useState(
+    subObject ? [] : parseVirtualBlocksFromPages(pages)
+  );
+
+  // const studioState =
+  //   useStudioState({ areas, setAreas, areasProperties, setAreasProperties });
+
+  const {
+    areas,
+    setAreas,
+    areasProperties,
+    setAreasProperties,
+    getBlockFromBlockId,
+    recalculateAreas,
+    updateAreaProperty,
+    onClickDeleteArea,
+    updateAreaPropertyById,
+    onEditText,
+    syncAreasProperties,
+    onChangeArea,
+    onClickSubmit,
+  } = useAreaManagement({
+    pages,
+    activePageIndex,
+    types,
+    studioEditorRef,
+    subObject,
+    type,
+    handleSubmit,
+    updateAreaPropertyForParent: props.updateAreaProperty,
+    activePageId,
+    virtualBlocks,
+    refetch,
   });
-  const [highlight, setHighlight] = React.useState("");
-  const [loadingSubmitCompositeBlocks, setLoadingSubmitCompositeBlocks] =
-    React.useState(false);
+
+  const { showVB, setShowVB, onClickToggleVirutalBlocks } = useVirtualBlocks({
+    virtualBlocks,
+    setVirtualBlocks,
+    pages,
+    subObject,
+    recalculateAreas,
+  });
+
+  const [language, setLanguage] = React.useState(
+    lang === LANGUAGE_CODES.ENGLISH ? ENGLISH : ARABIC
+  );
+  const { bookId, chapterId } = useParams();
+  const location = useLocation();
+
+  // Detect mode from URL (reader vs studio)
+  const mode = useAppMode();
+  const isReaderMode = mode === "reader";
+
+  // Debug: Log mode detection
+  React.useEffect(() => {
+    console.log("📍 Studio Mode Detection:", {
+      mode,
+      isReaderMode,
+      pathname: location.pathname,
+      url: window.location.href,
+    });
+  }, [mode, isReaderMode, location.pathname]);
+
+  const { openModal, setFormState } = useStore();
+
+  // Handler for playing blocks in reader mode
+  const onPlayBlock = React.useCallback(
+    (area, areaProps) => {
+      if (!areaProps) return;
+
+      console.log("areaProps= ", areaProps);
+
+      // const isComplex = isComplexType(areaProps.type);
+      const isComplex =
+        areaProps.type === QUESTION || areaProps.type === ILLUSTRATIVE_OBJECT;
+
+      console.log("isComplex= ", isComplex);
+
+      if (isComplex) {
+        // Set the activeId in the store for PlayObjectModal2
+        setFormState({ activeId: areaProps.text });
+
+        // Open PlayObjectModal2
+        openModal("play-object-2");
+      } else {
+        // Handle text and image types in quill modal
+        openModal("quill", {
+          workingArea: {
+            blockId: areaProps.blockId,
+            contentType: areaProps.type,
+            text: areaProps.text,
+            typeOfLabel: areaProps.typeOfLabel,
+            image: areaProps.image,
+          },
+          updateAreaPropertyById: () => {},
+        });
+      }
+    },
+    [openModal, setFormState]
+  );
+
+  const {
+    compositeBlocks,
+    setCompositeBlocks,
+    loadingSubmitCompositeBlocks,
+    onChangeCompositeBlocks,
+    DeleteCompositeBlocks,
+    processCompositeBlock,
+    onSubmitCompositeBlocks,
+    onChangeCompositeBlockArea,
+    onClickHand,
+  } = useCompositeBlocks({
+    canvasRef,
+    studioEditorRef,
+    language,
+    chapterId,
+    openModal,
+    pages,
+    areasProperties,
+  });
+
+  const { highlight, setHighlight, highlightedBlockId, hightBlock } =
+    useStudioActions({
+      getBlockFromBlockId,
+    });
+
+  const [showStickyToolbar, setShowStickyToolbar] = React.useState(false);
+
   const thumbnailsRef = React.useRef(null);
-
-  const [areas, setAreas] = React.useState(
-    pages?.map((page) =>
-      page.blocks?.map((block) => {
-        return {
-          x: block.coordinates.x,
-          y: block.coordinates.y,
-          width: block.coordinates.width,
-          height: block.coordinates.height,
-          unit: "px",
-          isChanging: true,
-          isNew: true,
-          _unit: block.coordinates.unit,
-          _updated: false,
-        };
-      })
-    ) || Array(pages?.length || 1).fill([])
-  );
-
-  const [areasProperties, setAreasProperties] = React.useState(
-    pages?.map(
-      (page) =>
-        page.blocks?.map((block, idx) => {
-          let typeName = getTypeNameOfLabelKey(types, block.contentType);
-          return {
-            x: block.coordinates.x,
-            y: block.coordinates.y,
-            width: block.coordinates.width,
-            height: block.coordinates.height,
-            id: uuidv4(),
-            color: colors[idx % colors.length],
-            loading: false,
-            text: block.contentValue,
-            image: block.contentValue,
-            type: typeName,
-            parameter: "",
-            label: block.contentType,
-            typeOfLabel: getTypeOfLabel(types, typeName, block.contentType),
-            order: idx,
-            open: false,
-            isServer: "true",
-            blockId: block.blockId,
-          };
-        }) || []
-    ) || Array(pages?.length || 1).fill([])
-  );
 
   const [colorIndex, setColorIndex] = React.useState(
     Array(pages?.length || 1).fill(0)
   );
 
-  const onClickToggleVirutalBlocks = () => {
-    setShowVB((prevState) => !prevState);
-    setTimeout(() => {
-      onImageLoad();
-    }, 20);
-  };
-
-  const canvasRef = React.createRef();
-  const [imageScaleFactor, setImageScaleFactor] = React.useState(1);
+  const [imageScaleFactor, setImageScaleFactor] = React.useState(
+    DEFAULTS.IMAGE_SCALE_FACTOR
+  );
   // To Extract Sub Object
-  const [modalState, setModalState] = React.useState({
-    open: false,
-    source: null,
-  });
   const [activeType, setActiveType] = React.useState("");
   const [typeOfActiveType, setTypeOfActiveType] = React.useState("");
-  const [activeImage, setActiveImage] = React.useState("");
 
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
-  const [modalName, setModalName] = React.useState("");
-  const [workingArea, setWorkingArea] = React.useState();
-  const [language, setLanguage] = React.useState(
-    lang === "en" ? ENGLISH : ARABIC
-  );
-
-  const [checkedObjects, setCheckedObjects] = React.useState(
-    tabNames.map((e) => ({
-      label: e,
-      objects: [],
-    }))
-  );
-  const [virtualBlocks, setVirtualBlocks] = React.useState(
-    subObject ? [] : parseVirtualBlocksFromPages(pages)
-  );
 
   React.useEffect(() => {
     const observer = new IntersectionObserver(
@@ -201,127 +243,34 @@ const Studio = (props) => {
     };
   }, []);
 
-  const onImageLoad = () => {
-    setAreas((prevState) => {
-      return prevState?.map((page, idx1) => {
-        return page?.map((block, idx2) => {
-          if (block._unit === "percentage") {
-            const { clientHeight, clientWidth } =
-              studioEditorRef.current.studioEditorSelectorRef.current;
-
-            const properties = areasProperties[idx1][idx2];
-
-            return {
-              x: (properties.x / 100) * clientWidth,
-              y: (properties.y / 100) * clientHeight,
-              width: (properties.width / 100) * clientWidth,
-              height: (properties.height / 100) * clientHeight,
-              unit: "px",
-              isChanging: true,
-              isNew: true,
-              _updated: true,
-              _unit: block._unit,
-            };
-          }
-
-          return {
-            x: block.x,
-            y: block.y,
-            width: block.width,
-            height: block.height,
-            unit: "px",
-            isChanging: true,
-            isNew: true,
-          };
-        });
+  // Recalculate areas when image scale factor changes
+  React.useEffect(() => {
+    if (imageScaleFactor) {
+      // Reset _updated flag for active page to force reconversion on zoom
+      setAreas((prevState) => {
+        const newAreas = [...prevState];
+        if (newAreas[activePageIndex]) {
+          newAreas[activePageIndex] = newAreas[activePageIndex].map((area) => ({
+            ...area,
+            _updated: false,
+          }));
+        }
+        return newAreas;
       });
-    });
-  };
 
-  const onClickImage = (idx) => {
-    setActivePageIndex(idx);
-    localStorage.setItem("author_page", `${idx}`);
-
-    console.log("thumbnailsRef= ", thumbnailsRef);
-
-    // if (thumbnailsRef.current) {
-    //   const container = thumbnailsRef.current;
-    //   const index = pages.findIndex((p) => p._id === newPage._id);
-
-    //   if (index !== -1) {
-    //     const btn = container.querySelector(`button:nth-child(${index + 1})`);
-    //     if (btn) {
-    //       const offset = container.clientHeight * 0.03; // 3% of container height
-
-    //       container.scrollTo({
-    //         top: btn.offsetTop - offset,
-    //         behavior: "smooth",
-    //       });
-    //     }
-    //   }
-    // }
-  };
-
-  const syncAreasProperties = () => {
-    const newAreasProperties = updateAreasProperties(
-      areasProperties,
-      activePageIndex,
-      areas,
-      subObject,
-      type
-    );
-    setAreasProperties(newAreasProperties);
-  };
+      // Delay to ensure state is updated before recalculation
+      setTimeout(() => {
+        recalculateAreas();
+      }, TIMEOUTS.IMAGE_LOAD_DELAY);
+    }
+  }, [imageScaleFactor]);
 
   const onChangeHandler = (areasParam) => {
-    if (activeRightTab.label === "Composite Blocks") {
-      const compositeBlocksWithPropsAreas = addPropsToAreasForCompositeBlocks(
-        compositeBlocks,
-        areasParam
-      );
-
-      setCompositeBlocks(compositeBlocksWithPropsAreas);
+    if (activeRightTab.label === RIGHT_TAB_NAMES.COMPOSITE_BLOCKS.label) {
+      onChangeCompositeBlockArea(areasParam);
     } else {
-      if (areasParam.length > areasProperties[activePageIndex].length) {
-        syncAreasProperties();
-      }
-
-      const newAreasParam = [...areas];
-      newAreasParam[activePageIndex] = areasParam;
-      setAreas(newAreasParam);
+      onChangeArea(areasParam);
     }
-  };
-
-  const onClickDeleteArea = (idx) => {
-    const { isServer } = areasProperties[activePageIndex][idx];
-    if (isServer) {
-      updateAreaProperty(idx, { status: DELETED });
-    } else {
-      const newAreas = deleteAreaByIndex(areas, activePageIndex, idx);
-      setAreas(newAreas);
-
-      const newAreasProperties = deleteAreaByIndex(
-        areasProperties,
-        activePageIndex,
-        idx
-      );
-      setAreasProperties(newAreasProperties);
-    }
-  };
-
-  const handleCloseModal = () => {
-    setModalState({
-      open: false,
-      source: null,
-    });
-  };
-
-  const openModal = (source = null) => {
-    console.log("source= ", source);
-    setModalState({
-      open: true,
-      source: source,
-    });
   };
 
   const onChangeLabel = async (id, label) => {
@@ -354,7 +303,6 @@ const Studio = (props) => {
       areas,
       id
     );
-    setActiveImage(img);
     area = { ...area, label, typeOfLabel: typeOfLabel, image: img };
 
     updateAreaProperty(idx, area);
@@ -379,295 +327,107 @@ const Studio = (props) => {
       // open modal if it has a supported type
       let found = COMPLEX_TYPES.find((type) => type === typeOfLabel);
       if (found) {
-        setModalName("");
-        setWorkingArea(area);
         setActiveType(label);
         setTypeOfActiveType(typeOfLabel);
-        setTimeout(() => {
-          openModal();
-        }, 1000);
+        openModal("sub-object", {
+          image: img,
+          type: typeOfLabel,
+          types: types,
+          updateAreaProperty: updateAreaProperty,
+          typeOfActiveType: typeOfLabel,
+        });
       }
     }
   };
 
-  const onClickSubmit = async () => {
-    setLoadingSubmit(true);
-    if (subObject) {
-      const id = await handleSubmit(areasProperties[activePageIndex]);
-      props.updateAreaProperty(-1, { text: id });
-      id && toast.success("Sub-Object created successfully!");
-      handleClose();
-    } else {
-      const id = await handleSubmit(
-        activePageId,
-        areasProperties[activePageIndex],
-        virtualBlocks[activePageIndex]
-      );
-      id && toast.success("Object created successfully!");
-      refetch();
-    }
-    // clear();
-    setLoadingSubmit(false);
+  // Create navigation function for reader mode
+  const navigateToBlock = (pageId, blockId) => {
+    if (changePageById) changePageById(pageId);
+    if (getBlockFromBlockId) getBlockFromBlockId(blockId);
+    if (hightBlock) hightBlock(blockId);
   };
 
-  const updateAreaProperty = (idx, property) => {
-    setAreasProperties((prevState) => {
-      let newTrialAreas = [...prevState];
-      if (idx === -1) {
-        const lastIndex = idx + areasProperties[activePageIndex].length;
-        newTrialAreas[activePageIndex][lastIndex] = {
-          ...newTrialAreas[activePageIndex][lastIndex],
-          ...property,
-        };
-      } else {
-        newTrialAreas[activePageIndex][idx] = {
-          ...newTrialAreas[activePageIndex][idx],
-          ...property,
-        };
-      }
-      return newTrialAreas;
-    });
-  };
-
-  const updateAreaPropertyById = (id, property) => {
-    const newAreasProperties = [...areasProperties];
-    newAreasProperties[activePageIndex] = newAreasProperties[
-      activePageIndex
-    ].map((area) => {
-      if (area.id === id) {
-        return {
-          ...area,
-          ...property,
-        };
-      }
-      return area;
-    });
-    setAreasProperties(newAreasProperties);
-  };
-
-  const onEditText = (id, text) => {
-    const newAreasProperties = onEditTextField(
-      areasProperties,
-      activePageIndex,
-      id,
-      text
-    );
-    setAreasProperties(newAreasProperties);
-  };
-
-  const onChangeCompositeBlocks = (id, key, value) => {
-    if (!id) {
-      setCompositeBlocks((prevState) => ({
-        ...prevState,
-        [key]: value,
-        areas: [],
-      }));
-      return;
-    }
-
-    setCompositeBlocks((prevState) => {
-      return {
-        ...prevState,
-        areas: prevState?.areas?.map((item) => {
-          if (item.id === id) {
-            item = { ...item, [key]: value };
-          }
-          return item;
-        }),
-      };
-    });
-  };
-
-  const processCompositeBlock = async (id, typeOfLabel) => {
-    setCompositeBlocks((prevState) => {
-      const newAreas = prevState?.areas?.map((item) => {
-        if (item.id === id) {
-          item.loading = true;
-        }
-        return item;
-      });
-      return { ...prevState, areas: newAreas };
-    });
-
-    const { naturalWidth, clientWidth, clientHeight } =
-      studioEditorRef.current.studioEditorSelectorRef.current;
-
-    const ratio = naturalWidth / clientWidth;
-
-    const selecedBlock = compositeBlocks.areas.find((item) => item.id === id);
-    const x = ((selecedBlock.x * ratio) / 100) * clientWidth;
-    const y = ((selecedBlock.y * ratio) / 100) * clientHeight;
-    const width = ((selecedBlock.width * ratio) / 100) * clientWidth;
-    const height = ((selecedBlock.height * ratio) / 100) * clientHeight;
-
-    const img = cropSelectedArea(
-      canvasRef,
-      studioEditorRef.current.studioEditorSelectorRef,
-      x,
-      y,
-      width,
-      height
-    );
-
-    let text = "";
-    if (typeOfLabel === "text") {
-      text = await ocr(language, img);
-    }
-
-    setCompositeBlocks((prevState) => {
-      const newAreas = prevState?.areas?.map((item) => {
-        if (item.id === id) {
-          item = {
-            ...item,
-            loading: false,
-            img: img,
-            text: text,
-          };
-        }
-        return item;
-      });
-      return { ...prevState, areas: newAreas };
-    });
-  };
-
-  const onSubmitCompositeBlocks = async () => {
-    setLoadingSubmitCompositeBlocks(true);
-
-    const blocks = compositeBlocks.areas.map(
-      ({ type, text, x, y, width, height, unit }) => ({
-        contentType: type,
-        contentValue: text,
-        coordinates: {
-          height,
-          unit: unit === "%" ? "percentage" : "px",
-          width,
-          x,
-          y,
+  // Build columns based on mode
+  const LEFT_COLUMNS = isReaderMode
+    ? buildReaderLeftColumns({
+        pages,
+        activePage: pages?.[activePageIndex],
+        setActivePage: (page) => {
+          const newIndex = pages.findIndex((p) => p._id === page._id);
+          if (newIndex !== -1) changePageByIndex(newIndex);
         },
+        onChangeActivePage: (page) => {
+          const newIndex = pages.findIndex((p) => p._id === page._id);
+          if (newIndex !== -1) changePageByIndex(newIndex);
+        },
+        changePageById,
+        navigateToBlock,
+        chapterId,
+        thumbnailsRef,
       })
-    );
+    : buildLeftColumns({
+        pages,
+        chapterId,
+        activePageIndex,
+        changePageByIndex,
+        thumbnailsRef,
+        changePageById,
+        getBlockFromBlockId,
+        hightBlock,
+      });
 
-    const data = {
-      name: compositeBlocks.name,
-      type: compositeBlocks.type,
-      chapterId,
-      blocks,
-    };
-
-    const id = await saveCompositeBlocks(data);
-
-    setLoadingSubmitCompositeBlocks(false);
-  };
-
-  const LEFT_COLUMNS = [
-    {
-      id: uuidv4(),
-      label: "Thumbnails",
-      component: (
-        <StudioThumbnails
-          pages={pages}
-          activePage={activePageIndex}
-          onClickImage={onClickImage}
-          ref={thumbnailsRef}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: RECALLS,
-      component: <List chapterId={chapterId} tabName={RECALLS} />,
-    },
-    {
-      id: uuidv4(),
-      label: MICRO_LEARNING,
-      component: <List chapterId={chapterId} tabName={MICRO_LEARNING} />,
-    },
-    {
-      id: uuidv4(),
-      label: ENRICHING_CONTENT,
-      component: <List chapterId={chapterId} tabName={ENRICHING_CONTENT} />,
-    },
-    {
-      id: uuidv4(),
-      label: CHECK_YOURSELF,
-      component: <List chapterId={chapterId} tabName={CHECK_YOURSELF} />,
-    },
-  ];
-
-  const StudioActionsComponent = (
-    <StudioActions
-      areasProperties={areasProperties}
-      setAreasProperties={setAreasProperties}
-      activePage={activePageIndex}
-      onEditText={onEditText}
-      onClickDeleteArea={onClickDeleteArea}
-      type={type}
-      onClickSubmit={onClickSubmit}
-      loadingSubmit={loadingSubmit}
-      updateAreaProperty={updateAreaProperty}
-      updateAreaPropertyById={updateAreaPropertyById}
-      types={types}
-      onChangeLabel={onChangeLabel}
-      subObject={subObject}
-      setModalName={setModalName}
-      openModal={openModal}
-      setWorkingArea={setWorkingArea}
-      tOfActiveType={tOfActiveType}
-      onSubmitAutoGenerate={onSubmitAutoGenerate}
-      loadingAutoGenerate={loadingAutoGenerate}
-    />
-  );
-
-  let RIGHT_COLUMNS = [
-    {
-      id: uuidv4(),
-      label: "Block Authoring",
-      component: StudioActionsComponent,
-    },
-    {
-      id: uuidv4(),
-      label: "Composite Blocks",
-      component: (
-        <StudioCompositeBlocks
-          compositeBlocks={compositeBlocks}
-          compositeBlocksTypes={compositeBlocksTypes}
-          onChangeCompositeBlocks={onChangeCompositeBlocks}
-          processCompositeBlock={processCompositeBlock}
-          onSubmitCompositeBlocks={onSubmitCompositeBlocks}
-          loadingSubmitCompositeBlocks={loadingSubmitCompositeBlocks}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: "Table Of Contents",
-      component: (
-        <TableOfContents
-          pages={pages}
-          chapterId={chapterId}
-          onChangeActivePage={(newPage) => {
-            const newIndex = pages.findIndex((p) => p._id === newPage._id);
-            if (newIndex !== -1) {
-              setActivePageIndex(newIndex);
-              localStorage.setItem("author_page", `${newIndex}`);
-            }
-          }}
-        />
-      ),
-    },
-    {
-      id: uuidv4(),
-      label: "Glossary & keywords",
-      component: <GlossaryAndKeywords chapterId={chapterId} />,
-    },
-    {
-      id: uuidv4(),
-      label: ILLUSTRATIVE_INTERACTIONS,
-      component: (
-        <List chapterId={chapterId} tabName={ILLUSTRATIVE_INTERACTIONS} />
-      ),
-    },
-  ];
+  const RIGHT_COLUMNS = isReaderMode
+    ? buildReaderRightColumns({
+        pages,
+        setActivePage: (page) => {
+          const newIndex = pages.findIndex((p) => p._id === page._id);
+          if (newIndex !== -1) changePageByIndex(newIndex);
+        },
+        onChangeActivePage: (page) => {
+          const newIndex = pages.findIndex((p) => p._id === page._id);
+          if (newIndex !== -1) changePageByIndex(newIndex);
+        },
+        changePageById,
+        navigateToBlock,
+        chapterId,
+      })
+    : buildRightColumns({
+        areasProperties,
+        setAreasProperties,
+        activePageIndex,
+        onEditText,
+        onClickDeleteArea,
+        type,
+        onClickSubmit,
+        loadingSubmit,
+        updateAreaProperty,
+        updateAreaPropertyById,
+        types,
+        onChangeLabel,
+        subObject,
+        tOfActiveType,
+        onSubmitAutoGenerate,
+        loadingAutoGenerate,
+        onClickToggleVirutalBlocks,
+        showVB,
+        compositeBlocks,
+        compositeBlocksTypes,
+        onChangeCompositeBlocks,
+        processCompositeBlock,
+        onSubmitCompositeBlocks,
+        loadingSubmitCompositeBlocks,
+        DeleteCompositeBlocks,
+        highlight,
+        setHighlight,
+        chapterId,
+        pages,
+        setActivePageIndex,
+        changePageById,
+        getBlockFromBlockId,
+        hightBlock,
+        changePageByIndex,
+        onClickHand,
+      });
 
   const [activeLeftTab, setActiveLeftTab] = React.useState(LEFT_COLUMNS[0]);
   const [activeRightTab, setActiveRightTab] = React.useState(RIGHT_COLUMNS[0]);
@@ -678,28 +438,6 @@ const Studio = (props) => {
 
   return (
     <>
-      <StudioModals
-        modalState={modalState}
-        handleCloseModal={handleCloseModal}
-        activeImage={activeImage}
-        activeType={activeType}
-        typeOfActiveType={typeOfActiveType}
-        types={types}
-        updateAreaProperty={updateAreaProperty}
-        modalName={modalName}
-        workingArea={workingArea}
-        updateAreaPropertyById={updateAreaPropertyById}
-        checkedObjects={checkedObjects}
-        setCheckedObjects={setCheckedObjects}
-        virtualBlocks={virtualBlocks[activePageIndex]}
-        setVirtualBlocks={(value) =>
-          setVirtualBlocks((prevState) => {
-            prevState[activePageIndex] = value;
-            return [...prevState];
-          })
-        }
-        tabName={""}
-      />
       <StudioStickyToolbar
         show={showStickyToolbar}
         imageScaleFactor={imageScaleFactor}
@@ -710,16 +448,16 @@ const Studio = (props) => {
         areasProperties={areasProperties}
         showVB={showVB}
         onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
-        onImageLoad={onImageLoad}
+        onImageLoad={recalculateAreas}
         pages={pages}
-        onClickImage={onClickImage}
+        onClickImage={changePageByIndex}
       />
       <LanguageSwitcher language={language} setLanguage={setLanguage} />
       <div className={styles.studio}>
         <BookColumn
           COLUMNS={LEFT_COLUMNS}
           activeColumn={LEFT_COLUMNS[0]}
-          onImageLoad={onImageLoad}
+          onImageLoad={recalculateAreas}
           activeTab={activeLeftTab}
           setActiveTab={setActiveLeftTab}
         />
@@ -734,9 +472,7 @@ const Studio = (props) => {
           onChangeHandler={onChangeHandler}
           pages={pages}
           ref={studioEditorRef}
-          onImageLoad={onImageLoad}
-          openModal={openModal}
-          setModalName={setModalName}
+          onImageLoad={recalculateAreas}
           virtualBlocks={virtualBlocks[activePageIndex]}
           setVirtualBlocks={(value) =>
             setVirtualBlocks((prevState) => {
@@ -746,18 +482,20 @@ const Studio = (props) => {
           }
           showVB={showVB}
           onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
-          onClickImage={onClickImage}
+          onClickImage={changePageByIndex}
           activeRightTab={activeRightTab}
           compositeBlocksTypes={compositeBlocksTypes}
           compositeBlocks={compositeBlocks}
           setCompositeBlocks={setCompositeBlocks}
           highlight={highlight}
           setHighlight={setHighlight}
+          highlightedBlockId={highlightedBlockId}
+          onPlayBlock={onPlayBlock}
         />
         <BookColumn
           COLUMNS={RIGHT_COLUMNS}
           activeColumn={RIGHT_COLUMNS[0]}
-          onImageLoad={onImageLoad}
+          onImageLoad={recalculateAreas}
           activeTab={activeRightTab}
           setActiveTab={setActiveRightTab}
         />

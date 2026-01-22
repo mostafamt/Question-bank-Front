@@ -1,0 +1,134 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-01-01",
+  "description": "Tab configuration for Reader and Studio modes",
+  "tabs": {
+    "left": [
+      {
+        "id": "thumbnails",
+        "label": "Thumbnails",
+        "icon": "ViewModuleIcon",
+        "modes": ["reader", "studio"],
+        "position": "left",
+        "order": 1,
+        "component": "StudioThumbnails",
+        "enabled": true,
+        "description": "Page thumbnails for quick navigation (used in both modes)"
+      },
+      {
+        "id": "recalls",
+        "label": "Recalls",
+        "icon": "LightbulbIcon",
+        "modes": ["reader", "studio"],
+        "position": "left",
+        "order": 2,
+        "component": "List",
+        "enabled": true,
+        "description": "Recall questions and memory aids"
+      },
+      {
+        "id": "micro-learning",
+        "label": "Micro Learning",
+        "icon": "SchoolIcon",
+        "modes": ["reader", "studio"],
+        "position": "left",
+        "order": 3,
+        "component": "List",
+        "enabled": true,
+        "description": "Bite-sized learning modules"
+      },
+      {
+        "id": "enriching-content",
+        "label": "Enriching Content",
+        "icon": "AutoStoriesIcon",
+        "modes": ["reader", "studio"],
+        "position": "left",
+        "order": 4,
+        "component": "List",
+        "enabled": true,
+        "description": "Additional learning resources"
+      },
+      {
+        "id": "check-yourself-left",
+        "label": "Check Yourself",
+        "icon": "QuizIcon",
+        "modes": ["studio"],
+        "position": "left",
+        "order": 5,
+        "component": "List",
+        "enabled": true,
+        "description": "Self-assessment questions",
+        "note": "In reader mode, this appears on the right sidebar"
+      }
+    ],
+    "right": [
+      {
+        "id": "block-authoring",
+        "label": "Block Authoring",
+        "icon": "EditIcon",
+        "modes": ["studio"],
+        "position": "right",
+        "order": 1,
+        "component": "StudioActions",
+        "enabled": true,
+        "description": "Create and edit content blocks - Studio only"
+      },
+      {
+        "id": "composite-blocks",
+        "label": "Composite Blocks",
+        "icon": "LayersIcon",
+        "modes": ["studio"],
+        "position": "right",
+        "order": 2,
+        "component": "StudioCompositeBlocks",
+        "enabled": true,
+        "description": "Manage grouped content blocks - Studio only"
+      },
+      {
+        "id": "table-of-contents",
+        "label": "Table of Contents",
+        "icon": "TocIcon",
+        "modes": ["reader"],
+        "position": "right",
+        "order": 1,
+        "component": "TableOfContents",
+        "enabled": true,
+        "description": "Book structure and navigation"
+      },
+      {
+        "id": "glossary-keywords",
+        "label": "Glossary & Keywords",
+        "icon": "MenuBookIcon",
+        "modes": ["reader", "studio"],
+        "position": "right",
+        "order": 2,
+        "component": "List",
+        "enabled": true,
+        "description": "Glossary terms and keywords"
+      },
+      {
+        "id": "illustrative-interactions",
+        "label": "Illustrative Interactions",
+        "icon": "InteractionIcon",
+        "modes": ["reader", "studio"],
+        "position": "right",
+        "order": 3,
+        "component": "List",
+        "enabled": true,
+        "description": "Interactive learning objects"
+      },
+      {
+        "id": "check-yourself-right",
+        "label": "Check Yourself",
+        "icon": "QuizIcon",
+        "modes": ["reader"],
+        "position": "right",
+        "order": 4,
+        "component": "List",
+        "enabled": true,
+        "description": "Self-assessment questions",
+        "note": "In studio mode, this appears on the left sidebar"
+      }
+    ]
+  }
+}

@@ -34,7 +34,6 @@ const BooksTable = () => {
           checked={params.id == selectedRowId}
           value={params.id}
           onChange={(e) => {
-            console.log(e.target.value);
             setSelectedRowId(e.target.value);
           }}
         />

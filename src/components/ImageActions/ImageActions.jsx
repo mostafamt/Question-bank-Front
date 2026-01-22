@@ -12,6 +12,7 @@ import SearchOffIcon from "@mui/icons-material/SearchOff";
 import BackHandIcon from "@mui/icons-material/BackHand";
 
 import styles from "./styles.module.scss";
+import { useAppMode } from "../../utils/tabFiltering";
 
 const DEGREE = 0.1;
 // large | medium | small
@@ -31,11 +32,12 @@ const ImageActions = React.forwardRef((props, ref) => {
     onImageLoad,
     pages,
     onClickImage,
-    highlight,
-    setHighlight,
   } = props;
 
-  const [oldAreas, setOldAreas] = React.useState(areas[activePage] || []);
+  const [oldAreas, setOldAreas] = React.useState(areas?.[activePage] || []);
+
+  const mode = useAppMode();
+  const isReaderMode = mode === "reader";
 
   const onClickZoomIn = () => {
     setImageScaleFactor(imageScaleFactor + DEGREE);
@@ -132,22 +134,6 @@ const ImageActions = React.forwardRef((props, ref) => {
       </div>
 
       <div>
-        <IconButton
-          aria-label="hand"
-          onClick={() => setHighlight(highlight === "hand" ? "" : "hand")}
-          sx={{
-            backgroundColor: highlight === "hand" ? "#ccc" : "transparent",
-          }}
-        >
-          <BackHandIcon fontSize={iconFontSize} />
-        </IconButton>
-      </div>
-
-      <div>
-        <span>|</span>
-      </div>
-
-      <div>
         <IconButton aria-label="zoom-in" onClick={onClickZoomIn}>
           <ZoomInIcon fontSize={iconFontSize} />
         </IconButton>
@@ -160,22 +146,26 @@ const ImageActions = React.forwardRef((props, ref) => {
           <ZoomOutIcon fontSize={iconFontSize} />
         </IconButton>
       </div>
-      <div>
-        <span>|</span>
-      </div>
+      {isReaderMode && (
+        <>
+          <div>
+            <span>|</span>
+          </div>
 
-      <div>
-        <IconButton
-          aria-label="visibility-icon"
-          onClick={onClickToggleVirutalBlocks}
-        >
-          {showVB ? (
-            <VisibilityIcon fontSize={iconFontSize} />
-          ) : (
-            <VisibilityOffIcon fontSize={iconFontSize} />
-          )}
-        </IconButton>
-      </div>
+          <div>
+            <IconButton
+              aria-label="visibility-icon"
+              onClick={onClickToggleVirutalBlocks}
+            >
+              {showVB ? (
+                <VisibilityOffIcon fontSize={iconFontSize} />
+              ) : (
+                <VisibilityIcon fontSize={iconFontSize} />
+              )}
+            </IconButton>
+          </div>
+        </>
+      )}
     </div>
   );
 });

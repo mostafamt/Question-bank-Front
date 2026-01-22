@@ -9,6 +9,11 @@ import ListItemText from "@mui/material/ListItemText";
 import Collapse from "@mui/material/Collapse";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
+import NorthIcon from "@mui/icons-material/North";
+import SouthIcon from "@mui/icons-material/South";
+import { IconButton } from "@mui/material";
+
+import styles from "./styles.module.scss";
 
 const GlossaryAndKeywords = (props) => {
   const [open, setOpen] = React.useState([]);
@@ -19,7 +24,13 @@ const GlossaryAndKeywords = (props) => {
     );
   };
 
-  const { chapterId } = props;
+  const {
+    chapterId,
+    changePageById,
+    getBlockFromBlockId,
+    hightBlock,
+    navigateToBlock,
+  } = props;
 
   const { data: tabObjects, isFetching } = useQuery({
     queryKey: ["tab-objects-glossary"],
@@ -33,6 +44,46 @@ const GlossaryAndKeywords = (props) => {
 
   if (isFetching) return <CircularProgress size="1rem" />;
 
+  const onClickUp = (event, references) => {
+    event.stopPropagation();
+    if (!references?.length) {
+      console.warn("No references available");
+      return;
+    }
+
+    const { pageId, blockId } = references[0];
+
+    if (navigateToBlock) {
+      // Use new unified navigation function
+      navigateToBlock(pageId, blockId);
+    } else {
+      // Fallback to original implementation (for Studio context)
+      changePageById?.(pageId);
+      const blockDetails = getBlockFromBlockId?.(blockId);
+      hightBlock?.(blockId);
+    }
+  };
+
+  const onClickDown = (event, references) => {
+    event.stopPropagation();
+    if (!references?.length) {
+      console.warn("No references available");
+      return;
+    }
+
+    const { pageId, blockId } = references[0];
+
+    if (navigateToBlock) {
+      // Use new unified navigation function
+      navigateToBlock(pageId, blockId);
+    } else {
+      // Fallback to original implementation (for Studio context)
+      changePageById?.(pageId);
+      const blockDetails = getBlockFromBlockId?.(blockId);
+      hightBlock?.(blockId);
+    }
+  };
+
   return (
     <div style={{ padding: "0.5rem" }}>
       <List
@@ -40,7 +91,7 @@ const GlossaryAndKeywords = (props) => {
         component="div"
       >
         {tabObjects?.map((item, idx) => (
-          <div key={item._id}>
+          <div key={item._id || idx}>
             <ListItemButton onClick={() => handleClick(idx)} sx={{ p: 0 }}>
               <ListItemIcon sx={{ minWidth: 0 }}>
                 {open[idx] ? <ExpandLess /> : <ExpandMore />}
@@ -49,6 +100,14 @@ const GlossaryAndKeywords = (props) => {
                 primary={item.term}
                 sx={{ fontWeight: "bold", "& > span": { fontWeight: "bold" } }}
               />
+              <span className={styles["up-down"]}>
+                <IconButton onClick={(e) => onClickUp(e, item?.references)}>
+                  <NorthIcon />
+                </IconButton>
+                <IconButton onClick={(e) => onClickDown(e, item?.references)}>
+                  <SouthIcon />
+                </IconButton>
+              </span>
             </ListItemButton>
             <Collapse in={open[idx]} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>

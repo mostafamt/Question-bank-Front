@@ -37,7 +37,10 @@ const AreaActionResult = (props) => {
           value={trialArea?.text}
           onChange={(e) => onEditText(trialArea?.id, e.target.value)}
           disabled={false}
+<<<<<<< HEAD
           // disabled={Boolean(foundComplexType)}
+=======
+>>>>>>> copy-of-three-testing
         />
       ) : trialArea?.image ? (
         <img

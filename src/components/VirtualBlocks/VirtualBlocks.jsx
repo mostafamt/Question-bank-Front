@@ -12,8 +12,7 @@ const VirtualBlocks = (props) => {
     virtualBlocks,
     setVirtualBlocks,
     activePage,
-    openModal,
-    setModalName,
+    reader = false,
   } = props;
 
   const virtualBlocksRenders = [];
@@ -32,6 +31,9 @@ const VirtualBlocks = (props) => {
           setVirtualBlocks(newVirtualBlocks);
         }}
         showVB={showVB}
+        virtualBlocks={virtualBlocks}
+        setVirtualBlocks={setVirtualBlocks}
+        reader={reader}
       />
     );
   }

@@ -45,7 +45,7 @@ export const getChapterTOC = async (chapterId) => {
     return res.data;
   } catch (error) {
     toast.error(error?.message);
-    return "";
+    return []; // Return empty array instead of empty string
   }
 };
 

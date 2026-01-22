@@ -1,7 +1,12 @@
 import React from "react";
 import Studio from "../../components/Studio/Studio";
 import { useLocation, useParams } from "react-router-dom";
-import { uploadBase64 } from "../../utils/upload";
+import {
+  baseUploadBase64,
+  uploadBase64,
+  uploadForStudio,
+} from "../../utils/upload";
+import { uploadBase64 as newUpload } from "../../utils/NewUpload";
 import { saveBlocks } from "../../services/api";
 import {
   getChapterPages,
@@ -10,6 +15,7 @@ import {
 } from "../../api/bookapi";
 import { useQuery } from "@tanstack/react-query";
 import { Box, CircularProgress } from "@mui/material";
+import { formatVirtualBlocksForSubmission } from "../../utils/virtual-blocks";
 
 import styles from "./scanAndUpload.module.scss";
 import { CREATED, DELETED, UPDATED } from "../../utils/ocr";
@@ -42,6 +48,12 @@ const ScanAndUpload = () => {
   });
 
   const handleSubmit = async (pageId, areas, virtualBlocks) => {
+    console.log("areas= ", areas);
+    // let image = areas[1].image;
+    // console.log("image= ", image);
+    // let url = await newUpload(image);
+    // console.log("url= ", url);
+    // return;
     const blocks = await Promise.all(
       [...areas]
         .sort((a, b) => a.order - b.order)
@@ -59,9 +71,7 @@ const ScanAndUpload = () => {
               },
               contentType: item.label,
               contentValue:
-                item.typeOfLabel === "image"
-                  ? await uploadBase64(item.image)
-                  : item.text,
+                item.typeOfLabel === "image" ? item.image : item.text,
             };
           } else if (item.status === CREATED) {
             return {
@@ -77,7 +87,7 @@ const ScanAndUpload = () => {
               contentType: item.label,
               contentValue:
                 item.typeOfLabel === "image"
-                  ? await uploadBase64(item.image)
+                  ? await newUpload(item.image)
                   : item.text,
             };
           } else {
@@ -94,31 +104,19 @@ const ScanAndUpload = () => {
               },
               contentType: item.label,
               contentValue:
-                item.typeOfLabel === "image"
-                  ? await uploadBase64(item.image)
-                  : item.text,
+                item.typeOfLabel === "image" ? item.image : item.text,
             };
           }
         })
     );
 
-    const v_blocks = [];
-    for (const key in virtualBlocks) {
-      const { label, id, status } = virtualBlocks[key];
-      if (id) {
-        v_blocks.push({
-          pageId,
-          status,
-          iconLocation: key,
-          contentType: label,
-          contentValue: id,
-        });
-      }
-    }
+    // Format virtual blocks for submission using new structure
+    const formattedVBlocks = formatVirtualBlocksForSubmission(virtualBlocks, pageId);
 
+    // Only include v_blocks if there are any contents
     const data = {
       blocks,
-      v_blocks,
+      ...(formattedVBlocks && { v_blocks: [formattedVBlocks] }),
     };
 
     const id = await saveBlocks(data);

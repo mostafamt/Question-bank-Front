@@ -1,5 +1,4 @@
 import Tesseract from "tesseract.js";
-import { hexToRgbA } from "./helper";
 import { trimText } from "./data";
 import { useStore } from "../store/store";
 import { v4 as uuidv4 } from "uuid";
@@ -86,33 +85,6 @@ export const getTypeOfLabel2 = (types, type, label) => {
   return Object.values(selectedLabel)[0];
 };
 
-export const constructBoxColors = (trialAreas) => {
-  const values = trialAreas?.map((_, idx) => `& > div:nth-of-type(${idx + 2})`);
-
-  const obj = trialAreas?.map((trialArea, idx) => {
-    if (values[idx]) {
-      if (trialArea.status === DELETED) {
-        return {
-          [values[idx]]: {
-            border: `2px solid #000 !important`,
-            backgroundColor: `rgba(0, 0, 0, 0.5)`,
-          },
-        };
-      } else {
-        return {
-          [values[idx]]: {
-            border: `2px solid ${trialArea.color} !important`,
-            backgroundColor: `${hexToRgbA(trialArea.color)}`,
-          },
-        };
-      }
-    } else {
-      return {};
-    }
-  });
-
-  return { "& > div": obj };
-};
 
 export const cropSelectedArea = (canvasRef, imageRef, x, y, width, height) => {
   const canvas = canvasRef.current;

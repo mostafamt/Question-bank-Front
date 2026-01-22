@@ -1,6 +1,7 @@
 import React from "react";
 import { PAGES } from "../../../utils/book";
 import BookViewerTopBar from "../BookViewerTopBar/BookViewerTopBar";
+import { getHighlightStyles } from "../../../config/highlighting";
 
 import styles from "./bookViewer.module.scss";
 import { parseVirtualBlocksFromActivePage } from "../../../utils/virtual-blocks";
@@ -8,12 +9,14 @@ import VirtualBlock from "../../VirtualBlocks/VirtualBlock/VirtualBlock";
 import { getImageDimensions } from "../../../utils/image";
 
 const BookViewer = (props) => {
+  console.log("BookViewer");
   const {
     activePage,
     onChangePage,
     onClickArea,
     newPages: pages,
     onChangeActivePage,
+    highlightedBlockId,
   } = props;
   const [width, setWidth] = React.useState(null);
   const [showVB, setShowVB] = React.useState(false);
@@ -34,8 +37,10 @@ const BookViewer = (props) => {
   // }, [activePage.url, ref, ref.current?.clientWidth]);
 
   const getStyle = (area) => {
+    let newArea = {};
     if (area?.coordinates?.unit === "percentage") {
-      return {
+      newArea = {
+        ...newArea,
         position: "absolute",
         top: `${area.coordinates.y}%`,
         left: `${area.coordinates.x}%`,
@@ -43,14 +48,25 @@ const BookViewer = (props) => {
         height: `${area.coordinates.height}%`,
       };
     } else {
-      return {
+      newArea = {
+        ...newArea,
         position: "absolute",
-        top: `${area.coordinates.y}px`,
-        left: `${area.coordinates.x}px`,
-        width: `${area.coordinates.width}px`,
-        height: `${area.coordinates.height}px`,
+        top: `${area.coordinates.y}%`,
+        left: `${area.coordinates.x}%`,
+        width: `${area.coordinates.width}%`,
+        height: `${area.coordinates.height}%`,
       };
     }
+
+    // Apply highlighting if this block is the highlighted one
+    if (area.blockId === highlightedBlockId) {
+      newArea = {
+        ...newArea,
+        ...getHighlightStyles(),
+      };
+    }
+
+    return newArea;
   };
 
   // const virtualBlocks = Array(18).fill(null);
@@ -91,14 +107,16 @@ const BookViewer = (props) => {
           style={{
             gridColumn: showVB ? "2 / 6" : "1 / 8",
             gridRow: showVB ? "2 / 8" : "1 / 8",
-            backgroundImage: `url(${activePage?.url})`,
-            backgroundSize: "cover",
-            backgroundRepeat: "no-repeat",
-            height: showVB ? "94%" : "99%",
           }}
           ref={ref}
         >
-          {/* {activePage && <img src={activePage.url} alt={activePage.url} />} */}
+          {activePage && (
+            <img
+              src={activePage.url}
+              alt={`Page ${activePage.pageNumber || ""}`}
+              className={styles["page-image"]}
+            />
+          )}
           {areas?.map((area) => (
             <button
               key={area.blockId}
