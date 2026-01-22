@@ -1,0 +1,14 @@
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.up-down {
+  display: flex;
+  align-items: center;
+
+  & button {
+    padding: 0.25rem;
+  }
+}

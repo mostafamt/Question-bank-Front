@@ -12,14 +12,21 @@ import {
 import PlayObjectModal from "../Modal/PlayObjectModal/PlayObjectModal";
 import { isComplexType } from "../../utils/ocr";
 import QuillModal from "../Modal/QuillModal/QuillModal";
+import { useStore } from "../../store/store";
 
 import styles from "./studyBook.module.scss";
 
 const StudyBook = (props) => {
-  const { pages, activePage, setActivePage, newPages, onChangeActivePage } =
-    props;
-  const [showModal, setShowModal] = React.useState(false);
+  const {
+    pages,
+    activePage,
+    setActivePage,
+    newPages,
+    onChangeActivePage,
+    highlightedBlockId,
+  } = props;
   const [activeBlock, setActiveBlock] = React.useState({});
+  const { openModal } = useStore();
 
   const onChangePage = (state = "next") => {
     setActivePage((prevState) => {
@@ -29,26 +36,22 @@ const StudyBook = (props) => {
   };
 
   const onClickArea = (block) => {
-    setShowModal(true);
     setActiveBlock(block);
-  };
-
-  const toggleShowModal = () => {
-    setShowModal((prevState) => !prevState);
+    let isComplex = isComplexType(activeBlock.contentType);
+    if (isComplex) {
+      openModal("play-object", {
+        workingArea: block,
+      });
+    } else {
+      openModal("quill", {
+        workingArea: block,
+        updateAreaPropertyById: () => {},
+      });
+    }
   };
 
   return (
     <>
-      <Modal show={showModal} handleClose={toggleShowModal} size="xl">
-        {isComplexType(activeBlock.contentType) ? (
-          <PlayObjectModal workingArea={activeBlock} />
-        ) : (
-          <QuillModal
-            workingArea={activeBlock}
-            updateAreaPropertyById={() => {}}
-          />
-        )}
-      </Modal>
       <BookViewer
         activePage={activePage}
         setActivePage={setActivePage}
@@ -56,6 +59,7 @@ const StudyBook = (props) => {
         onClickArea={onClickArea}
         newPages={pages}
         onChangeActivePage={onChangeActivePage}
+        highlightedBlockId={highlightedBlockId}
       />
     </>
   );

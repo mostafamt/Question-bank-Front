@@ -1,10 +1,18 @@
 .studio-composite-blocks {
-  margin: 1rem;
+  margin: 0 1rem 1rem;
 
   & .header {
+    margin: 1rem 0 1rem;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+
+    color: #ccc;
+    border-radius: 0.25rem;
+    font-size: 1.6rem;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    background-color: #eee;
   }
 
   & .blocks {
@@ -13,8 +21,8 @@
     }
   }
 
-  & .submit{
+  & .submit {
     width: 100%;
-     margin: 1rem 0;
+    margin: 1rem 0;
   }
 }

@@ -20,7 +20,13 @@ const getList2FromData = (data, selectedItem) => {
 const addPropsToAreasForCompositeBlocks = (compositeBlocks, areasParam) => {
   const newAreas = areasParam.map((item) => {
     if (!item.id) {
-      item = { ...item, id: uuidv4(), type: "" };
+      item = {
+        ...item,
+        id: uuidv4(),
+        type: "",
+        open: false,
+        // color: colors[idx % colors.length],
+      };
     }
     return item;
   });

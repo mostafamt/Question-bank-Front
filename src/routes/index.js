@@ -33,7 +33,7 @@ const routes = [
   },
   {
     path: "/read/book/:bookId/chapter/:chapterId",
-    component: Book,
+    component: ScanAndUpload,
   },
   {
     path: "/bulk",

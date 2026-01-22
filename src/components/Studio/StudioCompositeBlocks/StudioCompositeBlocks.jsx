@@ -10,6 +10,11 @@ import {
   getList2FromData,
   getTypeOfLabelForCompositeBlocks,
 } from "../../../utils/studio";
+import { colors } from "../../../constants/highlight-color";
+
+import { grey } from "@mui/material/colors";
+import { PlayArrow, Edit, DeleteForever, BackHand } from "@mui/icons-material";
+import Tooltip from "@mui/material/Tooltip";
 
 import styles from "./studioCompositeBlocks.module.scss";
 
@@ -21,7 +26,16 @@ const StudioCompositeBlocks = (props) => {
     processCompositeBlock,
     onSubmitCompositeBlocks,
     loadingSubmitCompositeBlocks,
+    DeleteCompositeBlocks,
+    highlight,
+    setHighlight,
+    onClickHand,
   } = props;
+
+  const { openModal } = useStore();
+
+  // Track color index for sequential color assignment
+  const [compositeColorIndex, setCompositeColorIndex] = React.useState(0);
 
   const list1 = getList1FromData(compositeBlocksTypes);
   const list2 = getList2FromData(compositeBlocksTypes, compositeBlocks.type);
@@ -33,12 +47,41 @@ const StudioCompositeBlocks = (props) => {
       value
     );
 
+    // Get next color from palette using modulo for cycling
+    const nextColor = colors[compositeColorIndex % colors.length];
+
     onChangeCompositeBlocks(id, type, value);
-    onChangeCompositeBlocks(id, "text", typeOfLabel);
+    // onChangeCompositeBlocks(id, "text", typeOfLabel);
+    onChangeCompositeBlocks(id, "color", nextColor);
+
+    // Increment color index for next assignment
+    setCompositeColorIndex((prev) => prev + 1);
+
+    if (typeOfLabel === "Object" || typeOfLabel === "QObject") {
+      return;
+    }
 
     processCompositeBlock(id, typeOfLabel);
+  };
 
-    console.log("type= ", typeOfLabel);
+  const handleToggle = (id, isOpen) => {
+    onChangeCompositeBlocks(id, "open", !isOpen);
+  };
+
+  const onClickPlay = (id, event) => {
+    openModal("play-composite-blocks", {
+      id,
+    });
+  };
+
+  const onClickEdit = (id, event) => {
+    openModal("edit-composite-blocks", {
+      id,
+    });
+  };
+
+  const onClickDelete = (id, event) => {
+    DeleteCompositeBlocks(id);
   };
 
   const renderBlockResult = (block) => {
@@ -51,7 +94,21 @@ const StudioCompositeBlocks = (props) => {
     }
 
     if (block.text) {
-      return <TextField size="small" defaultValue={block.text} />;
+      return (
+        <TextField
+          size="small"
+          value={block.text}
+          sx={{ mt: 1 }}
+          multiline
+          fullWidth
+          onChange={(e) => {
+            const newText = e.target.value;
+
+            // update compositeBlocksState
+            onChangeCompositeBlocks(block.id, "text", newText);
+          }}
+        />
+      );
     } else {
       return <img src={block.img} alt={block.img} width="100%" />;
     }
@@ -59,6 +116,19 @@ const StudioCompositeBlocks = (props) => {
 
   return (
     <div className={styles["studio-composite-blocks"]}>
+      <div>
+        <Tooltip title="Pick an object">
+          <IconButton
+            aria-label="hand"
+            onClick={onClickHand}
+            sx={{
+              backgroundColor: highlight === "hand" ? "#ccc" : "transparent",
+            }}
+          >
+            <BackHand fontSize={iconFontSize} />
+          </IconButton>
+        </Tooltip>
+      </div>
       <div className={styles.header}>
         <TextField
           label="Name"

@@ -1,0 +1,21 @@
+.text-content-display {
+  padding: 1rem;
+  min-height: 500px;
+
+  .editor {
+    height: 450px;
+
+    // Quill editor container
+    :global(.ql-container) {
+      font-size: 1rem;
+      height: calc(100% - 42px); // Subtract toolbar height
+    }
+
+    // Quill editor content area
+    :global(.ql-editor) {
+      min-height: 400px;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+  }
+}

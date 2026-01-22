@@ -26,11 +26,11 @@
         & .row {
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          gap: 4%;
+          justify-content: flex-start;
+          gap: 1.5rem;
 
           & > label {
-            flex: 1 1 auto;
+            flex: 1 1 0%;
           }
         }
 

@@ -1,6 +1,6 @@
 import React from "react";
 import MinimizeIcon from "@mui/icons-material/Minimize";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import { getColumnIcon } from "../../../utils/book-icons";
 
 import styles from "./bookColumn.module.scss";
 
@@ -57,12 +57,15 @@ const BookColumn2 = (props) => {
         </div>
       ) : (
         <div className={styles.closed}>
-          {columns.map((column) => (
-            <button key={column.id} onClick={() => setActiveColumn(column)}>
-              <span>{column.label}</span>
-              <ContentCopyIcon />
-            </button>
-          ))}
+          {columns.map((column) => {
+            const IconComponent = getColumnIcon(column.label);
+            return (
+              <button key={column.id} onClick={() => setActiveColumn(column)}>
+                <span>{column.label}</span>
+                <IconComponent />
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

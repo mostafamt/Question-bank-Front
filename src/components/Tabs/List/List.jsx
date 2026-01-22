@@ -8,56 +8,76 @@ import ListItem from "../ListItem/ListItem";
 import { useForm } from "react-hook-form";
 
 import styles from "./list.module.scss";
-
-const tabsMapping = {
-  Recalls: "recalls",
-  "Micro Learning": "micro-los",
-  "Enriching Content": "enriching-contents",
-  "Check Yourself": "exercises",
-  "Illustrative Interactions": "illustrative-objects",
-};
+import { RIGHT_TAB_NAMES } from "../../Studio/constants";
+import GlossaryListItem from "../GlossaryListItem/GlossaryListItem";
 
 const List = (props) => {
-  const { tabName, chapterId, reader } = props;
+  const { tab, chapterId, reader, changePageById, navigateToBlock } = props;
 
   const { openModal, setFormState } = useStore();
+
+  const [open, setOpen] = React.useState([]);
 
   const { handleSubmit } = useForm();
 
   const { data: tabObjects, isFetching } = useQuery({
-    queryKey: [`tab-objects-${tabName}`],
-    queryFn: () => getTabObjects(chapterId, tabsMapping[tabName]),
+    queryKey: [`tab-objects-${tab.name}`],
+    queryFn: () => getTabObjects(chapterId, tab.name),
     refetchOnWindowFocus: false,
   });
 
   const [objects, setObjects] = React.useState([]);
 
-  console.log("tabObjects= ", tabObjects);
-
   const mutation = useMutation({
-    mutationFn: (bodyData) =>
-      updateTabObjects(chapterId, tabsMapping[tabName], bodyData),
+    mutationFn: (bodyData) => updateTabObjects(chapterId, tab.name, bodyData),
   });
 
   React.useEffect(() => {
     setFormState((prevState) => ({
       ...prevState,
-      activeTab: tabName,
+      activeTab: tab.name,
     }));
   }, []);
+
+  React.useEffect(() => {
+    setOpen(Array(tabObjects?.length).fill(false));
+  }, [tabObjects]);
 
   React.useEffect(() => {
     if (!tabObjects) return;
 
     setObjects(tabObjects);
-  }, [tabObjects, tabName, setObjects]);
+  }, [tabObjects, tab, setObjects]);
 
   const onClickPlus = () => {
-    openModal("tabs", {
-      checkedObjects: objects,
-      setCheckedObjects: setObjects,
-      source: tabName,
-    });
+    if (tab.name === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.name) {
+      // Open glossary modal for adding new term
+      openModal("glossary", {
+        title: "Add Glossary Term",
+        onSubmit: (term, definition) => {
+          // Add the new glossary item to the list
+          const newItem = {
+            _id: Date.now().toString(), // Temporary ID
+            term,
+            definition,
+            references: [],
+          };
+          setObjects((prevState) => [...prevState, newItem]);
+        },
+      });
+    } else {
+      openModal("tabs", {
+        checkedObjects: objects,
+        setCheckedObjects: setObjects,
+        source: tab.name,
+      });
+    }
+  };
+
+  const handleClick = (idx) => {
+    setOpen((prevState) =>
+      prevState.map((item, id) => (id === idx ? !item : item))
+    );
   };
 
   const handlePlay = React.useCallback(
@@ -77,9 +97,74 @@ const List = (props) => {
   const handleDelete = React.useCallback(
     (id) => {
       if (!id) return;
-      setObjects((prevState) => prevState.filter((item) => item._id !== id));
+
+      if (tab.name === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.name) {
+        setObjects((prevState) =>
+          prevState.map((item) =>
+            item._id === id ? { ...item, status: "deleted" } : item
+          )
+        );
+      } else {
+        setObjects((prevState) => prevState.filter((item) => item._id !== id));
+      }
     },
-    [setObjects]
+    [setObjects, tab.name]
+  );
+
+  const handleEdit = React.useCallback(
+    (item) => {
+      openModal("glossary", {
+        term: item.term,
+        definition: item.definition,
+        title: "Edit Glossary Term",
+        onSubmit: (term, definition) => {
+          // Update the item in the list
+          setObjects((prevState) =>
+            prevState.map((obj) =>
+              obj._id === item._id ? { ...obj, term, definition } : obj
+            )
+          );
+        },
+      });
+    },
+    [openModal, setObjects]
+  );
+
+  const handleMoveUp = React.useCallback(
+    (item) => {
+      if (!item?.references?.length) {
+        console.warn("Item has no references:", item);
+        return;
+      }
+
+      const { pageId, blockId } = item.references[0];
+
+      if (navigateToBlock) {
+        navigateToBlock(pageId, blockId);
+      } else if (changePageById) {
+        changePageById(pageId);
+      }
+    },
+    [navigateToBlock, changePageById]
+  );
+
+  const handleMoveDown = React.useCallback(
+    (item) => {
+      if (!item?.references?.length) {
+        console.warn("Item has no references:", item);
+        return;
+      }
+
+      // Navigate to first reference (same as handleMoveUp for now)
+      const { pageId, blockId } = item.references[0];
+
+      if (navigateToBlock) {
+        navigateToBlock(pageId, blockId);
+      } else if (changePageById) {
+        changePageById(pageId);
+      }
+    },
+    [navigateToBlock, changePageById]
   );
 
   const onSubmitHandler = async () => {
@@ -87,23 +172,59 @@ const List = (props) => {
       ids: objects.map((item) => item._id),
     };
 
-    mutation.mutate(ids);
+    if (tab.name === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.name) {
+      console.log("objects= ", objects);
+      mutation.mutate(objects);
+    } else {
+      mutation.mutate(ids);
+    }
   };
 
   const objectsList = React.useMemo(() => {
     if (isFetching) return <CircularProgress size="1rem" />;
-    if (!objects.length) return <p>{tabName} is empty</p>;
+    if (!objects.length) return <p>{tab.label} is empty</p>;
 
-    return objects.map((item) => (
-      <ListItem
-        key={item._id}
-        item={item}
-        onPlay={() => handlePlay(item)}
-        onDelete={() => handleDelete(item._id)}
-        reader={reader}
-      />
-    ));
-  }, [objects, tabName, isFetching, handleDelete, handlePlay]);
+    if (tab.name === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.name) {
+      return objects
+        .filter((item) => item.status !== "deleted")
+        .map((item, idx) => (
+          <GlossaryListItem
+            key={item.id || idx}
+            item={item}
+            handleClick={handleClick}
+            idx={idx}
+            open={open}
+            onPlay={() => handlePlay(item)}
+            onEdit={() => handleEdit(item)}
+            onDelete={() => handleDelete(item._id)}
+            onMoveUp={() => handleMoveUp(item)}
+            onMoveDown={() => handleMoveDown(item)}
+            reader={reader}
+          />
+        ));
+    } else {
+      return objects.map((item) => (
+        <ListItem
+          key={item._id}
+          item={item}
+          onPlay={() => handlePlay(item)}
+          onDelete={() => handleDelete(item._id)}
+          reader={reader}
+        />
+      ));
+    }
+  }, [
+    objects,
+    tab,
+    isFetching,
+    open,
+    handleClick,
+    handleDelete,
+    handleEdit,
+    handlePlay,
+    handleMoveUp,
+    handleMoveDown,
+  ]);
 
   return (
     <form
@@ -112,8 +233,8 @@ const List = (props) => {
     >
       {!reader && (
         <div>
-          <IconButton onClick={onClickPlus} color="primary">
-            <AddIcon color="primary" />
+          <IconButton onClick={onClickPlus} color="primary" size="large">
+            <AddIcon color="primary" fontSize="large" />
           </IconButton>
         </div>
       )}

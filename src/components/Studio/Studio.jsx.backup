@@ -1,0 +1,526 @@
+import React, { useCallback, useRef, useEffect } from "react";
+import { toast } from "react-toastify";
+import { v4 as uuidv4 } from "uuid";
+
+import StudioThumbnails from "./StudioThumbnails/StudioThumbnails";
+import StudioEditor from "./StudioEditor/StudioEditor";
+import { Alert } from "@mui/material";
+import {
+  COMPLEX_TYPES,
+  DELETED,
+  extractImage,
+  getTypeOfLabel2,
+  ocr,
+  onEditTextField,
+} from "../../utils/ocr";
+import { LEFT_TAB_NAMES, RIGHT_TAB_NAMES } from "./constants";
+
+import StudioActions from "./StudioActions/StudioActions";
+import LanguageSwitcher from "./LanguageSwitcher/LanguageSwitcher";
+import BookColumn from "../Book/BookColumn/BookColumn";
+import List from "../Tabs/List/List";
+import StudioStickyToolbar from "./StudioStickyToolbar/StudioStickyToolbar";
+import StudioCompositeBlocks from "./StudioCompositeBlocks/StudioCompositeBlocks";
+
+import styles from "./studio.module.scss";
+import { useParams } from "react-router-dom";
+import TableOfContents from "../Book/TableOfContents/TableOfContents";
+import GlossaryAndKeywords from "../Tabs/GlossaryAndKeywords/GlossaryAndKeywords";
+import { useStore } from "../../store/store";
+import { StudioProvider, useStudioContext } from "./context/StudioContext";
+
+/**
+ * Inner Studio component that uses context
+ */
+const StudioContent = () => {
+  const {
+    // Props
+    pages,
+    type,
+    subObject,
+    handleClose,
+    types,
+    handleSubmit,
+    typeOfActiveType: tOfActiveType,
+    onSubmitAutoGenerate,
+    loadingAutoGenerate,
+    refetch,
+    compositeBlocksTypes,
+
+    // Parent callbacks (for sub-object mode)
+    parentUpdateAreaProperty,
+
+    // Refs
+    studioEditorRef,
+    canvasRef,
+    thumbnailsRef,
+
+    // State
+    imageScaleFactor,
+    setImageScaleFactor,
+    language,
+    setLanguage,
+    loadingSubmit,
+    setLoadingSubmit,
+    activeType,
+    setActiveType,
+    setTypeOfActiveType,
+    activeLeftTab,
+    setActiveLeftTab,
+    activeRightTab,
+    setActiveRightTab,
+
+    // Page Management
+    activePageIndex,
+    activePageId,
+    navigateToPage,
+    showStickyToolbar,
+    setShowStickyToolbar,
+
+    // Area Management
+    areas,
+    areasProperties,
+    setAreas,
+    setAreasProperties,
+    updateAreaProperty,
+    updateAreaPropertyById,
+    deleteArea,
+    updateAreas,
+    syncAreasProperties,
+    getAndIncrementColor,
+
+    // Coordinate Conversion
+    convertPercentageToPx,
+
+    // Composite Blocks
+    compositeBlocks,
+    highlight,
+    setHighlight,
+    updateCompositeBlock,
+    deleteCompositeBlockArea,
+    processCompositeBlockArea,
+    submitCompositeBlocks,
+    updateFromAreaSelector,
+    loadingSubmit: loadingSubmitCompositeBlocks,
+
+    // Virtual Blocks
+    virtualBlocks,
+    showVB,
+    toggleVirtualBlocks,
+    updateVirtualBlocks,
+    currentPageVirtualBlocks,
+  } = useStudioContext();
+
+  const { openModal } = useStore();
+  const { chapterId } = useParams();
+
+  // Intersection observer for sticky toolbar
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setShowStickyToolbar(!entry.isIntersecting);
+      },
+      { root: null, threshold: 0 }
+    );
+
+    const imageActionsRef = studioEditorRef.current?.imageActionsRef;
+    if (imageActionsRef?.current) {
+      observer.observe(imageActionsRef.current);
+    }
+
+    return () => {
+      if (imageActionsRef?.current) {
+        observer.unobserve(imageActionsRef.current);
+      }
+    };
+  }, [studioEditorRef, setShowStickyToolbar]);
+
+  const onClickImage = useCallback((idx) => {
+    navigateToPage(idx);
+  }, [navigateToPage]);
+
+  const onChangeHandler = useCallback((areasParam) => {
+    if (activeRightTab.label === RIGHT_TAB_NAMES.COMPOSITE_BLOCKS) {
+      updateFromAreaSelector(areasParam);
+    } else {
+      // Check length using functional state read
+      let shouldSync = false;
+      setAreasProperties(prev => {
+        shouldSync = areasParam.length > prev[activePageIndex].length;
+        return prev; // Don't update, just read
+      });
+
+      if (shouldSync) {
+        syncAreasProperties();
+      }
+      updateAreas(areasParam);
+    }
+  }, [activeRightTab.label, updateFromAreaSelector, activePageIndex, syncAreasProperties, updateAreas]);
+
+  const onClickDeleteArea = useCallback((idx) => {
+    // Read isServer using functional state
+    let isServer = false;
+    setAreasProperties(prev => {
+      isServer = prev[activePageIndex]?.[idx]?.isServer;
+      return prev; // Don't update, just read
+    });
+
+    if (isServer) {
+      updateAreaProperty(idx, { status: DELETED });
+    } else {
+      deleteArea(idx);
+    }
+  }, [activePageIndex, updateAreaProperty, deleteArea]);
+
+  const onChangeLabel = useCallback(async (id, label) => {
+    syncAreasProperties();
+    const idx = areasProperties[activePageIndex].findIndex(
+      (area) => area.id === id
+    );
+
+    const color = getAndIncrementColor();
+    let area = { color };
+
+    let typeOfLabel = "";
+    if (subObject) {
+      typeOfLabel = getTypeOfLabel2(types, tOfActiveType, label);
+    } else {
+      const { getTypeOfLabel } = require("../../utils/ocr");
+      typeOfLabel = getTypeOfLabel(
+        types,
+        areasProperties[activePageIndex][idx].type,
+        label
+      );
+    }
+
+    const img = extractImage(
+      canvasRef,
+      studioEditorRef.current.studioEditorSelectorRef,
+      areasProperties,
+      activePageIndex,
+      areas,
+      id
+    );
+    area = { ...area, label, typeOfLabel: typeOfLabel, image: img };
+
+    updateAreaProperty(idx, area);
+
+    if (typeOfLabel === "text" || typeOfLabel === "number") {
+      updateAreaProperty(idx, { loading: true });
+      const text = await ocr(language, img);
+      updateAreaProperty(idx, { text, loading: false });
+    } else if (typeOfLabel === "Coordinate") {
+      const { naturalHeight, naturalWidth } =
+        studioEditorRef.current.studioEditorSelectorRef.current;
+      const x = Number.parseInt(
+        (areas[activePageIndex][idx].x * naturalWidth) / 100
+      );
+      const y = Number.parseInt(
+        (areas[activePageIndex][idx].y * naturalHeight) / 100
+      );
+      const text = `x= ${x}; y=${y};`;
+      updateAreaProperty(idx, { text: text });
+    } else {
+      // open modal if it has a supported type
+      let found = COMPLEX_TYPES.find((type) => type === typeOfLabel);
+      if (found) {
+        setActiveType(label);
+        setTypeOfActiveType(typeOfLabel);
+        openModal("sub-object", {
+          image: img,
+          type: typeOfLabel,
+          types: types,
+          updateAreaProperty: updateAreaProperty,
+          typeOfActiveType: typeOfLabel,
+        });
+      }
+    }
+  }, [syncAreasProperties, areasProperties, activePageIndex, getAndIncrementColor, subObject, types, tOfActiveType, canvasRef, studioEditorRef, areas, updateAreaProperty, language, setActiveType, setTypeOfActiveType, openModal]);
+
+  const onClickSubmit = useCallback(async () => {
+    setLoadingSubmit(true);
+    if (subObject) {
+      const id = await handleSubmit(areasProperties[activePageIndex]);
+      // Update parent Studio's area with the created sub-object ID
+      parentUpdateAreaProperty?.(-1, { text: id });
+      id && toast.success("Sub-Object created successfully!");
+      handleClose();
+    } else {
+      const id = await handleSubmit(
+        activePageId,
+        areasProperties[activePageIndex],
+        virtualBlocks[activePageIndex]
+      );
+      id && toast.success("Object created successfully!");
+      refetch();
+    }
+    setLoadingSubmit(false);
+  }, [setLoadingSubmit, subObject, handleSubmit, areasProperties, activePageIndex, parentUpdateAreaProperty, handleClose, activePageId, virtualBlocks, refetch]);
+
+  const onEditText = useCallback((id, text) => {
+    const newAreasProperties = onEditTextField(
+      areasProperties,
+      activePageIndex,
+      id,
+      text
+    );
+    setAreasProperties(newAreasProperties);
+  }, [areasProperties, activePageIndex, setAreasProperties]);
+
+  const onChangeCompositeBlocks = useCallback((id, key, value) => {
+    updateCompositeBlock(id, key, value);
+  }, [updateCompositeBlock]);
+
+  const DeleteCompositeBlocks = useCallback((id) => {
+    deleteCompositeBlockArea(id);
+  }, [deleteCompositeBlockArea]);
+
+  const processCompositeBlock = useCallback(async (id, typeOfLabel) => {
+    await processCompositeBlockArea(id, typeOfLabel);
+  }, [processCompositeBlockArea]);
+
+  const onSubmitCompositeBlocks = useCallback(async () => {
+    await submitCompositeBlocks();
+  }, [submitCompositeBlocks]);
+
+  // Column configurations - Memoized to prevent recreation on every render
+  const LEFT_COLUMNS = React.useMemo(
+    () => [
+      {
+        id: uuidv4(),
+        label: LEFT_TAB_NAMES.THUMBNAILS,
+        component: (
+          <StudioThumbnails
+            pages={pages}
+            activePage={activePageIndex}
+            onClickImage={onClickImage}
+            ref={thumbnailsRef}
+          />
+        ),
+      },
+      {
+        id: uuidv4(),
+        label: LEFT_TAB_NAMES.RECALLS,
+        component: (
+          <List chapterId={chapterId} tabName={LEFT_TAB_NAMES.RECALLS} />
+        ),
+      },
+      {
+        id: uuidv4(),
+        label: LEFT_TAB_NAMES.MICRO_LEARNING,
+        component: (
+          <List chapterId={chapterId} tabName={LEFT_TAB_NAMES.MICRO_LEARNING} />
+        ),
+      },
+      {
+        id: uuidv4(),
+        label: LEFT_TAB_NAMES.ENRICHING_CONTENT,
+        component: (
+          <List
+            chapterId={chapterId}
+            tabName={LEFT_TAB_NAMES.ENRICHING_CONTENT}
+          />
+        ),
+      },
+      {
+        id: uuidv4(),
+        label: LEFT_TAB_NAMES.CHECK_YOURSELF,
+        component: (
+          <List chapterId={chapterId} tabName={LEFT_TAB_NAMES.CHECK_YOURSELF} />
+        ),
+      },
+    ],
+    [pages, activePageIndex, onClickImage, chapterId]
+  );
+
+  const StudioActionsComponent = (
+    <StudioActions
+      areasProperties={areasProperties}
+      setAreasProperties={setAreasProperties}
+      activePage={activePageIndex}
+      onEditText={onEditText}
+      onClickDeleteArea={onClickDeleteArea}
+      type={type}
+      onClickSubmit={onClickSubmit}
+      loadingSubmit={loadingSubmit}
+      updateAreaProperty={updateAreaProperty}
+      updateAreaPropertyById={updateAreaPropertyById}
+      types={types}
+      onChangeLabel={onChangeLabel}
+      subObject={subObject}
+      tOfActiveType={tOfActiveType}
+      onSubmitAutoGenerate={onSubmitAutoGenerate}
+      loadingAutoGenerate={loadingAutoGenerate}
+      onClickToggleVirutalBlocks={toggleVirtualBlocks}
+      showVB={showVB}
+    />
+  );
+
+  const RIGHT_COLUMNS = React.useMemo(
+    () => [
+      {
+        id: uuidv4(),
+        label: RIGHT_TAB_NAMES.BLOCK_AUTHORING,
+        component: StudioActionsComponent,
+      },
+      {
+        id: uuidv4(),
+        label: RIGHT_TAB_NAMES.COMPOSITE_BLOCKS,
+        component: (
+          <StudioCompositeBlocks
+            compositeBlocks={compositeBlocks}
+            compositeBlocksTypes={compositeBlocksTypes}
+            onChangeCompositeBlocks={onChangeCompositeBlocks}
+            processCompositeBlock={processCompositeBlock}
+            onSubmitCompositeBlocks={onSubmitCompositeBlocks}
+            loadingSubmitCompositeBlocks={loadingSubmitCompositeBlocks}
+            DeleteCompositeBlocks={DeleteCompositeBlocks}
+            highlight={highlight}
+            setHighlight={setHighlight}
+          />
+        ),
+      },
+      {
+        id: uuidv4(),
+        label: RIGHT_TAB_NAMES.TABLE_OF_CONTENTS,
+        component: (
+          <TableOfContents
+            pages={pages}
+            chapterId={chapterId}
+            onChangeActivePage={(newPage) => {
+              const newIndex = pages.findIndex((p) => p._id === newPage._id);
+              if (newIndex !== -1) {
+                navigateToPage(newIndex);
+              }
+            }}
+          />
+        ),
+      },
+      {
+        id: uuidv4(),
+        label: RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS,
+        component: <GlossaryAndKeywords chapterId={chapterId} />,
+      },
+      {
+        id: uuidv4(),
+        label: RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS,
+        component: (
+          <List
+            chapterId={chapterId}
+            tabName={RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS}
+          />
+        ),
+      },
+    ],
+    [
+      StudioActionsComponent,
+      compositeBlocks,
+      compositeBlocksTypes,
+      onChangeCompositeBlocks,
+      processCompositeBlock,
+      onSubmitCompositeBlocks,
+      loadingSubmitCompositeBlocks,
+      DeleteCompositeBlocks,
+      highlight,
+      setHighlight,
+      pages,
+      chapterId,
+      navigateToPage,
+    ]
+  );
+
+  // Initialize tabs with actual column objects (replace initial dummy objects)
+  React.useEffect(() => {
+    if (activeLeftTab.id === "initial") {
+      setActiveLeftTab(LEFT_COLUMNS[0]);
+    }
+  }, [activeLeftTab.id, LEFT_COLUMNS, setActiveLeftTab]);
+
+  React.useEffect(() => {
+    if (activeRightTab.id === "initial") {
+      setActiveRightTab(RIGHT_COLUMNS[0]);
+    }
+  }, [activeRightTab.id, RIGHT_COLUMNS, setActiveRightTab]);
+
+  if (!pages.length) {
+    return <Alert severity="error">No pages available.</Alert>;
+  }
+
+  console.log("render Studio");
+
+  return (
+    <>
+      <StudioStickyToolbar
+        show={showStickyToolbar}
+        imageScaleFactor={imageScaleFactor}
+        setImageScaleFactor={setImageScaleFactor}
+        areas={areas}
+        setAreas={setAreas}
+        activePage={activePageIndex}
+        areasProperties={areasProperties}
+        showVB={showVB}
+        onClickToggleVirutalBlocks={toggleVirtualBlocks}
+        onImageLoad={convertPercentageToPx}
+        pages={pages}
+        onClickImage={onClickImage}
+      />
+      <LanguageSwitcher language={language} setLanguage={setLanguage} />
+      <div className={styles.studio}>
+        <BookColumn
+          COLUMNS={LEFT_COLUMNS}
+          activeColumn={LEFT_COLUMNS[0]}
+          onImageLoad={convertPercentageToPx}
+          activeTab={activeLeftTab}
+          setActiveTab={setActiveLeftTab}
+        />
+        <StudioEditor
+          areasProperties={areasProperties}
+          setAreasProperties={setAreasProperties}
+          activePage={activePageIndex}
+          imageScaleFactor={imageScaleFactor}
+          setImageScaleFactor={setImageScaleFactor}
+          areas={areas}
+          setAreas={setAreas}
+          onChangeHandler={onChangeHandler}
+          pages={pages}
+          ref={studioEditorRef}
+          onImageLoad={convertPercentageToPx}
+          virtualBlocks={currentPageVirtualBlocks}
+          setVirtualBlocks={updateVirtualBlocks}
+          showVB={showVB}
+          onClickToggleVirutalBlocks={toggleVirtualBlocks}
+          onClickImage={onClickImage}
+          activeRightTab={activeRightTab}
+          compositeBlocksTypes={compositeBlocksTypes}
+          compositeBlocks={compositeBlocks}
+          setCompositeBlocks={updateFromAreaSelector}
+          highlight={highlight}
+          setHighlight={setHighlight}
+        />
+        <BookColumn
+          COLUMNS={RIGHT_COLUMNS}
+          activeColumn={RIGHT_COLUMNS[0]}
+          onImageLoad={convertPercentageToPx}
+          activeTab={activeRightTab}
+          setActiveTab={setActiveRightTab}
+        />
+      </div>
+      <div>
+        <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
+      </div>
+    </>
+  );
+};
+
+/**
+ * Main Studio component - wraps content with provider
+ */
+const Studio = (props) => {
+  return (
+    <StudioProvider studioProps={props}>
+      <StudioContent />
+    </StudioProvider>
+  );
+};
+
+export default Studio;
