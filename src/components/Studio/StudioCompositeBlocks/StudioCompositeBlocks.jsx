@@ -1,6 +1,6 @@
 import React from "react";
 import MuiSelect from "../../MuiSelect/MuiSelect";
-import { CircularProgress, TextField, Button } from "@mui/material";
+import { CircularProgress, TextField, Button, IconButton } from "@mui/material";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -17,6 +17,11 @@ import { PlayArrow, Edit, DeleteForever, BackHand } from "@mui/icons-material";
 import Tooltip from "@mui/material/Tooltip";
 
 import styles from "./studioCompositeBlocks.module.scss";
+import AreaItem from "../../AreaItem/AreaItem";
+import { useStore } from "../../../store/store";
+
+// large | medium | small
+const iconFontSize = "small";
 
 const StudioCompositeBlocks = (props) => {
   const {
@@ -114,6 +119,24 @@ const StudioCompositeBlocks = (props) => {
     }
   };
 
+  const actions = [
+    {
+      label: "play",
+      icon: <PlayArrow sx={{ color: grey[700] }} />,
+      onClick: onClickPlay,
+    },
+    {
+      label: "edit",
+      icon: <Edit sx={{ color: grey[700] }} />,
+      onClick: onClickEdit,
+    },
+    {
+      label: "delete",
+      icon: <DeleteForever color="error" />,
+      onClick: onClickDelete,
+    },
+  ];
+
   return (
     <div className={styles["studio-composite-blocks"]}>
       <div>
@@ -163,14 +186,23 @@ const StudioCompositeBlocks = (props) => {
       </div>
       <div className={styles.blocks}>
         {compositeBlocks?.areas?.map((block) => (
-          <div key={block.id} className={styles.block}>
-            <MuiSelect
-              value={block.type}
-              onChange={(e) => onChange(block.id, "type", e.target.value)}
-              list={["", ...list2]}
-            />
-            {renderBlockResult(block)}
-          </div>
+          <AreaItem
+            id={block.id}
+            isOpen={block.open}
+            title={compositeBlocks.type}
+            actions={actions}
+            handleToggle={() => handleToggle(block.id, block.open)}
+            color={block.color}
+          >
+            <div key={block.id} className={styles.block}>
+              <MuiSelect
+                value={block.type}
+                onChange={(e) => onChange(block.id, "type", e.target.value)}
+                list={["", ...list2]}
+              />
+              {renderBlockResult(block)}
+            </div>
+          </AreaItem>
         ))}
       </div>
 

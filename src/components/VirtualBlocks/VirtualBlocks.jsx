@@ -22,8 +22,6 @@ const VirtualBlocks = (props) => {
       <VirtualBlock
         key={`${activePage} ${label}`}
         label={label}
-        openModal={openModal}
-        setModalName={setModalName}
         checkedObject={virtualBlocks[label]}
         setCheckedObject={(value) => {
           const newVirtualBlocks = { ...virtualBlocks };
