@@ -97,6 +97,7 @@ const Studio = (props) => {
     syncAreasProperties,
     onChangeArea,
     onClickSubmit,
+    loadingSubmit,
   } = useAreaManagement({
     pages,
     activePageIndex,
@@ -216,8 +217,6 @@ const Studio = (props) => {
   // To Extract Sub Object
   const [activeType, setActiveType] = React.useState("");
   const [typeOfActiveType, setTypeOfActiveType] = React.useState("");
-
-  const [loadingSubmit, setLoadingSubmit] = React.useState(false);
 
   React.useEffect(() => {
     const observer = new IntersectionObserver(
