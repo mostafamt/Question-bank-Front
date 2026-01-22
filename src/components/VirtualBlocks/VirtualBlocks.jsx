@@ -3,6 +3,7 @@ import clsx from "clsx";
 import VirtualBlock from "./VirtualBlock/VirtualBlock";
 
 import styles from "./virtualBlocks.module.scss";
+//
 
 const VirtualBlocks = (props) => {
   const {
