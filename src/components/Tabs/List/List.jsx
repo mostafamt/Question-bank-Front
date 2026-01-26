@@ -82,11 +82,12 @@ const List = (props) => {
 
   const handlePlay = React.useCallback(
     (item) => {
+      console.log("item.baseType= ", item.baseType);
       openModal("play-object", {
         workingArea: {
           text: item._id,
           contentValue: item._id,
-          contentType: item.type || "Text MCQ",
+          contentType: item.baseType || "Text MCQ",
           typeOfLabel: item.type,
         },
       });
