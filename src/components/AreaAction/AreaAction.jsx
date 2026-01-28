@@ -4,7 +4,6 @@ import AreaActionResult from "../AreaActionResult/AreaActionResult";
 import AreaActionHeader from "../AreaActionHeader/AreaActionHeader";
 import { useStore } from "../../store/store";
 import { grey } from "@mui/material/colors";
-import { isComplexType } from "../../utils/ocr";
 import { PlayArrow, Edit, DeleteForever } from "@mui/icons-material";
 import AreaItem from "../AreaItem/AreaItem";
 
