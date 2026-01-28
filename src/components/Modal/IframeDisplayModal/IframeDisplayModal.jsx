@@ -14,6 +14,61 @@ import { OpenInNew, Refresh, Close } from "@mui/icons-material";
 import styles from "./iframeDisplayModal.module.scss";
 
 /**
+ * Convert video URLs to embeddable format
+ * Supports: YouTube, Vimeo
+ *
+ * @param {string} url - Original URL
+ * @returns {string} - Embeddable URL
+ */
+const getEmbedUrl = (url) => {
+  if (!url) return url;
+
+  try {
+    const urlObj = new URL(url);
+
+    // YouTube - youtu.be format
+    if (urlObj.hostname === "youtu.be") {
+      const videoId = urlObj.pathname.slice(1).split("?")[0];
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+
+    // YouTube - youtube.com/watch format
+    if (
+      urlObj.hostname === "www.youtube.com" ||
+      urlObj.hostname === "youtube.com"
+    ) {
+      if (urlObj.pathname === "/watch") {
+        const videoId = urlObj.searchParams.get("v");
+        if (videoId) {
+          return `https://www.youtube.com/embed/${videoId}`;
+        }
+      }
+      // Already embed format
+      if (urlObj.pathname.startsWith("/embed/")) {
+        return url;
+      }
+    }
+
+    // Vimeo
+    if (
+      urlObj.hostname === "vimeo.com" ||
+      urlObj.hostname === "www.vimeo.com"
+    ) {
+      const videoId = urlObj.pathname.slice(1);
+      if (videoId && !urlObj.pathname.startsWith("/video/")) {
+        return `https://player.vimeo.com/video/${videoId}`;
+      }
+    }
+
+    // Return original URL if no conversion needed
+    return url;
+  } catch (e) {
+    // Invalid URL, return as-is
+    return url;
+  }
+};
+
+/**
  * IframeDisplayModal Component
  * Displays content (links or objects) in an iframe for reader mode
  *
@@ -25,7 +80,10 @@ import styles from "./iframeDisplayModal.module.scss";
 const IframeDisplayModal = (props) => {
   const { title = "Content", url, handleCloseModal } = props;
 
-  console.log("IframeDisplayModal opened with:", { title, url });
+  // Convert URL to embeddable format (YouTube, Vimeo, etc.)
+  const embedUrl = React.useMemo(() => getEmbedUrl(url), [url]);
+
+  console.log("IframeDisplayModal opened with:", { title, url, embedUrl });
 
   // State management
   const [loading, setLoading] = React.useState(true);
@@ -81,16 +139,16 @@ const IframeDisplayModal = (props) => {
    * Validate URL
    */
   const isValidUrl = React.useMemo(() => {
-    if (!url) return false;
+    if (!embedUrl) return false;
     try {
       // Check if it's a valid URL or relative path
-      if (url.startsWith("/")) return true; // Relative URL
-      new URL(url);
+      if (embedUrl.startsWith("/")) return true; // Relative URL
+      new URL(embedUrl);
       return true;
     } catch (e) {
       return false;
     }
-  }, [url]);
+  }, [embedUrl]);
 
   return (
     <div
@@ -199,13 +257,14 @@ const IframeDisplayModal = (props) => {
           {isValidUrl && (
             <iframe
               key={iframeKey}
-              src={url}
+              src={embedUrl}
               title={title}
               onLoad={handleLoad}
               onError={handleError}
               className={styles["content-iframe"]}
               sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
               loading="lazy"
               aria-label={`${title} content frame`}
             />
