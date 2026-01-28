@@ -86,7 +86,7 @@ const List = (props) => {
         workingArea: {
           text: item._id,
           contentValue: item._id,
-          contentType: item.type || "Text MCQ",
+          contentType: item.baseType || "Text MCQ",
           typeOfLabel: item.type,
         },
       });
