@@ -241,6 +241,50 @@ export function createModalService(openModal, setFormState) {
 }
 
 /**
+ * Types that should open PlayObjectModal2 (iframe-based playback)
+ * These are interactive objects that have their own rendering URL
+ */
+const COMPLEX_AREA_TYPES = [
+  "Question",
+  "Illustrative Object",
+  "Illustrative object", // Handle case variations
+];
+
+/**
+ * TypeOfLabel values that indicate complex/interactive content
+ * These come from the type definitions and indicate content that needs iframe playback
+ */
+const COMPLEX_TYPE_OF_LABELS = [
+  "Agamotto",
+  "ChemicalEquation",
+  "ChemicalReaction",
+  "Text MCQ",
+  "Mark The Words",
+  "Text Drag Words",
+  "Image Juxtaposition",
+  "Image MCQ",
+  "Fill The Blanks",
+  "Dictation",
+  "Sort Paragraphs",
+  "Image Blinder (Agamotto)",
+  "Accordion",
+  "Image Pairing",
+  "Image Multiple Hotspot Question",
+  "Essay",
+  "Sort Images",
+  "Dialog Cards",
+  "Flash Cards",
+  "Hotspot Image",
+  "Interactive Video",
+  "Image Slider",
+  "Guess Answer",
+  "Chart",
+  "TrueFalse",
+  "Bar Chart",
+  "Pie Chart",
+];
+
+/**
  * Determine which modal to open based on area properties
  * @param {Object} areaProps - Area properties
  * @returns {{ modalName: string, isComplex: boolean }} Modal info
@@ -250,8 +294,14 @@ export function determineModalForArea(areaProps) {
     return { modalName: null, isComplex: false };
   }
 
-  const isComplex =
-    areaProps.type === "Question" || areaProps.type === "Illustrative Object";
+  // Check if the area type is a complex type (Question, Illustrative Object)
+  const isComplexType = COMPLEX_AREA_TYPES.includes(areaProps.type);
+
+  // Check if the typeOfLabel indicates interactive content
+  const isComplexLabel = COMPLEX_TYPE_OF_LABELS.includes(areaProps.typeOfLabel);
+
+  // Content is complex if either the type OR the typeOfLabel indicates it
+  const isComplex = isComplexType || isComplexLabel;
 
   return {
     modalName: isComplex ? STUDIO_MODALS.PLAY_OBJECT : STUDIO_MODALS.QUILL,
