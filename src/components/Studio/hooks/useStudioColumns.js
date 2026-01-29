@@ -149,7 +149,7 @@ const useStudioColumns = ({
       });
     }
 
-    // Read from ref to avoid dependency on unstable object
+    // Read from ref for stable access to most props
     const props = rightColumnPropsRef.current;
 
     // Destructure right column props for studio mode
@@ -171,7 +171,6 @@ const useStudioColumns = ({
       loadingAutoGenerate,
       onClickToggleVirutalBlocks,
       showVB,
-      compositeBlocks,
       compositeBlocksTypes,
       onChangeCompositeBlocks,
       processCompositeBlock,
@@ -183,6 +182,9 @@ const useStudioColumns = ({
       setActivePageIndex,
       onClickHand,
     } = props;
+
+    // Get compositeBlocks directly from rightColumnProps (not ref) to ensure fresh value
+    const { compositeBlocks } = rightColumnProps;
 
     return buildRightColumns({
       areasProperties,
@@ -228,7 +230,8 @@ const useStudioColumns = ({
     chapterId,
     setActivePage,
     navigateToBlock,
-    // rightColumnProps removed - read from ref instead
+    // Only track specific compositeBlocks changes to avoid over-rendering
+    rightColumnProps.compositeBlocks,
   ]);
 
   // Tab state - use lazy initializer to avoid issues with computed values
