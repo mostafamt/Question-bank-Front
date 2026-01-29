@@ -175,7 +175,6 @@ const useStudioColumns = ({
       onChangeCompositeBlocks,
       processCompositeBlock,
       onSubmitCompositeBlocks,
-      loadingSubmitCompositeBlocks,
       DeleteCompositeBlocks,
       highlight,
       setHighlight,
@@ -183,8 +182,8 @@ const useStudioColumns = ({
       onClickHand,
     } = props;
 
-    // Get compositeBlocks directly from rightColumnProps (not ref) to ensure fresh value
-    const { compositeBlocks } = rightColumnProps;
+    // Get compositeBlocks and loadingSubmitCompositeBlocks directly from rightColumnProps (not ref) to ensure fresh value
+    const { compositeBlocks, loadingSubmitCompositeBlocks } = rightColumnProps;
 
     return buildRightColumns({
       areasProperties,
@@ -230,8 +229,9 @@ const useStudioColumns = ({
     chapterId,
     setActivePage,
     navigateToBlock,
-    // Only track specific compositeBlocks changes to avoid over-rendering
+    // Only track specific composite blocks changes to avoid over-rendering
     rightColumnProps.compositeBlocks,
+    rightColumnProps.loadingSubmitCompositeBlocks,
   ]);
 
   // Tab state - use lazy initializer to avoid issues with computed values
