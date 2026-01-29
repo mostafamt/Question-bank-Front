@@ -152,9 +152,8 @@ const useStudioColumns = ({
     // Read from ref for stable access to most props
     const props = rightColumnPropsRef.current;
 
-    // Destructure right column props for studio mode
+    // Destructure right column props for studio mode (stable props from ref)
     const {
-      areasProperties,
       setAreasProperties,
       onEditText,
       onClickDeleteArea,
@@ -182,8 +181,12 @@ const useStudioColumns = ({
       onClickHand,
     } = props;
 
-    // Get compositeBlocks and loadingSubmitCompositeBlocks directly from rightColumnProps (not ref) to ensure fresh value
-    const { compositeBlocks, loadingSubmitCompositeBlocks } = rightColumnProps;
+    // Get frequently changing props directly from rightColumnProps (not ref) to ensure fresh values
+    const {
+      areasProperties,
+      compositeBlocks,
+      loadingSubmitCompositeBlocks,
+    } = rightColumnProps;
 
     return buildRightColumns({
       areasProperties,
@@ -229,7 +232,8 @@ const useStudioColumns = ({
     chapterId,
     setActivePage,
     navigateToBlock,
-    // Only track specific composite blocks changes to avoid over-rendering
+    // Track specific props that change frequently to ensure fresh values
+    rightColumnProps.areasProperties,
     rightColumnProps.compositeBlocks,
     rightColumnProps.loadingSubmitCompositeBlocks,
   ]);
