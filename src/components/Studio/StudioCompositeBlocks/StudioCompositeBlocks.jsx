@@ -170,13 +170,16 @@ const StudioCompositeBlocks = (props) => {
             labelId="demo-simple-select-label"
             size="small"
             id="demo-simple-select"
-            label="type"
+            label="Type"
             value={compositeBlocks.type}
             onChange={(e) =>
               onChangeCompositeBlocks(null, "type", e.target.value)
             }
           >
-            {list1.map((item) => (
+            <MenuItem value="">
+              <em>Select Type</em>
+            </MenuItem>
+            {list1?.map((item) => (
               <MenuItem key={item} value={item}>
                 {item}
               </MenuItem>
