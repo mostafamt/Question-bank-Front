@@ -153,39 +153,45 @@ const useStudioColumns = ({
     const props = rightColumnPropsRef.current;
 
     // Destructure right column props for studio mode (stable props from ref)
+    // These props are stable and don't change with activePageIndex
     const {
       setAreasProperties,
-      onEditText,
       type,
-      onClickSubmit,
-      updateAreaProperty,
-      updateAreaPropertyById,
       types,
-      onChangeLabel,
       subObject,
       tOfActiveType,
       onSubmitAutoGenerate,
-      loadingAutoGenerate,
-      onClickToggleVirutalBlocks,
-      showVB,
       compositeBlocksTypes,
       onChangeCompositeBlocks,
       processCompositeBlock,
       onSubmitCompositeBlocks,
       DeleteCompositeBlocks,
-      highlight,
       setHighlight,
       setActivePageIndex,
-      onClickHand,
     } = props;
 
     // Get frequently changing props directly from rightColumnProps (not ref) to ensure fresh values
+    // These props either:
+    // 1. Use activePageIndex in their closures (callbacks)
+    // 2. Are state values that change frequently
     const {
       areasProperties,
       compositeBlocks,
       loadingSubmitCompositeBlocks,
       onClickDeleteArea,
       loadingSubmit,
+      // Callbacks that use activePageIndex in closures
+      updateAreaProperty,
+      updateAreaPropertyById,
+      onEditText,
+      onClickSubmit,
+      onChangeLabel,
+      onClickToggleVirutalBlocks,
+      onClickHand,
+      // State values that change
+      showVB,
+      highlight,
+      loadingAutoGenerate,
     } = rightColumnProps;
 
     return buildRightColumns({
@@ -232,13 +238,37 @@ const useStudioColumns = ({
     chapterId,
     setActivePage,
     navigateToBlock,
-    // Track specific props that change frequently to ensure fresh values
+    // Track props that change frequently to ensure fresh values
+    // Data/state props
     rightColumnProps.areasProperties,
     rightColumnProps.compositeBlocks,
     rightColumnProps.loadingSubmitCompositeBlocks,
-    rightColumnProps.onClickDeleteArea,
     rightColumnProps.loadingSubmit,
+    rightColumnProps.showVB,
+    rightColumnProps.highlight,
+    rightColumnProps.loadingAutoGenerate,
+    // Callbacks that use activePageIndex in closures
+    rightColumnProps.onClickDeleteArea,
+    rightColumnProps.updateAreaProperty,
+    rightColumnProps.updateAreaPropertyById,
+    rightColumnProps.onEditText,
+    rightColumnProps.onClickSubmit,
+    rightColumnProps.onChangeLabel,
+    rightColumnProps.onClickToggleVirutalBlocks,
+    rightColumnProps.onClickHand,
   ]);
+
+  // Create stable strings of tab labels to detect actual tab configuration changes
+  // This prevents sync effects from running when only object references change
+  const leftColumnsLabels = useMemo(
+    () => leftColumns.map((c) => c.label).join(","),
+    [leftColumns]
+  );
+
+  const rightColumnsLabels = useMemo(
+    () => rightColumns.map((c) => c.label).join(","),
+    [rightColumns]
+  );
 
   // Tab state - use lazy initializer to avoid issues with computed values
   const [activeLeftTab, setActiveLeftTab] = useState(
@@ -262,35 +292,46 @@ const useStudioColumns = ({
   }, [activeRightTab]);
 
   // Sync left tab when columns change
-  // Key fix: Compare by VALUE (label), not reference - only setState when label actually changes
+  // Only runs when tabs are actually added/removed (not just reference changes)
   useEffect(() => {
     if (!leftColumns.length) return;
 
+    // Respect collapsed state - don't reset if intentionally collapsed
+    const currentLabel = activeLeftTabLabelRef.current;
+    if (currentLabel === "" || currentLabel === null || currentLabel === undefined) {
+      return;
+    }
+
     const next =
-      leftColumns.find((col) => col.label === activeLeftTabLabelRef.current) ||
+      leftColumns.find((col) => col.label === currentLabel) ||
       leftColumns[0];
 
     // Only update if the label actually changed
-    if (next.label !== activeLeftTabLabelRef.current) {
+    if (next.label !== currentLabel) {
       setActiveLeftTab(next);
     }
-  }, [leftColumns]);
+  }, [leftColumnsLabels, leftColumns]);
 
   // Sync right tab when columns change
-  // Key fix: Compare by VALUE (label), not reference - only setState when label actually changes
+  // Only runs when tabs are actually added/removed (not just reference changes)
   useEffect(() => {
     if (!rightColumns.length) return;
 
+    // Respect collapsed state - don't reset if intentionally collapsed
+    const currentLabel = activeRightTabLabelRef.current;
+    if (currentLabel === "" || currentLabel === null || currentLabel === undefined) {
+      return;
+    }
+
     const next =
-      rightColumns.find(
-        (col) => col.label === activeRightTabLabelRef.current
-      ) || rightColumns[0];
+      rightColumns.find((col) => col.label === currentLabel) ||
+      rightColumns[0];
 
     // Only update if the label actually changed
-    if (next.label !== activeRightTabLabelRef.current) {
+    if (next.label !== currentLabel) {
       setActiveRightTab(next);
     }
-  }, [rightColumns]);
+  }, [rightColumnsLabels, rightColumns]);
 
   return {
     // Columns

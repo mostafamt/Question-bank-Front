@@ -121,7 +121,6 @@ const useAreaManagement = ({
    */
   const onClickDeleteArea = React.useCallback(
     (idx) => {
-      console.log("activePageIndex= ", activePageIndex);
       // 1. Check areas first (source of truth for rendered areas)
       const area = areas[activePageIndex]?.[idx];
 
