@@ -69,7 +69,6 @@ const Studio = (props) => {
   const [imageScaleFactor, setImageScaleFactor] = React.useState(
     DEFAULTS.IMAGE_SCALE_FACTOR
   );
-  const [loadingSubmit] = React.useState(false);
 
   // ============ PAGE NAVIGATION ============
   const {
@@ -80,7 +79,6 @@ const Studio = (props) => {
     changePageById,
   } = usePageNavigation({ pages, subObject });
 
-  console.log("activePageIndex= ", activePageIndex);
   // ============ AREA MANAGEMENT ============
   const {
     areas,
@@ -96,6 +94,7 @@ const Studio = (props) => {
     syncAreasProperties,
     onChangeArea,
     onClickSubmit,
+    loadingSubmit,
   } = useAreaManagement({
     pages,
     activePageIndex,

@@ -276,6 +276,6 @@ if (process.env.NODE_ENV === "development") {
   if (!validation.isValid) {
     console.warn("⚠️ Tab configuration validation errors:", validation.errors);
   } else {
-    console.log("✅ Tab configuration is valid");
+    // console.log("✅ Tab configuration is valid");
   }
 }
