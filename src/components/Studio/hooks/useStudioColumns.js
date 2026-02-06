@@ -156,7 +156,6 @@ const useStudioColumns = ({
     const {
       setAreasProperties,
       onEditText,
-      onClickDeleteArea,
       type,
       onClickSubmit,
       loadingSubmit,
@@ -186,6 +185,7 @@ const useStudioColumns = ({
       areasProperties,
       compositeBlocks,
       loadingSubmitCompositeBlocks,
+      onClickDeleteArea,
     } = rightColumnProps;
 
     return buildRightColumns({
@@ -236,6 +236,7 @@ const useStudioColumns = ({
     rightColumnProps.areasProperties,
     rightColumnProps.compositeBlocks,
     rightColumnProps.loadingSubmitCompositeBlocks,
+    rightColumnProps.onClickDeleteArea,
   ]);
 
   // Tab state - use lazy initializer to avoid issues with computed values

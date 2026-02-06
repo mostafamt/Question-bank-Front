@@ -1,10 +1,12 @@
 import React from "react";
 import { toast } from "react-toastify";
+import { v4 as uuidv4 } from "uuid";
 
 import { initAreas, initAreasProperties } from "../initializers";
 import { processAreasForImageLoad } from "../services/coordinate.service";
+import { deleteAreaByIndex } from "../utils";
 import {
-  deleteAreaByIndex,
+  CREATED,
   DELETED,
   onEditTextField,
   updateAreasProperties,
@@ -110,22 +112,45 @@ const useAreaManagement = ({
     });
   };
 
-  const onClickDeleteArea = (idx) => {
-    const { isServer } = areasProperties[activePageIndex][idx];
-    if (isServer) {
-      updateAreaProperty(idx, { status: DELETED });
-    } else {
-      const newAreas = deleteAreaByIndex(areas, activePageIndex, idx);
-      setAreas(newAreas);
+  /**
+   * Handle area deletion
+   * - First checks if area exists in areas array
+   * - Server areas: Mark as DELETED status (soft delete)
+   * - Client areas: Remove from both arrays (hard delete)
+   * @param {number} idx - Index of area to delete
+   */
+  const onClickDeleteArea = React.useCallback(
+    (idx) => {
+      console.log("activePageIndex= ", activePageIndex);
+      // 1. Check areas first (source of truth for rendered areas)
+      const area = areas[activePageIndex]?.[idx];
 
-      const newAreasProperties = deleteAreaByIndex(
-        areasProperties,
-        activePageIndex,
-        idx
-      );
-      setAreasProperties(newAreasProperties);
-    }
-  };
+      if (!area) {
+        console.warn(
+          `Cannot delete area at index ${idx}: area not found in areas`
+        );
+        return;
+      }
+
+      // 2. Get corresponding areaProps for server status check
+      const areaProps = areasProperties[activePageIndex]?.[idx];
+
+      // 3. Determine delete strategy based on server status
+      if (areaProps?.isServer) {
+        // Soft delete: mark as deleted for server sync
+        updateAreaProperty(idx, { status: DELETED });
+      } else {
+        // Hard delete: remove from both arrays using callback form
+        setAreas((prevAreas) =>
+          deleteAreaByIndex(prevAreas, activePageIndex, idx)
+        );
+        setAreasProperties((prevProps) =>
+          deleteAreaByIndex(prevProps, activePageIndex, idx)
+        );
+      }
+    },
+    [activePageIndex, areas, areasProperties, updateAreaProperty]
+  );
 
   const updateAreaPropertyById = (id, property) => {
     const newAreasProperties = [...areasProperties];
