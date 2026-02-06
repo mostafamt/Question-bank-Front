@@ -273,6 +273,7 @@ const useAreaManagement = ({
     onChangeArea,
     onClickSubmit,
     onClickToggleVirutalBlocks,
+    loadingSubmit,
   };
 };
 

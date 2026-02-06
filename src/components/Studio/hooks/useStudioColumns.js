@@ -158,7 +158,6 @@ const useStudioColumns = ({
       onEditText,
       type,
       onClickSubmit,
-      loadingSubmit,
       updateAreaProperty,
       updateAreaPropertyById,
       types,
@@ -186,6 +185,7 @@ const useStudioColumns = ({
       compositeBlocks,
       loadingSubmitCompositeBlocks,
       onClickDeleteArea,
+      loadingSubmit,
     } = rightColumnProps;
 
     return buildRightColumns({
@@ -237,6 +237,7 @@ const useStudioColumns = ({
     rightColumnProps.compositeBlocks,
     rightColumnProps.loadingSubmitCompositeBlocks,
     rightColumnProps.onClickDeleteArea,
+    rightColumnProps.loadingSubmit,
   ]);
 
   // Tab state - use lazy initializer to avoid issues with computed values
@@ -281,8 +282,9 @@ const useStudioColumns = ({
     if (!rightColumns.length) return;
 
     const next =
-      rightColumns.find((col) => col.label === activeRightTabLabelRef.current) ||
-      rightColumns[0];
+      rightColumns.find(
+        (col) => col.label === activeRightTabLabelRef.current
+      ) || rightColumns[0];
 
     // Only update if the label actually changed
     if (next.label !== activeRightTabLabelRef.current) {
