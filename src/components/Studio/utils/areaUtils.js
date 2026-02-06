@@ -85,17 +85,27 @@ export const initializeColorIndex = (pageCount) => {
 
 /**
  * Delete area by index immutably
- * @param {Array} collection - Areas or areasProperties array
+ * @param {Array} collection - Areas or areasProperties 2D array
  * @param {number} pageIndex - Page index
- * @param {number} areaIndex - Area index
- * @returns {Array} - New collection with area removed
+ * @param {number} areaIndex - Area index to delete
+ * @returns {Array} - New collection with area removed, or original if invalid
  */
 export const deleteAreaByIndex = (collection, pageIndex, areaIndex) => {
+  // Null safety checks
+  if (!collection || !Array.isArray(collection[pageIndex])) {
+    console.warn("deleteAreaByIndex: Invalid collection or page index");
+    return collection;
+  }
+
+  if (areaIndex < 0 || areaIndex >= collection[pageIndex].length) {
+    console.warn(`deleteAreaByIndex: Invalid area index ${areaIndex}`);
+    return collection;
+  }
+
   const newCollection = [...collection];
-  newCollection[pageIndex] = [
-    ...newCollection[pageIndex].slice(0, areaIndex),
-    ...newCollection[pageIndex].slice(areaIndex + 1),
-  ];
+  newCollection[pageIndex] = collection[pageIndex].filter(
+    (_, idx) => idx !== areaIndex
+  );
   return newCollection;
 };
 

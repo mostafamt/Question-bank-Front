@@ -80,6 +80,7 @@ const Studio = (props) => {
     changePageById,
   } = usePageNavigation({ pages, subObject });
 
+  console.log("activePageIndex= ", activePageIndex);
   // ============ AREA MANAGEMENT ============
   const {
     areas,
