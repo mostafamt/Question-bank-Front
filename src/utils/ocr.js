@@ -99,12 +99,6 @@ export const cropSelectedArea = (canvasRef, imageRef, x, y, width, height) => {
   return dataUrl;
 };
 
-export const deleteAreaByIndex = (areas, activePage, index) => {
-  const newAreas = [...areas];
-  newAreas[activePage] = newAreas[activePage].filter((_, idx) => idx !== index);
-  return newAreas;
-};
-
 export const deleteAreaPropertyByIndex = (
   areasProperties,
   activePage,

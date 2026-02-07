@@ -25,7 +25,11 @@ export const LEFT_TAB_NAMES = {
   },
   CHECK_YOURSELF: {
     label: "Check Yourself",
-    name: "exercises",
+    name: "question-objects",
+  },
+  EXERCISE: {
+    label: "Exercise",
+    name: "exercise",
   },
 };
 

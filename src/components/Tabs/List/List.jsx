@@ -18,7 +18,10 @@ const List = (props) => {
 
   const [open, setOpen] = React.useState([]);
 
-  const { handleSubmit } = useForm();
+  const {
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm();
 
   const { data: tabObjects, isFetching } = useQuery({
     queryKey: [`tab-objects-${tab.name}`],
@@ -175,9 +178,9 @@ const List = (props) => {
 
     if (tab.name === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.name) {
       console.log("objects= ", objects);
-      mutation.mutate(objects);
+      await mutation.mutateAsync(objects);
     } else {
-      mutation.mutate(ids);
+      await mutation.mutateAsync(ids);
     }
   };
 
@@ -246,9 +249,9 @@ const List = (props) => {
           <Button
             variant="contained"
             type="submit"
-            disabled={mutation.isLoading}
+            disabled={mutation.isPending}
             startIcon={
-              mutation.isLoading ? <CircularProgress size="1rem" /> : <></>
+              mutation.isPending ? <CircularProgress size="1rem" /> : <></>
             }
           >
             Submit

@@ -138,7 +138,6 @@ const useCompositeBlocks = ({
   };
 
   const onChangeCompositeBlockArea = (areasParam) => {
-    console.log("onChangeCompositeBlockArea");
     const compositeBlocksWithPropsAreas = addPropsToAreasForCompositeBlocks(
       compositeBlocks,
       areasParam

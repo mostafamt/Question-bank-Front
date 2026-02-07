@@ -1,7 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
 
 const getList1FromData = (data) => {
-  const list = data?.labels?.map((item) => item.typeName);
+  if (!data || !data.labels) {
+    return [];
+  }
+  const list = data.labels.map((item) => item.typeName);
   return list;
 };
 
@@ -24,7 +27,7 @@ const addPropsToAreasForCompositeBlocks = (compositeBlocks, areasParam) => {
         ...item,
         id: uuidv4(),
         type: "",
-        open: false,
+        open: true,
         // color: colors[idx % colors.length],
       };
     }

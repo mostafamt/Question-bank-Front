@@ -1,11 +1,11 @@
 // studio.columns.js
-import { v4 as uuidv4 } from "uuid";
 import StudioThumbnails from "../StudioThumbnails/StudioThumbnails";
 import List from "../../Tabs/List/List";
 import TableOfContents from "../../Book/TableOfContents/TableOfContents";
 import GlossaryAndKeywords from "../../Tabs/GlossaryAndKeywords/GlossaryAndKeywords";
 import StudioCompositeBlocks from "../StudioCompositeBlocks/StudioCompositeBlocks";
 import StudioActions from "../StudioActions/StudioActions";
+import ExerciseTab from "../components/ExerciseTab/ExerciseTab";
 import { LEFT_TAB_NAMES, RIGHT_TAB_NAMES } from "../constants";
 import { getTabsForSidebar } from "../../../utils/tabFiltering";
 
@@ -34,7 +34,7 @@ export const buildLeftColumns = ({
     switch (config.id) {
       case 'thumbnails':
         return {
-          id: uuidv4(),
+          id: config.id,
           label: config.label,
           component: (
             <StudioThumbnails
@@ -48,7 +48,7 @@ export const buildLeftColumns = ({
 
       case 'recalls':
         return {
-          id: uuidv4(),
+          id: config.id,
           label: config.label,
           component: (
             <List
@@ -62,7 +62,7 @@ export const buildLeftColumns = ({
 
       case 'micro-learning':
         return {
-          id: uuidv4(),
+          id: config.id,
           label: config.label,
           component: (
             <List
@@ -76,7 +76,7 @@ export const buildLeftColumns = ({
 
       case 'enriching-content':
         return {
-          id: uuidv4(),
+          id: config.id,
           label: config.label,
           component: (
             <List
@@ -90,7 +90,7 @@ export const buildLeftColumns = ({
 
       case 'check-yourself-left':
         return {
-          id: uuidv4(),
+          id: config.id,
           label: config.label,
           component: (
             <List
@@ -100,6 +100,13 @@ export const buildLeftColumns = ({
               navigateToBlock={navigateToBlock}
             />
           ),
+        };
+
+      case 'exercise-left':
+        return {
+          id: config.id,
+          label: config.label,
+          component: <ExerciseTab chapterId={chapterId} />,
         };
 
       default:
@@ -161,7 +168,7 @@ export const buildRightColumns = ({
     switch (config.id) {
       case 'table-of-contents':
         return {
-          id: uuidv4(),
+          id: config.id,
           label: config.label,
           component: (
             <TableOfContents
@@ -179,7 +186,7 @@ export const buildRightColumns = ({
 
       case 'glossary-keywords':
         return {
-          id: uuidv4(),
+          id: config.id,
           label: config.label,
           component: (
             <List
@@ -195,7 +202,7 @@ export const buildRightColumns = ({
 
       case 'illustrative-interactions':
         return {
-          id: uuidv4(),
+          id: config.id,
           label: config.label,
           component: (
             <List
@@ -209,7 +216,7 @@ export const buildRightColumns = ({
 
       case 'block-authoring':
         return {
-          id: uuidv4(),
+          id: config.id,
           label: config.label,
           component: (
             <StudioActions
@@ -237,7 +244,7 @@ export const buildRightColumns = ({
 
       case 'composite-blocks':
         return {
-          id: uuidv4(),
+          id: config.id,
           label: config.label,
           component: (
             <StudioCompositeBlocks
