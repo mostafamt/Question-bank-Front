@@ -346,7 +346,7 @@ if (process.env.NODE_ENV === "development") {
     isSafeUrl,
   };
 
-  console.log(
-    "💡 Object URL utilities available in development mode via window.objectUrlUtils"
-  );
+  // console.log(
+  //   "💡 Object URL utilities available in development mode via window.objectUrlUtils"
+  // );
 }
