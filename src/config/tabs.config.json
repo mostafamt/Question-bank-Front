@@ -99,7 +99,7 @@
         "id": "table-of-contents",
         "label": "Table of Contents",
         "icon": "TocIcon",
-        "modes": ["reader"],
+        "modes": ["reader", "studio"],
         "position": "right",
         "order": 1,
         "component": "TableOfContents",
