@@ -375,7 +375,7 @@ const StudioAreaSelector = React.memo(
                   height: `${imageScaleFactor * 100}%`,
                   overflow: "scroll",
                 }}
-                // onLoad={onImageLoad}
+                onLoad={onImageLoad}
               />
             </AreaSelector>
           ) : (
