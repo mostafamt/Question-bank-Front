@@ -3,7 +3,10 @@ import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 
 import { initAreas, initAreasProperties } from "../initializers";
-import { processAreasForImageLoad } from "../services/coordinate.service";
+import {
+  validateRefAccess,
+  processPageAreas,
+} from "../services/coordinate.service";
 import { deleteAreaByIndex } from "../utils";
 import {
   CREATED,
@@ -27,7 +30,11 @@ const useAreaManagement = ({
   virtualBlocks,
   refetch,
 }) => {
-  const [areas, setAreas] = React.useState(() => initAreas(pages));
+  // Store raw pages for deferred conversion (% → px on first image load)
+  const rawPagesRef = React.useRef(pages);
+
+  // Start with empty arrays — areas are populated after image loads with real pixel values
+  const [areas, setAreas] = React.useState(() => pages.map(() => []));
 
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
 
@@ -62,34 +69,43 @@ const useAreaManagement = ({
   /**
    * Recalculates area pixel coordinates based on the currently loaded image's dimensions.
    *
-   * This function is triggered when:
-   * - An image finishes loading (via onLoad event)
-   * - The user zooms in/out (imageScaleFactor changes) - image scales
-   * - The user navigates to a different page - new image loads
-   * - Virtual blocks are toggled on/off - layout changes
-   *
-   * Why this is needed:
-   * Areas are stored with percentage coordinates to be resolution-independent.
-   * When the image loads or its size changes, we need to recalculate the pixel
-   * positions based on the image's current rendered size. This ensures areas
-   * stay properly aligned with the image content at any zoom level.
-   *
-   * The recalculation logic is delegated to the coordinate service layer which:
-   * 1. Validates the image is fully loaded
-   * 2. Extracts current dimensions from the DOM element
-   * 3. Converts percentage coordinates to pixels
-   * 4. Preserves metadata for future recalculations
+   * On first call for a page (areas are empty), builds areas from raw API data
+   * and converts % → px in one step. On subsequent calls (zoom, virtual blocks),
+   * reconverts existing areas using stored percentage metadata.
    */
   const recalculateAreas = () => {
     setAreas((prevState) => {
-      const processedAreas = processAreasForImageLoad(
-        prevState,
-        areasProperties,
-        studioEditorRef
-      );
+      const refValidation = validateRefAccess(studioEditorRef);
+      if (!refValidation.isValid) return prevState;
 
-      // Return processed areas if successful, otherwise keep previous state
-      return processedAreas || prevState;
+      const { dimensions } = refValidation;
+      const newAreas = [...prevState];
+      const activePageAreas = newAreas[activePageIndex];
+
+      // First load: page has no areas yet — build from raw API data + convert
+      if (
+        (!activePageAreas || activePageAreas.length === 0) &&
+        rawPagesRef.current[activePageIndex]?.blocks?.length
+      ) {
+        const rawAreas = initAreas([rawPagesRef.current[activePageIndex]])[0];
+        newAreas[activePageIndex] = processPageAreas(
+          rawAreas,
+          areasProperties[activePageIndex],
+          dimensions
+        );
+        return newAreas;
+      }
+
+      // Subsequent calls (zoom, virtual blocks): reconvert existing areas
+      if (activePageAreas?.length) {
+        newAreas[activePageIndex] = processPageAreas(
+          activePageAreas,
+          areasProperties[activePageIndex],
+          dimensions
+        );
+      }
+
+      return newAreas;
     });
   };
 
