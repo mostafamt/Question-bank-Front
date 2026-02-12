@@ -51,7 +51,7 @@ const TableOfContents = (props) => {
   const tableOfContents = React.useMemo(() => mapTableOfContents(data), [data]);
 
   return (
-    <Box sx={{ minHeight: 352, minWidth: 250 }}>
+    <Box className={styles["toc-container"]} sx={{ minHeight: 352, minWidth: 250 }}>
       {isFetching ? (
         <CircularProgress size="1rem" />
       ) : (
