@@ -333,6 +333,8 @@ const Studio = (props) => {
     return <Alert severity="error">No pages available.</Alert>;
   }
 
+  console.log('compositeBlocks= ', compositeBlocks);
+
   return (
     <>
       <StudioHeader

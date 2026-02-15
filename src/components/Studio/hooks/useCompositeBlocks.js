@@ -18,6 +18,12 @@ const useCompositeBlocks = ({
   const [compositeBlocks, setCompositeBlocks] =
     React.useState(initCompositeBlocks);
 
+  // Ref to always access latest compositeBlocks (avoids stale closures from memoization)
+  const compositeBlocksRef = React.useRef(compositeBlocks);
+  React.useEffect(() => {
+    compositeBlocksRef.current = compositeBlocks;
+  }, [compositeBlocks]);
+
   const [loadingSubmitCompositeBlocks, setLoadingSubmitCompositeBlocks] =
     React.useState(false);
 
@@ -107,8 +113,9 @@ const useCompositeBlocks = ({
 
   const onSubmitCompositeBlocks = async () => {
     setLoadingSubmitCompositeBlocks(true);
+    const current = compositeBlocksRef.current;
 
-    const blocks = compositeBlocks.areas.map(
+    const blocks = current.areas.map(
       ({ type, text, x, y, width, height, unit }) => ({
         contentType: type,
         contentValue: text,
@@ -123,8 +130,8 @@ const useCompositeBlocks = ({
     );
 
     const data = {
-      name: compositeBlocks.name,
-      type: compositeBlocks.type,
+      name: current.name,
+      type: current.type,
       chapterId,
       blocks,
     };
