@@ -22,14 +22,27 @@ const getList2FromData = (data, selectedItem) => {
 };
 
 const addPropsToAreasForCompositeBlocks = (compositeBlocks, areasParam) => {
+  const existingAreas = compositeBlocks.areas || [];
   const newAreas = areasParam.map((item, idx) => {
+    const existing = existingAreas[idx];
+    if (!item.id && existing) {
+      // Existing area — merge library coordinates with our custom properties
+      return {
+        ...existing,
+        x: item.x,
+        y: item.y,
+        width: item.width,
+        height: item.height,
+        unit: item.unit,
+      };
+    }
     if (!item.id) {
-      item = {
+      // New area — assign id and defaults
+      return {
         ...item,
         id: uuidv4(),
         type: "",
         open: true,
-        // color: colors[idx % colors.length],
       };
     }
     return item;

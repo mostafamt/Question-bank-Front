@@ -101,7 +101,7 @@
         "icon": "TocIcon",
         "modes": ["reader", "studio"],
         "position": "right",
-        "order": 1,
+        "order": 2,
         "component": "TableOfContents",
         "enabled": true,
         "description": "Book structure and navigation"
