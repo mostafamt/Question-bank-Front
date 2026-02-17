@@ -8,6 +8,7 @@ import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Link } from "react-router-dom";
 import styles from "./navbar.module.scss";
+import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
 
 const Navbar = () => {
   return (
@@ -41,6 +42,7 @@ const Navbar = () => {
               </div>
             </Link>
           </Typography>
+          <LanguageSwitcher />
         </Toolbar>
       </AppBar>
     </Box>
