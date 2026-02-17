@@ -60,7 +60,8 @@ const List = (props) => {
         onSubmit: (term, definition) => {
           // Add the new glossary item to the list
           const newItem = {
-            _id: Date.now().toString(), // Temporary ID
+            _id: Date.now().toString(), // Temporary ID for local use
+            isNew: true,
             term,
             definition,
             references: [],
@@ -177,8 +178,16 @@ const List = (props) => {
     };
 
     if (tab.name === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.name) {
-      console.log("objects= ", objects);
-      await mutation.mutateAsync(objects);
+      const glossaryData = objects.map(({ isNew, _id, ...rest }) => {
+        if (isNew) {
+          return { ...rest, status: "added" };
+        }
+        if (rest.status === "deleted") {
+          return { id: _id, ...rest };
+        }
+        return { id: _id, ...rest, status: "updated" };
+      });
+      await mutation.mutateAsync({ glossary: glossaryData });
     } else {
       await mutation.mutateAsync(ids);
     }

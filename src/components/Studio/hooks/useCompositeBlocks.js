@@ -185,7 +185,7 @@ const useCompositeBlocks = ({
           height: selectedObject.height,
           unit: "%", // Use percentage for consistency
           type: "", // Will be set by user in UI
-          text: blockId, // Set blockId as text
+          text: selectedObject.text, // Set object ID as text
           color: colors[compositeBlocks.areas.length % colors.length],
           loading: false,
           open: true,
