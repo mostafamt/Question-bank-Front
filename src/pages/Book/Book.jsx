@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from "react";
-import { useParams } from "react-router";
+import { useParams, useLocation } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { CircularProgress } from "@mui/material";
 import { getChapterPages } from "../../api/bookapi";
@@ -12,9 +12,19 @@ import {
 } from "../../config/highlighting";
 import BookHeaderLayout from "../../layouts/BookHeaderLayout/BookHeaderLayout";
 import BookTabsLayout from "../../layouts/BookTabsLayout/BookTabsLayout";
+import { useStore } from "../../store/store";
 
 const Book = () => {
   const { bookId, chapterId } = useParams();
+  const location = useLocation();
+  const chapterLanguage = location.state?.language;
+  const setLanguage = useStore((s) => s.setLanguage);
+
+  React.useEffect(() => {
+    if (chapterLanguage) {
+      setLanguage(chapterLanguage);
+    }
+  }, [chapterLanguage, setLanguage]);
   const { data: pages = [], isFetching } = useQuery({
     queryKey: [`book-${bookId}-chapter-${chapterId}`],
     queryFn: () => getChapterPages(chapterId),

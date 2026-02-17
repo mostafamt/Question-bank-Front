@@ -16,6 +16,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { Box, CircularProgress } from "@mui/material";
 import { formatVirtualBlocksForSubmission } from "../../utils/virtual-blocks";
+import { useStore } from "../../store/store";
 
 import styles from "./scanAndUpload.module.scss";
 import { CREATED, DELETED, UPDATED } from "../../utils/ocr";
@@ -24,6 +25,13 @@ const ScanAndUpload = () => {
   const { bookId, chapterId } = useParams();
   const location = useLocation();
   const language = location.state?.language;
+  const setLanguage = useStore((s) => s.setLanguage);
+
+  React.useEffect(() => {
+    if (language) {
+      setLanguage(language);
+    }
+  }, [language, setLanguage]);
 
   const { data: types, isFetching: isFetchingTypes } = useQuery({
     queryKey: ["types"],
