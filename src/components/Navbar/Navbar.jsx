@@ -25,7 +25,7 @@ const Navbar = () => {
             edge="start"
             color="inherit"
             aria-label="menu"
-            sx={{ mr: 2 }}
+            sx={{ marginInlineEnd: 2 }}
           >
             <MenuIcon />
           </IconButton>

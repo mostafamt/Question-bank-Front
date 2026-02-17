@@ -20,14 +20,18 @@ import Modal from "./components/Modal/Modal";
 
 const queryClient = new QueryClient();
 
-const ltrCache = createCache({ key: "mui-ltr" });
-const rtlCache = createCache({ key: "mui-rtl", stylisPlugins: [prefixer, rtlPlugin] });
+function createDirectionCache(dir) {
+  if (dir === "rtl") {
+    return createCache({ key: "mui-rtl", stylisPlugins: [prefixer, rtlPlugin.default || rtlPlugin] });
+  }
+  return createCache({ key: "mui-ltr" });
+}
 
 function App() {
   const language = useStore((s) => s.language);
   const direction = language === "ar" ? "rtl" : "ltr";
   const theme = useMemo(() => getTheme(direction), [direction]);
-  const cache = direction === "rtl" ? rtlCache : ltrCache;
+  const cache = useMemo(() => createDirectionCache(direction), [direction]);
 
   useEffect(() => {
     document.documentElement.dir = direction;

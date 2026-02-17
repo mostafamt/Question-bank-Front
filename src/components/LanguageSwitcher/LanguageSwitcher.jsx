@@ -19,10 +19,15 @@ const FlagEN = () => (
 
 const FlagAR = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 16" width="24" height="16">
-    <rect width="24" height="5.33" fill="#006C35"/>
+    <rect width="24" height="5.33" fill="#CE1126"/>
     <rect y="5.33" width="24" height="5.33" fill="#fff"/>
     <rect y="10.66" width="24" height="5.34" fill="#000"/>
-    <polygon points="0,0 8,8 0,16" fill="#CE1126"/>
+    <g transform="translate(12,8)" fill="#C09300">
+      <path d="M-2.5,-2 C-2.5,-3.5 -1.5,-4.5 0,-4.5 C1.5,-4.5 2.5,-3.5 2.5,-2 L2.5,1 L-2.5,1 Z" fill="none" stroke="#C09300" strokeWidth="0.6"/>
+      <rect x="-2" y="1" width="4" height="1.2"/>
+      <rect x="-0.3" y="-3" width="0.6" height="4"/>
+      <line x1="-1.5" y1="-1" x2="1.5" y2="-1" stroke="#C09300" strokeWidth="0.5"/>
+    </g>
   </svg>
 );
 
