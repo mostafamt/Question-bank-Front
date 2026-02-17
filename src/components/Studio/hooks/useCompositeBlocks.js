@@ -188,7 +188,7 @@ const useCompositeBlocks = ({
           text: blockId, // Set blockId as text
           color: colors[compositeBlocks.areas.length % colors.length],
           loading: false,
-          open: false,
+          open: true,
           img: null,
         };
 
