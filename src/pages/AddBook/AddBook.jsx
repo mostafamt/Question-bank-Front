@@ -13,7 +13,7 @@ import { getTypes } from "../../services/api";
 
 const AddBook = () => {
   const navigate = useNavigate();
-  const { setFormState } = useStore();
+  const { setFormState, setLanguage } = useStore();
   const [loadingScan, setLoadingScan] = React.useState(false);
   const {
     register,
@@ -34,7 +34,10 @@ const AddBook = () => {
   });
 
   const handleRead = ({ book, chapter }) => {
-    navigate(`/read/book/${book}/chapter/${chapter}`);
+    const chapterDetails = chapters.find((c) => c._id === chapter);
+    const language = chapterDetails?.language || "en";
+    setLanguage(language);
+    navigate(`/read/book/${book}/chapter/${chapter}`, { state: { language } });
   };
 
   const handleAuthor = async ({ book, chapter }) => {
@@ -45,6 +48,7 @@ const AddBook = () => {
 
       const chapterDetails = chapters.find((c) => c._id === chapter);
       const language = chapterDetails?.language || "en";
+      setLanguage(language);
 
       navigate(`/book/${book}/chapter/${chapter}`, { state: { language } });
     } finally {
