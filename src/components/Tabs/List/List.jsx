@@ -66,6 +66,7 @@ const List = (props) => {
             references: [],
           };
           setObjects((prevState) => [...prevState, newItem]);
+          setOpen((prevState) => [...prevState, true]);
         },
       });
     } else {
