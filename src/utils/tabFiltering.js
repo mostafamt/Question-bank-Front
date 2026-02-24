@@ -102,6 +102,19 @@ export const getTabsForSidebar = (position, mode) => {
 };
 
 /**
+ * Resolve a tab label based on the current language.
+ * Supports both old string labels and new { en, ar } object labels.
+ *
+ * @param {string|Object} label - The tab label (string or { en, ar })
+ * @param {string} language - Current language code ("en" or "ar")
+ * @returns {string} The resolved label string
+ */
+export const getTabLabel = (label, language) => {
+  if (typeof label === "string") return label;
+  return label?.[language] || label?.en || "";
+};
+
+/**
  * Get the full tabs configuration object
  *
  * @returns {Object} Complete tabs configuration from JSON

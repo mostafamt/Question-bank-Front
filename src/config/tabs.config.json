@@ -1,23 +1,23 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2026-01-01",
+  "lastUpdated": "2026-02-24",
   "description": "Tab configuration for Reader and Studio modes",
   "tabs": {
     "left": [
       {
         "id": "thumbnails",
-        "label": "Thumbnails",
+        "label": { "en": "Thumbnails", "ar": "الصفحات" },
         "icon": "ViewModuleIcon",
         "modes": ["reader", "studio"],
         "position": "left",
         "order": 1,
         "component": "StudioThumbnails",
         "enabled": true,
-        "description": "Page thumbnails for quick navigation (used in both modes)"
+        "description": "Page thumbnails for quick navigation"
       },
       {
         "id": "recalls",
-        "label": "Recalls",
+        "label": { "en": "Recalls", "ar": "أسئلة الاستذكار" },
         "icon": "LightbulbIcon",
         "modes": ["reader", "studio"],
         "position": "left",
@@ -28,7 +28,7 @@
       },
       {
         "id": "micro-learning",
-        "label": "Micro Learning",
+        "label": { "en": "Micro Learning", "ar": "تعلم خاطف" },
         "icon": "SchoolIcon",
         "modes": ["reader", "studio"],
         "position": "left",
@@ -39,7 +39,7 @@
       },
       {
         "id": "enriching-content",
-        "label": "Enriching Content",
+        "label": { "en": "Enriching Content", "ar": "الإثراء المعرفي" },
         "icon": "AutoStoriesIcon",
         "modes": ["reader", "studio"],
         "position": "left",
@@ -50,19 +50,18 @@
       },
       {
         "id": "check-yourself-left",
-        "label": "Check Yourself",
+        "label": { "en": "Check Yourself", "ar": "التقييم الذاتي" },
         "icon": "QuizIcon",
         "modes": ["studio"],
         "position": "left",
         "order": 5,
         "component": "List",
         "enabled": true,
-        "description": "Self-assessment questions",
-        "note": "In reader mode, this appears on the right sidebar"
+        "description": "Self-assessment questions"
       },
       {
         "id": "exercise-left",
-        "label": "Exercise",
+        "label": { "en": "Exercise", "ar": "التدريبات" },
         "icon": "FitnessCenterIcon",
         "modes": ["studio"],
         "position": "left",
@@ -75,29 +74,29 @@
     "right": [
       {
         "id": "block-authoring",
-        "label": "Block Authoring",
+        "label": { "en": "Block Authoring", "ar": "بناء المحتوى" },
         "icon": "EditIcon",
         "modes": ["studio"],
         "position": "right",
         "order": 1,
         "component": "StudioActions",
         "enabled": true,
-        "description": "Create and edit content blocks - Studio only"
+        "description": "Create and edit content blocks"
       },
       {
         "id": "composite-blocks",
-        "label": "Composite Blocks",
+        "label": { "en": "Composite Blocks", "ar": "العناصر المركبة" },
         "icon": "LayersIcon",
         "modes": ["studio"],
         "position": "right",
         "order": 2,
         "component": "StudioCompositeBlocks",
         "enabled": true,
-        "description": "Manage grouped content blocks - Studio only"
+        "description": "Manage grouped content blocks"
       },
       {
         "id": "table-of-contents",
-        "label": "Table of Contents",
+        "label": { "en": "Table of Contents", "ar": "الفهرس" },
         "icon": "TocIcon",
         "modes": ["reader", "studio"],
         "position": "right",
@@ -108,7 +107,7 @@
       },
       {
         "id": "glossary-keywords",
-        "label": "Glossary & Keywords",
+        "label": { "en": "Glossary & Keywords", "ar": "المسرد والدلالات" },
         "icon": "MenuBookIcon",
         "modes": ["reader", "studio"],
         "position": "right",
@@ -119,7 +118,7 @@
       },
       {
         "id": "illustrative-interactions",
-        "label": "Illustrative Interactions",
+        "label": { "en": "Illustrative Interactions", "ar": "وسائط تفاعلية" },
         "icon": "InteractionIcon",
         "modes": ["reader", "studio"],
         "position": "right",
@@ -130,19 +129,18 @@
       },
       {
         "id": "check-yourself-right",
-        "label": "Check Yourself",
+        "label": { "en": "Check Yourself", "ar": "التقييم الذاتي" },
         "icon": "QuizIcon",
         "modes": ["reader"],
         "position": "right",
         "order": 4,
         "component": "List",
         "enabled": true,
-        "description": "Self-assessment questions",
-        "note": "In studio mode, this appears on the left sidebar"
+        "description": "Self-assessment questions"
       },
       {
         "id": "exercise-right",
-        "label": "Exercise",
+        "label": { "en": "Exercise", "ar": "التدريبات" },
         "icon": "FitnessCenterIcon",
         "modes": ["reader"],
         "position": "right",

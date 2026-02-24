@@ -1,8 +1,16 @@
 import { createTheme } from "@mui/material/styles";
 
-const getTheme = (direction = "ltr") =>
-  createTheme({
+const getTheme = (direction = "ltr") => {
+  const fontFamily =
+    direction === "rtl"
+      ? '"Almarai", "Roboto", sans-serif'
+      : '"Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+
+  return createTheme({
     direction,
+    typography: {
+      fontFamily,
+    },
     palette: {
       primary: {
         light: "#0594a9",
@@ -18,5 +26,6 @@ const getTheme = (direction = "ltr") =>
       },
     },
   });
+};
 
 export { getTheme };

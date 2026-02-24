@@ -307,7 +307,7 @@ const Studio = (props) => {
 
   const onChangeHandler = React.useCallback(
     (areasParam) => {
-      if (activeRightTab?.label === RIGHT_TAB_NAMES.COMPOSITE_BLOCKS.label) {
+      if (activeRightTab?.id === "composite-blocks") {
         onChangeCompositeBlockArea(areasParam);
       } else {
         onChangeArea(areasParam);

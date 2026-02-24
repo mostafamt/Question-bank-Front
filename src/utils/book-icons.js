@@ -9,22 +9,27 @@ import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy"; // fallback
 
 /**
- * Maps column labels to their corresponding MUI icons
- * @param {string} label - The column label
+ * Maps column IDs to their corresponding MUI icons
+ * @param {string} id - The column/tab id
  * @returns {React.Component} The corresponding MUI icon component
  */
-export const getColumnIcon = (label) => {
+export const getColumnIcon = (id) => {
   const iconMap = {
-    Thumbnails: CollectionsIcon,
-    Recalls: PsychologyIcon,
-    "Micro Learning": AutoStoriesIcon,
-    "Enriching Contents": AutoAwesomeIcon,
-    "Table Of Contents": FormatListNumberedIcon,
-    "Glossary & keywords": LibraryBooksIcon,
-    "Illustrative Interactions": TouchAppIcon,
-    "Check Yourself": AssignmentTurnedInIcon,
+    thumbnails: CollectionsIcon,
+    recalls: PsychologyIcon,
+    "micro-learning": AutoStoriesIcon,
+    "enriching-content": AutoAwesomeIcon,
+    "table-of-contents": FormatListNumberedIcon,
+    "glossary-keywords": LibraryBooksIcon,
+    "illustrative-interactions": TouchAppIcon,
+    "check-yourself-left": AssignmentTurnedInIcon,
+    "check-yourself-right": AssignmentTurnedInIcon,
+    "block-authoring": ContentCopyIcon,
+    "composite-blocks": ContentCopyIcon,
+    "exercise-left": ContentCopyIcon,
+    "exercise-right": ContentCopyIcon,
   };
 
   // Return mapped icon or fallback to ContentCopyIcon
-  return iconMap[label] || ContentCopyIcon;
+  return iconMap[id] || ContentCopyIcon;
 };
