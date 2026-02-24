@@ -1,11 +1,14 @@
 import React from "react";
 import BookColumnHeader from "../BookColumnHeader/BookColumnHeader";
 import { getColumnIcon } from "../../../utils/book-icons";
+import { getTabLabel } from "../../../utils/tabFiltering";
+import { useStore } from "../../../store/store";
 
 import styles from "./bookColumn.module.scss";
 
 const BookColumn = (props) => {
   const { COLUMNS, activeColumn, onImageLoad, activeTab, setActiveTab } = props;
+  const language = useStore((s) => s.language);
 
   const onChangeActiveTab = (tab) => {
     setActiveTab(tab);
@@ -17,11 +20,11 @@ const BookColumn = (props) => {
   let content = <></>;
   if (activeTab) {
     COLUMNS.forEach((column) => {
-      if (column.label === activeTab.label) {
+      if (column.id === activeTab.id) {
         content = (
           <div style={{ height: "100%" }}>
             <BookColumnHeader
-              columnName={column.label}
+              columnName={getTabLabel(column.label, language)}
               close={() => onChangeActiveTab("")}
             />
             {column.component}
@@ -33,10 +36,10 @@ const BookColumn = (props) => {
     content = (
       <div className={styles["tabs"]}>
         {COLUMNS.map((column) => {
-          const IconComponent = getColumnIcon(column.label);
+          const IconComponent = getColumnIcon(column.id);
           return (
             <button key={column.id} onClick={() => onChangeActiveTab(column)}>
-              <span>{column.label}</span>
+              <span>{getTabLabel(column.label, language)}</span>
               <IconComponent />
             </button>
           );

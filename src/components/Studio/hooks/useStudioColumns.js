@@ -258,15 +258,15 @@ const useStudioColumns = ({
     rightColumnProps.onClickHand,
   ]);
 
-  // Create stable strings of tab labels to detect actual tab configuration changes
+  // Create stable strings of tab IDs to detect actual tab configuration changes
   // This prevents sync effects from running when only object references change
-  const leftColumnsLabels = useMemo(
-    () => leftColumns.map((c) => c.label).join(","),
+  const leftColumnsIds = useMemo(
+    () => leftColumns.map((c) => c.id).join(","),
     [leftColumns]
   );
 
-  const rightColumnsLabels = useMemo(
-    () => rightColumns.map((c) => c.label).join(","),
+  const rightColumnsIds = useMemo(
+    () => rightColumns.map((c) => c.id).join(","),
     [rightColumns]
   );
 
@@ -278,17 +278,17 @@ const useStudioColumns = ({
     () => rightColumns[0] || null
   );
 
-  // Store active tab labels in refs to avoid dependency issues
-  const activeLeftTabLabelRef = useRef(activeLeftTab?.label);
-  const activeRightTabLabelRef = useRef(activeRightTab?.label);
+  // Store active tab IDs in refs to avoid dependency issues
+  const activeLeftTabIdRef = useRef(activeLeftTab?.id);
+  const activeRightTabIdRef = useRef(activeRightTab?.id);
 
   // Update refs when tabs change (with proper dependencies)
   useEffect(() => {
-    activeLeftTabLabelRef.current = activeLeftTab?.label;
+    activeLeftTabIdRef.current = activeLeftTab?.id;
   }, [activeLeftTab]);
 
   useEffect(() => {
-    activeRightTabLabelRef.current = activeRightTab?.label;
+    activeRightTabIdRef.current = activeRightTab?.id;
   }, [activeRightTab]);
 
   // Sync left tab when columns change
@@ -297,20 +297,20 @@ const useStudioColumns = ({
     if (!leftColumns.length) return;
 
     // Respect collapsed state - don't reset if intentionally collapsed
-    const currentLabel = activeLeftTabLabelRef.current;
-    if (currentLabel === "" || currentLabel === null || currentLabel === undefined) {
+    const currentId = activeLeftTabIdRef.current;
+    if (currentId === "" || currentId === null || currentId === undefined) {
       return;
     }
 
     const next =
-      leftColumns.find((col) => col.label === currentLabel) ||
+      leftColumns.find((col) => col.id === currentId) ||
       leftColumns[0];
 
-    // Only update if the label actually changed
-    if (next.label !== currentLabel) {
+    // Only update if the tab actually changed
+    if (next.id !== currentId) {
       setActiveLeftTab(next);
     }
-  }, [leftColumnsLabels, leftColumns]);
+  }, [leftColumnsIds, leftColumns]);
 
   // Sync right tab when columns change
   // Only runs when tabs are actually added/removed (not just reference changes)
@@ -318,20 +318,20 @@ const useStudioColumns = ({
     if (!rightColumns.length) return;
 
     // Respect collapsed state - don't reset if intentionally collapsed
-    const currentLabel = activeRightTabLabelRef.current;
-    if (currentLabel === "" || currentLabel === null || currentLabel === undefined) {
+    const currentId = activeRightTabIdRef.current;
+    if (currentId === "" || currentId === null || currentId === undefined) {
       return;
     }
 
     const next =
-      rightColumns.find((col) => col.label === currentLabel) ||
+      rightColumns.find((col) => col.id === currentId) ||
       rightColumns[0];
 
-    // Only update if the label actually changed
-    if (next.label !== currentLabel) {
+    // Only update if the tab actually changed
+    if (next.id !== currentId) {
       setActiveRightTab(next);
     }
-  }, [rightColumnsLabels, rightColumns]);
+  }, [rightColumnsIds, rightColumns]);
 
   return {
     // Columns

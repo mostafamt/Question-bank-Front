@@ -92,7 +92,7 @@ const StudioAreaSelector = React.memo(
       (areaProps) => {
         if (!areaProps.isChanging) {
           const isCompositeBlocksTab =
-            activeRightTab.label === "Composite Blocks";
+            activeRightTab.id === "composite-blocks";
           const areaIndex = areaProps.areaNumber - 1;
 
           let areaType, areaLabel;
@@ -131,7 +131,7 @@ const StudioAreaSelector = React.memo(
       [
         onClickExistedArea,
         activePage,
-        activeRightTab.label,
+        activeRightTab.id,
         compositeBlocks,
         areasProperties,
         readOnly,
@@ -235,10 +235,10 @@ const StudioAreaSelector = React.memo(
     });
 
     const renderedAreas = useMemo(() => {
-      return activeRightTab.label === "Composite Blocks"
+      return activeRightTab.id === "composite-blocks"
         ? compositeBlocks.areas || []
         : areas[activePage] || [];
-    }, [activeRightTab.label, compositeBlocks.areas, areas, activePage]);
+    }, [activeRightTab.id, compositeBlocks.areas, areas, activePage]);
 
     const wrapperStyle = useMemo(
       () => ({
@@ -271,7 +271,7 @@ const StudioAreaSelector = React.memo(
         <div
           className={styles.block}
           css={constructBoxColors(
-            activeRightTab.label === "Composite Blocks"
+            activeRightTab.id === "composite-blocks"
               ? compositeBlocks.areas || []
               : areasProperties[activePage] || [],
             highlightedBlockId
@@ -352,11 +352,10 @@ const StudioAreaSelector = React.memo(
                 onLoad={onImageLoad}
               />
             </div>
-          ) : activeRightTab.label === RIGHT_TAB_NAMES.BLOCK_AUTHORING.label ||
-            activeRightTab.label === RIGHT_TAB_NAMES.COMPOSITE_BLOCKS.label ||
-            activeRightTab.label === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.label ||
-            activeRightTab.label ===
-              RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS.label ? (
+          ) : activeRightTab.id === "block-authoring" ||
+            activeRightTab.id === "composite-blocks" ||
+            activeRightTab.id === "glossary-keywords" ||
+            activeRightTab.id === "illustrative-interactions" ? (
             <AreaSelector
               areas={renderedAreas}
               onChange={onChangeHandler}
