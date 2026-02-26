@@ -142,6 +142,7 @@ const Studio = (props) => {
     openModal,
     pages,
     areasProperties,
+    compositeBlocksTypes,
   });
 
   // ============ STUDIO ACTIONS ============

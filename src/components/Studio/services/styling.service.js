@@ -86,8 +86,16 @@ export const constructBoxColors = (areas, highlightedBlockId) => {
               transition: highlightStyles.transition,
             },
           };
+        } else if (!area.color) {
+          // Case 3: No color assigned — dashed border (added but not yet typed)
+          return {
+            [values[idx]]: {
+              border: "2px dashed rgba(0, 0, 0, 0.5) !important",
+              backgroundColor: "rgba(0, 0, 0, 0.05)",
+            },
+          };
         } else {
-          // Case 3: Normal area - Show colored border and background
+          // Case 4: Normal area - Show colored border and background
           return {
             [values[idx]]: {
               border: `2px solid ${area.color} !important`,

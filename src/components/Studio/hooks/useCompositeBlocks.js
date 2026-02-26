@@ -4,7 +4,6 @@ import { initCompositeBlocks } from "../initializers";
 import { cropSelectedArea, ocr } from "../../../utils/ocr";
 import { saveCompositeBlocks } from "../../../services/api";
 import { addPropsToAreasForCompositeBlocks } from "../../../utils/studio";
-import { colors } from "../../../constants/highlight-color";
 
 const useCompositeBlocks = ({
   canvasRef,
@@ -14,6 +13,7 @@ const useCompositeBlocks = ({
   openModal,
   pages,
   areasProperties,
+  compositeBlocksTypes,
 }) => {
   const [compositeBlocks, setCompositeBlocks] =
     React.useState(initCompositeBlocks);
@@ -155,10 +155,10 @@ const useCompositeBlocks = ({
 
   const onClickHand = () => {
     openModal("composite-blocks-modal", {
+      compositeBlocksTypes,
       onSelectObject: (blockId) => {
         // Find the selected object in areasProperties to get coordinates
         let selectedObject = null;
-        let pageIndex = -1;
 
         for (let i = 0; i < areasProperties.length; i++) {
           const found = areasProperties[i].find(
@@ -166,7 +166,6 @@ const useCompositeBlocks = ({
           );
           if (found) {
             selectedObject = found;
-            pageIndex = i;
             break;
           }
         }
@@ -176,17 +175,17 @@ const useCompositeBlocks = ({
           return;
         }
 
-        // Create new composite block area with object's coordinates
+        // Add area with no color — color is assigned when user picks a type
         const newArea = {
           id: uuidv4(),
           x: selectedObject.x,
           y: selectedObject.y,
           width: selectedObject.width,
           height: selectedObject.height,
-          unit: "%", // Use percentage for consistency
-          type: "", // Will be set by user in UI
-          text: selectedObject.text, // Set object ID as text
-          color: colors[compositeBlocks.areas.length % colors.length],
+          unit: "%",
+          type: "",
+          text: blockId, // store blockId so modal can track which blocks are added
+          color: "",
           loading: false,
           open: true,
           img: null,
@@ -198,6 +197,7 @@ const useCompositeBlocks = ({
           areas: [...prevState.areas, newArea],
         }));
       },
+      compositeBlocks, // modal uses this to show color for blocks that have a type
       pages,
       areasProperties,
     });
