@@ -53,18 +53,34 @@ const StudioAreaSelector = React.memo(
             height: `${area.height}px`,
           };
         } else {
-          // Studio mode: existing colored style for editing
+          // Studio / read-only mode
           const areaProps = areasProperties[activePage]?.[idx];
+
+          if (!areaProps?.color) {
+            // No color assigned yet — dashed border (added but not typed)
+            return {
+              position: "absolute",
+              top: `${area.y}%`,
+              left: `${area.x}%`,
+              width: `${area.width}%`,
+              height: `${area.height}%`,
+              border: "2px dashed rgba(0, 0, 0, 0.5)",
+              backgroundColor: "rgba(0, 0, 0, 0.05)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            };
+          }
+
           return {
             position: "absolute",
             top: `${area.y}%`,
             left: `${area.x}%`,
             width: `${area.width}%`,
             height: `${area.height}%`,
-            border: `2px solid ${areaProps?.color || "#000"}`,
-            backgroundColor: areaProps?.color
-              ? hexToRgbA(areaProps.color)
-              : "rgba(0, 0, 0, 0.2)",
+            border: `2px solid ${areaProps.color}`,
+            backgroundColor: hexToRgbA(areaProps.color),
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
@@ -91,8 +107,7 @@ const StudioAreaSelector = React.memo(
     const customRender = useCallback(
       (areaProps) => {
         if (!areaProps.isChanging) {
-          const isCompositeBlocksTab =
-            activeRightTab.id === "composite-blocks";
+          const isCompositeBlocksTab = activeRightTab.id === "composite-blocks";
           const areaIndex = areaProps.areaNumber - 1;
 
           let areaType, areaLabel;
@@ -207,6 +222,7 @@ const StudioAreaSelector = React.memo(
                 width: `${area.width}px`,
                 height: `${area.height}px`,
                 backgroundColor: "rgba(0, 0, 0, 0.2)",
+                borderColor: "rgba(0, 0, 0, 0.2)",
                 cursor: "pointer",
               }}
               onClick={() => onPickAreaForCompositeBlocks(idx)}
@@ -271,7 +287,9 @@ const StudioAreaSelector = React.memo(
         <div
           className={styles.block}
           css={constructBoxColors(
-            activeRightTab.id === "composite-blocks"
+            readOnly
+              ? [] // read-only mode: let inline getBlockStyle handle borders
+              : activeRightTab.id === "composite-blocks"
               ? compositeBlocks.areas || []
               : areasProperties[activePage] || [],
             highlightedBlockId
