@@ -6,7 +6,7 @@
     "left": [
       {
         "id": "thumbnails",
-        "label": { "en": "Thumbnails", "ar": "الصفحات" },
+        "label": { "en": "Thumbnails", "ar": "صور الصفحات" },
         "icon": "ViewModuleIcon",
         "modes": ["reader", "studio"],
         "position": "left",
@@ -17,7 +17,7 @@
       },
       {
         "id": "recalls",
-        "label": { "en": "Recalls", "ar": "أسئلة الاستذكار" },
+        "label": { "en": "Recalls", "ar": "تذكر" },
         "icon": "LightbulbIcon",
         "modes": ["reader", "studio"],
         "position": "left",
@@ -28,7 +28,7 @@
       },
       {
         "id": "micro-learning",
-        "label": { "en": "Micro Learning", "ar": "تعلم خاطف" },
+        "label": { "en": "Micro Learning", "ar": "دقيقة تعليمية" },
         "icon": "SchoolIcon",
         "modes": ["reader", "studio"],
         "position": "left",
@@ -39,7 +39,7 @@
       },
       {
         "id": "enriching-content",
-        "label": { "en": "Enriching Content", "ar": "الإثراء المعرفي" },
+        "label": { "en": "Enriching Content", "ar": "إثرائيات" },
         "icon": "AutoStoriesIcon",
         "modes": ["reader", "studio"],
         "position": "left",
@@ -50,7 +50,7 @@
       },
       {
         "id": "check-yourself-left",
-        "label": { "en": "Check Yourself", "ar": "التقييم الذاتي" },
+        "label": { "en": "Check Yourself", "ar": "اختبر نفسك" },
         "icon": "QuizIcon",
         "modes": ["studio"],
         "position": "left",
@@ -107,7 +107,7 @@
       },
       {
         "id": "glossary-keywords",
-        "label": { "en": "Glossary & Keywords", "ar": "المسرد والدلالات" },
+        "label": { "en": "Glossary & Keywords", "ar": "مصطلحات" },
         "icon": "MenuBookIcon",
         "modes": ["reader", "studio"],
         "position": "right",
@@ -129,7 +129,7 @@
       },
       {
         "id": "check-yourself-right",
-        "label": { "en": "Check Yourself", "ar": "التقييم الذاتي" },
+        "label": { "en": "Check Yourself", "ar": "إختبر نفسك" },
         "icon": "QuizIcon",
         "modes": ["reader"],
         "position": "right",
