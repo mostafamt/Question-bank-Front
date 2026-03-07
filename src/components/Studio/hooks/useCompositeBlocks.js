@@ -184,7 +184,8 @@ const useCompositeBlocks = ({
           height: selectedObject.height,
           unit: "%",
           type: "",
-          text: blockId, // store blockId so modal can track which blocks are added
+          text: selectedObject.text, // store objectId (contentValue) sent to server
+          blockId: blockId, // store blockId for modal visual tracking
           color: "",
           loading: false,
           open: true,

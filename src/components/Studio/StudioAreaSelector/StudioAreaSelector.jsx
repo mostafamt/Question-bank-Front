@@ -6,7 +6,7 @@ import clsx from "clsx";
 
 import styles from "./studioAreaSelector.module.scss";
 import VirtualBlocks from "../../VirtualBlocks/VirtualBlocks";
-import { getList2FromData } from "../../../utils/studio";
+import { getList2FromData, getTypeOfLabelForCompositeBlocks } from "../../../utils/studio";
 import { RIGHT_TAB_NAMES } from "../constants";
 import { hexToRgbA } from "../../../utils/helper";
 import { useAppMode } from "../../../utils/tabFiltering";
@@ -165,34 +165,63 @@ const StudioAreaSelector = React.memo(
     const onPickAreaForCompositeBlocks = useCallback(
       (idx) => {
         const area = areasProperties[activePage][idx];
-        const list = getList2FromData(
+        const labelKeys = getList2FromData(
           compositeBlocksTypes,
           compositeBlocks.type
         );
 
-        const condition1 =
-          (area.type === "Illustrative object" || area.type === "Question") &&
-          list.includes("Object");
-        const condition2 =
-          area.type === "Question" && list.includes("Question");
+        // Build allowed area categories and find the matching label key
+        // based on label value types (QObject, Object, XObject) not key names
+        const allowedCategories = new Set();
+        labelKeys.forEach((labelKey) => {
+          const labelType = getTypeOfLabelForCompositeBlocks(
+            compositeBlocksTypes,
+            compositeBlocks.type,
+            labelKey
+          );
+          if (labelType === "QObject") allowedCategories.add("Question");
+          if (labelType === "Object") allowedCategories.add("Illustrative object");
+          if (labelType === "XObject") allowedCategories.add("Illustrative object");
+        });
 
-        if (condition1 || condition2) {
-          setCompositeBlocks((prevState) => ({
-            ...prevState,
-            areas: [
-              ...prevState.areas,
-              {
-                x: area.x,
-                y: area.y,
-                height: area.height,
-                width: area.width,
-                type: list.includes("Object") ? "Object" : "Question",
-                text: area.blockId,
-                unit: "%",
-              },
-            ],
-          }));
+        if (!allowedCategories.has(area.type)) return;
+
+        // Find the label key whose type matches the selected area's category
+        let areaType = "";
+        for (const labelKey of labelKeys) {
+          const labelType = getTypeOfLabelForCompositeBlocks(
+            compositeBlocksTypes,
+            compositeBlocks.type,
+            labelKey
+          );
+          const isObjectLabel = labelType === "Object" || labelType === "XObject";
+          const isQuestionLabel = labelType === "QObject";
+          if (area.type === "Illustrative object" && isObjectLabel) {
+            areaType = labelKey;
+            break;
+          }
+          if (area.type === "Question" && isQuestionLabel) {
+            areaType = labelKey;
+            break;
+          }
         }
+
+        setCompositeBlocks((prevState) => ({
+          ...prevState,
+          areas: [
+            ...prevState.areas,
+            {
+              x: area.x,
+              y: area.y,
+              height: area.height,
+              width: area.width,
+              type: areaType,
+              text: area.text, // objectId (contentValue) sent to server
+              blockId: area.blockId, // page-level block ID for modal tracking
+              unit: "%",
+            },
+          ],
+        }));
       },
       [
         areasProperties,
