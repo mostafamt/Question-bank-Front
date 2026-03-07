@@ -3,7 +3,11 @@ import { v4 as uuidv4 } from "uuid";
 import { initCompositeBlocks } from "../initializers";
 import { cropSelectedArea, ocr } from "../../../utils/ocr";
 import { saveCompositeBlocks } from "../../../services/api";
-import { addPropsToAreasForCompositeBlocks } from "../../../utils/studio";
+import {
+  addPropsToAreasForCompositeBlocks,
+  getTypeOfLabelForCompositeBlocks,
+} from "../../../utils/studio";
+import { uploadForStudio } from "../../../utils/upload";
 
 const useCompositeBlocks = ({
   canvasRef,
@@ -115,17 +119,30 @@ const useCompositeBlocks = ({
     setLoadingSubmitCompositeBlocks(true);
     const current = compositeBlocksRef.current;
 
-    const blocks = current.areas.map(
-      ({ type, text, x, y, width, height, unit }) => ({
-        contentType: type,
-        contentValue: text,
-        coordinates: {
-          height,
-          unit: unit === "%" ? "percentage" : "px",
-          width,
-          x,
-          y,
-        },
+    const blocks = await Promise.all(
+      current.areas.map(async ({ type, text, img, x, y, width, height, unit }) => {
+        const labelType = getTypeOfLabelForCompositeBlocks(
+          compositeBlocksTypes,
+          current.type,
+          type
+        );
+
+        let contentValue = text;
+        if (labelType === "image" && img) {
+          contentValue = await uploadForStudio(img);
+        }
+
+        return {
+          contentType: type,
+          contentValue,
+          coordinates: {
+            height,
+            unit: unit === "%" ? "percentage" : "px",
+            width,
+            x,
+            y,
+          },
+        };
       })
     );
 
