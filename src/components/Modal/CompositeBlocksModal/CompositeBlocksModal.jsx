@@ -40,6 +40,7 @@ const CompositeBlocksModal = (props) => {
       );
       if (internalType === "QObject") allowed.add("Question");
       if (internalType === "Object") allowed.add("Illustrative object");
+      if (internalType === "XObject") allowed.add("Illustrative object");
     });
 
     return allowed.size > 0 ? [...allowed] : ["Question", "Illustrative object"];
@@ -64,8 +65,8 @@ const CompositeBlocksModal = (props) => {
   const blockColorMap = useMemo(() => {
     const map = {};
     compositeBlocks?.areas?.forEach((area) => {
-      if (area.text && area.color) {
-        map[area.text] = area.color; // area.text stores the blockId
+      if (area.blockId && area.color) {
+        map[area.blockId] = area.color;
       }
     });
     return map;
@@ -75,7 +76,7 @@ const CompositeBlocksModal = (props) => {
   const addedBlockIds = useMemo(() => {
     const set = new Set();
     compositeBlocks?.areas?.forEach((area) => {
-      if (area.text) set.add(area.text);
+      if (area.blockId) set.add(area.blockId);
     });
     return set;
   }, [compositeBlocks]);

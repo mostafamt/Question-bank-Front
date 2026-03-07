@@ -55,7 +55,7 @@ const StudioCompositeBlocks = (props) => {
     onChangeCompositeBlocks(id, type, value);
     onChangeCompositeBlocks(id, "color", randomColor);
 
-    if (typeOfLabel === "Object" || typeOfLabel === "QObject") {
+    if (typeOfLabel === "Object" || typeOfLabel === "QObject" || typeOfLabel === "XObject") {
       return;
     }
 

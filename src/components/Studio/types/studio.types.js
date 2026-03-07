@@ -76,7 +76,8 @@
  * @property {number} width - Width in percentage
  * @property {number} height - Height in percentage
  * @property {string} type - Block type
- * @property {string} text - Content text or block ID
+ * @property {string} text - objectId (contentValue) sent to server as contentValue
+ * @property {string} [blockId] - Page-level block ID used for modal visual tracking
  * @property {string} unit - Coordinate unit ("%" or "px")
  * @property {string} color - Highlight color
  * @property {boolean} [loading] - Whether processing
