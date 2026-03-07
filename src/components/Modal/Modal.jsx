@@ -14,6 +14,7 @@ import PlayCompositeBlocks from "./PlayCompositeBlocks/PlayCompositeBlocks";
 import EditCompositeBlocks from "./EditCompositeBlocks/EditCompositeBlocks";
 import GlossaryModal from "./GlossaryModal/GlossaryModal";
 import CompositeBlocksModal from "./CompositeBlocksModal/CompositeBlocksModal";
+import SnapLearningModal from "./SnapLearningModal/SnapLearningModal";
 import VirtualBlockContentModal from "./VirtualBlockContentModal/VirtualBlockContentModal";
 import VirtualBlockReaderModal from "./VirtualBlockReaderModal/VirtualBlockReaderModal";
 import VirtualBlockReaderNavigationModal from "./VirtualBlockReaderNavigationModal/VirtualBlockReaderNavigationModal";
@@ -38,6 +39,7 @@ const MODAL_COMPONENTS = {
   "edit-composite-blocks": EditCompositeBlocks,
   glossary: GlossaryModal,
   "composite-blocks-modal": CompositeBlocksModal,
+  "snap-learning": SnapLearningModal,
 };
 
 const Modal = () => {

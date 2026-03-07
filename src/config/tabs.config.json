@@ -28,7 +28,7 @@
       },
       {
         "id": "micro-learning",
-        "label": { "en": "Micro Learning", "ar": "دقيقة تعليمية" },
+        "label": { "en": "Snap Learning", "ar": "دقيقة تعليمية" },
         "icon": "SchoolIcon",
         "modes": ["reader", "studio"],
         "position": "left",
