@@ -8,8 +8,18 @@ import ListItem from "../ListItem/ListItem";
 import { useForm } from "react-hook-form";
 
 import styles from "./list.module.scss";
-import { RIGHT_TAB_NAMES } from "../../Studio/constants";
+import { LEFT_TAB_NAMES, RIGHT_TAB_NAMES } from "../../Studio/constants";
 import GlossaryListItem from "../GlossaryListItem/GlossaryListItem";
+
+const deriveSnapLearningName = (type, contentValue) => {
+  if (type === "text") {
+    const plain = contentValue.replace(/<[^>]+>/g, "").trim();
+    return plain.length > 40 ? plain.slice(0, 40) + "…" : plain || "Text item";
+  }
+  if (type === "link") return contentValue;
+  if (type === "object") return contentValue;
+  return "Snap Learning item";
+};
 
 const List = (props) => {
   const { tab, chapterId, reader, changePageById, navigateToBlock } = props;
@@ -70,6 +80,18 @@ const List = (props) => {
           setOpen((prevState) => [...prevState, true]);
         },
       });
+    } else if (tab.name === LEFT_TAB_NAMES.MICRO_LEARNING.name) {
+      openModal("snap-learning", {
+        onConfirm: ({ type, contentValue }) => {
+          const newItem = {
+            _id: Date.now().toString(),
+            type,
+            contentValue,
+            name: deriveSnapLearningName(type, contentValue),
+          };
+          setObjects((prevState) => [...prevState, newItem]);
+        },
+      });
     } else {
       openModal("tabs", {
         checkedObjects: objects,
@@ -87,6 +109,24 @@ const List = (props) => {
 
   const handlePlay = React.useCallback(
     (item) => {
+      if (tab.name === LEFT_TAB_NAMES.MICRO_LEARNING.name) {
+        if (item.type === "text") {
+          openModal("text-editor", { value: item.contentValue, readOnly: true });
+        } else if (item.type === "link") {
+          openModal("iframe-display", { url: item.contentValue });
+        } else if (item.type === "object") {
+          openModal("play-object", {
+            workingArea: {
+              text: item.contentValue,
+              contentValue: item.contentValue,
+              contentType: "object",
+              typeOfLabel: "object",
+            },
+          });
+        }
+        return;
+      }
+
       openModal("play-object", {
         workingArea: {
           text: item._id,
@@ -96,7 +136,7 @@ const List = (props) => {
         },
       });
     },
-    [openModal]
+    [openModal, tab.name]
   );
 
   const handleDelete = React.useCallback(
@@ -173,6 +213,12 @@ const List = (props) => {
   );
 
   const onSubmitHandler = async () => {
+    if (tab.name === LEFT_TAB_NAMES.MICRO_LEARNING.name) {
+      // TODO: call API when backend endpoint is ready
+      console.log("Snap Learning submit — endpoint not yet implemented", objects);
+      return;
+    }
+
     const ids = {
       ids: objects.map((item) => item._id),
     };
