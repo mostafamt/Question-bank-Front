@@ -3,7 +3,12 @@ import AddIcon from "@mui/icons-material/Add";
 import { Box, Button, CircularProgress, IconButton } from "@mui/material";
 import { useStore } from "../../../store/store";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { getTabObjects, updateTabObjects } from "../../../services/api";
+import {
+  getTabObjects,
+  updateTabObjects,
+  getEnrichingContents,
+  submitEnrichingContents,
+} from "../../../services/api";
 import ListItem from "../ListItem/ListItem";
 import { useForm } from "react-hook-form";
 
@@ -33,9 +38,13 @@ const List = (props) => {
     formState: { isSubmitting },
   } = useForm();
 
+  const isEnrichingContent = tab.name === LEFT_TAB_NAMES.ENRICHING_CONTENT.name;
+
   const { data: tabObjects, isFetching } = useQuery({
     queryKey: [`tab-objects-${tab.name}`],
-    queryFn: () => getTabObjects(chapterId, tab.name),
+    queryFn: isEnrichingContent
+      ? () => getEnrichingContents(chapterId)
+      : () => getTabObjects(chapterId, tab.name),
     refetchOnWindowFocus: false,
   });
 
@@ -59,7 +68,22 @@ const List = (props) => {
   React.useEffect(() => {
     if (!tabObjects) return;
 
-    setObjects(tabObjects);
+    if (isEnrichingContent) {
+      const mapped = tabObjects.map((item) => ({
+        _id:          item._id || `${Date.now()}-${Math.random()}`,
+        type:         item.contentType === "url" ? "link" : item.contentType,
+        contentValue: item.contentValue,
+        name:         deriveEnrichingContentName(
+                        item.contentType === "url" ? "link" : item.contentType,
+                        item.contentValue
+                      ),
+        url:          item.url,
+        baseType:     item.baseType,
+      }));
+      setObjects(mapped);
+    } else {
+      setObjects(tabObjects);
+    }
   }, [tabObjects, tab, setObjects]);
 
   const onClickPlus = () => {
@@ -111,7 +135,18 @@ const List = (props) => {
     (item) => {
       if (tab.name === LEFT_TAB_NAMES.ENRICHING_CONTENT.name) {
         if (item.type === "text") {
-          openModal("text-editor", { value: item.contentValue, readOnly: true });
+          openModal("text-editor", {
+            value: item.contentValue,
+            onClickSubmit: (newValue) => {
+              setObjects((prev) =>
+                prev.map((obj) =>
+                  obj._id === item._id
+                    ? { ...obj, contentValue: newValue }
+                    : obj
+                )
+              );
+            },
+          });
         } else if (item.type === "link") {
           openModal("iframe-display", { url: item.contentValue });
         } else if (item.type === "object") {
@@ -119,8 +154,8 @@ const List = (props) => {
             workingArea: {
               text: item.contentValue,
               contentValue: item.contentValue,
-              contentType: "object",
-              typeOfLabel: "object",
+              contentType: item.baseType || "Text MCQ",
+              typeOfLabel: item.baseType || "Text MCQ",
             },
           });
         }
@@ -213,9 +248,12 @@ const List = (props) => {
   );
 
   const onSubmitHandler = async () => {
-    if (tab.name === LEFT_TAB_NAMES.ENRICHING_CONTENT.name) {
-      // TODO: call API when backend endpoint is ready
-      console.log("Enriching Content submit — endpoint not yet implemented", objects);
+    if (isEnrichingContent) {
+      const payload = objects.map((item) => ({
+        contentType:  item.type === "link" ? "url" : item.type,
+        contentValue: item.contentValue,
+      }));
+      await submitEnrichingContents(chapterId, payload);
       return;
     }
 
@@ -304,9 +342,9 @@ const List = (props) => {
           <Button
             variant="contained"
             type="submit"
-            disabled={mutation.isPending}
+            disabled={mutation.isPending || isSubmitting}
             startIcon={
-              mutation.isPending ? <CircularProgress size="1rem" /> : <></>
+              mutation.isPending || isSubmitting ? <CircularProgress size="1rem" /> : <></>
             }
           >
             Submit

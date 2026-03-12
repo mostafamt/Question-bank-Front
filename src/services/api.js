@@ -168,3 +168,27 @@ export const getExercises = async (chapterId) => {
     return [];
   }
 };
+
+export const getEnrichingContents = async (chapterId) => {
+  try {
+    const res = await axios2.get(`/chapters/${chapterId}/enriching-contents`);
+    return res.data;
+  } catch (error) {
+    toast.error(error?.message);
+    return [];
+  }
+};
+
+export const submitEnrichingContents = async (chapterId, items) => {
+  try {
+    const res = await axios2.post(`/chapters/${chapterId}/enriching-contents`, {
+      enrichingContents: items,
+    });
+    toast.success(res.data?.message);
+    return res.data;
+  } catch (error) {
+    toast.error(error?.message);
+    toast.error(error?.response?.data?.message);
+    return null;
+  }
+};

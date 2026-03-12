@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import styles from "./playObjectModal.module.scss";
 import { getObject } from "../../../api/bookapi";
 import { isComplexType } from "../../../utils/ocr";
+import SnapLearningPlayer from "../../SnapLearningPlayer/SnapLearningPlayer";
 
 const PlayObjectModal = (props) => {
   const { workingArea } = props;
@@ -26,7 +27,9 @@ const PlayObjectModal = (props) => {
 
   let renderer = <></>;
 
-  if (isComplexType(workingArea.contentType || workingArea.typeOfLabel)) {
+  if (object?.baseType === "SnapLearning Object") {
+    renderer = isFetching ? <p>Loading...</p> : <SnapLearningPlayer data={object} />;
+  } else if (isComplexType(workingArea.contentType || workingArea.typeOfLabel)) {
     renderer = isFetching ? (
       <p>Loading...</p>
     ) : object?.url ? (
