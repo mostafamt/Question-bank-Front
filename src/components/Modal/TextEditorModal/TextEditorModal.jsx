@@ -86,7 +86,7 @@ const TextEditorModal = (props) => {
         />
       </BootstrapModal.Body>
 
-      <BootstrapModal.Footer>
+      <BootstrapModal.Footer style={{ justifyContent: "space-between" }}>
         {isReadOnly ? (
           // Read-only mode: Only show Close button
           <Button
