@@ -2,7 +2,7 @@ import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
 import ContentItemForm from "../VirtualBlockContentModal/ContentItemForm";
 
-const SnapLearningModal = (props) => {
+const EnrichingContentModal = (props) => {
   const { onConfirm, handleCloseModal } = props;
 
   const handleSubmit = (contentItem) => {
@@ -15,7 +15,7 @@ const SnapLearningModal = (props) => {
   return (
     <>
       <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title>Add Snap Learning Item</BootstrapModal.Title>
+        <BootstrapModal.Title>Add Enriching Content Item</BootstrapModal.Title>
       </BootstrapModal.Header>
 
       <BootstrapModal.Body>
@@ -28,4 +28,4 @@ const SnapLearningModal = (props) => {
   );
 };
 
-export default SnapLearningModal;
+export default EnrichingContentModal;
