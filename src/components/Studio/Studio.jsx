@@ -320,7 +320,8 @@ const Studio = (props) => {
     (value) => {
       setVirtualBlocks((prev) => {
         const newBlocks = [...prev];
-        newBlocks[activePageIndex] = value;
+        newBlocks[activePageIndex] =
+          typeof value === "function" ? value(newBlocks[activePageIndex]) : value;
         return newBlocks;
       });
     },
