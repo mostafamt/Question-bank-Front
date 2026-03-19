@@ -246,7 +246,7 @@ const VirtualBlock = React.memo((props) => {
           )}
 
           {/* Block icon with badge and label */}
-          <div style={{ display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
             <Badge
               badgeContent={contentCount}
               color="primary"
