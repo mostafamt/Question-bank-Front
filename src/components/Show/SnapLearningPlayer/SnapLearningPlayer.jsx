@@ -2,6 +2,8 @@ import React from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { Button, Typography } from "@mui/material";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { toast } from "react-toastify";
 import axios from "../../../axios";
 import styles from "./snapLearningPlayer.module.scss";
@@ -102,14 +104,14 @@ const SnapLearningPlayer = ({ data }) => {
           onClick={() => setCurrentSlide((s) => s - 1)}
           disabled={currentSlide === 0}
         >
-          ← Prev
+          <ArrowBackIosNewIcon />
         </Button>
         <Button
           variant="outlined"
           onClick={() => setCurrentSlide((s) => s + 1)}
           disabled={currentSlide === total - 1}
         >
-          Next →
+          <ArrowForwardIosIcon />
         </Button>
       </div>
     </div>
