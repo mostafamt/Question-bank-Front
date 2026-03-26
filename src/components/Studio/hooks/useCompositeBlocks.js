@@ -6,7 +6,9 @@ import { saveCompositeBlocks } from "../../../services/api";
 import {
   addPropsToAreasForCompositeBlocks,
   getTypeOfLabelForCompositeBlocks,
+  getLabelForAreaType,
 } from "../../../utils/studio";
+import { colors } from "../../../constants/highlight-color";
 import { uploadForStudio } from "../../../utils/upload";
 
 const useCompositeBlocks = ({
@@ -192,7 +194,18 @@ const useCompositeBlocks = ({
           return;
         }
 
-        // Add area with no color — color is assigned when user picks a type
+        // Auto-detect the matching label for this area's type
+        const currentCompositeBlocks = compositeBlocksRef.current;
+        const matchedLabel = getLabelForAreaType(
+          compositeBlocksTypes,
+          currentCompositeBlocks.type,
+          selectedObject.type
+        );
+        const autoColor = matchedLabel
+          ? colors[Math.floor(Math.random() * colors.length)]
+          : "";
+
+        // Add area — auto-fill type and color if a matching label was found
         const newArea = {
           id: uuidv4(),
           x: selectedObject.x,
@@ -200,10 +213,10 @@ const useCompositeBlocks = ({
           width: selectedObject.width,
           height: selectedObject.height,
           unit: "%",
-          type: "",
+          type: matchedLabel,
           text: selectedObject.text, // store objectId (contentValue) sent to server
           blockId: blockId, // store blockId for modal visual tracking
-          color: "",
+          color: autoColor,
           loading: false,
           open: true,
           img: null,
