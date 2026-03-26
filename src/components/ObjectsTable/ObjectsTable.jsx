@@ -9,7 +9,7 @@ import { RadioButtonCheckedRounded } from "@mui/icons-material";
 import styles from "./objectsTable.module.scss";
 
 const ObjectsTable = (props) => {
-  const { selectedRowId, setSelectedRowId } = props;
+  const { selectedRowId, setSelectedRowId, typeCategory } = props;
   const navigate = useNavigate();
   const [rows, setRows] = React.useState([]);
   const [total, setTotal] = React.useState(0);
@@ -99,7 +99,10 @@ const ObjectsTable = (props) => {
     setLoading(true);
     const res = await fetchObjects(
       paginationModel.page,
-      paginationModel.pageSize
+      paginationModel.pageSize,
+      undefined,
+      undefined,
+      typeCategory
     );
     const data = res?.data;
     if (!!data?.docs.length) {
@@ -120,7 +123,7 @@ const ObjectsTable = (props) => {
     }
     setLoading(false);
     setTotal(res.data.totalDocs);
-  }, [paginationModel.page, paginationModel.pageSize]);
+  }, [paginationModel.page, paginationModel.pageSize, typeCategory]);
 
   React.useEffect(() => {
     fetchQuestions();

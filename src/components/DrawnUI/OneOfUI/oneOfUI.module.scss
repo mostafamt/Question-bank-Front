@@ -1,0 +1,10 @@
+.one-of-ui {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+
+  & .active-field {
+    margin-top: 0.5rem;
+  }
+}

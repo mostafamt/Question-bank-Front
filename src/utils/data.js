@@ -67,7 +67,7 @@ const getQuestionType = (questionTypes, questionName) => {
 };
 
 export const trimText = (text) =>
-  text.replaceAll("\n", "").replaceAll("*", "").replaceAll("#", "");
+  text.replaceAll("\n", "").replaceAll("*", "").replaceAll("#", "").replaceAll("?", "");
 
 export const fullTextTrim = (text) => {
   let newText = trimText(text).replaceAll("_", "");
