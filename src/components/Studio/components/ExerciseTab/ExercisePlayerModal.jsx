@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Modal } from "react-bootstrap";
 import { Box, Button, List, ListItemButton, ListItemText, Typography } from "@mui/material";
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 
 const ExercisePlayerModal = ({ show, onHide, exercise }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -58,14 +58,14 @@ const ExercisePlayerModal = ({ show, onHide, exercise }) => {
               )}
             </Box>
             <Box display="flex" justifyContent="center" gap={2} p={2} borderTop="1px solid #ddd">
-              <Button variant="outlined" startIcon={<NavigateBeforeIcon />} onClick={handlePrev} disabled={currentIndex === 0}>
-                Previous
+              <Button variant="outlined" onClick={handlePrev} disabled={currentIndex === 0} sx={{ minWidth: 0, px: 1 }}>
+                <ArrowBackIosNewIcon fontSize="small" />
               </Button>
               <Typography alignSelf="center">
                 {currentIndex + 1} / {questions.length}
               </Typography>
-              <Button variant="outlined" endIcon={<NavigateNextIcon />} onClick={handleNext} disabled={currentIndex === questions.length - 1}>
-                Next
+              <Button variant="outlined" onClick={handleNext} disabled={currentIndex === questions.length - 1} sx={{ minWidth: 0, px: 1 }}>
+                <ArrowForwardIosIcon fontSize="small" />
               </Button>
             </Box>
           </Box>
