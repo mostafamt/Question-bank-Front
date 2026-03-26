@@ -126,6 +126,7 @@ const Studio = (props) => {
   // ============ COMPOSITE BLOCKS ============
   const {
     compositeBlocks,
+    activeCompositeBlock,
     setCompositeBlocks,
     loadingSubmitCompositeBlocks,
     onChangeCompositeBlocks,
@@ -141,6 +142,7 @@ const Studio = (props) => {
     chapterId,
     openModal,
     pages,
+    activePageIndex,
     areasProperties,
     compositeBlocksTypes,
   });
@@ -190,7 +192,7 @@ const Studio = (props) => {
       loadingAutoGenerate,
       onClickToggleVirutalBlocks,
       showVB,
-      compositeBlocks,
+      compositeBlocks: activeCompositeBlock,
       compositeBlocksTypes,
       onChangeCompositeBlocks,
       processCompositeBlock,
@@ -220,7 +222,7 @@ const Studio = (props) => {
       loadingAutoGenerate,
       onClickToggleVirutalBlocks,
       showVB,
-      compositeBlocks,
+      activeCompositeBlock,
       compositeBlocksTypes,
       onChangeCompositeBlocks,
       processCompositeBlock,
@@ -335,8 +337,6 @@ const Studio = (props) => {
     return <Alert severity="error">No pages available.</Alert>;
   }
 
-  console.log('compositeBlocks= ', compositeBlocks);
-
   return (
     <>
       <StudioHeader
@@ -380,7 +380,7 @@ const Studio = (props) => {
         onClickToggleVirtualBlocks={onClickToggleVirutalBlocks}
         onClickImage={changePageByIndex}
         compositeBlocksTypes={compositeBlocksTypes}
-        compositeBlocks={compositeBlocks}
+        compositeBlocks={activeCompositeBlock}
         setCompositeBlocks={setCompositeBlocks}
         highlight={highlight}
         setHighlight={setHighlight}

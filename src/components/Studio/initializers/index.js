@@ -62,3 +62,6 @@ export const initCompositeBlocks = () => {
     areas: [],
   };
 };
+
+export const initCompositeBlocksForPages = (pages = []) =>
+  pages.map(() => initCompositeBlocks());
