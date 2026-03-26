@@ -6,6 +6,7 @@ import Sound from "../components/DrawnUI/Sound/Sound";
 import Boolean from "../components/DrawnUI/Boolean/Boolean";
 import QuillInput from "../components/DrawnUI/QuillInput/QuillInput";
 import InteractiveObject from "../components/DrawnUI/InteractiveObject/InteractiveObject";
+import XObjectUI from "../components/DrawnUI/XObjectUI/XObjectUI";
 import { trimText } from "./data";
 
 export const AUTO_UI_TYPES_MAPPING = {
@@ -15,11 +16,13 @@ export const AUTO_UI_TYPES_MAPPING = {
   image: <Image />,
   video: <Video />,
   voice: <Sound />,
+  audio: <Sound />,
   Bool: <Boolean />,
   timeStamp: <Text />,
   Coordinate: <Text type="number" />,
   QuillInput: <QuillInput />,
   SI: <InteractiveObject />,
+  XObject: <XObjectUI />,
 };
 
 export const getTypeOfKey = (labels, type) => {
@@ -43,6 +46,34 @@ export const searchIfRequired = (labels, label) => {
     }
   });
   return required;
+};
+
+export const searchIfOneOf = (labels, key) => {
+  return labels.some((item) => {
+    const labelKey = Object.keys(item)[0];
+    return trimText(labelKey) === key && labelKey.startsWith("?");
+  });
+};
+
+export const groupOneOfFields = (abstractParameters, labels) => {
+  const entries = Object.entries(abstractParameters);
+  const groups = [];
+  let currentOneOfGroup = null;
+
+  for (const [key, value] of entries) {
+    if (searchIfOneOf(labels, key)) {
+      if (!currentOneOfGroup) {
+        currentOneOfGroup = { oneOf: true, fields: [] };
+        groups.push(currentOneOfGroup);
+      }
+      currentOneOfGroup.fields.push({ key, value });
+    } else {
+      currentOneOfGroup = null;
+      groups.push({ oneOf: false, key, value });
+    }
+  }
+
+  return groups;
 };
 
 export const searchIfHintExist = (hints, label) => {

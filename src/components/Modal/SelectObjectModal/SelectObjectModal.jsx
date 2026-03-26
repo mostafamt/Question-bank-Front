@@ -6,7 +6,7 @@ import { Button } from "@mui/material";
 import styles from "./selectObjectModal.module.scss";
 
 const SelectObjectModal = (props) => {
-  const { selectedRowId, setSelectedRowId, onClickSelect, onClickCancel } =
+  const { selectedRowId, setSelectedRowId, onClickSelect, onClickCancel, typeCategory } =
     props;
 
   return (
@@ -18,6 +18,7 @@ const SelectObjectModal = (props) => {
         <ObjectsTable
           selectedRowId={selectedRowId}
           setSelectedRowId={setSelectedRowId}
+          typeCategory={typeCategory}
         />
       </BootstrapModal.Body>
       <BootstrapModal.Footer className={styles.footer}>

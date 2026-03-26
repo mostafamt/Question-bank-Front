@@ -18,12 +18,14 @@ import {
   AUTO_UI_TYPES_MAPPING,
   getSchema,
   getTypeOfKey,
+  groupOneOfFields,
   searchIfHintExist,
   searchIfRequired,
 } from "../../utils/auto-ui";
 
 import styles from "./drawnUI.module.scss";
 import Wrapper from "../../components/DrawnUI/Wrapper/Wrapper";
+import OneOfUI from "../../components/DrawnUI/OneOfUI/OneOfUI";
 import { useQuery } from "@tanstack/react-query";
 
 const DrawnUI = () => {
@@ -140,6 +142,50 @@ const DrawnUI = () => {
     }
   };
 
+  const renderSingleField = (key, value, space, level, index, arrayName) => {
+    const properties = {
+      errors,
+      path: level === 1 ? [key] : [arrayName, index, key],
+      name: level === 1 ? key : `${arrayName}.${index}.${key}`,
+      register: register,
+      space: space,
+      label: key,
+      required: searchIfRequired(labels, key),
+      type: ignoreSpaces(value) || getTypeOfKey(labels, key),
+      control: control,
+      setValue: setValue,
+      getValues: getValues,
+      parseParameters: parseParameters,
+      hint: searchIfHintExist(selectedType?.hints, key),
+    };
+
+    for (const [auto_ui_key, auto_ui_value] of Object.entries(AUTO_UI_TYPES_MAPPING)) {
+      if (auto_ui_key === properties?.type) {
+        return (
+          <Wrapper space={properties.space} hint={properties.hint}>
+            {React.cloneElement(auto_ui_value, properties)}
+          </Wrapper>
+        );
+      }
+    }
+
+    if (Array.isArray(properties?.type)) {
+      const object = emptyValues(properties?.type[0]);
+      return <ArrayUI {...properties} object={object} />;
+    } else if (typeof properties?.type === "object") {
+      return <ObjectUI {...properties} />;
+    } else if (properties?.type.includes("DropList")) {
+      const options = properties?.type.split(":")?.[1]?.split(",");
+      return (
+        <Wrapper space={properties.space} hint={properties.hint}>
+          <Select {...properties} options={options} />
+        </Wrapper>
+      );
+    }
+
+    return null;
+  };
+
   const parseParameters = (
     abstractParameters,
     space = 4,
@@ -148,54 +194,28 @@ const DrawnUI = () => {
     arrayName = ""
   ) => {
     let jsx = "";
-    for (const [key, value] of Object.entries(abstractParameters)) {
+    const groups = groupOneOfFields(abstractParameters, labels);
+
+    for (const group of groups) {
       let item = "";
 
-      let properties = {
-        errors,
-        path: level === 1 ? [key] : [arrayName, index, key],
-        name: level === 1 ? key : `${arrayName}.${index}.${key}`,
-        register: register,
-        space: space,
-        label: key,
-        required: searchIfRequired(labels, key),
-        type: ignoreSpaces(value) || getTypeOfKey(labels, key),
-        control: control,
-        setValue: setValue,
-        getValues: getValues,
-        parseParameters: parseParameters,
-        hint: searchIfHintExist(selectedType?.hints, key),
-      };
-
-      let flag = false;
-      for (const [auto_ui_key, auto_ui_value] of Object.entries(
-        AUTO_UI_TYPES_MAPPING
-      )) {
-        if (auto_ui_key === properties?.type) {
-          flag = true;
-          const comp = (
-            <Wrapper space={properties.space} hint={properties.hint}>
-              {React.cloneElement(auto_ui_value, properties)}
-            </Wrapper>
-          );
-          item = comp;
-        }
-      }
-
-      if (!flag) {
-        if (Array.isArray(properties?.type)) {
-          const object = emptyValues(properties?.type[0]);
-          item = <ArrayUI {...properties} object={object} />;
-        } else if (typeof properties?.type === "object") {
-          item = <ObjectUI {...properties} />;
-        } else if (properties?.type.includes("DropList")) {
-          const options = properties?.type.split(":")?.[1]?.split(",");
-          item = (
-            <Wrapper space={properties.space} hint={properties.hint}>
-              <Select {...properties} options={options} />
-            </Wrapper>
-          );
-        }
+      if (group.oneOf) {
+        item = (
+          <OneOfUI
+            key={group.fields.map((f) => f.key).join("-")}
+            fields={group.fields}
+            labels={labels}
+            space={space}
+            level={level}
+            index={index}
+            arrayName={arrayName}
+            setValue={setValue}
+            getValues={getValues}
+            renderSingleField={renderSingleField}
+          />
+        );
+      } else {
+        item = renderSingleField(group.key, group.value, space, level, index, arrayName);
       }
 
       jsx = (

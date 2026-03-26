@@ -10,10 +10,15 @@ const wait = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-export const fetchObjects = async (page, limit, searchValue, searchColumn) => {
+export const fetchObjects = async (page, limit, searchValue, searchColumn, typeCategory) => {
   try {
-    const url = searchValue ? `/interactive-objects?page=${page}&limit=${limit}&${searchColumn}=${searchValue}` :
-      `/interactive-objects?page=${page}&limit=${limit}`
+    let url = searchValue
+      ? `/interactive-objects?page=${page}&limit=${limit}&${searchColumn}=${searchValue}`
+      : `/interactive-objects?page=${page}&limit=${limit}`;
+
+    if (typeCategory) {
+      url += `&questionOrExplanation=${typeCategory}`;
+    }
 
     const res = await axios2.get(url);
     return res;
