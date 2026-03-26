@@ -9,6 +9,7 @@ export const quillModules = {
       { indent: "-1" },
       { indent: "+1" },
     ],
+    [{ direction: "rtl" }, { align: [] }],
     ["link", "image", "video"],
     ["clean"],
   ],
