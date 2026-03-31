@@ -26,6 +26,7 @@ const iconFontSize = "small";
 const StudioCompositeBlocks = (props) => {
   const {
     compositeBlocks,
+    totalAreas,
     compositeBlocksTypes,
     onChangeCompositeBlocks,
     processCompositeBlock,
@@ -185,7 +186,7 @@ const StudioCompositeBlocks = (props) => {
           <AreaItem
             id={block.id}
             isOpen={block.open}
-            title={compositeBlocks.type}
+            title={`${compositeBlocks.type} — Page ${block.pageIndex + 1}`}
             actions={actions}
             handleToggle={() => handleToggle(block.id, block.open)}
             color={block.color}
@@ -207,7 +208,7 @@ const StudioCompositeBlocks = (props) => {
           variant="contained"
           sx={{ width: "100%", margin: "1rem 0" }}
           disabled={
-            compositeBlocks.areas.length === 0 || loadingSubmitCompositeBlocks
+            totalAreas === 0 || loadingSubmitCompositeBlocks
           }
           startIcon={
             loadingSubmitCompositeBlocks ? (

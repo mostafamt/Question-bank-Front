@@ -127,6 +127,7 @@ const Studio = (props) => {
   const {
     compositeBlocks,
     activeCompositeBlock,
+    totalAreas,
     setCompositeBlocks,
     loadingSubmitCompositeBlocks,
     onChangeCompositeBlocks,
@@ -145,6 +146,7 @@ const Studio = (props) => {
     activePageIndex,
     areasProperties,
     compositeBlocksTypes,
+    changePageByIndex,
   });
 
   // ============ STUDIO ACTIONS ============
@@ -192,7 +194,8 @@ const Studio = (props) => {
       loadingAutoGenerate,
       onClickToggleVirutalBlocks,
       showVB,
-      compositeBlocks: activeCompositeBlock,
+      compositeBlocks,
+      totalAreas,
       compositeBlocksTypes,
       onChangeCompositeBlocks,
       processCompositeBlock,
@@ -222,7 +225,8 @@ const Studio = (props) => {
       loadingAutoGenerate,
       onClickToggleVirutalBlocks,
       showVB,
-      activeCompositeBlock,
+      compositeBlocks,
+      totalAreas,
       compositeBlocksTypes,
       onChangeCompositeBlocks,
       processCompositeBlock,

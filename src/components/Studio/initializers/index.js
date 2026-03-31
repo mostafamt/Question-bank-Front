@@ -63,5 +63,3 @@ export const initCompositeBlocks = () => {
   };
 };
 
-export const initCompositeBlocksForPages = (pages = []) =>
-  pages.map(() => initCompositeBlocks());

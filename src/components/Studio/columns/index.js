@@ -136,6 +136,7 @@ export const buildRightColumns = ({
   onClickToggleVirutalBlocks,
   showVB,
   compositeBlocks,
+  totalAreas,
   compositeBlocksTypes,
   onChangeCompositeBlocks,
   processCompositeBlock,
@@ -249,6 +250,7 @@ export const buildRightColumns = ({
           component: (
             <StudioCompositeBlocks
               compositeBlocks={compositeBlocks}
+              totalAreas={totalAreas}
               compositeBlocksTypes={compositeBlocksTypes}
               onChangeCompositeBlocks={onChangeCompositeBlocks}
               processCompositeBlock={processCompositeBlock}
