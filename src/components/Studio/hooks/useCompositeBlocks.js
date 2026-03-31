@@ -1,6 +1,6 @@
 import React from "react";
 import { v4 as uuidv4 } from "uuid";
-import { initCompositeBlocks, initCompositeBlocksForPages } from "../initializers";
+import { initCompositeBlocks } from "../initializers";
 import { cropSelectedArea, ocr } from "../../../utils/ocr";
 import { saveCompositeBlocks } from "../../../services/api";
 import {
@@ -21,9 +21,10 @@ const useCompositeBlocks = ({
   activePageIndex,
   areasProperties,
   compositeBlocksTypes,
+  changePageByIndex,
 }) => {
   const [compositeBlocks, setCompositeBlocks] = React.useState(() =>
-    initCompositeBlocksForPages(pages)
+    initCompositeBlocks()
   );
 
   // Ref to always access latest compositeBlocks (avoids stale closures from memoization)
@@ -32,66 +33,50 @@ const useCompositeBlocks = ({
     compositeBlocksRef.current = compositeBlocks;
   }, [compositeBlocks]);
 
-  // Re-initialize when the number of pages changes (e.g. new page added)
-  const pagesLengthRef = React.useRef(pages.length);
-  React.useEffect(() => {
-    if (pages.length !== pagesLengthRef.current) {
-      pagesLengthRef.current = pages.length;
-      setCompositeBlocks(initCompositeBlocksForPages(pages));
-    }
-  }, [pages.length]); // eslint-disable-line react-hooks/exhaustive-deps
-
   const [loadingSubmitCompositeBlocks, setLoadingSubmitCompositeBlocks] =
     React.useState(false);
 
   const onChangeCompositeBlocks = (id, key, value) => {
     setCompositeBlocks((prev) => {
-      const updated = [...prev];
-      const page = { ...updated[activePageIndex] };
-
       if (!id) {
-        // Changing name or type — reset areas for this page only
-        page[key] = value;
-        page.areas = [];
-      } else {
-        page.areas = page.areas.map((item) =>
-          item.id === id ? { ...item, [key]: value } : item
-        );
+        // Changing name or type — clear ALL areas across ALL pages
+        return {
+          ...prev,
+          [key]: value,
+          areas: [],
+        };
       }
-
-      updated[activePageIndex] = page;
-      return updated;
+      return {
+        ...prev,
+        areas: prev.areas.map((item) =>
+          item.id === id ? { ...item, [key]: value } : item
+        ),
+      };
     });
   };
 
   const DeleteCompositeBlocks = (id) => {
-    setCompositeBlocks((prev) => {
-      const updated = [...prev];
-      const page = { ...updated[activePageIndex] };
-      page.areas = page.areas.filter((item) => item.id !== id);
-      updated[activePageIndex] = page;
-      return updated;
-    });
+    setCompositeBlocks((prev) => ({
+      ...prev,
+      areas: prev.areas.filter((item) => item.id !== id),
+    }));
   };
 
   const processCompositeBlock = async (id, typeOfLabel) => {
     // Set loading on the area
-    setCompositeBlocks((prev) => {
-      const updated = [...prev];
-      const page = { ...updated[activePageIndex] };
-      page.areas = page.areas.map((item) =>
+    setCompositeBlocks((prev) => ({
+      ...prev,
+      areas: prev.areas.map((item) =>
         item.id === id ? { ...item, loading: true } : item
-      );
-      updated[activePageIndex] = page;
-      return updated;
-    });
+      ),
+    }));
 
     const { naturalWidth, clientWidth, clientHeight } =
       studioEditorRef.current.studioEditorSelectorRef.current;
 
     const ratio = naturalWidth / clientWidth;
 
-    const selectedBlock = compositeBlocksRef.current[activePageIndex].areas.find(
+    const selectedBlock = compositeBlocksRef.current.areas.find(
       (item) => item.id === id
     );
     const x = ((selectedBlock.x * ratio) / 100) * clientWidth;
@@ -113,26 +98,22 @@ const useCompositeBlocks = ({
       text = await ocr(language, img);
     }
 
-    setCompositeBlocks((prev) => {
-      const updated = [...prev];
-      const page = { ...updated[activePageIndex] };
-      page.areas = page.areas.map((item) =>
+    setCompositeBlocks((prev) => ({
+      ...prev,
+      areas: prev.areas.map((item) =>
         item.id === id
           ? { ...item, loading: false, img, text }
           : item
-      );
-      updated[activePageIndex] = page;
-      return updated;
-    });
+      ),
+    }));
   };
 
   const onSubmitCompositeBlocks = async () => {
     setLoadingSubmitCompositeBlocks(true);
-    const current = compositeBlocksRef.current[activePageIndex];
-    const pageId = pages[activePageIndex]?._id;
+    const current = compositeBlocksRef.current;
 
     const blocks = await Promise.all(
-      current.areas.map(async ({ type, text, img, x, y, width, height, unit }) => {
+      current.areas.map(async ({ type, text, img, x, y, width, height, unit, pageIndex }) => {
         const labelType = getTypeOfLabelForCompositeBlocks(
           compositeBlocksTypes,
           current.type,
@@ -147,6 +128,7 @@ const useCompositeBlocks = ({
         return {
           contentType: type,
           contentValue,
+          pageId: pages[pageIndex]?._id,
           coordinates: {
             height,
             unit: unit === "%" ? "percentage" : "px",
@@ -158,22 +140,15 @@ const useCompositeBlocks = ({
       })
     );
 
-    const data = {
+    const response = await saveCompositeBlocks({
       name: current.name,
       type: current.type,
       chapterId,
-      pageId,
       blocks,
-    };
+    });
 
-    const response = await saveCompositeBlocks(data);
     if (response) {
-      // Reset only the active page, leave other pages intact
-      setCompositeBlocks((prev) => {
-        const updated = [...prev];
-        updated[activePageIndex] = initCompositeBlocks();
-        return updated;
-      });
+      setCompositeBlocks(initCompositeBlocks());
     }
 
     setLoadingSubmitCompositeBlocks(false);
@@ -181,23 +156,44 @@ const useCompositeBlocks = ({
 
   const onChangeCompositeBlockArea = (areasParam) => {
     setCompositeBlocks((prev) => {
-      const updated = [...prev];
-      updated[activePageIndex] = addPropsToAreasForCompositeBlocks(
-        updated[activePageIndex],
-        areasParam
+      // Build active-page view so addPropsToAreasForCompositeBlocks index-matches correctly
+      const activeView = {
+        ...prev,
+        areas: prev.areas.filter((a) => a.pageIndex === activePageIndex),
+      };
+      const updated = addPropsToAreasForCompositeBlocks(activeView, areasParam);
+      // Tag any new areas (no pageIndex yet) with the active page
+      const updatedAreas = updated.areas.map((a) =>
+        a.pageIndex === undefined ? { ...a, pageIndex: activePageIndex } : a
       );
-      return updated;
+      return {
+        ...prev,
+        areas: [
+          ...prev.areas.filter((a) => a.pageIndex !== activePageIndex),
+          ...updatedAreas,
+        ],
+      };
     });
   };
 
   const onClickHand = () => {
-    const currentCompositeBlocks = compositeBlocksRef.current[activePageIndex];
+    // Pass filtered active-page view to the modal for color tracking
+    const currentCompositeBlocks = {
+      ...compositeBlocksRef.current,
+      areas: compositeBlocksRef.current.areas.filter(
+        (a) => a.pageIndex === activePageIndex
+      ),
+    };
 
     openModal("composite-blocks-modal", {
       compositeBlocksTypes,
       onSelectObject: (blockId) => {
-        // Find the selected object in areasProperties to get coordinates
+        // Prevent adding the same block twice
+        if (compositeBlocksRef.current.areas.some((a) => a.blockId === blockId)) return;
+
+        // Find the selected object in areasProperties and its page index
         let selectedObject = null;
+        let areaPageIndex = activePageIndex;
 
         for (let i = 0; i < areasProperties.length; i++) {
           const found = areasProperties[i].find(
@@ -205,6 +201,7 @@ const useCompositeBlocks = ({
           );
           if (found) {
             selectedObject = found;
+            areaPageIndex = i;
             break;
           }
         }
@@ -215,7 +212,7 @@ const useCompositeBlocks = ({
         }
 
         // Auto-detect the matching label for this area's type
-        const latestCompositeBlocks = compositeBlocksRef.current[activePageIndex];
+        const latestCompositeBlocks = compositeBlocksRef.current;
         const matchedLabel = getLabelForAreaType(
           compositeBlocksTypes,
           latestCompositeBlocks.type,
@@ -239,15 +236,16 @@ const useCompositeBlocks = ({
           loading: false,
           open: true,
           img: null,
+          pageIndex: areaPageIndex,
         };
 
-        setCompositeBlocks((prev) => {
-          const updated = [...prev];
-          const page = { ...updated[activePageIndex] };
-          page.areas = [...page.areas, newArea];
-          updated[activePageIndex] = page;
-          return updated;
-        });
+        setCompositeBlocks((prev) => ({
+          ...prev,
+          areas: [...prev.areas, newArea],
+        }));
+
+        // Navigate to the area's original page
+        changePageByIndex(areaPageIndex);
       },
       compositeBlocks: currentCompositeBlocks, // modal uses this for color tracking
       pages,
@@ -256,12 +254,17 @@ const useCompositeBlocks = ({
   };
 
   // Active page's composite block — consumed by the UI
-  const activeCompositeBlock =
-    compositeBlocks[activePageIndex] ?? initCompositeBlocks();
+  const activeCompositeBlock = {
+    ...compositeBlocks,
+    areas: compositeBlocks.areas.filter(
+      (area) => area.pageIndex === activePageIndex
+    ),
+  };
 
   return {
     compositeBlocks,
     activeCompositeBlock,
+    totalAreas: compositeBlocks.areas.length,
     setCompositeBlocks,
     loadingSubmitCompositeBlocks,
     onChangeCompositeBlocks,
