@@ -9,8 +9,9 @@ import { useStore } from "../../store/store";
 import DescriptionIcon from "@mui/icons-material/Description";
 import CollectionsIcon from "@mui/icons-material/Collections";
 import BookIcon from "@mui/icons-material/Book";
+import SkipNextIcon from "@mui/icons-material/SkipNext";
 import VisuallyHiddenInput from "../../components/VisuallyHiddenInput/VisuallyHiddenInput";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import styles from "./scanAndUpload.module.scss";
@@ -20,6 +21,7 @@ import { getChapterPages } from "../../api/bookapi";
 
 const ScanAndUpload = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [images, setImages] = React.useState(location.state?.images || []);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
@@ -27,7 +29,11 @@ const ScanAndUpload = () => {
   const [showModal, setShowModal] = React.useState(false);
 
   const { data: state } = useStore();
-  const { questionName, type } = state;
+  const { questionName, type, higherType } = state;
+
+  const onSkip = () => {
+    navigate(`/add-question/${higherType}/${type}`);
+  };
 
   const convertPdfToImage = async (file) => {
     setLoading(true);
@@ -153,6 +159,14 @@ const ScanAndUpload = () => {
             color="success"
           >
             import Book
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<SkipNextIcon />}
+            onClick={onSkip}
+            color="secondary"
+          >
+            Skip
           </Button>
         </div>
       )}
