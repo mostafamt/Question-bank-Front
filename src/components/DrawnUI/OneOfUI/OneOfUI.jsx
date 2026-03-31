@@ -31,11 +31,22 @@ const OneOfUI = ({
   };
 
   const [selectedKey, setSelectedKey] = React.useState(getInitialKey);
+  const valuesCache = React.useRef({});
 
   const onRadioChange = (e) => {
     const newKey = e.target.value;
     const prevName = level === 1 ? selectedKey : `${arrayName}.${index}.${selectedKey}`;
+    const newName = level === 1 ? newKey : `${arrayName}.${index}.${newKey}`;
+
+    // Save current value before clearing so switching back restores it
+    valuesCache.current[selectedKey] = getValues(prevName);
     setValue(prevName, "");
+
+    // Restore a previously entered value for the newly selected key
+    if (valuesCache.current[newKey]) {
+      setValue(newName, valuesCache.current[newKey]);
+    }
+
     setSelectedKey(newKey);
   };
 
