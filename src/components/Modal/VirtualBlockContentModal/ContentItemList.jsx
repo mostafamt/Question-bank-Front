@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import IconButton from "@mui/material/IconButton";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Edit, Delete, PlayArrow } from "@mui/icons-material";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import { Card, CardContent, Typography, Box, Chip } from "@mui/material";
 import { toast } from "react-toastify";
 
@@ -94,6 +95,8 @@ const ContentItemList = (props) => {
         return "🔗";
       case "object":
         return "🎮";
+      case "autogen":
+        return <AutoAwesomeIcon fontSize="small" color="primary" />;
       default:
         return "📋";
     }
@@ -110,8 +113,24 @@ const ContentItemList = (props) => {
         return "Link";
       case "object":
         return "Object";
+      case "autogen":
+        return "AutoGen";
       default:
         return "Unknown";
+    }
+  };
+
+  /**
+   * Get autogen status chip props
+   */
+  const getAutoGenStatusChip = (item) => {
+    switch (item.status) {
+      case "completed":
+        return { label: "Completed", color: "success" };
+      case "failed":
+        return { label: "Failed", color: "error" };
+      default:
+        return { label: "Processing…", color: "warning" };
     }
   };
 
@@ -133,6 +152,24 @@ const ContentItemList = (props) => {
 
       case "link":
         return item.contentValue;
+
+      case "autogen":
+        return (
+          <>
+            {item.contentValue && (
+              <img
+                src={item.contentValue}
+                alt="Cropped region"
+                className={styles["autogen-crop-thumb"]}
+              />
+            )}
+            {item.errorMessage && (
+              <span style={{ fontSize: "0.8em", color: "#d32f2f" }}>
+                {item.errorMessage}
+              </span>
+            )}
+          </>
+        );
 
       case "object":
         // Get metadata for this object
@@ -201,16 +238,29 @@ const ContentItemList = (props) => {
         try {
           const url = await getObjectUrl(item.contentValue);
           if (url) {
-            openModal("iframe-display", {
-              title,
-              url,
-            });
+            openModal("iframe-display", { title, url });
           } else {
             toast.error("Unable to load object. Please try again.");
           }
         } catch (error) {
           console.error("Error fetching object URL:", error);
           toast.error("Failed to load object preview.");
+        } finally {
+          setLoadingIndex(null);
+        }
+      } else if (item.type === "autogen" && item.objectId) {
+        // Completed autogen — play via the generated object ID
+        setLoadingIndex(index);
+        try {
+          const url = await getObjectUrl(item.objectId);
+          if (url) {
+            openModal("iframe-display", { title, url });
+          } else {
+            toast.error("Unable to load generated object. Please try again.");
+          }
+        } catch (error) {
+          console.error("Error fetching autogen object URL:", error);
+          toast.error("Failed to load generated object preview.");
         } finally {
           setLoadingIndex(null);
         }
@@ -233,8 +283,8 @@ const ContentItemList = (props) => {
               alignItems="flex-start"
             >
               <Box flex={1}>
-                {/* Content Type Badge */}
-                <Box display="flex" alignItems="center" gap={1} mb={1}>
+                {/* Content Type Badge + AutoGen status */}
+                <Box display="flex" alignItems="center" gap={1} mb={1} flexWrap="wrap">
                   <Typography variant="body2" component="span">
                     {getTypeIcon(item.type)}
                   </Typography>
@@ -244,6 +294,17 @@ const ContentItemList = (props) => {
                     color="primary"
                     variant="outlined"
                   />
+                  {item.type === "autogen" && (() => {
+                    const { label, color } = getAutoGenStatusChip(item);
+                    return (
+                      <Chip
+                        label={label}
+                        size="small"
+                        color={color}
+                        variant="filled"
+                      />
+                    );
+                  })()}
                 </Box>
 
                 {/* Content Preview */}
@@ -251,6 +312,7 @@ const ContentItemList = (props) => {
                   variant="body2"
                   color="text.secondary"
                   className={styles.preview}
+                  component="div"
                 >
                   {getContentPreview(item)}
                 </Typography>
@@ -258,12 +320,15 @@ const ContentItemList = (props) => {
 
               {/* Action Buttons */}
               <Box display="flex" gap={0.5}>
-                {/* Play Button */}
+                {/* Play Button — disabled for autogen unless completed */}
                 <IconButton
                   size="small"
                   color="primary"
                   onClick={() => handlePlay(index)}
-                  disabled={loadingIndex === index}
+                  disabled={
+                    loadingIndex === index ||
+                    (item.type === "autogen" && !item.objectId)
+                  }
                   aria-label="preview content"
                   title="Preview content"
                 >

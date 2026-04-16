@@ -13,6 +13,7 @@ const VirtualBlocks = React.memo((props) => {
     setVirtualBlocks,
     activePage,
     reader = false,
+    pageImageUrl,
   } = props;
 
   // Cache setCheckedObject callbacks to prevent recreating on every render
@@ -51,11 +52,12 @@ const VirtualBlocks = React.memo((props) => {
           setCheckedObject={getSetCheckedObject(label)}
           showVB={showVB}
           reader={reader}
+          pageImageUrl={pageImageUrl}
         />
       );
     }
     return renders;
-  }, [virtualBlocks, activePage, showVB, reader, getSetCheckedObject]);
+  }, [virtualBlocks, activePage, showVB, reader, getSetCheckedObject, pageImageUrl]);
 
   return (
     <div className={className}>

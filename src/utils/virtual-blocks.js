@@ -104,10 +104,8 @@ export const addContentToLocation = (virtualBlocks, location, contentItem) => {
   }
 
   const newContentItem = {
-    type: contentItem.type,
+    ...contentItem,
     iconLocation: location,
-    contentType: contentItem.contentType,
-    contentValue: contentItem.contentValue,
   };
 
   newVirtualBlocks[location] = {
@@ -173,12 +171,21 @@ export const formatVirtualBlocksForSubmission = (virtualBlocks, pageId) => {
     if (data.contents && data.contents.length > 0) {
       // Add each content item with iconLocation
       data.contents.forEach((item) => {
-        contents.push({
+        const entry = {
           type: item.type,
           iconLocation: location,
           contentType: item.contentType,
           contentValue: item.contentValue,
-        });
+        };
+        // Preserve autogen-specific fields so pending jobs survive a save/reload
+        if (item.type === "autogen") {
+          entry.jobId = item.jobId || null;
+          entry.status = item.status || "pending";
+          entry.objectId = item.objectId || null;
+          entry.errorMessage = item.errorMessage || null;
+          entry.cropRect = item.cropRect || null;
+        }
+        contents.push(entry);
       });
     }
   });
@@ -287,12 +294,20 @@ export const parseVirtualBlocksFromPages = (pages) => {
             contentsByLocation[location] = [];
           }
 
-          contentsByLocation[location].push({
+          const parsedItem = {
             type: content.type || inferContentType(content),
             iconLocation: location,
             contentType: content.contentType,
             contentValue: content.contentValue,
-          });
+          };
+          if (content.type === "autogen") {
+            parsedItem.jobId = content.jobId || null;
+            parsedItem.status = content.status || "pending";
+            parsedItem.objectId = content.objectId || null;
+            parsedItem.errorMessage = content.errorMessage || null;
+            parsedItem.cropRect = content.cropRect || null;
+          }
+          contentsByLocation[location].push(parsedItem);
         });
 
         // Assign grouped contents to locations
@@ -349,12 +364,20 @@ export const parseVirtualBlocksFromActivePage = (page) => {
           contentsByLocation[location] = [];
         }
 
-        contentsByLocation[location].push({
+        const parsedItem = {
           type: content.type || inferContentType(content),
           iconLocation: location,
           contentType: content.contentType,
           contentValue: content.contentValue,
-        });
+        };
+        if (content.type === "autogen") {
+          parsedItem.jobId = content.jobId || null;
+          parsedItem.status = content.status || "pending";
+          parsedItem.objectId = content.objectId || null;
+          parsedItem.errorMessage = content.errorMessage || null;
+          parsedItem.cropRect = content.cropRect || null;
+        }
+        contentsByLocation[location].push(parsedItem);
       });
 
       // Assign grouped contents to locations
