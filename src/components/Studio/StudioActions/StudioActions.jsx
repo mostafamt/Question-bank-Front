@@ -4,6 +4,7 @@ import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import AreaAction from "../../AreaAction/AreaAction";
 import { DELETED, reorder } from "../../../utils/ocr";
 import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 
@@ -31,6 +32,7 @@ const StudioActions = (props) => {
     tOfActiveType: typeOfActiveType,
     onSubmitAutoGenerate,
     loadingAutoGenerate,
+    onSelectFromLibrary,
     onClickToggleVirutalBlocks,
     showVB,
   } = props;
@@ -134,24 +136,30 @@ const StudioActions = (props) => {
         </DragDropContext>
 
         {subObject && (areasProperties[activePage] || []).length === 0 && (
-          <div>
-            <div>
-              <Button
-                variant="contained"
-                onClick={onSubmitAutoGenerate}
-                sx={{ width: "100%" }}
-                disabled={loadingAutoGenerate}
-                startIcon={
-                  loadingAutoGenerate ? (
-                    <CircularProgress size="1rem" />
-                  ) : (
-                    <AutoFixHighIcon size="1rem" />
-                  )
-                }
-              >
-                Auto Generate
-              </Button>
-            </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            <Button
+              variant="contained"
+              onClick={onSubmitAutoGenerate}
+              sx={{ width: "100%" }}
+              disabled={loadingAutoGenerate}
+              startIcon={
+                loadingAutoGenerate ? (
+                  <CircularProgress size="1rem" />
+                ) : (
+                  <AutoFixHighIcon size="1rem" />
+                )
+              }
+            >
+              Auto Generate
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={onSelectFromLibrary}
+              sx={{ width: "100%" }}
+              startIcon={<LibraryBooksIcon fontSize="small" />}
+            >
+              Select from Library
+            </Button>
           </div>
         )}
 

@@ -40,6 +40,7 @@ const Studio = (props) => {
     typeOfActiveType: tOfActiveType,
     onSubmitAutoGenerate,
     loadingAutoGenerate,
+    onSelectFromLibrary,
     refetch,
     compositeBlocksTypes,
   } = props;
@@ -192,6 +193,7 @@ const Studio = (props) => {
       tOfActiveType,
       onSubmitAutoGenerate,
       loadingAutoGenerate,
+      onSelectFromLibrary,
       onClickToggleVirutalBlocks,
       showVB,
       compositeBlocks,
@@ -223,6 +225,7 @@ const Studio = (props) => {
       tOfActiveType,
       onSubmitAutoGenerate,
       loadingAutoGenerate,
+      onSelectFromLibrary,
       onClickToggleVirutalBlocks,
       showVB,
       compositeBlocks,
@@ -258,6 +261,7 @@ const Studio = (props) => {
     getBlockFromBlockId,
     hightBlock,
     rightColumnProps,
+    onSelectFromLibrary,
   });
 
   // ============ EFFECTS ============
@@ -328,7 +332,9 @@ const Studio = (props) => {
       setVirtualBlocks((prev) => {
         const newBlocks = [...prev];
         newBlocks[activePageIndex] =
-          typeof value === "function" ? value(newBlocks[activePageIndex]) : value;
+          typeof value === "function"
+            ? value(newBlocks[activePageIndex])
+            : value;
         return newBlocks;
       });
     },

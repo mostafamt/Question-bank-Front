@@ -19,6 +19,7 @@ import VirtualBlockContentModal from "./VirtualBlockContentModal/VirtualBlockCon
 import VirtualBlockReaderModal from "./VirtualBlockReaderModal/VirtualBlockReaderModal";
 import VirtualBlockReaderNavigationModal from "./VirtualBlockReaderNavigationModal/VirtualBlockReaderNavigationModal";
 import IframeDisplayModal from "./IframeDisplayModal/IframeDisplayModal";
+import SelectFromLibraryModal from "./SelectFromLibraryModal/SelectFromLibraryModal";
 
 // Modal registry
 const MODAL_COMPONENTS = {
@@ -40,6 +41,7 @@ const MODAL_COMPONENTS = {
   glossary: GlossaryModal,
   "composite-blocks-modal": CompositeBlocksModal,
   "enriching-content": EnrichingContentModal,
+  "select-from-library": SelectFromLibraryModal,
 };
 
 const Modal = () => {

@@ -9,6 +9,7 @@ import { uploadBase64, uploadForStudio } from "../../../utils/upload";
 import { instructionalRoles } from "../../../utils/ocr";
 import { v4 as uuidv4 } from "uuid";
 import { useLocation } from "react-router-dom";
+import { useStore } from "../../../store/store";
 
 const SubObjectModal = (props) => {
   const {
@@ -26,6 +27,7 @@ const SubObjectModal = (props) => {
   );
   const [loadingAutoGenerate, setLoadingAutoGenerate] = React.useState(false);
   const location = useLocation();
+  const { openModal } = useStore();
   const language = location.state?.language || "en";
 
   const handleSubmit = async (areas) => {
@@ -56,6 +58,16 @@ const SubObjectModal = (props) => {
 
     const id = await saveObject(data);
     return id;
+  };
+
+  const onSelectFromLibrary = () => {
+    console.log("onSelectFromLibrary");
+    openModal("select-from-library", {
+      onSelect: (objectId) => {
+        updateAreaProperty(-1, { text: objectId });
+        handleClose();
+      },
+    });
   };
 
   const onSubmitAutoGenerate = async () => {
@@ -117,6 +129,7 @@ const SubObjectModal = (props) => {
           language={language}
           onSubmitAutoGenerate={onSubmitAutoGenerate}
           loadingAutoGenerate={loadingAutoGenerate}
+          onSelectFromLibrary={onSelectFromLibrary}
         />
       </BootstrapModal.Body>
       <BootstrapModal.Footer></BootstrapModal.Footer>
