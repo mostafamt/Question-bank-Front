@@ -26,6 +26,7 @@ import styles from "./virtualBlock.module.scss";
  * @param {string} props.label - Block label identifier (icon location)
  * @param {boolean} props.showVB - Whether to show the virtual block
  * @param {boolean} props.reader - Whether component is in reader mode
+ * @param {string} [props.pageImageUrl] - URL of the current page image (for AutoGen crop)
  */
 const VirtualBlock = React.memo((props) => {
   const {
@@ -34,6 +35,7 @@ const VirtualBlock = React.memo((props) => {
     label,
     showVB,
     reader,
+    pageImageUrl,
   } = props;
 
   // Global store
@@ -76,6 +78,7 @@ const VirtualBlock = React.memo((props) => {
         selectedLabel: selectedLabel,
         iconLocation: label,
         existingContents: existingContents,
+        pageImageUrl: pageImageUrl,
         onSave: handleSaveContents,
       });
     },
@@ -123,6 +126,7 @@ const VirtualBlock = React.memo((props) => {
       selectedLabel: blockLabel,
       iconLocation: label,
       existingContents: contents,
+      pageImageUrl: pageImageUrl,
       onSave: handleSaveContents,
     });
   }, [label, openModal, handleSaveContents]);

@@ -312,6 +312,7 @@ const StudioAreaSelector = React.memo(
         setVirtualBlocks={setVirtualBlocks}
         activePage={activePage}
         reader={isReaderMode}
+        pageImageUrl={pages[activePage]?.url}
       >
         <div
           className={styles.block}

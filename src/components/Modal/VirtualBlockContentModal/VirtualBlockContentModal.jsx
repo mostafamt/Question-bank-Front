@@ -3,6 +3,7 @@ import { default as BootstrapModal } from "react-bootstrap/Modal";
 import Button from "@mui/material/Button";
 import ContentItemList from "./ContentItemList";
 import ContentItemForm from "./ContentItemForm";
+import { useAutoGenPolling } from "../../../hooks/useAutoGenPolling";
 
 import styles from "./virtualBlockContentModal.module.scss";
 
@@ -14,6 +15,7 @@ import styles from "./virtualBlockContentModal.module.scss";
  * @param {string} props.selectedLabel - The chosen block label (e.g., "Notes 📝", "Recall")
  * @param {string} props.iconLocation - The icon position (TL, TM, TR, L1-R6, BL, BM, BR)
  * @param {Array} props.existingContents - Array of existing content items
+ * @param {string} [props.pageImageUrl] - URL of the current page image (for AutoGen crop)
  * @param {Function} props.onSave - Save handler, receives array of contents
  * @param {Function} props.handleCloseModal - Close modal callback
  */
@@ -22,15 +24,10 @@ const VirtualBlockContentModal = (props) => {
     selectedLabel = "",
     iconLocation = "",
     existingContents = [],
+    pageImageUrl,
     onSave,
     handleCloseModal,
   } = props;
-
-  console.log("VirtualBlockContentModal opened with:", {
-    selectedLabel,
-    iconLocation,
-    existingContents,
-  });
 
   // Local state for managing content items
   const [contents, setContents] = React.useState(existingContents);
@@ -38,15 +35,28 @@ const VirtualBlockContentModal = (props) => {
   const [showForm, setShowForm] = React.useState(existingContents.length === 0);
   const [editingIndex, setEditingIndex] = React.useState(null);
 
+  // Apply a partial update to a content item (used by polling hook)
+  const handleUpdateContent = React.useCallback((index, patch) => {
+    setContents((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], ...patch };
+      return updated;
+    });
+  }, []);
+
+  // Poll pending autogen items while the modal is open
+  useAutoGenPolling(contents, handleUpdateContent);
+
+
   /**
    * Handle adding new content item
    */
   const handleAddContent = (contentItem) => {
+    // Spread all fields so autogen-specific ones (jobId, status, objectId, etc.) are kept
     const newContentItem = {
-      type: contentItem.type,
+      ...contentItem,
       iconLocation: iconLocation,
       contentType: selectedLabel,
-      contentValue: contentItem.contentValue,
     };
 
     if (editingIndex !== null) {
@@ -172,6 +182,7 @@ const VirtualBlockContentModal = (props) => {
                 selectedLabel={selectedLabel}
                 iconLocation={iconLocation}
                 editingContent={editingContent}
+                pageImageUrl={pageImageUrl}
                 onSubmit={handleAddContent}
                 onCancel={handleCancelForm}
               />
