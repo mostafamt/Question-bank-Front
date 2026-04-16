@@ -133,6 +133,7 @@ export const buildRightColumns = ({
   tOfActiveType,
   onSubmitAutoGenerate,
   loadingAutoGenerate,
+  onSelectFromLibrary,
   onClickToggleVirutalBlocks,
   showVB,
   compositeBlocks,
@@ -237,6 +238,7 @@ export const buildRightColumns = ({
               tOfActiveType={tOfActiveType}
               onSubmitAutoGenerate={onSubmitAutoGenerate}
               loadingAutoGenerate={loadingAutoGenerate}
+              onSelectFromLibrary={onSelectFromLibrary}
               onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
               showVB={showVB}
             />
