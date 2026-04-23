@@ -2,7 +2,7 @@
 
 **Date:** 2026-04-16
 **Scope:** `StudioActions`, `SubObjectModal`, new `SelectFromLibraryModal`
-**Status:** Approved — ready for implementation
+**Status:** Completed — 2026-04-23
 
 ---
 
