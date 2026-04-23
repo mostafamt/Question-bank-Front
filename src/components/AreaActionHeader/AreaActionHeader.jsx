@@ -52,9 +52,7 @@ const AreaActionHeader = (props) => {
           <MuiSelect
             list={labels}
             value={trialArea.label}
-            onChange={(event) =>
-              onChangeLabel(trialArea.id, event.target.value)
-            }
+            onItemClick={(val) => onChangeLabel(trialArea.id, val)}
           />
         </div>
       </Box>
