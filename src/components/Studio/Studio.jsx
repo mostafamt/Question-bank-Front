@@ -23,6 +23,8 @@ import {
 } from "../../utils/ocr";
 import { saveObject } from "../../services/api";
 import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
+import MapToFormDialog from "../MapToFormDialog/MapToFormDialog";
+import { mapToForm } from "../../utils/mapToForm";
 
 import styles from "./studio.module.scss";
 
@@ -47,6 +49,8 @@ const Studio = (props) => {
     state.language === "ar" ? ARABIC : ENGLISH
   );
   const [trialAreas, setTrialAreas] = React.useState([]);
+  const [mapToFormOpen, setMapToFormOpen] = React.useState(false);
+  const [mappedJson, setMappedJson] = React.useState(null);
 
   const onClickImage = (idx) => {
     setActiveIndex(idx);
@@ -242,6 +246,18 @@ const Studio = (props) => {
     setLoadingSubmit(false);
   };
 
+  const handleMapToForm = () => {
+    const { type } = state;
+    console.log("type= ", type);
+    try {
+      const json = mapToForm(type, trialAreas);
+      setMappedJson(json);
+      setMapToFormOpen(true);
+    } catch (e) {
+      toast.error(e.message);
+    }
+  };
+
   const updateTrialAreas = (idx, value) => {
     console.log("updateTrialAreas");
     console.log("value= ", value);
@@ -297,6 +313,12 @@ const Studio = (props) => {
           updateTrialAreas={updateTrialAreas}
         />
       </Modal>
+      <MapToFormDialog
+        open={mapToFormOpen}
+        onClose={() => setMapToFormOpen(false)}
+        json={mappedJson}
+        onConfirm={() => setMapToFormOpen(false)}
+      />
       <LanguageSwitcher language={language} setLanguage={setLanguage} />
       <div className={styles.studio}>
         <StudioThumbnails
@@ -346,6 +368,7 @@ const Studio = (props) => {
             onClickSubmit={onClickSubmit}
             loadingSubmit={loadingSubmit}
             updateTrialAreas={updateTrialAreas}
+            onClickMapToForm={handleMapToForm}
           />
         </div>
       </div>
