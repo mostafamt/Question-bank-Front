@@ -17,6 +17,7 @@ const AreaActions = (props) => {
     trialAreas,
     setTrialAreas,
     updateTrialAreas,
+    onClickMapToForm,
   } = props;
 
   const onDragEnd = (result) => {
@@ -83,7 +84,14 @@ const AreaActions = (props) => {
       </DragDropContext>
 
       {trialAreas.length > 0 && (
-        <div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <Button
+            variant="outlined"
+            onClick={onClickMapToForm}
+            sx={{ width: "100%" }}
+          >
+            Map to Form
+          </Button>
           <Button
             variant="contained"
             onClick={onClickSubmit}
