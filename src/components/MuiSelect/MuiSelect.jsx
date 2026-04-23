@@ -6,7 +6,7 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
 const MuiSelect = (props) => {
-  const { value, onChange, list } = props;
+  const { value, onChange, list, onItemClick } = props;
 
   return (
     <Box>
@@ -16,14 +16,14 @@ const MuiSelect = (props) => {
           labelId="demo-simple-select-label"
           id="demo-simple-select"
           value={value}
-          onChange={(e) => onChange(e)}
+          onChange={(e) => onChange?.(e)}
           label="Label"
           MenuProps={{
             disableScrollLock: true,
           }}
         >
           {list?.map((param) => (
-            <MenuItem key={param} value={param}>
+            <MenuItem key={param} value={param} onClick={() => onItemClick?.(param)}>
               {param}
             </MenuItem>
           ))}

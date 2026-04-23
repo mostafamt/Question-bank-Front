@@ -136,7 +136,9 @@ const StudioActions = (props) => {
         </DragDropContext>
 
         {subObject && (areasProperties[activePage] || []).length === 0 && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
+          >
             <Button
               variant="contained"
               onClick={onSubmitAutoGenerate}
