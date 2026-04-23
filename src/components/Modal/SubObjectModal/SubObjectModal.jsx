@@ -13,7 +13,8 @@ import { useStore } from "../../../store/store";
 
 const SubObjectModal = (props) => {
   const {
-    handleClose,
+    handleClose: handleCloseProp,
+    handleCloseModal,
     image,
     type,
     types,
@@ -29,6 +30,8 @@ const SubObjectModal = (props) => {
   const location = useLocation();
   const { openModal } = useStore();
   const language = location.state?.language || "en";
+
+  const handleClose = handleCloseProp || handleCloseModal;
 
   const handleSubmit = async (areas) => {
     const objectElements = await Promise.all(
