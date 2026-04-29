@@ -23,7 +23,7 @@ import {
 } from "../../utils/ocr";
 import { saveObject } from "../../services/api";
 import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
-import MapToFormDialog from "../MapToFormDialog/MapToFormDialog";
+import DrawnUIModal from "../DrawnUIModal/DrawnUIModal";
 import { mapToForm } from "../../utils/mapToForm";
 
 import styles from "./studio.module.scss";
@@ -49,7 +49,7 @@ const Studio = (props) => {
     state.language === "ar" ? ARABIC : ENGLISH
   );
   const [trialAreas, setTrialAreas] = React.useState([]);
-  const [mapToFormOpen, setMapToFormOpen] = React.useState(false);
+  const [drawnUIOpen, setDrawnUIOpen] = React.useState(false);
   const [mappedJson, setMappedJson] = React.useState(null);
 
   const onClickImage = (idx) => {
@@ -247,12 +247,11 @@ const Studio = (props) => {
   };
 
   const handleMapToForm = () => {
-    const { type } = state;
-    console.log("type= ", type);
+    const { type, types } = state;
     try {
-      const json = mapToForm(type, trialAreas);
+      const json = mapToForm(type, trialAreas, types);
       setMappedJson(json);
-      setMapToFormOpen(true);
+      setDrawnUIOpen(true);
     } catch (e) {
       toast.error(e.message);
     }
@@ -313,11 +312,12 @@ const Studio = (props) => {
           updateTrialAreas={updateTrialAreas}
         />
       </Modal>
-      <MapToFormDialog
-        open={mapToFormOpen}
-        onClose={() => setMapToFormOpen(false)}
-        json={mappedJson}
-        onConfirm={() => setMapToFormOpen(false)}
+      <DrawnUIModal
+        open={drawnUIOpen}
+        onClose={() => setDrawnUIOpen(false)}
+        baseType={state.type}
+        displayType={state.higherType}
+        initialValues={mappedJson}
       />
       <LanguageSwitcher language={language} setLanguage={setLanguage} />
       <div className={styles.studio}>
