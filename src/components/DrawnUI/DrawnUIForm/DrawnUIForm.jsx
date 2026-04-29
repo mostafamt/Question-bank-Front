@@ -23,7 +23,7 @@ import styles from "../../../pages/DrawnUI/drawnUI.module.scss";
 import Wrapper from "../Wrapper/Wrapper";
 import OneOfUI from "../OneOfUI/OneOfUI";
 
-const DrawnUIForm = ({ baseType, initialValues, objectId, onSuccess }) => {
+const DrawnUIForm = ({ baseType, initialValues, initialColors, objectId, onSuccess }) => {
   const isEditMode = Boolean(objectId);
 
   const [foundAbstractParameters, setFoundAbstractParameters] = React.useState(true);
@@ -65,7 +65,8 @@ const DrawnUIForm = ({ baseType, initialValues, objectId, onSuccess }) => {
     setFoundAbstractParameters(Boolean(abstractParameter));
     setLoading(false);
     if (isEditMode) {
-      return await getParameters();
+      const saved = await getParameters();
+      return remapToAbstractKeys(saved, abstractParameter);
     }
     return initialValues ?? emptyValues(abstractParameter);
   };
@@ -131,6 +132,12 @@ const DrawnUIForm = ({ baseType, initialValues, objectId, onSuccess }) => {
       getValues,
       parseParameters,
       hint: searchIfHintExist(selectedType?.hints, key),
+      initialColor: (() => {
+        const entry = initialColors?.[key];
+        if (!entry) return null;
+        if (Array.isArray(entry)) return entry[index] ?? null;
+        return entry;
+      })(),
     };
 
     for (const [auto_ui_key, auto_ui_value] of Object.entries(AUTO_UI_TYPES_MAPPING)) {
@@ -231,5 +238,22 @@ const DrawnUIForm = ({ baseType, initialValues, objectId, onSuccess }) => {
     </form>
   );
 };
+
+function remapToAbstractKeys(savedParams, abstractParameter) {
+  if (!savedParams || !abstractParameter) return savedParams;
+  const result = {};
+  for (const [abstractKey, abstractValue] of Object.entries(abstractParameter)) {
+    if (Array.isArray(abstractValue)) {
+      const abstractBase = abstractKey.replace(/\s*\d+$/, "").trim().toLowerCase();
+      const savedKey = Object.keys(savedParams).find(
+        (k) => k.replace(/\s*\d+$/, "").trim().toLowerCase() === abstractBase
+      );
+      result[abstractKey] = savedKey ? savedParams[savedKey] : [];
+    } else {
+      result[abstractKey] = savedParams[abstractKey] ?? "";
+    }
+  }
+  return result;
+}
 
 export default DrawnUIForm;

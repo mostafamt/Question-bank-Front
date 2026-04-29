@@ -51,6 +51,7 @@ const Studio = (props) => {
   const [trialAreas, setTrialAreas] = React.useState([]);
   const [drawnUIOpen, setDrawnUIOpen] = React.useState(false);
   const [mappedJson, setMappedJson] = React.useState(null);
+  const [initialColors, setInitialColors] = React.useState({});
 
   const onClickImage = (idx) => {
     setActiveIndex(idx);
@@ -251,6 +252,24 @@ const Studio = (props) => {
     try {
       const json = mapToForm(type, trialAreas, types);
       setMappedJson(json);
+
+      console.log("json= ", json);
+
+      const paramGroups = {};
+      const sorted = [...trialAreas].sort((a, b) => a.order - b.order);
+      for (const area of sorted) {
+        if (area.parameter && area.color) {
+          const field = area.parameter.replace(/^[*#]+/, "");
+          if (!paramGroups[field]) paramGroups[field] = [];
+          paramGroups[field].push(area.color);
+        }
+      }
+      const colorMap = {};
+      for (const [field, colors] of Object.entries(paramGroups)) {
+        colorMap[field] = colors.length === 1 ? colors[0] : colors;
+      }
+      setInitialColors(colorMap);
+
       setDrawnUIOpen(true);
     } catch (e) {
       toast.error(e.message);
@@ -318,6 +337,8 @@ const Studio = (props) => {
         baseType={state.type}
         displayType={state.higherType}
         initialValues={mappedJson}
+        initialColors={initialColors}
+        trialAreas={trialAreas}
       />
       <LanguageSwitcher language={language} setLanguage={setLanguage} />
       <div className={styles.studio}>
