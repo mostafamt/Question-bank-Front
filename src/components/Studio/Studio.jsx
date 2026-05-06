@@ -339,6 +339,7 @@ const Studio = (props) => {
         initialValues={mappedJson}
         initialColors={initialColors}
         trialAreas={trialAreas}
+        isMapToFormMode={true}
       />
       <LanguageSwitcher language={language} setLanguage={setLanguage} />
       <div className={styles.studio}>
