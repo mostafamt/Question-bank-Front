@@ -23,10 +23,18 @@ import styles from "../../../pages/DrawnUI/drawnUI.module.scss";
 import Wrapper from "../Wrapper/Wrapper";
 import OneOfUI from "../OneOfUI/OneOfUI";
 
-const DrawnUIForm = ({ baseType, initialValues, initialColors, objectId, onSuccess }) => {
-  const isEditMode = Boolean(objectId);
+const DrawnUIForm = ({
+  baseType,
+  initialValues,
+  initialColors,
+  objectId,
+  onSuccess,
+  isMapToFormMode,
+}) => {
+  const isEditMode = Boolean(objectId) && !isMapToFormMode;
 
-  const [foundAbstractParameters, setFoundAbstractParameters] = React.useState(true);
+  const [foundAbstractParameters, setFoundAbstractParameters] =
+    React.useState(true);
   const [selectedType, setSelectedType] = React.useState(null);
   const [abstractParameters, setAbstractParameters] = React.useState([]);
   const [values, setValues] = React.useState({});
@@ -67,6 +75,9 @@ const DrawnUIForm = ({ baseType, initialValues, initialColors, objectId, onSucce
     if (isEditMode) {
       const saved = await getParameters();
       return remapToAbstractKeys(saved, abstractParameter);
+    }
+    if (isMapToFormMode && initialValues) {
+      return remapToAbstractKeys(initialValues, abstractParameter);
     }
     return initialValues ?? emptyValues(abstractParameter);
   };
@@ -140,7 +151,9 @@ const DrawnUIForm = ({ baseType, initialValues, initialColors, objectId, onSucce
       })(),
     };
 
-    for (const [auto_ui_key, auto_ui_value] of Object.entries(AUTO_UI_TYPES_MAPPING)) {
+    for (const [auto_ui_key, auto_ui_value] of Object.entries(
+      AUTO_UI_TYPES_MAPPING
+    )) {
       if (auto_ui_key === properties.type) {
         return (
           <Wrapper space={properties.space} hint={properties.hint}>
@@ -151,7 +164,10 @@ const DrawnUIForm = ({ baseType, initialValues, initialColors, objectId, onSucce
     }
 
     if (Array.isArray(properties.type)) {
+      console.log("Array");
+      console.log("properties= ", properties);
       const object = emptyValues(properties.type[0]);
+      console.log("object= ", object);
       return <ArrayUI {...properties} object={object} />;
     } else if (typeof properties.type === "object") {
       return <ObjectUI {...properties} />;
@@ -195,7 +211,14 @@ const DrawnUIForm = ({ baseType, initialValues, initialColors, objectId, onSucce
           />
         );
       } else {
-        item = renderSingleField(group.key, group.value, space, level, index, arrayName);
+        item = renderSingleField(
+          group.key,
+          group.value,
+          space,
+          level,
+          index,
+          arrayName
+        );
       }
       jsx = (
         <React.Fragment>
@@ -210,7 +233,12 @@ const DrawnUIForm = ({ baseType, initialValues, initialColors, objectId, onSucce
         {jsx}
         {level === 1 && (
           <Box className={styles["submit-box"]}>
-            <Button type="submit" variant="contained" disabled={isSubmitting} sx={{ mt: 4 }}>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={isSubmitting}
+              sx={{ mt: 4 }}
+            >
               <span>Submit</span>
               {isSubmitting && <CircularProgress />}
             </Button>
@@ -234,6 +262,12 @@ const DrawnUIForm = ({ baseType, initialValues, initialColors, objectId, onSucce
 
   return (
     <form className="mb-4" onSubmit={handleSubmit(onSubmit)}>
+      {isMapToFormMode && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          Fields are pre-filled from scanned areas. Review and submit to create
+          a new object.
+        </Alert>
+      )}
       {abstractParameters && parseParameters(abstractParameters)}
     </form>
   );
