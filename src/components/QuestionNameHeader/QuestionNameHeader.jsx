@@ -9,7 +9,7 @@ import { IconButton } from "@mui/material";
 
 const QuestionNameHeader = (props) => {
   const [show, setShow] = React.useState(false);
-  const { subObject } = props;
+  const { subObject, name: nameProp, type: typeProp } = props;
 
   const toggleShow = () => {
     setShow((prevState) => !prevState);
@@ -17,10 +17,14 @@ const QuestionNameHeader = (props) => {
 
   const { data: state } = useStore();
 
-  const getQuestionName = () =>
-    subObject
-      ? `${state?.questionName} - ${state?.higherType}`
-      : `${state?.questionName}`;
+  const getQuestionName = () => {
+    const baseName = nameProp ?? state?.questionName;
+    console.log("getQuestionName");
+    console.log(subObject ? `${baseName} - ${state?.higherType}` : baseName);
+    return subObject ? `${baseName} - ${state?.higherType}` : baseName;
+  };
+
+  const displayType = typeProp ?? state?.higherType;
 
   return (
     <div>
@@ -39,7 +43,7 @@ const QuestionNameHeader = (props) => {
         </div>
         <div>
           <span>Type: </span>
-          <span>{state?.higherType}</span>
+          <span>{displayType}</span>
         </div>
         <div>
           <IconButton aria-label="edit" color="white" onClick={toggleShow}>
