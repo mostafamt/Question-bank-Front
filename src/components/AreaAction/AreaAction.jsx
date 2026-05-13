@@ -32,7 +32,10 @@ const AreaAction = (props) => {
 
   const getLabels = React.useCallback(() => {
     // GET LABELS OF THE SELECTED TYPE
-    let labels = state?.types.find((item) => item.typeName === type)?.labels;
+    console.log("AreaAction");
+    console.log("type= ", type);
+    console.log("state?.types= ", state?.types);
+    let labels = state?.types?.find((item) => item.typeName === type)?.labels;
 
     // getTypeOfParameter
 

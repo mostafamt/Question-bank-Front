@@ -20,6 +20,8 @@ import AddType from "../pages/AddType/AddType";
 import Types from "../pages/Types/Types";
 import Error from "../pages/Error/Error";
 import AutoGeneration from "../pages/AutoGeneration/AutoGeneration";
+import UploadsPage from "../pages/UploadsPage/UploadsPage";
+import StudioPage from "../pages/StudioPage/StudioPage";
 
 const routes = [
   {
@@ -57,6 +59,14 @@ const routes = [
   {
     path: "/scan-and-upload",
     component: ScanAndUpload,
+  },
+  {
+    path: "/uploads",
+    component: UploadsPage,
+  },
+  {
+    path: "/studio",
+    component: StudioPage,
   },
   {
     path: "/auto-generation",
