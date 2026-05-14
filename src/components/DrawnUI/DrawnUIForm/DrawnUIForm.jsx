@@ -89,11 +89,12 @@ const DrawnUIForm = ({
   };
 
   const onSubmit = async (formValues) => {
-    setValues(formValues);
+    const corrected = correctArrayKeyLengths(formValues);
+    setValues(corrected);
     if (isEditMode || isEditMapToForm) {
-      await editObject(formValues);
+      await editObject(corrected);
     } else {
-      await saveObject(formValues);
+      await saveObject(corrected);
     }
   };
 
@@ -170,10 +171,7 @@ const DrawnUIForm = ({
     }
 
     if (Array.isArray(properties.type)) {
-      console.log("Array");
-      console.log("properties= ", properties);
       const object = emptyValues(properties.type[0]);
-      console.log("object= ", object);
       return <ArrayUI {...properties} object={object} />;
     } else if (typeof properties.type === "object") {
       return <ObjectUI {...properties} />;
@@ -280,6 +278,19 @@ const DrawnUIForm = ({
   );
 };
 
+function correctArrayKeyLengths(formValues) {
+  const result = {};
+  for (const [key, value] of Object.entries(formValues)) {
+    if (Array.isArray(value) && value.length > 0) {
+      const base = key.replace(/\s*\d+$/, "").trim();
+      result[`${base} ${value.length}`] = value;
+    } else {
+      result[key] = value;
+    }
+  }
+  return result;
+}
+
 function mergeFormValues(saved, scanned) {
   const result = { ...saved };
   for (const [key, value] of Object.entries(scanned ?? {})) {
@@ -292,13 +303,22 @@ function mergeFormValues(saved, scanned) {
 function remapToAbstractKeys(savedParams, abstractParameter) {
   if (!savedParams || !abstractParameter) return savedParams;
   const result = {};
-  for (const [abstractKey, abstractValue] of Object.entries(abstractParameter)) {
+  for (const [abstractKey, abstractValue] of Object.entries(
+    abstractParameter
+  )) {
     if (Array.isArray(abstractValue)) {
-      const abstractBase = abstractKey.replace(/\s*\d+$/, "").trim().toLowerCase();
-      const savedKey = Object.keys(savedParams).find(
-        (k) => k.replace(/\s*\d+$/, "").trim().toLowerCase() === abstractBase
+      const abstractBase = abstractKey
+        .replace(/\s*\d+$/, "")
+        .trim()
+        .toLowerCase();
+      const matchingKeys = Object.keys(savedParams).filter(
+        (k) =>
+          k
+            .replace(/\s*\d+$/, "")
+            .trim()
+            .toLowerCase() === abstractBase
       );
-      result[abstractKey] = savedKey ? savedParams[savedKey] : [];
+      result[abstractKey] = matchingKeys.flatMap((k) => savedParams[k] ?? []);
     } else {
       result[abstractKey] = savedParams[abstractKey] ?? "";
     }

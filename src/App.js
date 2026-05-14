@@ -10,6 +10,7 @@ import { theme } from "./theme/theme";
 import routes from "./routes";
 import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ModalRegistry } from "./components/Modals";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ function App() {
           <ToastContainer />
           <ErrorBoundary>
             <QueryClientProvider client={queryClient}>
+              <ModalRegistry />
               <Routes>
                 {routes.map((route) => (
                   <Route

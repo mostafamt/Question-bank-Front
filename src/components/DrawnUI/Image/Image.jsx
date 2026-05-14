@@ -6,7 +6,7 @@ import PhotoIcon from "@mui/icons-material/Photo";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
 
-import { upload } from "../../../utils/upload";
+import { upload, uploadForStudio } from "../../../utils/upload";
 import { Controller } from "react-hook-form";
 import ValidationMessage from "../../ValidationMessage/ValidationMessage";
 
@@ -20,6 +20,7 @@ const Image = (props) => {
   const imageRef = React.createRef();
   const imageRefInModal = React.createRef();
   const [showModal, setShowModal] = React.useState(false);
+  const [isDragOver, setIsDragOver] = React.useState(false);
 
   let value = getValues(name);
   const [loading, setLoading] = React.useState(false);
@@ -130,8 +131,34 @@ const Image = (props) => {
         rules={{ required: "File is required" }} // Set required rule
         render={({ field }) => (
           <div className={styles.image}>
-            <div className={styles["image-area"]}>
-              {field.value ? (
+            <div
+              className={styles["image-area"]}
+              onDragOver={(e) => {
+                e.preventDefault();
+                if (e.dataTransfer.types.includes("application/x-area-image"))
+                  setIsDragOver(true);
+              }}
+              onDragLeave={() => setIsDragOver(false)}
+              onDrop={async (e) => {
+                e.preventDefault();
+                setIsDragOver(false);
+                const base64 = e.dataTransfer.getData("application/x-area-image");
+                if (!base64) return;
+                setLoading(true);
+                const url = await uploadForStudio(base64);
+                if (url) setValue(name, url);
+                setLoading(false);
+              }}
+              style={{
+                outline: isDragOver ? "2px dashed #1976d2" : undefined,
+                borderRadius: isDragOver ? 4 : undefined,
+              }}
+            >
+              {loading ? (
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
+                  <CircularProgress size="2rem" />
+                </Box>
+              ) : field.value ? (
                 <>
                   <div className={styles["full-screen"]}>
                     <FullscreenIcon onClick={onClickFullScreen} />
