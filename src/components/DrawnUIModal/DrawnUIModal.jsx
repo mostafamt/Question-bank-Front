@@ -21,9 +21,9 @@ const DrawnUIModal = ({
   initialColors,
   trialAreas,
   isMapToFormMode,
+  objectId,
 }) => (
   <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg" scroll="paper">
-    {console.log("initialValues= ", initialValues)}
     <DialogTitle sx={{ pr: 6 }}>
       {displayType}
       <IconButton
@@ -42,7 +42,7 @@ const DrawnUIModal = ({
           baseType={baseType}
           initialValues={initialValues}
           initialColors={initialColors}
-          objectId={null}
+          objectId={objectId ?? null}
           onSuccess={onClose}
           isMapToFormMode={isMapToFormMode}
         />

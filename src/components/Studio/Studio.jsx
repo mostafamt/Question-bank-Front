@@ -29,7 +29,7 @@ import { mapToForm } from "../../utils/mapToForm";
 import styles from "./studio.module.scss";
 
 const Studio = (props) => {
-  const { images, setImages, questionName, type, subObject, handleClose } =
+  const { images, setImages, questionName, type, subObject, handleClose, objectId } =
     props;
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [areas, setAreas] = React.useState([]);
@@ -340,6 +340,7 @@ const Studio = (props) => {
         initialColors={initialColors}
         trialAreas={trialAreas}
         isMapToFormMode={true}
+        objectId={objectId}
       />
       <LanguageSwitcher language={language} setLanguage={setLanguage} />
       <div className={styles.studio}>

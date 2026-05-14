@@ -32,6 +32,7 @@ const DrawnUIForm = ({
   isMapToFormMode,
 }) => {
   const isEditMode = Boolean(objectId) && !isMapToFormMode;
+  const isEditMapToForm = Boolean(objectId) && isMapToFormMode;
 
   const [foundAbstractParameters, setFoundAbstractParameters] =
     React.useState(true);
@@ -76,6 +77,11 @@ const DrawnUIForm = ({
       const saved = await getParameters();
       return remapToAbstractKeys(saved, abstractParameter);
     }
+    if (isEditMapToForm) {
+      const saved = await getParameters();
+      const merged = mergeFormValues(saved, initialValues);
+      return remapToAbstractKeys(merged, abstractParameter);
+    }
     if (isMapToFormMode && initialValues) {
       return remapToAbstractKeys(initialValues, abstractParameter);
     }
@@ -84,7 +90,7 @@ const DrawnUIForm = ({
 
   const onSubmit = async (formValues) => {
     setValues(formValues);
-    if (isEditMode) {
+    if (isEditMode || isEditMapToForm) {
       await editObject(formValues);
     } else {
       await saveObject(formValues);
@@ -264,14 +270,24 @@ const DrawnUIForm = ({
     <form className="mb-4" onSubmit={handleSubmit(onSubmit)}>
       {isMapToFormMode && (
         <Alert severity="info" sx={{ mb: 2 }}>
-          Fields are pre-filled from scanned areas. Review and submit to create
-          a new object.
+          {isEditMapToForm
+            ? "Fields are pre-filled from saved data and updated with scanned areas. Submit to update the object."
+            : "Fields are pre-filled from scanned areas. Review and submit to create a new object."}
         </Alert>
       )}
       {abstractParameters && parseParameters(abstractParameters)}
     </form>
   );
 };
+
+function mergeFormValues(saved, scanned) {
+  const result = { ...saved };
+  for (const [key, value] of Object.entries(scanned ?? {})) {
+    const isEmpty = value === null || value === undefined || value === "";
+    if (!isEmpty) result[key] = value;
+  }
+  return result;
+}
 
 function remapToAbstractKeys(savedParams, abstractParameter) {
   if (!savedParams || !abstractParameter) return savedParams;
