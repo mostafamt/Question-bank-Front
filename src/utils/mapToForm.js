@@ -40,7 +40,7 @@ export function mapToForm(typeName, trialAreas, typeDefinitions) {
         return item;
       });
 
-      const baseName = key.replace(/\s*\d+$/, "");
+      const baseName = key.replace(/\s*\d+$/, "").trim();
       const outputKey = `${baseName} ${items.length}`;
       result[outputKey] = items;
     } else {

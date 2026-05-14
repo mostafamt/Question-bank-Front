@@ -1,15 +1,7 @@
 import React from "react";
-import {
-  Box,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  IconButton,
-  Typography,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import DrawnUIForm from "../DrawnUI/DrawnUIForm/DrawnUIForm";
+import { Box, Divider, Typography } from "@mui/material";
+import AppModal from "../AppModal";
+import DrawnUIForm from "../../DrawnUI/DrawnUIForm/DrawnUIForm";
 import AreaList from "./AreaList/AreaList";
 
 const DrawnUIModal = ({
@@ -23,19 +15,8 @@ const DrawnUIModal = ({
   isMapToFormMode,
   objectId,
 }) => (
-  <Dialog open={open} onClose={onClose} fullWidth maxWidth="lg" scroll="paper">
-    <DialogTitle sx={{ pr: 6 }}>
-      {displayType}
-      <IconButton
-        onClick={onClose}
-        sx={{ position: "absolute", right: 8, top: 8 }}
-        aria-label="close"
-      >
-        <CloseIcon />
-      </IconButton>
-    </DialogTitle>
-
-    <DialogContent dividers sx={{ display: "flex", p: 0, overflow: "hidden" }}>
+  <AppModal open={open} onClose={onClose} title={displayType} maxWidth="lg">
+    <Box sx={{ display: "flex", p: 0, overflow: "hidden", m: -3 }}>
       {/* Left: DrawnUI form */}
       <Box sx={{ flex: 1, overflowY: "auto", p: 3 }}>
         <DrawnUIForm
@@ -66,8 +47,8 @@ const DrawnUIModal = ({
         </Typography>
         <AreaList trialAreas={trialAreas} />
       </Box>
-    </DialogContent>
-  </Dialog>
+    </Box>
+  </AppModal>
 );
 
 export default DrawnUIModal;

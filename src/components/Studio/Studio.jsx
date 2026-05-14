@@ -2,6 +2,7 @@ import React from "react";
 import { AreaSelector } from "@bmunozg/react-image-area";
 /** @jsxImportSource @emotion/react */
 import { useStore } from "../../store/store";
+import { useModalStore } from "../../store/modalStore";
 import { toast } from "react-toastify";
 import Modal from "../Modal/Modal";
 import AreaActions from "../AreaActions/AreaActions";
@@ -23,7 +24,6 @@ import {
 } from "../../utils/ocr";
 import { saveObject } from "../../services/api";
 import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
-import DrawnUIModal from "../DrawnUIModal/DrawnUIModal";
 import { mapToForm } from "../../utils/mapToForm";
 
 import styles from "./studio.module.scss";
@@ -37,6 +37,7 @@ const Studio = (props) => {
   const imageRef = React.createRef();
   const canvasRef = React.createRef();
   const { data: state } = useStore();
+  const { openModal } = useModalStore();
   const [imageScaleFactor, setImageScaleFactor] = React.useState(1);
   // To Extract Sub Object
   const [showModal, setShowModal] = React.useState(false);
@@ -49,9 +50,6 @@ const Studio = (props) => {
     state.language === "ar" ? ARABIC : ENGLISH
   );
   const [trialAreas, setTrialAreas] = React.useState([]);
-  const [drawnUIOpen, setDrawnUIOpen] = React.useState(false);
-  const [mappedJson, setMappedJson] = React.useState(null);
-  const [initialColors, setInitialColors] = React.useState({});
 
   const onClickImage = (idx) => {
     setActiveIndex(idx);
@@ -113,7 +111,7 @@ const Studio = (props) => {
   };
 
   const handleCloseModal = () => setShowModal(false);
-  const openModal = () => setShowModal(true);
+  const openSubModal = () => setShowModal(true);
 
   const onChangeParameter = (value, idx) => {
     // state
@@ -154,7 +152,7 @@ const Studio = (props) => {
       });
     } else if (typeOfParameter === "SI") {
       setTimeout(() => {
-        openModal();
+        openSubModal();
       }, 1000);
     } else {
       // open modal if it has a supported type
@@ -163,7 +161,7 @@ const Studio = (props) => {
       if (found) {
         // timeout to solve scrollbar hiding
         setTimeout(() => {
-          openModal();
+          openSubModal();
         }, 1000);
       }
     }
@@ -251,7 +249,6 @@ const Studio = (props) => {
     const { type, types } = state;
     try {
       const json = mapToForm(type, trialAreas, types);
-      setMappedJson(json);
 
       console.log("json= ", json);
 
@@ -265,12 +262,19 @@ const Studio = (props) => {
         }
       }
       const colorMap = {};
-      for (const [field, colors] of Object.entries(paramGroups)) {
-        colorMap[field] = colors.length === 1 ? colors[0] : colors;
+      for (const [field, areaColors] of Object.entries(paramGroups)) {
+        colorMap[field] = areaColors.length === 1 ? areaColors[0] : areaColors;
       }
-      setInitialColors(colorMap);
 
-      setDrawnUIOpen(true);
+      openModal("DrawnUIModal", {
+        baseType: state.type,
+        displayType: state.higherType,
+        initialValues: json,
+        initialColors: colorMap,
+        trialAreas,
+        isMapToFormMode: true,
+        objectId,
+      });
     } catch (e) {
       toast.error(e.message);
     }
@@ -331,17 +335,6 @@ const Studio = (props) => {
           updateTrialAreas={updateTrialAreas}
         />
       </Modal>
-      <DrawnUIModal
-        open={drawnUIOpen}
-        onClose={() => setDrawnUIOpen(false)}
-        baseType={state.type}
-        displayType={state.higherType}
-        initialValues={mappedJson}
-        initialColors={initialColors}
-        trialAreas={trialAreas}
-        isMapToFormMode={true}
-        objectId={objectId}
-      />
       <LanguageSwitcher language={language} setLanguage={setLanguage} />
       <div className={styles.studio}>
         <StudioThumbnails

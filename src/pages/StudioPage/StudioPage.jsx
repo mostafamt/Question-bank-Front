@@ -2,40 +2,58 @@ import React from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Studio from "../../components/Studio/Studio";
 import { useStore } from "../../store/store";
-import { getAllTypes } from "../../services/api";
+import { getAllTypes, getObject } from "../../services/api";
 import Loader from "../../components/Loader/Loader";
+import styles from "./studioPage.module.scss";
+import QuestionNameHeader from "../../components/QuestionNameHeader/QuestionNameHeader";
 
 const StudioPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { object_id } = useParams();
-  const { images: initialImages, questionName, type } = location.state || {};
+  const { images: initialImages, questionName: stateQuestionName, type: stateType } = location.state || {};
 
   const [images, setImages] = React.useState(initialImages || []);
   const [typesReady, setTypesReady] = React.useState(false);
+  const [resolvedType, setResolvedType] = React.useState(stateType ?? null);
+  const [resolvedQuestionName, setResolvedQuestionName] = React.useState(stateQuestionName ?? null);
 
   const { data: state, setFormState } = useStore();
 
   React.useEffect(() => {
-    if (state.types) {
-      setTypesReady(true);
-      return;
-    }
-    getAllTypes().then((allTypes) => {
+    const init = async () => {
+      let finalType = stateType;
+      let finalQuestionName = stateQuestionName;
+
+      if (object_id) {
+        const obj = await getObject(object_id);
+        if (obj) {
+          finalType = obj.type ?? stateType;
+          finalQuestionName = obj.questionName ?? stateQuestionName;
+        }
+      }
+
+      setResolvedType(finalType);
+      setResolvedQuestionName(finalQuestionName);
+
+      const allTypes = state.types ?? (await getAllTypes());
       if (!allTypes) return;
-      const selectedType = allTypes.find((t) => t.typeName === type);
+
+      const selectedType = allTypes.find((t) => t.typeName === finalType);
       setFormState({
         ...state,
-        questionName,
-        type,
+        questionName: finalQuestionName,
+        type: finalType,
         types: allTypes,
         labels: selectedType?.labels,
       });
       setTypesReady(true);
-    });
+    };
+
+    init();
   }, []);
 
-  if (!initialImages?.length || !questionName || !type) {
+  if (!initialImages?.length || !stateQuestionName) {
     return (
       <div className="container">
         <p>Missing required data. Please go back and upload images first.</p>
@@ -49,13 +67,16 @@ const StudioPage = () => {
   }
 
   return (
-    <Studio
-      images={images}
-      setImages={setImages}
-      questionName={questionName}
-      type={type}
-      objectId={object_id ?? null}
-    />
+    <div className={`container ${styles["scan-and-upload"]}`}>
+      <QuestionNameHeader name={resolvedQuestionName} type={resolvedType} />
+      <Studio
+        images={images}
+        setImages={setImages}
+        questionName={resolvedQuestionName}
+        type={resolvedType}
+        objectId={object_id ?? null}
+      />
+    </div>
   );
 };
 
