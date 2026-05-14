@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Studio from "../../components/Studio/Studio";
 import { useStore } from "../../store/store";
 import { getAllTypes } from "../../services/api";
@@ -8,6 +8,7 @@ import Loader from "../../components/Loader/Loader";
 const StudioPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { object_id } = useParams();
   const { images: initialImages, questionName, type } = location.state || {};
 
   const [images, setImages] = React.useState(initialImages || []);
@@ -53,6 +54,7 @@ const StudioPage = () => {
       setImages={setImages}
       questionName={questionName}
       type={type}
+      objectId={object_id ?? null}
     />
   );
 };

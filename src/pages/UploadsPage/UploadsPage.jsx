@@ -24,7 +24,8 @@ const UploadsPage = () => {
   const [showModal, setShowModal] = React.useState(false);
 
   const goToStudio = (images) => {
-    navigate("/studio", {
+    const destination = id ? `/studio/${id}` : "/studio";
+    navigate(destination, {
       state: { images, questionName: name, type: baseType },
     });
   };

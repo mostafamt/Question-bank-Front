@@ -65,7 +65,7 @@ const routes = [
     component: UploadsPage,
   },
   {
-    path: "/studio",
+    path: "/studio/:object_id?",
     component: StudioPage,
   },
   {
