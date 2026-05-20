@@ -27,10 +27,18 @@ import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
 import { mapToForm } from "../../utils/mapToForm";
 
 import styles from "./studio.module.scss";
+import { useMatch } from "react-router-dom";
 
 const Studio = (props) => {
-  const { images, setImages, questionName, type, subObject, handleClose, objectId } =
-    props;
+  const {
+    images,
+    setImages,
+    questionName,
+    type,
+    subObject,
+    handleClose,
+    objectId,
+  } = props;
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [areas, setAreas] = React.useState([]);
   const [colorIndex, setColorIndex] = React.useState(0);
@@ -55,6 +63,14 @@ const Studio = (props) => {
     setActiveIndex(idx);
     setPageId(images?.[idx]?._id);
   };
+
+  const match = useMatch("/studio/:id");
+
+  React.useEffect(() => {
+    if (match) {
+      handleMapToForm();
+    }
+  }, []);
 
   const onChangeHandler = (areasParam) => {
     let newAreas = [];
