@@ -28,6 +28,7 @@ import { mapToForm } from "../../utils/mapToForm";
 
 import styles from "./studio.module.scss";
 import { useMatch } from "react-router-dom";
+import useAreaManagement from "./hooks/useAreaManagement";
 
 const Studio = (props) => {
   const {
@@ -40,7 +41,7 @@ const Studio = (props) => {
     objectId,
   } = props;
   const [activeIndex, setActiveIndex] = React.useState(0);
-  const [areas, setAreas] = React.useState([]);
+
   const [colorIndex, setColorIndex] = React.useState(0);
   const imageRef = React.createRef();
   const canvasRef = React.createRef();
@@ -57,7 +58,16 @@ const Studio = (props) => {
   const [language, setLanguage] = React.useState(
     state.language === "ar" ? ARABIC : ENGLISH
   );
-  const [trialAreas, setTrialAreas] = React.useState([]);
+
+  const {
+    areas,
+    setAreas,
+    trialAreas,
+    setTrialAreas,
+    onChangeHandler,
+    onClickDeleteArea,
+    updateTrialAreas,
+  } = useAreaManagement();
 
   const onClickImage = (idx) => {
     setActiveIndex(idx);
@@ -71,60 +81,6 @@ const Studio = (props) => {
       handleMapToForm();
     }
   }, []);
-
-  const onChangeHandler = (areasParam) => {
-    let newAreas = [];
-    for (let i = 0; i < trialAreas.length; i++) {
-      newAreas = [
-        ...newAreas,
-        {
-          x: areasParam[i].x,
-          y: areasParam[i].y,
-          width: areasParam[i].width,
-          height: areasParam[i].height,
-
-          id: trialAreas[i].id,
-          color: trialAreas[i].color,
-          loading: trialAreas[i].loading,
-          text: trialAreas[i].text,
-          image: trialAreas[i].image,
-          parameter: trialAreas[i].parameter,
-          order: trialAreas[i].order,
-          open: trialAreas[i].open,
-          type: trialAreas[i].type,
-        },
-      ];
-    }
-
-    if (areasParam.length > trialAreas.length) {
-      newAreas = [
-        ...newAreas,
-        {
-          x: areasParam[areasParam.length - 1].x,
-          y: areasParam[areasParam.length - 1].y,
-          width: areasParam[areasParam.length - 1].width,
-          height: areasParam[areasParam.length - 1].height,
-
-          id: uuidv4(),
-          color: null,
-          loading: false,
-          text: "",
-          image: "",
-          parameter: "Select a parameter",
-          order: areasParam.length - 1,
-          open: true,
-        },
-      ];
-    }
-
-    setTrialAreas([...newAreas]);
-    setAreas(areasParam);
-  };
-
-  const onClickDeleteArea = (idx) => {
-    setAreas((prevState) => [...prevState.filter((_, id) => idx !== id)]);
-    setTrialAreas((prevState) => [...prevState.filter((_, id) => idx !== id)]);
-  };
 
   const handleCloseModal = () => setShowModal(false);
   const openSubModal = () => setShowModal(true);
@@ -294,23 +250,6 @@ const Studio = (props) => {
     } catch (e) {
       toast.error(e.message);
     }
-  };
-
-  const updateTrialAreas = (idx, value) => {
-    console.log("updateTrialAreas");
-    console.log("value= ", value);
-    setTrialAreas((prevState) => {
-      let newTrialAreas = [...prevState];
-
-      if (idx === -1) {
-        const lastIndex = trialAreas.length - 1;
-        newTrialAreas[lastIndex] = { ...newTrialAreas[lastIndex], ...value };
-      } else {
-        newTrialAreas[idx] = { ...newTrialAreas[idx], ...value };
-      }
-
-      return newTrialAreas;
-    });
   };
 
   const clear = async () => {
