@@ -5,12 +5,21 @@
   flex-direction: column;
   align-items: center;
   //   gap: 1rem;
-  padding: 1rem 0;
   height: calc(100% - 1rem);
+  position: relative;
 
   & .actions {
-    margin: 0 0 1rem 1rem;
+    // margin: 0 0 1rem 1rem;
     align-self: flex-start;
+    position:sticky;
+    top: 32px;
+    left: 0;
+    // transform: translate(50%, 25%);
+    margin: 0 0.25rem;
+    background-color: #fff;
+    width: 100%;
+    box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+    z-index: 1;
   }
 
   & .thumbnails-container {
