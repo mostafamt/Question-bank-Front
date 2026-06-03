@@ -1,7 +1,12 @@
 import React from "react";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import { Tooltip } from "@mui/material";
+import FileCopyIcon from "@mui/icons-material/FileCopy";
 import DeleteIcon from "@mui/icons-material/Delete";
+import PublishIcon from "@mui/icons-material/Publish";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { styled } from "@mui/material/styles";
 import { Button, IconButton } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
@@ -35,6 +40,20 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
     }
   };
 
+  const onClickDuplicate = () => {};
+
+  const onClickImport = () => {};
+
+  const onClickExport = () => {
+    const activePage = pages[activePage];
+    const imageUrl = activePage?.url || activePage;
+
+    const a = document.createElement("a");
+    a.href = imageUrl;
+    a.download = `page-${activePage}.png`;
+    a.click();
+  };
+
   React.useEffect(() => {
     if (containerRef.current && activePage !== null) {
       const container = containerRef.current;
@@ -50,22 +69,51 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
     }
   }, [activePage, containerRef]);
 
+  const thumbnailActions = [
+    {
+      label: "add",
+      Icon: AddPhotoAlternateIcon,
+      isFileInput: true,
+    },
+    {
+      label: "delete",
+      Icon: DeleteIcon,
+      onClick: onDeleteThumbnail,
+    },
+    {
+      label: "duplicate",
+      Icon: FileCopyIcon,
+      onClick: onClickDuplicate,
+    },
+    {
+      label: "import",
+      Icon: PublishIcon,
+      onClick: onClickImport,
+    },
+    {
+      label: "export",
+      Icon: FileDownloadIcon,
+      onClick: onClickExport,
+    },
+  ];
+
   return (
     <div className={styles["studio-thumbnails"]}>
       <div className={styles.actions}>
-        <IconButton
-          aria-label="delete"
-          component="label"
-          sx={{ padding: 0 }}
-          onChange={onChange}
-        >
-          <AddPhotoAlternateIcon />
-          <VisuallyHiddenInput type="file" />
-        </IconButton>
-
-        <IconButton aria-label="delete" onClick={onDeleteThumbnail}>
-          <DeleteIcon />
-        </IconButton>
+        {thumbnailActions.map(({ label, Icon, onClick, isFileInput }) => (
+          <Tooltip key={label} placement="top" title={label}>
+            <IconButton
+              aria-label={label}
+              onClick={onClick}
+              {...(isFileInput
+                ? { component: "label", onChange }
+                : { onClick })}
+            >
+              <Icon />
+              {isFileInput && <VisuallyHiddenInput type="file" />}
+            </IconButton>
+          </Tooltip>
+        ))}
       </div>
       <div className={styles["thumbnails-container"]} ref={containerRef}>
         {pages.map((img, idx) => (
