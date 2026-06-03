@@ -32,6 +32,7 @@ import useStudioColumns from "./hooks/useStudioColumns";
 const Studio = (props) => {
   const {
     pages,
+    setPages,
     type,
     subObject,
     types,
@@ -253,6 +254,7 @@ const Studio = (props) => {
   } = useStudioColumns({
     isReaderMode,
     pages,
+    setPages,
     activePageIndex,
     chapterId,
     thumbnailsRef,

@@ -26,6 +26,7 @@ const ScanAndUpload = () => {
   const location = useLocation();
   const language = location.state?.language;
   const setLanguage = useStore((s) => s.setLanguage);
+  const [pages, setPages] = React.useState([]);
 
   React.useEffect(() => {
     if (language) {
@@ -46,7 +47,7 @@ const ScanAndUpload = () => {
   });
 
   const {
-    data: pages,
+    data: fetchedPages,
     refetch,
     isFetching: isFetchingPages,
   } = useQuery({
@@ -54,6 +55,12 @@ const ScanAndUpload = () => {
     queryFn: () => getChapterPages(chapterId),
     refetchOnWindowFocus: false,
   });
+
+  React.useEffect(() => {
+    if (fetchedPages) {
+      setPages(fetchedPages);
+    }
+  }, [fetchedPages]);
 
   const handleSubmit = async (pageId, areas, virtualBlocks) => {
     console.log("areas= ", areas);
@@ -119,7 +126,10 @@ const ScanAndUpload = () => {
     );
 
     // Format virtual blocks for submission using new structure
-    const formattedVBlocks = formatVirtualBlocksForSubmission(virtualBlocks, pageId);
+    const formattedVBlocks = formatVirtualBlocksForSubmission(
+      virtualBlocks,
+      pageId
+    );
 
     // Only include v_blocks if there are any contents
     const data = {
@@ -142,6 +152,7 @@ const ScanAndUpload = () => {
           types={types}
           compositeBlocksTypes={compositeBlocksTypes}
           pages={pages}
+          setPages={setPages}
           type={"state.type"}
           handleSubmit={handleSubmit}
           language={language}
