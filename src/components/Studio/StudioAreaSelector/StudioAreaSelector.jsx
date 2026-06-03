@@ -35,6 +35,9 @@ const StudioAreaSelector = React.memo(
       onPlayBlock,
     } = props;
 
+    console.log("StudioAreaSelector");
+    console.log("pages= ", pages);
+
     // Detect mode (reader vs studio)
     const mode = useAppMode();
     const isReaderMode = mode === "reader";

@@ -36,6 +36,7 @@ import {
 const useStudioColumns = ({
   isReaderMode,
   pages,
+  setPages,
   activePageIndex,
   chapterId,
   thumbnailsRef,
@@ -109,6 +110,7 @@ const useStudioColumns = ({
 
     return buildLeftColumns({
       pages,
+      setPages,
       chapterId,
       activePageIndex,
       changePageByIndex: changePageByIndexRef.current,
@@ -305,8 +307,7 @@ const useStudioColumns = ({
     }
 
     const next =
-      leftColumns.find((col) => col.id === currentId) ||
-      leftColumns[0];
+      leftColumns.find((col) => col.id === currentId) || leftColumns[0];
 
     // Only update if the tab actually changed
     if (next.id !== currentId) {
@@ -326,8 +327,7 @@ const useStudioColumns = ({
     }
 
     const next =
-      rightColumns.find((col) => col.id === currentId) ||
-      rightColumns[0];
+      rightColumns.find((col) => col.id === currentId) || rightColumns[0];
 
     // Only update if the tab actually changed
     if (next.id !== currentId) {
