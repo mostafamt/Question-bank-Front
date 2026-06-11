@@ -16,18 +16,9 @@ import styles from "./studioThumbnails.module.scss";
 import VisuallyHiddenInput from "../../VisuallyHiddenInput/VisuallyHiddenInput";
 import { useAppMode, getTabById } from "../../../utils/tabFiltering";
 
-const createBlankPageUrl = () => {
-  const canvas = document.createElement("canvas");
-  canvas.width = 794;
-  canvas.height = 1123;
-  const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  return canvas.toDataURL("image/png");
-};
 
 const StudioThumbnails = React.forwardRef((props, ref) => {
-  const { pages, setPages, onClickImage, activePage } = props;
+  const { pages, setPages, addBlankPage, onClickImage, activePage } = props;
 
   const mode = useAppMode();
   const configuredActions = getTabById("thumbnails")?.actions ?? [];
@@ -55,19 +46,6 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
     if (newImages.length) {
       onClickImage(Math.max(0, activePage - 1));
     }
-  };
-
-  const onClickNew = () => {
-    const url = createBlankPageUrl();
-    const newPage = { _id: uuidv4(), blocks: [], v_blocks: [], url };
-    const insertAt = activePage + 1;
-    const newPages = [
-      ...pages.slice(0, insertAt),
-      newPage,
-      ...pages.slice(insertAt),
-    ];
-    setPages(newPages);
-    onClickImage(insertAt);
   };
 
   const onClickDuplicate = () => {};
@@ -103,7 +81,7 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
     {
       label: "new",
       Icon: NoteAddIcon,
-      onClick: onClickNew,
+      onClick: () => addBlankPage?.(activePage),
     },
     {
       label: "add",

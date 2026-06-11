@@ -266,6 +266,24 @@ const useAreaManagement = ({
     setLoadingSubmit(false);
   };
 
+  const insertPageAt = (insertAt, newPage) => {
+    rawPagesRef.current = [
+      ...rawPagesRef.current.slice(0, insertAt),
+      newPage,
+      ...rawPagesRef.current.slice(insertAt),
+    ];
+    setAreas((prev) => [
+      ...prev.slice(0, insertAt),
+      [],
+      ...prev.slice(insertAt),
+    ]);
+    setAreasProperties((prev) => [
+      ...prev.slice(0, insertAt),
+      [],
+      ...prev.slice(insertAt),
+    ]);
+  };
+
   const onClickToggleVirutalBlocks = () => {
     setShowVB((prevState) => !prevState);
     setTimeout(() => {
@@ -278,6 +296,7 @@ const useAreaManagement = ({
     setAreas,
     areasProperties,
     setAreasProperties,
+    insertPageAt,
     getBlockFromBlockId,
     recalculateAreas,
     updateAreaProperty,
