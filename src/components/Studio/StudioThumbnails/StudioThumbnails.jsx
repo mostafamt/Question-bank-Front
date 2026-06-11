@@ -13,11 +13,17 @@ import { v4 as uuidv4 } from "uuid";
 
 import styles from "./studioThumbnails.module.scss";
 import VisuallyHiddenInput from "../../VisuallyHiddenInput/VisuallyHiddenInput";
+import { useAppMode, getTabById } from "../../../utils/tabFiltering";
 
 const StudioThumbnails = React.forwardRef((props, ref) => {
   const { pages, setPages, onClickImage, activePage } = props;
 
+  const mode = useAppMode();
+  const configuredActions = getTabById("thumbnails")?.actions ?? [];
+
   const containerRef = React.useRef(null);
+
+  console.log("mode= ", mode);
 
   const onChange = (event) => {
     const files = event.target.files;
@@ -100,20 +106,26 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
   return (
     <div className={styles["studio-thumbnails"]}>
       <div className={styles.actions}>
-        {thumbnailActions.map(({ label, Icon, onClick, isFileInput }) => (
-          <Tooltip key={label} placement="top" title={label}>
-            <IconButton
-              aria-label={label}
-              onClick={onClick}
-              {...(isFileInput
-                ? { component: "label", onChange }
-                : { onClick })}
-            >
-              <Icon />
-              {isFileInput && <VisuallyHiddenInput type="file" />}
-            </IconButton>
-          </Tooltip>
-        ))}
+        {thumbnailActions
+          .filter(({ label }) =>
+            configuredActions.some(
+              (a) => a.label === label && a.mode.includes(mode)
+            )
+          )
+          .map(({ label, Icon, onClick, isFileInput }) => (
+            <Tooltip key={label} placement="top" title={label}>
+              <IconButton
+                aria-label={label}
+                onClick={onClick}
+                {...(isFileInput
+                  ? { component: "label", onChange }
+                  : { onClick })}
+              >
+                <Icon />
+                {isFileInput && <VisuallyHiddenInput type="file" />}
+              </IconButton>
+            </Tooltip>
+          ))}
       </div>
       <div className={styles["thumbnails-container"]} ref={containerRef}>
         {pages.map((img, idx) => (

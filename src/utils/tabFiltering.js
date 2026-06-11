@@ -44,7 +44,13 @@ export const detectModeFromUrl = () => {
  */
 export const useAppMode = () => {
   const location = useLocation();
-  return location.pathname.includes("/read/") ? "reader" : "studio";
+  if (location.pathname.includes("/read/")) {
+    return "reader";
+  } else if (location.pathname.includes("/book-author/")) {
+    return "book-author";
+  } else {
+    return "studio";
+  }
 };
 
 /**
