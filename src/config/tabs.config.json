@@ -16,6 +16,10 @@
         "description": "Page thumbnails for quick navigation",
         "actions": [
           {
+            "label": "new",
+            "mode": ["book-author"]
+          },
+          {
             "label": "add",
             "mode": ["book-author"]
           },

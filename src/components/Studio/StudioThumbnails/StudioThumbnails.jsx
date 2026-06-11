@@ -1,5 +1,6 @@
 import React from "react";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
+import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { Tooltip } from "@mui/material";
@@ -14,6 +15,16 @@ import { v4 as uuidv4 } from "uuid";
 import styles from "./studioThumbnails.module.scss";
 import VisuallyHiddenInput from "../../VisuallyHiddenInput/VisuallyHiddenInput";
 import { useAppMode, getTabById } from "../../../utils/tabFiltering";
+
+const createBlankPageUrl = () => {
+  const canvas = document.createElement("canvas");
+  canvas.width = 794;
+  canvas.height = 1123;
+  const ctx = canvas.getContext("2d");
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL("image/png");
+};
 
 const StudioThumbnails = React.forwardRef((props, ref) => {
   const { pages, setPages, onClickImage, activePage } = props;
@@ -46,6 +57,19 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
     }
   };
 
+  const onClickNew = () => {
+    const url = createBlankPageUrl();
+    const newPage = { _id: uuidv4(), blocks: [], v_blocks: [], url };
+    const insertAt = activePage + 1;
+    const newPages = [
+      ...pages.slice(0, insertAt),
+      newPage,
+      ...pages.slice(insertAt),
+    ];
+    setPages(newPages);
+    onClickImage(insertAt);
+  };
+
   const onClickDuplicate = () => {};
 
   const onClickImport = () => {};
@@ -76,6 +100,11 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
   }, [activePage, containerRef]);
 
   const thumbnailActions = [
+    {
+      label: "new",
+      Icon: NoteAddIcon,
+      onClick: onClickNew,
+    },
     {
       label: "add",
       Icon: AddPhotoAlternateIcon,
