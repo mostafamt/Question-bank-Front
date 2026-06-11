@@ -16,6 +16,8 @@ const usePageNavigation = ({
   pages,
   setPages,
   insertPageAtRef,
+  insertPagesAtRef,
+  deletePageAtRef,
   subObject = false,
 }) => {
   const [activePageIndex, setActivePageIndex] = React.useState(
@@ -66,6 +68,33 @@ const usePageNavigation = ({
     changePageByIndex(insertAt);
   };
 
+  const addLocalPages = (files, afterIndex) => {
+    const newPageObjects = [...files].map((file) => ({
+      _id: uuidv4(),
+      blocks: [],
+      v_blocks: [],
+      url: URL.createObjectURL(file),
+    }));
+    const insertAt = afterIndex + 1;
+    const updatedPages = [
+      ...pages.slice(0, insertAt),
+      ...newPageObjects,
+      ...pages.slice(insertAt),
+    ];
+    setPages(updatedPages);
+    insertPagesAtRef?.current?.(insertAt, newPageObjects);
+    changePageByIndex(insertAt + newPageObjects.length - 1);
+  };
+
+  const deletePage = (pageIndex) => {
+    const newPages = pages.filter((_, idx) => idx !== pageIndex);
+    setPages(newPages);
+    deletePageAtRef?.current?.(pageIndex);
+    if (newPages.length) {
+      changePageByIndex(Math.max(0, pageIndex - 1));
+    }
+  };
+
   return {
     activePageIndex,
     setActivePageIndex,
@@ -73,6 +102,8 @@ const usePageNavigation = ({
     changePageByIndex,
     changePageById,
     addBlankPage,
+    addLocalPages,
+    deletePage,
   };
 };
 

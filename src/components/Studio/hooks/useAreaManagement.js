@@ -284,6 +284,31 @@ const useAreaManagement = ({
     ]);
   };
 
+  const insertPagesAt = (insertAt, newPages) => {
+    const emptyArrays = newPages.map(() => []);
+    rawPagesRef.current = [
+      ...rawPagesRef.current.slice(0, insertAt),
+      ...newPages,
+      ...rawPagesRef.current.slice(insertAt),
+    ];
+    setAreas((prev) => [
+      ...prev.slice(0, insertAt),
+      ...emptyArrays,
+      ...prev.slice(insertAt),
+    ]);
+    setAreasProperties((prev) => [
+      ...prev.slice(0, insertAt),
+      ...emptyArrays,
+      ...prev.slice(insertAt),
+    ]);
+  };
+
+  const deletePageAt = (pageIndex) => {
+    rawPagesRef.current = rawPagesRef.current.filter((_, idx) => idx !== pageIndex);
+    setAreas((prev) => prev.filter((_, idx) => idx !== pageIndex));
+    setAreasProperties((prev) => prev.filter((_, idx) => idx !== pageIndex));
+  };
+
   const onClickToggleVirutalBlocks = () => {
     setShowVB((prevState) => !prevState);
     setTimeout(() => {
@@ -297,6 +322,8 @@ const useAreaManagement = ({
     areasProperties,
     setAreasProperties,
     insertPageAt,
+    insertPagesAt,
+    deletePageAt,
     getBlockFromBlockId,
     recalculateAreas,
     updateAreaProperty,

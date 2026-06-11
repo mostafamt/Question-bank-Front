@@ -112,6 +112,8 @@ const useStudioColumns = ({
       pages,
       setPages,
       addBlankPage: rightColumnProps.addBlankPage,
+      addLocalPages: rightColumnProps.addLocalPages,
+      deletePage: rightColumnProps.deletePage,
       chapterId,
       activePageIndex,
       changePageByIndex: changePageByIndexRef.current,
