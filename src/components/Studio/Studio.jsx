@@ -73,13 +73,16 @@ const Studio = (props) => {
   );
 
   // ============ PAGE NAVIGATION ============
+  const insertPageAtRef = React.useRef(null);
+
   const {
     activePageIndex,
     setActivePageIndex,
     activePageId,
     changePageByIndex,
     changePageById,
-  } = usePageNavigation({ pages, subObject });
+    addBlankPage,
+  } = usePageNavigation({ pages, setPages, insertPageAtRef, subObject });
 
   // ============ AREA MANAGEMENT ============
   const {
@@ -87,6 +90,7 @@ const Studio = (props) => {
     setAreas,
     areasProperties,
     setAreasProperties,
+    insertPageAt,
     getBlockFromBlockId,
     recalculateAreas,
     updateAreaProperty,
@@ -115,6 +119,11 @@ const Studio = (props) => {
   React.useEffect(() => {
     recalculateAreasRef.current = recalculateAreas;
   }, [recalculateAreas]);
+
+  // Keep insertPageAtRef updated so usePageNavigation.addBlankPage always calls the latest version
+  React.useEffect(() => {
+    insertPageAtRef.current = insertPageAt;
+  }, [insertPageAt]);
 
   // ============ VIRTUAL BLOCKS ============
   const { showVB, onClickToggleVirutalBlocks } = useVirtualBlocks({
@@ -181,6 +190,7 @@ const Studio = (props) => {
     () => ({
       areasProperties,
       setAreasProperties,
+      addBlankPage,
       onEditText,
       onClickDeleteArea,
       type,
@@ -213,6 +223,7 @@ const Studio = (props) => {
     [
       areasProperties,
       setAreasProperties,
+      addBlankPage,
       onEditText,
       onClickDeleteArea,
       type,

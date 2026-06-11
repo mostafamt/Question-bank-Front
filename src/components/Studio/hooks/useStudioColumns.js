@@ -111,6 +111,7 @@ const useStudioColumns = ({
     return buildLeftColumns({
       pages,
       setPages,
+      addBlankPage: rightColumnProps.addBlankPage,
       chapterId,
       activePageIndex,
       changePageByIndex: changePageByIndexRef.current,

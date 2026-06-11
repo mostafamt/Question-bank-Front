@@ -6,7 +6,10 @@ import clsx from "clsx";
 
 import styles from "./studioAreaSelector.module.scss";
 import VirtualBlocks from "../../VirtualBlocks/VirtualBlocks";
-import { getList2FromData, getTypeOfLabelForCompositeBlocks } from "../../../utils/studio";
+import {
+  getList2FromData,
+  getTypeOfLabelForCompositeBlocks,
+} from "../../../utils/studio";
 import { RIGHT_TAB_NAMES } from "../constants";
 import { hexToRgbA } from "../../../utils/helper";
 import { useAppMode } from "../../../utils/tabFiltering";
@@ -37,6 +40,8 @@ const StudioAreaSelector = React.memo(
 
     console.log("StudioAreaSelector");
     console.log("pages= ", pages);
+    console.log("areasProperties= ", areasProperties);
+    console.log("areas= ", areas);
 
     // Detect mode (reader vs studio)
     const mode = useAppMode();
@@ -183,8 +188,10 @@ const StudioAreaSelector = React.memo(
             labelKey
           );
           if (labelType === "QObject") allowedCategories.add("Question");
-          if (labelType === "Object") allowedCategories.add("Illustrative object");
-          if (labelType === "XObject") allowedCategories.add("Illustrative object");
+          if (labelType === "Object")
+            allowedCategories.add("Illustrative object");
+          if (labelType === "XObject")
+            allowedCategories.add("Illustrative object");
         });
 
         if (!allowedCategories.has(area.type)) return;
@@ -197,7 +204,8 @@ const StudioAreaSelector = React.memo(
             compositeBlocks.type,
             labelKey
           );
-          const isObjectLabel = labelType === "Object" || labelType === "XObject";
+          const isObjectLabel =
+            labelType === "Object" || labelType === "XObject";
           const isQuestionLabel = labelType === "QObject";
           if (area.type === "Illustrative object" && isObjectLabel) {
             areaType = labelKey;
