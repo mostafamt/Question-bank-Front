@@ -28,6 +28,10 @@ const routes = [
     component: AddBook,
   },
   {
+    path: "/book-author/book/:bookId/chapter/:chapterId",
+    component: ScanAndUpload,
+  },
+  {
     path: "/book/:bookId/chapter/:chapterId",
     component: ScanAndUpload,
   },
