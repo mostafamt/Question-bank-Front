@@ -13,7 +13,29 @@
         "order": 1,
         "component": "StudioThumbnails",
         "enabled": true,
-        "description": "Page thumbnails for quick navigation"
+        "description": "Page thumbnails for quick navigation",
+        "actions": [
+          {
+            "label": "add",
+            "mode": ["book-author"]
+          },
+          {
+            "label": "delete",
+            "mode": ["book-author"]
+          },
+          {
+            "label": "duplicate",
+            "mode": ["book-author"]
+          },
+          {
+            "label": "import",
+            "mode": ["book-author"]
+          },
+          {
+            "label": "export",
+            "mode": ["book-author"]
+          }
+        ]
       },
       {
         "id": "recalls",
