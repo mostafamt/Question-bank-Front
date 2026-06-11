@@ -74,6 +74,8 @@ const Studio = (props) => {
 
   // ============ PAGE NAVIGATION ============
   const insertPageAtRef = React.useRef(null);
+  const insertPagesAtRef = React.useRef(null);
+  const deletePageAtRef = React.useRef(null);
 
   const {
     activePageIndex,
@@ -82,7 +84,9 @@ const Studio = (props) => {
     changePageByIndex,
     changePageById,
     addBlankPage,
-  } = usePageNavigation({ pages, setPages, insertPageAtRef, subObject });
+    addLocalPages,
+    deletePage,
+  } = usePageNavigation({ pages, setPages, insertPageAtRef, insertPagesAtRef, deletePageAtRef, subObject });
 
   // ============ AREA MANAGEMENT ============
   const {
@@ -91,6 +95,8 @@ const Studio = (props) => {
     areasProperties,
     setAreasProperties,
     insertPageAt,
+    insertPagesAt,
+    deletePageAt,
     getBlockFromBlockId,
     recalculateAreas,
     updateAreaProperty,
@@ -124,6 +130,14 @@ const Studio = (props) => {
   React.useEffect(() => {
     insertPageAtRef.current = insertPageAt;
   }, [insertPageAt]);
+
+  React.useEffect(() => {
+    insertPagesAtRef.current = insertPagesAt;
+  }, [insertPagesAt]);
+
+  React.useEffect(() => {
+    deletePageAtRef.current = deletePageAt;
+  }, [deletePageAt]);
 
   // ============ VIRTUAL BLOCKS ============
   const { showVB, onClickToggleVirutalBlocks } = useVirtualBlocks({
@@ -191,6 +205,8 @@ const Studio = (props) => {
       areasProperties,
       setAreasProperties,
       addBlankPage,
+      addLocalPages,
+      deletePage,
       onEditText,
       onClickDeleteArea,
       type,
@@ -224,6 +240,8 @@ const Studio = (props) => {
       areasProperties,
       setAreasProperties,
       addBlankPage,
+      addLocalPages,
+      deletePage,
       onEditText,
       onClickDeleteArea,
       type,

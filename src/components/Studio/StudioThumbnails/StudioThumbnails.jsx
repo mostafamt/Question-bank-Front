@@ -18,7 +18,7 @@ import { useAppMode, getTabById } from "../../../utils/tabFiltering";
 
 
 const StudioThumbnails = React.forwardRef((props, ref) => {
-  const { pages, setPages, addBlankPage, onClickImage, activePage } = props;
+  const { pages, setPages, addBlankPage, addLocalPages, deletePage, onClickImage, activePage } = props;
 
   const mode = useAppMode();
   const configuredActions = getTabById("thumbnails")?.actions ?? [];
@@ -28,24 +28,7 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
   console.log("mode= ", mode);
 
   const onChange = (event) => {
-    const files = event.target.files;
-    const urls = [...files].map((file) => ({
-      _id: uuidv4(),
-      blocks: [],
-      v_blocks: [],
-      url: URL.createObjectURL(file),
-    }));
-    const newPages = [...pages, ...urls];
-    setPages(newPages);
-    onClickImage(newPages.length - 1);
-  };
-
-  const onDeleteThumbnail = () => {
-    const newImages = pages.filter((_, idx) => idx !== activePage);
-    setPages(newImages);
-    if (newImages.length) {
-      onClickImage(Math.max(0, activePage - 1));
-    }
+    addLocalPages?.(event.target.files, activePage);
   };
 
   const onClickDuplicate = () => {};
@@ -91,7 +74,7 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
     {
       label: "delete",
       Icon: DeleteIcon,
-      onClick: onDeleteThumbnail,
+      onClick: () => deletePage?.(activePage),
     },
     {
       label: "duplicate",
