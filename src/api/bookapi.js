@@ -51,6 +51,11 @@ export const getChapterTOC = async (chapterId) => {
 
 export const getBlocksByChapter = async () => {};
 
+export const importPages = async ({ pageIds, chapterId }) => {
+  const res = await axios.post("/pages/import", { pageIds, chapterId });
+  return res.data;
+};
+
 export const getObject = async (id) => {
   const url = `/interactive-objects/${id}`;
   try {
