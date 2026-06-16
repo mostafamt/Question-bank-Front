@@ -13,10 +13,12 @@ import {
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CloseIcon from "@mui/icons-material/Close";
+import { useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { useQuery } from "@tanstack/react-query";
-import { getBooks, getChapters, getChapterPages } from "../../../api/bookapi";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getBooks, getChapters, getChapterPages, importPages } from "../../../api/bookapi";
 import Select from "../../Select/Select";
+import { toast } from "react-toastify";
 
 const ImportPagesModal = ({ open, handleCloseModal }) => {
   const {
@@ -26,6 +28,9 @@ const ImportPagesModal = ({ open, handleCloseModal }) => {
   } = useForm();
 
   const [selectedPages, setSelectedPages] = React.useState([]);
+  const [isImporting, setIsImporting] = React.useState(false);
+  const queryClient = useQueryClient();
+  const { bookId, chapterId } = useParams();
 
   const selectedBook = watch("book");
   const selectedChapter = watch("chapter");
@@ -58,6 +63,20 @@ const ImportPagesModal = ({ open, handleCloseModal }) => {
   React.useEffect(() => {
     setSelectedPages([]);
   }, [selectedBook, selectedChapter]);
+
+  const handleConfirm = async () => {
+    setIsImporting(true);
+    try {
+      await importPages({ pageIds: selectedPages, chapterId: selectedChapter });
+      await queryClient.invalidateQueries({ queryKey: [`book-${bookId}-chapter-${chapterId}`] });
+      toast.success("Pages imported successfully");
+      handleCloseModal();
+    } catch (error) {
+      toast.error("Failed to import pages");
+    } finally {
+      setIsImporting(false);
+    }
+  };
 
   return (
     <Dialog
@@ -200,8 +219,9 @@ const ImportPagesModal = ({ open, handleCloseModal }) => {
         </Button>
         <Button
           variant="contained"
-          onClick={() => {}}
-          disabled={selectedPages.length === 0}
+          onClick={handleConfirm}
+          disabled={selectedPages.length === 0 || isImporting}
+          startIcon={isImporting ? <CircularProgress size={16} color="inherit" /> : null}
         >
           Confirm
         </Button>
