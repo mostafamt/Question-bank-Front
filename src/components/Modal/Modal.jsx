@@ -20,6 +20,7 @@ import VirtualBlockReaderModal from "./VirtualBlockReaderModal/VirtualBlockReade
 import VirtualBlockReaderNavigationModal from "./VirtualBlockReaderNavigationModal/VirtualBlockReaderNavigationModal";
 import IframeDisplayModal from "./IframeDisplayModal/IframeDisplayModal";
 import SelectFromLibraryModal from "./SelectFromLibraryModal/SelectFromLibraryModal";
+import ImportPagesModal from "./ImportPagesModal/ImportPagesModal";
 
 // Modal registry
 const MODAL_COMPONENTS = {
@@ -42,12 +43,19 @@ const MODAL_COMPONENTS = {
   "composite-blocks-modal": CompositeBlocksModal,
   "enriching-content": EnrichingContentModal,
   "select-from-library": SelectFromLibraryModal,
+  "import-pages": ImportPagesModal,
 };
 
 const Modal = () => {
   const { modal, closeModal } = useStore();
 
   const { name = "", size = "xl", opened = false, props = {} } = modal;
+
+  if (name === "import-pages") {
+    return (
+      <ImportPagesModal open={opened} handleCloseModal={closeModal} {...props} />
+    );
+  }
 
   // Get modal component by name
   const ModalComponent = MODAL_COMPONENTS[name] || null;

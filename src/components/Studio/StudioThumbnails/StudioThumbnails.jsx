@@ -11,14 +11,24 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { styled } from "@mui/material/styles";
 import { Button, IconButton } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
+import { useStore } from "../../../store/store";
 
 import styles from "./studioThumbnails.module.scss";
 import VisuallyHiddenInput from "../../VisuallyHiddenInput/VisuallyHiddenInput";
 import { useAppMode, getTabById } from "../../../utils/tabFiltering";
 
-
 const StudioThumbnails = React.forwardRef((props, ref) => {
-  const { pages, setPages, addBlankPage, addLocalPages, deletePage, onClickImage, activePage } = props;
+  const {
+    pages,
+    setPages,
+    addBlankPage,
+    addLocalPages,
+    deletePage,
+    onClickImage,
+    activePage,
+  } = props;
+
+  const { openModal } = useStore();
 
   const mode = useAppMode();
   const configuredActions = getTabById("thumbnails")?.actions ?? [];
@@ -33,7 +43,9 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
 
   const onClickDuplicate = () => {};
 
-  const onClickImport = () => {};
+  const onClickImport = () => {
+    openModal("import-pages", {});
+  };
 
   const onClickExport = () => {
     const activePage = pages[activePage];
