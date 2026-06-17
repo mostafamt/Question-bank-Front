@@ -11,6 +11,7 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { styled } from "@mui/material/styles";
 import { Button, IconButton } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
+import { useParams } from "react-router-dom";
 import { useStore } from "../../../store/store";
 
 import styles from "./studioThumbnails.module.scss";
@@ -29,6 +30,7 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
   } = props;
 
   const { openModal } = useStore();
+  const { bookId, chapterId } = useParams();
 
   const mode = useAppMode();
   const configuredActions = getTabById("thumbnails")?.actions ?? [];
@@ -44,7 +46,7 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
   const onClickDuplicate = () => {};
 
   const onClickImport = () => {
-    openModal("import-pages", {});
+    openModal("import-pages", { bookId, chapterId });
   };
 
   const onClickExport = () => {

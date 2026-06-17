@@ -20,7 +20,7 @@ import VirtualBlockReaderModal from "./VirtualBlockReaderModal/VirtualBlockReade
 import VirtualBlockReaderNavigationModal from "./VirtualBlockReaderNavigationModal/VirtualBlockReaderNavigationModal";
 import IframeDisplayModal from "./IframeDisplayModal/IframeDisplayModal";
 import SelectFromLibraryModal from "./SelectFromLibraryModal/SelectFromLibraryModal";
-import ImportPagesModal from "./ImportPagesModal/ImportPagesModal";
+import ImportPagesModal from "./ImportPagesModal";
 
 // Modal registry
 const MODAL_COMPONENTS = {

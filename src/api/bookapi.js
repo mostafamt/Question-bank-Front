@@ -56,6 +56,11 @@ export const importPages = async ({ pageIds, chapterId }) => {
   return res.data;
 };
 
+export const submitPages = async ({ pageIds, chapterId }) => {
+  const res = await axios.post("/pages/submit", { pageIds, chapterId });
+  return res.data;
+};
+
 export const getObject = async (id) => {
   const url = `/interactive-objects/${id}`;
   try {
