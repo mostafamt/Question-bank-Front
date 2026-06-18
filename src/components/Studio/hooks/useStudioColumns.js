@@ -45,6 +45,7 @@ const useStudioColumns = ({
   getBlockFromBlockId,
   hightBlock,
   rightColumnProps = {},
+  onPageDeleted,
 }) => {
   // Store callback functions in refs to avoid dependency changes
   const changePageByIdRef = useRef(changePageById);
@@ -113,7 +114,6 @@ const useStudioColumns = ({
       setPages,
       addBlankPage: rightColumnProps.addBlankPage,
       addLocalPages: rightColumnProps.addLocalPages,
-      deletePage: rightColumnProps.deletePage,
       chapterId,
       activePageIndex,
       changePageByIndex: changePageByIndexRef.current,
@@ -121,6 +121,7 @@ const useStudioColumns = ({
       changePageById: changePageByIdRef.current,
       getBlockFromBlockId: getBlockFromBlockIdRef.current,
       hightBlock: hightBlockRef.current,
+      onPageDeleted,
     });
   }, [
     isReaderMode,

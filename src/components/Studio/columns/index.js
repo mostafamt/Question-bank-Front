@@ -14,7 +14,6 @@ export const buildLeftColumns = ({
   setPages,
   addBlankPage,
   addLocalPages,
-  deletePage,
   chapterId,
   activePageIndex,
   changePageByIndex,
@@ -22,6 +21,7 @@ export const buildLeftColumns = ({
   changePageById,
   getBlockFromBlockId,
   hightBlock,
+  onPageDeleted,
 }) => {
   // Create navigation function that combines page change and highlighting
   const navigateToBlock = (pageId, blockId) => {
@@ -47,10 +47,10 @@ export const buildLeftColumns = ({
                 setPages={setPages}
                 addBlankPage={addBlankPage}
                 addLocalPages={addLocalPages}
-                deletePage={deletePage}
                 activePage={activePageIndex}
                 onClickImage={changePageByIndex}
                 ref={thumbnailsRef}
+                onPageDeleted={onPageDeleted}
               />
             ),
           };

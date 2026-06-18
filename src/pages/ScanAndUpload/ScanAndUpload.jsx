@@ -49,7 +49,7 @@ const ScanAndUpload = () => {
   const {
     data: fetchedPages,
     refetch,
-    isFetching: isFetchingPages,
+    isLoading: isLoadingPages,
   } = useQuery({
     queryKey: [`book-${bookId}-chapter-${chapterId}`],
     queryFn: () => getChapterPages(chapterId),
@@ -143,7 +143,7 @@ const ScanAndUpload = () => {
 
   return (
     <div className={`container ${styles["scan-and-upload"]}`}>
-      {isFetchingPages || isFetchingTypes || !pages.length ? (
+      {isLoadingPages || isFetchingTypes || !pages.length ? (
         <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
           <CircularProgress size="2rem" />
         </Box>

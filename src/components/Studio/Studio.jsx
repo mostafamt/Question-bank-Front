@@ -85,7 +85,6 @@ const Studio = (props) => {
     changePageById,
     addBlankPage,
     addLocalPages,
-    deletePage,
   } = usePageNavigation({ pages, setPages, insertPageAtRef, insertPagesAtRef, deletePageAtRef, subObject });
 
   // ============ AREA MANAGEMENT ============
@@ -199,6 +198,14 @@ const Studio = (props) => {
 
   // ============ COLUMNS ============
 
+  const onPageDeleted = React.useCallback(
+    (pageIndex) => {
+      deletePageAt(pageIndex);
+      changePageByIndex(Math.max(0, pageIndex - 1));
+    },
+    [deletePageAt, changePageByIndex]
+  );
+
   // Memoize rightColumnProps to prevent new object reference every render
   const rightColumnProps = React.useMemo(
     () => ({
@@ -206,7 +213,6 @@ const Studio = (props) => {
       setAreasProperties,
       addBlankPage,
       addLocalPages,
-      deletePage,
       onEditText,
       onClickDeleteArea,
       type,
@@ -241,7 +247,6 @@ const Studio = (props) => {
       setAreasProperties,
       addBlankPage,
       addLocalPages,
-      deletePage,
       onEditText,
       onClickDeleteArea,
       type,
@@ -293,6 +298,7 @@ const Studio = (props) => {
     hightBlock,
     rightColumnProps,
     onSelectFromLibrary,
+    onPageDeleted,
   });
 
   // ============ EFFECTS ============
