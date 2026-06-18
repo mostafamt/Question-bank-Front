@@ -14,7 +14,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useStore } from "../../../store/store";
-import { submitPages } from "../../../api/bookapi";
+import { submitPages, addNewPage } from "../../../api/bookapi";
 import { toast } from "react-toastify";
 
 import styles from "./studioThumbnails.module.scss";
@@ -25,7 +25,6 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
   const {
     pages,
     setPages,
-    addBlankPage,
     addLocalPages,
     onClickImage,
     activePage,
@@ -45,6 +44,25 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
 
   const onChange = (event) => {
     addLocalPages?.(event.target.files, activePage);
+  };
+
+  const handleAddNewPage = async () => {
+    try {
+      const { pageId, url } = await addNewPage({ chapterId });
+      const existingIds = pages.map((p) => p._id).filter(Boolean);
+      await submitPages({ pageIds: [...existingIds, pageId], chapterId });
+      await queryClient.invalidateQueries({
+        queryKey: [`book-${bookId}-chapter-${chapterId}`],
+      });
+      const updatedPages = queryClient.getQueryData([`book-${bookId}-chapter-${chapterId}`]);
+      const newPageIndex = updatedPages?.findIndex((p) => p._id === pageId);
+      if (newPageIndex !== undefined && newPageIndex !== -1) {
+        onClickImage(newPageIndex);
+      }
+      toast.success("New page added successfully.");
+    } catch (err) {
+      toast.error("Failed to add new page.");
+    }
   };
 
   const handleDeletePage = async (pageIndex) => {
@@ -100,7 +118,7 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
     {
       label: "new",
       Icon: NoteAddIcon,
-      onClick: () => addBlankPage?.(activePage),
+      onClick: handleAddNewPage,
     },
     {
       label: "add",

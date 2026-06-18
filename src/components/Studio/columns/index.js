@@ -12,7 +12,6 @@ import { getTabsForSidebar } from "../../../utils/tabFiltering";
 export const buildLeftColumns = ({
   pages,
   setPages,
-  addBlankPage,
   addLocalPages,
   chapterId,
   activePageIndex,
@@ -45,7 +44,6 @@ export const buildLeftColumns = ({
               <StudioThumbnails
                 pages={pages}
                 setPages={setPages}
-                addBlankPage={addBlankPage}
                 addLocalPages={addLocalPages}
                 activePage={activePageIndex}
                 onClickImage={changePageByIndex}
