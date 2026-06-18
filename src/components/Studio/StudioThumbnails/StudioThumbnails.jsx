@@ -12,7 +12,10 @@ import { styled } from "@mui/material/styles";
 import { Button, IconButton } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
 import { useParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { useStore } from "../../../store/store";
+import { submitPages } from "../../../api/bookapi";
+import { toast } from "react-toastify";
 
 import styles from "./studioThumbnails.module.scss";
 import VisuallyHiddenInput from "../../VisuallyHiddenInput/VisuallyHiddenInput";
@@ -24,11 +27,12 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
     setPages,
     addBlankPage,
     addLocalPages,
-    deletePage,
     onClickImage,
     activePage,
+    onPageDeleted,
   } = props;
 
+  const queryClient = useQueryClient();
   const { openModal } = useStore();
   const { bookId, chapterId } = useParams();
 
@@ -41,6 +45,24 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
 
   const onChange = (event) => {
     addLocalPages?.(event.target.files, activePage);
+  };
+
+  const handleDeletePage = async (pageIndex) => {
+    const remainingIds = pages
+      .filter((_, i) => i !== pageIndex)
+      .map((p) => p._id)
+      .filter(Boolean);
+
+    try {
+      await submitPages({ pageIds: remainingIds, chapterId });
+      onPageDeleted?.(pageIndex);
+      await queryClient.invalidateQueries({
+        queryKey: [`book-${bookId}-chapter-${chapterId}`],
+      });
+      toast.success("Page deleted successfully.");
+    } catch (err) {
+      toast.error("Failed to delete the page.");
+    }
   };
 
   const onClickDuplicate = () => {};
@@ -88,7 +110,7 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
     {
       label: "delete",
       Icon: DeleteIcon,
-      onClick: () => deletePage?.(activePage),
+      onClick: () => handleDeletePage(activePage),
     },
     {
       label: "duplicate",

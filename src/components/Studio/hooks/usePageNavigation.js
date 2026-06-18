@@ -86,15 +86,6 @@ const usePageNavigation = ({
     changePageByIndex(insertAt + newPageObjects.length - 1);
   };
 
-  const deletePage = (pageIndex) => {
-    const newPages = pages.filter((_, idx) => idx !== pageIndex);
-    setPages(newPages);
-    deletePageAtRef?.current?.(pageIndex);
-    if (newPages.length) {
-      changePageByIndex(Math.max(0, pageIndex - 1));
-    }
-  };
-
   return {
     activePageIndex,
     setActivePageIndex,
@@ -103,7 +94,6 @@ const usePageNavigation = ({
     changePageById,
     addBlankPage,
     addLocalPages,
-    deletePage,
   };
 };
 
