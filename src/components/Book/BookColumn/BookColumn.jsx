@@ -22,7 +22,7 @@ const BookColumn = (props) => {
     COLUMNS.forEach((column) => {
       if (column.id === activeTab.id) {
         content = (
-          <div style={{ height: "100%" }}>
+          <div style={{ minHeight: "100%" }}>
             <BookColumnHeader
               columnName={getTabLabel(column.label, language)}
               close={() => onChangeActiveTab("")}
