@@ -5,13 +5,17 @@
   flex-direction: column;
   align-items: center;
   //   gap: 1rem;
-  height: calc(100% - 1rem);
+  // No fixed height: let the container grow with its thumbnails so it spans the
+  // entire scroll range of the parent (.book-column). A capped height would shrink
+  // the sticky actions' containing block, releasing it as soon as it scrolled out.
+  min-height: 100%;
   position: relative;
 
   & .actions {
     // margin: 0 0 1rem 1rem;
     align-self: flex-start;
-    position:sticky;
+    position: sticky;
+    // Pin just below the sticky BookColumnHeader so the actions stay visible.
     top: 32px;
     left: 0;
     // transform: translate(50%, 25%);
@@ -19,11 +23,12 @@
     background-color: #fff;
     width: 100%;
     box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
-    z-index: 1;
+    z-index: 2;
   }
 
   & .thumbnails-container {
     flex: 1;
+    width: 100%;
     // overflow-y: auto;
   }
 
