@@ -83,7 +83,6 @@ const Studio = (props) => {
     activePageId,
     changePageByIndex,
     changePageById,
-    addBlankPage,
     addLocalPages,
   } = usePageNavigation({ pages, setPages, insertPageAtRef, insertPagesAtRef, deletePageAtRef, subObject });
 
@@ -125,7 +124,6 @@ const Studio = (props) => {
     recalculateAreasRef.current = recalculateAreas;
   }, [recalculateAreas]);
 
-  // Keep insertPageAtRef updated so usePageNavigation.addBlankPage always calls the latest version
   React.useEffect(() => {
     insertPageAtRef.current = insertPageAt;
   }, [insertPageAt]);
@@ -211,7 +209,6 @@ const Studio = (props) => {
     () => ({
       areasProperties,
       setAreasProperties,
-      addBlankPage,
       addLocalPages,
       onEditText,
       onClickDeleteArea,
@@ -245,7 +242,6 @@ const Studio = (props) => {
     [
       areasProperties,
       setAreasProperties,
-      addBlankPage,
       addLocalPages,
       onEditText,
       onClickDeleteArea,

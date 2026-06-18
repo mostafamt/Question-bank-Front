@@ -61,6 +61,11 @@ export const submitPages = async ({ pageIds, chapterId }) => {
   return res.data;
 };
 
+export const addNewPage = async ({ chapterId }) => {
+  const res = await axios.post("/pages/new", { blocks: [], chapterId });
+  return res.data;
+};
+
 export const getObject = async (id) => {
   const url = `/interactive-objects/${id}`;
   try {

@@ -44,6 +44,19 @@ const useAreaManagement = ({
 
   const [showVB, setShowVB] = React.useState(false);
 
+  // When pages grows (e.g. after a new page is added and refetched), append
+  // empty entries so areas/areasProperties stay in sync with the pages array.
+  React.useEffect(() => {
+    setAreas((prev) => {
+      if (prev.length >= pages.length) return prev;
+      return [...prev, ...Array(pages.length - prev.length).fill([])];
+    });
+    setAreasProperties((prev) => {
+      if (prev.length >= pages.length) return prev;
+      return [...prev, ...Array(pages.length - prev.length).fill([])];
+    });
+  }, [pages.length]);
+
   const getBlockFromBlockId = (id) => {
     if (!id) return null;
 
