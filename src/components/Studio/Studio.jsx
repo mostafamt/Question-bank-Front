@@ -84,7 +84,15 @@ const Studio = (props) => {
     changePageByIndex,
     changePageById,
     addLocalPages,
-  } = usePageNavigation({ pages, setPages, insertPageAtRef, insertPagesAtRef, deletePageAtRef, subObject });
+    addEmptyPage,
+  } = usePageNavigation({
+    pages,
+    setPages,
+    insertPageAtRef,
+    insertPagesAtRef,
+    deletePageAtRef,
+    subObject,
+  });
 
   // ============ AREA MANAGEMENT ============
   const {
@@ -198,6 +206,8 @@ const Studio = (props) => {
 
   const onPageDeleted = React.useCallback(
     (pageIndex) => {
+      console.log("onPageDeleted");
+      console.log("pageIndex= ", pageIndex);
       deletePageAt(pageIndex);
       changePageByIndex(Math.max(0, pageIndex - 1));
     },
@@ -295,6 +305,7 @@ const Studio = (props) => {
     rightColumnProps,
     onSelectFromLibrary,
     onPageDeleted,
+    addEmptyPage,
   });
 
   // ============ EFFECTS ============

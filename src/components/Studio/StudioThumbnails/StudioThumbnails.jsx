@@ -3,6 +3,7 @@ import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import SaveIcon from "@mui/icons-material/Save";
 import { Tooltip } from "@mui/material";
 import FileCopyIcon from "@mui/icons-material/FileCopy";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -26,6 +27,7 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
     pages,
     setPages,
     addLocalPages,
+    addEmptyPage,
     onClickImage,
     activePage,
     onPageDeleted,
@@ -40,8 +42,6 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
 
   const containerRef = React.useRef(null);
 
-  console.log("mode= ", mode);
-
   const onChange = (event) => {
     addLocalPages?.(event.target.files, activePage);
   };
@@ -49,38 +49,29 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
   const handleAddNewPage = async () => {
     try {
       const { pageId, url } = await addNewPage({ chapterId });
-      const existingIds = pages.map((p) => p._id).filter(Boolean);
-      await submitPages({ pageIds: [...existingIds, pageId], chapterId });
-      await queryClient.invalidateQueries({
-        queryKey: [`book-${bookId}-chapter-${chapterId}`],
-      });
-      const updatedPages = queryClient.getQueryData([`book-${bookId}-chapter-${chapterId}`]);
-      const newPageIndex = updatedPages?.findIndex((p) => p._id === pageId);
-      if (newPageIndex !== undefined && newPageIndex !== -1) {
-        onClickImage(newPageIndex);
-      }
-      toast.success("New page added successfully.");
-    } catch (err) {
-      toast.error("Failed to add new page.");
+      addEmptyPage?.(activePage, { pageId, url });
+    } catch {
+      toast.error("Failed to create new page.");
     }
   };
 
-  const handleDeletePage = async (pageIndex) => {
-    const remainingIds = pages
-      .filter((_, i) => i !== pageIndex)
-      .map((p) => p._id)
-      .filter(Boolean);
-
+  const handleSave = async () => {
     try {
-      await submitPages({ pageIds: remainingIds, chapterId });
-      onPageDeleted?.(pageIndex);
+      const pageIds = pages.map((p) => p._id).filter(Boolean);
+      await submitPages({ pageIds, chapterId });
+      setPages(pages.map((p) => ({ ...p, _isPending: false })));
       await queryClient.invalidateQueries({
         queryKey: [`book-${bookId}-chapter-${chapterId}`],
       });
-      toast.success("Page deleted successfully.");
-    } catch (err) {
-      toast.error("Failed to delete the page.");
+      toast.success("Pages saved successfully.");
+    } catch {
+      toast.error("Failed to save pages.");
     }
+  };
+
+  const handleDeletePage = (pageIndex) => {
+    setPages((prev) => prev.filter((_, i) => i !== pageIndex));
+    onPageDeleted?.(pageIndex);
   };
 
   const onClickDuplicate = () => {};
@@ -145,6 +136,11 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
       Icon: FileDownloadIcon,
       onClick: onClickExport,
     },
+    {
+      label: "save",
+      Icon: SaveIcon,
+      onClick: handleSave,
+    },
   ];
 
   return (
@@ -172,21 +168,20 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
           ))}
       </div>
       <div className={styles["thumbnails-container"]} ref={containerRef}>
-        {pages.map((img, idx) => (
-          <img
-            key={idx}
-            src={img?.url || img}
-            alt={img?.url || img}
-            width="100%"
-            onClick={() => onClickImage(idx)}
-            style={{
-              border:
-                activePage === idx
-                  ? "1rem solid #ccc"
-                  : "1rem solid transparent",
-            }}
-          />
-        ))}
+        {pages.map((img, idx) => {
+          const isActive = activePage === idx;
+          const border = isActive ? "1rem solid #ccc" : "1rem solid transparent";
+          return (
+            <img
+              key={idx}
+              src={img?.url || img}
+              alt={img?.url || img}
+              width="100%"
+              onClick={() => onClickImage(idx)}
+              style={{ border }}
+            />
+          );
+        })}
       </div>
     </div>
   );

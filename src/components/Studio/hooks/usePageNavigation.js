@@ -62,6 +62,25 @@ const usePageNavigation = ({
     changePageByIndex(insertAt + newPageObjects.length - 1);
   };
 
+  const addEmptyPage = (afterIndex, { pageId, url }) => {
+    const newPage = {
+      _id: pageId,
+      _isPending: true,
+      blocks: [],
+      v_blocks: [],
+      url,
+    };
+    const insertAt = afterIndex + 1;
+    const updatedPages = [
+      ...pages.slice(0, insertAt),
+      newPage,
+      ...pages.slice(insertAt),
+    ];
+    setPages(updatedPages);
+    insertPageAtRef?.current?.(insertAt, newPage);
+    changePageByIndex(insertAt);
+  };
+
   return {
     activePageIndex,
     setActivePageIndex,
@@ -69,6 +88,7 @@ const usePageNavigation = ({
     changePageByIndex,
     changePageById,
     addLocalPages,
+    addEmptyPage,
   };
 };
 

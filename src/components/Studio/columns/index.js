@@ -13,6 +13,7 @@ export const buildLeftColumns = ({
   pages,
   setPages,
   addLocalPages,
+  addEmptyPage,
   chapterId,
   activePageIndex,
   changePageByIndex,
@@ -45,6 +46,7 @@ export const buildLeftColumns = ({
                 pages={pages}
                 setPages={setPages}
                 addLocalPages={addLocalPages}
+                addEmptyPage={addEmptyPage}
                 activePage={activePageIndex}
                 onClickImage={changePageByIndex}
                 ref={thumbnailsRef}
