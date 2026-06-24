@@ -38,6 +38,10 @@
           {
             "label": "export",
             "mode": ["book-author"]
+          },
+          {
+            "label": "save",
+            "mode": ["book-author"]
           }
         ]
       },
