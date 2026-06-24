@@ -62,6 +62,9 @@ const usePageNavigation = ({
     changePageByIndex(insertAt + newPageObjects.length - 1);
   };
 
+  const BLANK_PAGE_URL =
+    "https://res.cloudinary.com/dd9turntq/image/upload/v1782292265/xsk5iuhrifbgsma0d4un.png";
+
   const addEmptyPage = (afterIndex, { pageId, url }) => {
     const newPage = {
       _id: pageId,
@@ -81,6 +84,17 @@ const usePageNavigation = ({
     changePageByIndex(insertAt);
   };
 
+  const addImportedPages = (importedPages) => {
+    const newPages = importedPages.map(({ pageId, url }) => ({
+      _id: pageId,
+      _isPending: true,
+      blocks: [],
+      v_blocks: [],
+      url: url ?? BLANK_PAGE_URL,
+    }));
+    setPages((prev) => [...prev, ...newPages]);
+  };
+
   return {
     activePageIndex,
     setActivePageIndex,
@@ -89,6 +103,7 @@ const usePageNavigation = ({
     changePageById,
     addLocalPages,
     addEmptyPage,
+    addImportedPages,
   };
 };
 
