@@ -15,7 +15,7 @@ import Select from "../../Select/Select";
 import PageGrid from "./components/PageGrid";
 import useImportPages from "./hooks/useImportPages";
 
-const ImportPagesModal = ({ open, handleCloseModal, bookId, chapterId }) => {
+const ImportPagesModal = ({ open, handleCloseModal, bookId, chapterId, onPagesImported }) => {
   const {
     books,
     chapters,
@@ -31,7 +31,7 @@ const ImportPagesModal = ({ open, handleCloseModal, bookId, chapterId }) => {
     isImporting,
     togglePage,
     handleConfirm,
-  } = useImportPages({ open, onClose: handleCloseModal, bookId, chapterId });
+  } = useImportPages({ open, onClose: handleCloseModal, bookId, chapterId, onPagesImported });
 
   return (
     <Dialog

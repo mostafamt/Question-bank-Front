@@ -1,21 +1,18 @@
 import { useState, useEffect } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import {
   getBooks,
   getChapters,
   getChapterPages,
   importPages,
-  submitPages,
 } from "../../../../api/bookapi";
 
-const useImportPages = ({ open, onClose, bookId, chapterId }) => {
+const useImportPages = ({ open, onClose, bookId, chapterId, onPagesImported }) => {
   const [selectedBook, setSelectedBook] = useState("");
   const [selectedChapter, setSelectedChapter] = useState("");
   const [selectedPages, setSelectedPages] = useState([]);
   const [isImporting, setIsImporting] = useState(false);
-
-  const queryClient = useQueryClient();
 
   const { data: books, isLoading: isLoadingBooks } = useQuery({
     queryKey: ["books"],
@@ -61,18 +58,11 @@ const useImportPages = ({ open, onClose, bookId, chapterId }) => {
         pageIds: selectedPages,
         chapterId: selectedChapter,
       });
-
-      const existingPages = await getChapterPages(chapterId);
-      const existingPageIds = existingPages.map((p) => p._id);
-
-      await submitPages({
-        pageIds: [...existingPageIds, ...newPageIds],
-        chapterId,
-      });
-
-      await queryClient.invalidateQueries({
-        queryKey: [`book-${bookId}-chapter-${chapterId}`],
-      });
+      const importedPages = newPageIds.map((pageId, idx) => ({
+        pageId,
+        url: pages?.find((p) => p._id === selectedPages[idx])?.url ?? null,
+      }));
+      onPagesImported(importedPages);
       toast.success("Pages imported successfully");
       onClose();
     } catch (error) {

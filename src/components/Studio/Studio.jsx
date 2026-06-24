@@ -85,6 +85,7 @@ const Studio = (props) => {
     changePageById,
     addLocalPages,
     addEmptyPage,
+    addImportedPages,
   } = usePageNavigation({
     pages,
     setPages,
@@ -306,6 +307,7 @@ const Studio = (props) => {
     onSelectFromLibrary,
     onPageDeleted,
     addEmptyPage,
+    addImportedPages,
   });
 
   // ============ EFFECTS ============
