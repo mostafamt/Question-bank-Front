@@ -105,9 +105,11 @@ const ImportPagesModal = ({ open, handleCloseModal, bookId, chapterId, onPagesIm
           variant="contained"
           onClick={handleConfirm}
           disabled={selectedPages.length === 0 || isImporting}
-          startIcon={isImporting ? <CircularProgress size={16} color="inherit" /> : null}
+          startIcon={
+            isImporting ? <CircularProgress size={16} color="inherit" /> : null
+          }
         >
-          Confirm
+          Select
         </Button>
       </DialogActions>
     </Dialog>

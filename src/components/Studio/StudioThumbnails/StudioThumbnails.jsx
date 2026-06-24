@@ -78,7 +78,12 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
   const onClickDuplicate = () => {};
 
   const onClickImport = () => {
-    openModal("import-pages", { bookId, chapterId, onPagesImported: addImportedPages });
+    openModal("import-pages", {
+      bookId,
+      chapterId,
+      onPagesImported: (importedPages) =>
+        addImportedPages(activePage, importedPages),
+    });
   };
 
   const onClickExport = () => {
@@ -129,13 +134,8 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
     },
     {
       label: "import",
-      Icon: PublishIcon,
-      onClick: onClickImport,
-    },
-    {
-      label: "export",
       Icon: FileDownloadIcon,
-      onClick: onClickExport,
+      onClick: onClickImport,
     },
     {
       label: "save",
