@@ -84,7 +84,7 @@ const usePageNavigation = ({
     changePageByIndex(insertAt);
   };
 
-  const addImportedPages = (importedPages) => {
+  const addImportedPages = (afterIndex, importedPages) => {
     const newPages = importedPages.map(({ pageId, url }) => ({
       _id: pageId,
       _isPending: true,
@@ -92,7 +92,13 @@ const usePageNavigation = ({
       v_blocks: [],
       url: url ?? BLANK_PAGE_URL,
     }));
-    setPages((prev) => [...prev, ...newPages]);
+    const insertAt = afterIndex + 1;
+    setPages((prev) => [
+      ...prev.slice(0, insertAt),
+      ...newPages,
+      ...prev.slice(insertAt),
+    ]);
+    insertPagesAtRef?.current?.(insertAt, newPages);
   };
 
   return {
