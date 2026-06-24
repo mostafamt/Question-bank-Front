@@ -1,14 +1,13 @@
 import React from "react";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import SaveIcon from "@mui/icons-material/Save";
 import { Tooltip } from "@mui/material";
-import FileCopyIcon from "@mui/icons-material/FileCopy";
 import DeleteIcon from "@mui/icons-material/Delete";
-import PublishIcon from "@mui/icons-material/Publish";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import ContentCutIcon from "@mui/icons-material/ContentCut";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import { styled } from "@mui/material/styles";
 import { Button, IconButton } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
@@ -29,10 +28,13 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
     addLocalPages,
     addEmptyPage,
     addImportedPages,
+    insertPageLocally,
     onClickImage,
     activePage,
     onPageDeleted,
   } = props;
+
+  const [clipboard, setClipboard] = React.useState(null);
 
   const queryClient = useQueryClient();
   const { openModal } = useStore();
@@ -75,7 +77,25 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
     onPageDeleted?.(pageIndex);
   };
 
-  const onClickDuplicate = () => {};
+  const handleCopy = () => {
+    setClipboard({ page: pages[activePage], mode: "copy" });
+  };
+
+  const handleCut = () => {
+    if (pages.length === 1) return;
+    const page = pages[activePage];
+    setPages((prev) => prev.filter((_, i) => i !== activePage));
+    onPageDeleted?.(activePage);
+    setClipboard({ page, mode: "cut" });
+  };
+
+  const handlePaste = () => {
+    if (!clipboard) return;
+    const insertAt = activePage + 1;
+    const newPage = { ...clipboard.page, _isPending: true };
+    insertPageLocally?.(insertAt, newPage);
+    setClipboard(null);
+  };
 
   const onClickImport = () => {
     openModal("import-pages", {
@@ -128,9 +148,21 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
       onClick: () => handleDeletePage(activePage),
     },
     {
-      label: "duplicate",
-      Icon: FileCopyIcon,
-      onClick: onClickDuplicate,
+      label: "copy",
+      Icon: ContentCopyIcon,
+      onClick: handleCopy,
+    },
+    {
+      label: "cut",
+      Icon: ContentCutIcon,
+      onClick: handleCut,
+      disabled: pages.length === 1,
+    },
+    {
+      label: "paste",
+      Icon: ContentPasteIcon,
+      onClick: handlePaste,
+      disabled: !clipboard,
     },
     {
       label: "import",
@@ -153,18 +185,20 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
               (a) => a.label === label && a.mode.includes(mode)
             )
           )
-          .map(({ label, Icon, onClick, isFileInput }) => (
+          .map(({ label, Icon, onClick, isFileInput, disabled }) => (
             <Tooltip key={label} placement="top" title={label}>
-              <IconButton
-                aria-label={label}
-                onClick={onClick}
-                {...(isFileInput
-                  ? { component: "label", onChange }
-                  : { onClick })}
-              >
-                <Icon />
-                {isFileInput && <VisuallyHiddenInput type="file" />}
-              </IconButton>
+              <span>
+                <IconButton
+                  aria-label={label}
+                  disabled={disabled}
+                  {...(isFileInput
+                    ? { component: "label", onChange }
+                    : { onClick })}
+                >
+                  <Icon />
+                  {isFileInput && <VisuallyHiddenInput type="file" />}
+                </IconButton>
+              </span>
             </Tooltip>
           ))}
       </div>

@@ -28,7 +28,15 @@
             "mode": ["book-author"]
           },
           {
-            "label": "duplicate",
+            "label": "copy",
+            "mode": ["book-author"]
+          },
+          {
+            "label": "cut",
+            "mode": ["book-author"]
+          },
+          {
+            "label": "paste",
             "mode": ["book-author"]
           },
           {

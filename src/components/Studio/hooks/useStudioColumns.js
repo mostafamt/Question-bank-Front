@@ -48,6 +48,7 @@ const useStudioColumns = ({
   onPageDeleted,
   addEmptyPage,
   addImportedPages,
+  insertPageLocally,
 }) => {
   // Store callback functions in refs to avoid dependency changes
   const changePageByIdRef = useRef(changePageById);
@@ -117,6 +118,7 @@ const useStudioColumns = ({
       addLocalPages: rightColumnProps.addLocalPages,
       addEmptyPage,
       addImportedPages,
+      insertPageLocally,
       chapterId,
       activePageIndex,
       changePageByIndex: changePageByIndexRef.current,

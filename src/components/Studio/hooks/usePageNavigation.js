@@ -65,6 +65,15 @@ const usePageNavigation = ({
   const BLANK_PAGE_URL =
     "https://res.cloudinary.com/dd9turntq/image/upload/v1782292265/xsk5iuhrifbgsma0d4un.png";
 
+  const insertPageLocally = (insertAt, page) => {
+    setPages((prev) => [
+      ...prev.slice(0, insertAt),
+      page,
+      ...prev.slice(insertAt),
+    ]);
+    insertPageAtRef?.current?.(insertAt, page);
+  };
+
   const addEmptyPage = (afterIndex, { pageId, url }) => {
     const newPage = {
       _id: pageId,
@@ -74,13 +83,7 @@ const usePageNavigation = ({
       url,
     };
     const insertAt = afterIndex + 1;
-    const updatedPages = [
-      ...pages.slice(0, insertAt),
-      newPage,
-      ...pages.slice(insertAt),
-    ];
-    setPages(updatedPages);
-    insertPageAtRef?.current?.(insertAt, newPage);
+    insertPageLocally(insertAt, newPage);
     changePageByIndex(insertAt);
   };
 
@@ -110,6 +113,7 @@ const usePageNavigation = ({
     addLocalPages,
     addEmptyPage,
     addImportedPages,
+    insertPageLocally,
   };
 };
 
