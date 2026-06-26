@@ -66,6 +66,11 @@ export const addNewPage = async ({ chapterId }) => {
   return res.data;
 };
 
+export const createChapter = async (payload) => {
+  const res = await axios.post("/chapters", payload);
+  return res.data;
+};
+
 export const getObject = async (id) => {
   const url = `/interactive-objects/${id}`;
   try {
