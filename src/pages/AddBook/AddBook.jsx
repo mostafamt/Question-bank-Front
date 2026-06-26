@@ -2,7 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import Select from "../../components/Select/Select";
 import { getBooks, getChapters } from "../../api/bookapi";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button, CircularProgress } from "@mui/material";
 import ImportContactsIcon from "@mui/icons-material/ImportContacts";
 import DrawIcon from "@mui/icons-material/Draw";
@@ -14,13 +14,15 @@ import { getTypes } from "../../services/api";
 
 const AddBook = () => {
   const navigate = useNavigate();
-  const { setFormState, setLanguage } = useStore();
+  const { setFormState, setLanguage, openModal } = useStore();
+  const queryClient = useQueryClient();
   const [loadingScan, setLoadingScan] = React.useState(false);
   const {
     register,
     formState: { errors },
     handleSubmit,
     watch,
+    setValue,
   } = useForm();
 
   const { data: books, isLoading: isLoadingBooks } = useQuery({
@@ -74,6 +76,22 @@ const AddBook = () => {
       setLoadingScan(false);
     }
   };
+
+  const chapterValue = watch("chapter");
+
+  React.useEffect(() => {
+    if (chapterValue === "__add_chapter__") {
+      setValue("chapter", "");
+      const bookId = watch("book");
+      openModal("add-chapter", {
+        bookId,
+        onChapterCreated: (newChapter) => {
+          queryClient.invalidateQueries([`chapters-${bookId}`]);
+          setValue("chapter", newChapter._id);
+        },
+      });
+    }
+  }, [chapterValue]);
 
   const onSubmit = async (values, event) => {
     const submitterName = event?.nativeEvent?.submitter?.name;
@@ -131,6 +149,9 @@ const AddBook = () => {
                     {chapter.title}
                   </option>
                 ))}
+                {watch("book") && (
+                  <option value="__add_chapter__">+ Add Chapter</option>
+                )}
               </Select>
             </div>
 

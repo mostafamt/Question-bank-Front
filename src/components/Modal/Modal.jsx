@@ -21,6 +21,7 @@ import VirtualBlockReaderNavigationModal from "./VirtualBlockReaderNavigationMod
 import IframeDisplayModal from "./IframeDisplayModal/IframeDisplayModal";
 import SelectFromLibraryModal from "./SelectFromLibraryModal/SelectFromLibraryModal";
 import ImportPagesModal from "./ImportPagesModal";
+import AddChapterModal from "./AddChapterModal/AddChapterModal";
 
 // Modal registry
 const MODAL_COMPONENTS = {
@@ -54,6 +55,12 @@ const Modal = () => {
   if (name === "import-pages") {
     return (
       <ImportPagesModal open={opened} handleCloseModal={closeModal} {...props} />
+    );
+  }
+
+  if (name === "add-chapter") {
+    return (
+      <AddChapterModal open={opened} handleCloseModal={closeModal} {...props} />
     );
   }
 
