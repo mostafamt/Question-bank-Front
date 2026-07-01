@@ -71,6 +71,11 @@ export const createChapter = async (payload) => {
   return res.data;
 };
 
+export const copyChapter = async ({ bookId, chapterId }) => {
+  const res = await axios.post("/chapters/copy", { bookId, chapterId });
+  return res.data;
+};
+
 export const getObject = async (id) => {
   const url = `/interactive-objects/${id}`;
   try {

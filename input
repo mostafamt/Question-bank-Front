@@ -1,0 +1,19 @@
+endpoint: https://questions-api-navy.vercel.app/api/chapters/copy
+body: {
+    "bookId": "12b149cf8881ef7ad905b037",
+    "chapterId": "ed8da075f9f4f1105d53bd06"
+}
+response: {
+    "message": "A new version of chapter created successfully.",
+    "chapterId": "6a26b307360e664890fa297f",
+    "title": "Cell structure v5",
+    "sourceChapterId": "ed8da075f9f4f1105d53bd06",
+    "bookId": "12b149cf8881ef7ad905b037",
+    "totalPages": 6
+}
+
+when call this endpoint, it suppose to refetch book chapters so that they will be increased .
+
+I want to consume this endpoint to create a new chapter from the existing chapter in the root or main page.
+
+how can we implement this feature as ui/ux ?

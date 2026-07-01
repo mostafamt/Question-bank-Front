@@ -1,12 +1,14 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import Select from "../../components/Select/Select";
-import { getBooks, getChapters } from "../../api/bookapi";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Button, CircularProgress } from "@mui/material";
+import { getBooks, getChapters, copyChapter } from "../../api/bookapi";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { Button, CircularProgress, IconButton, Tooltip } from "@mui/material";
 import ImportContactsIcon from "@mui/icons-material/ImportContacts";
 import DrawIcon from "@mui/icons-material/Draw";
 import AutoStoriesIcon from "@mui/icons-material/AutoStories";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import { toast } from "react-toastify";
 import styles from "./addBook.module.scss";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../../store/store";
@@ -76,6 +78,19 @@ const AddBook = () => {
       setLoadingScan(false);
     }
   };
+
+  const { mutate: handleCopyChapter, isPending: isCopying } = useMutation({
+    mutationFn: copyChapter,
+    onSuccess: (data) => {
+      const bookId = watch("book");
+      queryClient.invalidateQueries([`chapters-${bookId}`]);
+      setValue("chapter", data.chapterId);
+      toast.success(`Chapter copied: "${data.title}"`);
+    },
+    onError: (error) => {
+      toast.error(error?.response?.data?.message || "Failed to copy chapter");
+    },
+  });
 
   const chapterValue = watch("chapter");
 
@@ -153,6 +168,27 @@ const AddBook = () => {
                   <option value="__add_chapter__">+ Add Chapter</option>
                 )}
               </Select>
+
+              <Tooltip title="Copy chapter">
+                <span>
+                  <IconButton
+                    onClick={() =>
+                      handleCopyChapter({
+                        bookId: watch("book"),
+                        chapterId: watch("chapter"),
+                      })
+                    }
+                    disabled={!watch("chapter") || isCopying}
+                    size="small"
+                  >
+                    {isCopying ? (
+                      <CircularProgress size="1.25rem" />
+                    ) : (
+                      <ContentCopyIcon fontSize="small" />
+                    )}
+                  </IconButton>
+                </span>
+              </Tooltip>
             </div>
 
             <div className={styles.actions}>
