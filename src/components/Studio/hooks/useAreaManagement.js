@@ -12,6 +12,7 @@ import {
   CREATED,
   DELETED,
   onEditTextField,
+  reorder,
   updateAreasProperties,
 } from "../../../utils/ocr";
 import { parseVirtualBlocksFromPages } from "../../../utils/virtual-blocks";
@@ -322,6 +323,16 @@ const useAreaManagement = ({
     setAreasProperties((prev) => prev.filter((_, idx) => idx !== pageIndex));
   };
 
+  // Reorder the per-page area structures to match a pages reorder. Must apply the
+  // exact same permutation the pages array receives, otherwise blocks would attach
+  // to the wrong page (areas/areasProperties are index-aligned with pages).
+  const reorderPageAt = (fromIndex, toIndex) => {
+    if (fromIndex === toIndex) return;
+    rawPagesRef.current = reorder(rawPagesRef.current, fromIndex, toIndex);
+    setAreas((prev) => reorder(prev, fromIndex, toIndex));
+    setAreasProperties((prev) => reorder(prev, fromIndex, toIndex));
+  };
+
   const onClickToggleVirutalBlocks = () => {
     setShowVB((prevState) => !prevState);
     setTimeout(() => {
@@ -337,6 +348,7 @@ const useAreaManagement = ({
     insertPageAt,
     insertPagesAt,
     deletePageAt,
+    reorderPageAt,
     getBlockFromBlockId,
     recalculateAreas,
     updateAreaProperty,

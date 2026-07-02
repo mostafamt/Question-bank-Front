@@ -9,6 +9,7 @@ import ContentCutIcon from "@mui/icons-material/ContentCut";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
 import { IconButton } from "@mui/material";
+import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useStore } from "../../../store/store";
@@ -46,6 +47,7 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
     addEmptyPage,
     addImportedPages,
     insertPageLocally,
+    reorderPages,
     onClickImage,
     activePage,
     onPageDeleted,
@@ -113,6 +115,15 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
     const newPage = { ...clipboard.page, _isPending: true };
     insertPageLocally?.(insertAt, newPage);
     setClipboard(null);
+  };
+
+  const onDragEnd = (result) => {
+    console.log('result= ', result);
+    if (!result.destination) return;
+    const from = result.source.index;
+    const to = result.destination.index;
+    if (from === to) return;
+    reorderPages?.(from, to);
   };
 
   const onClickImport = () => {
@@ -257,22 +268,49 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
             </Tooltip>
           ))}
       </div>
-      <div className={styles["thumbnails-container"]} ref={containerRef}>
-        {pages.map((img, idx) => {
-          const isActive = activePage === idx;
-          const border = isActive ? "1rem solid #ccc" : "1rem solid transparent";
-          return (
-            <img
-              key={idx}
-              src={img?.url || img}
-              alt={img?.url || img}
-              width="100%"
-              onClick={() => onClickImage(idx)}
-              style={{ border }}
-            />
-          );
-        })}
-      </div>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="studio-thumbnails">
+          {(provided) => (
+            <div
+              className={styles["thumbnails-container"]}
+              ref={(el) => {
+                containerRef.current = el;
+                provided.innerRef(el);
+              }}
+              {...provided.droppableProps}
+            >
+              {pages.map((img, idx) => {
+                const key = img?._id ?? idx;
+                const isActive = activePage === idx;
+                const border = isActive
+                  ? "1rem solid #ccc"
+                  : "1rem solid transparent";
+                return (
+                  <Draggable key={key} draggableId={String(key)} index={idx}>
+                    {(dragProvided, snapshot) => (
+                      <img
+                        ref={dragProvided.innerRef}
+                        {...dragProvided.draggableProps}
+                        {...dragProvided.dragHandleProps}
+                        src={img?.url || img}
+                        alt={img?.url || img}
+                        width="100%"
+                        onClick={() => onClickImage(idx)}
+                        style={{
+                          border,
+                          opacity: snapshot.isDragging ? 0.8 : 1,
+                          ...dragProvided.draggableProps.style,
+                        }}
+                      />
+                    )}
+                  </Draggable>
+                );
+              })}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
     </div>
   );
 });

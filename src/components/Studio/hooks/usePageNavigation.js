@@ -1,6 +1,18 @@
 import React from "react";
 import { v4 as uuidv4 } from "uuid";
+import { reorder } from "../../../utils/ocr";
 import { DEFAULTS, STORAGE_KEYS } from "../constants";
+
+/**
+ * Remap an index after a list item moves from `from` to `to`, so a tracked
+ * position (e.g. the active page) keeps pointing at the same item.
+ */
+const remapIndexAfterReorder = (current, from, to) => {
+  if (current === from) return to;
+  if (from < current && current <= to) return current - 1;
+  if (to <= current && current < from) return current + 1;
+  return current;
+};
 
 const usePageNavigation = ({
   pages,
@@ -8,6 +20,7 @@ const usePageNavigation = ({
   insertPageAtRef,
   insertPagesAtRef,
   deletePageAtRef,
+  reorderPageAtRef,
   subObject = false,
 }) => {
   const [activePageIndex, setActivePageIndex] = React.useState(
@@ -104,6 +117,27 @@ const usePageNavigation = ({
     insertPagesAtRef?.current?.(insertAt, newPages);
   };
 
+  // Reorder a page from one position to another and keep every index-aligned
+  // structure in sync: the pages array, the per-page areas/areasProperties (via
+  // reorderPageAtRef), and the active page index (so the highlighted page follows
+  // the page the user was on).
+  const reorderPages = (fromIndex, toIndex) => {
+    if (
+      fromIndex === toIndex ||
+      fromIndex == null ||
+      toIndex == null ||
+      fromIndex < 0 ||
+      toIndex < 0
+    )
+      return;
+
+    setPages((prev) => reorder(prev, fromIndex, toIndex));
+    reorderPageAtRef?.current?.(fromIndex, toIndex);
+    changePageByIndex(
+      remapIndexAfterReorder(activePageIndex, fromIndex, toIndex)
+    );
+  };
+
   return {
     activePageIndex,
     setActivePageIndex,
@@ -114,6 +148,7 @@ const usePageNavigation = ({
     addEmptyPage,
     addImportedPages,
     insertPageLocally,
+    reorderPages,
   };
 };
 
