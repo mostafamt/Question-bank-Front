@@ -76,6 +76,7 @@ const Studio = (props) => {
   const insertPageAtRef = React.useRef(null);
   const insertPagesAtRef = React.useRef(null);
   const deletePageAtRef = React.useRef(null);
+  const reorderPageAtRef = React.useRef(null);
 
   const {
     activePageIndex,
@@ -87,12 +88,14 @@ const Studio = (props) => {
     addEmptyPage,
     addImportedPages,
     insertPageLocally,
+    reorderPages,
   } = usePageNavigation({
     pages,
     setPages,
     insertPageAtRef,
     insertPagesAtRef,
     deletePageAtRef,
+    reorderPageAtRef,
     subObject,
   });
 
@@ -105,6 +108,7 @@ const Studio = (props) => {
     insertPageAt,
     insertPagesAt,
     deletePageAt,
+    reorderPageAt,
     getBlockFromBlockId,
     recalculateAreas,
     updateAreaProperty,
@@ -145,6 +149,10 @@ const Studio = (props) => {
   React.useEffect(() => {
     deletePageAtRef.current = deletePageAt;
   }, [deletePageAt]);
+
+  React.useEffect(() => {
+    reorderPageAtRef.current = reorderPageAt;
+  }, [reorderPageAt]);
 
   // ============ VIRTUAL BLOCKS ============
   const { showVB, onClickToggleVirutalBlocks } = useVirtualBlocks({
@@ -310,6 +318,7 @@ const Studio = (props) => {
     addEmptyPage,
     addImportedPages,
     insertPageLocally,
+    reorderPages,
   });
 
   // ============ EFFECTS ============

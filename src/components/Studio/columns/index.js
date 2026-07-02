@@ -16,6 +16,7 @@ export const buildLeftColumns = ({
   addEmptyPage,
   addImportedPages,
   insertPageLocally,
+  reorderPages,
   chapterId,
   activePageIndex,
   changePageByIndex,
@@ -51,6 +52,7 @@ export const buildLeftColumns = ({
                 addEmptyPage={addEmptyPage}
                 addImportedPages={addImportedPages}
                 insertPageLocally={insertPageLocally}
+                reorderPages={reorderPages}
                 activePage={activePageIndex}
                 onClickImage={changePageByIndex}
                 ref={thumbnailsRef}
