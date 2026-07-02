@@ -1,2 +1,2 @@
-In StudioThumbnails components, there is thumbnailActions, I want to add keyboard shourtcut for every example, ex: copy( ctrl + c ), cut ( ctrl + x ), paste ( ctrl + v )..etc.
-I want also to show which keyboard binding for every action in mui tooltip for every action, ex: new icon button show just new in tooltip. I want to show new (ctrl + n). I don't know if this could conflict with browser shourctut also. please create a plan for this feature to review it first before implementation.
+In StudioThumbnails components, I want to add feature for thumbnails to be drag and drop so that user can sort and order thumbnails
+after that when save It can send to back-end to save the order. could you create a readme plan file for this feature to review it first ?
