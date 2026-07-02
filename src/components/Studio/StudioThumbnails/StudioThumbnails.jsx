@@ -8,9 +8,7 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import ContentPasteIcon from "@mui/icons-material/ContentPaste";
-import { styled } from "@mui/material/styles";
-import { Button, IconButton } from "@mui/material";
-import { v4 as uuidv4 } from "uuid";
+import { IconButton } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useStore } from "../../../store/store";
@@ -20,6 +18,25 @@ import { toast } from "react-toastify";
 import styles from "./studioThumbnails.module.scss";
 import VisuallyHiddenInput from "../../VisuallyHiddenInput/VisuallyHiddenInput";
 import { useAppMode, getTabById } from "../../../utils/tabFiltering";
+
+const formatShortcut = ({ key, ctrlKey, altKey, shiftKey }) => {
+  const parts = [];
+  if (ctrlKey) parts.push("Ctrl");
+  if (altKey) parts.push("Alt");
+  if (shiftKey) parts.push("Shift");
+  parts.push(key.length === 1 ? key.toUpperCase() : key);
+  return parts.join("+");
+};
+
+const matchesShortcut = (e, shortcut) => {
+  if (!shortcut) return false;
+  return (
+    e.key.toLowerCase() === shortcut.key.toLowerCase() &&
+    (e.ctrlKey || e.metaKey) === !!shortcut.ctrlKey &&
+    e.altKey === !!shortcut.altKey &&
+    e.shiftKey === !!shortcut.shiftKey
+  );
+};
 
 const StudioThumbnails = React.forwardRef((props, ref) => {
   const {
@@ -37,13 +54,14 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
   const [clipboard, setClipboard] = React.useState(null);
 
   const queryClient = useQueryClient();
-  const { openModal } = useStore();
+  const { openModal, modal } = useStore();
   const { bookId, chapterId } = useParams();
 
   const mode = useAppMode();
   const configuredActions = getTabById("thumbnails")?.actions ?? [];
 
   const containerRef = React.useRef(null);
+  const fileInputRef = React.useRef(null);
 
   const onChange = (event) => {
     addLocalPages?.(event.target.files, activePage);
@@ -106,16 +124,6 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
     });
   };
 
-  const onClickExport = () => {
-    const activePage = pages[activePage];
-    const imageUrl = activePage?.url || activePage;
-
-    const a = document.createElement("a");
-    a.href = imageUrl;
-    a.download = `page-${activePage}.png`;
-    a.click();
-  };
-
   React.useEffect(() => {
     if (containerRef.current && activePage !== null) {
       const container = containerRef.current;
@@ -136,45 +144,84 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
       label: "new",
       Icon: NoteAddIcon,
       onClick: handleAddNewPage,
+      shortcut: { key: "n", ctrlKey: true, altKey: true },
     },
     {
       label: "add",
       Icon: AddPhotoAlternateIcon,
       isFileInput: true,
+      disabled: true,
+      shortcut: { key: "a", ctrlKey: true, shiftKey: true },
     },
     {
       label: "delete",
       Icon: DeleteIcon,
       onClick: () => handleDeletePage(activePage),
+      shortcut: { key: "Delete" },
     },
     {
       label: "copy",
       Icon: ContentCopyIcon,
       onClick: handleCopy,
+      shortcut: { key: "c", ctrlKey: true },
     },
     {
       label: "cut",
       Icon: ContentCutIcon,
       onClick: handleCut,
       disabled: pages.length === 1,
+      shortcut: { key: "x", ctrlKey: true },
     },
     {
       label: "paste",
       Icon: ContentPasteIcon,
       onClick: handlePaste,
       disabled: !clipboard,
+      shortcut: { key: "v", ctrlKey: true },
     },
     {
       label: "import",
       Icon: FileDownloadIcon,
       onClick: onClickImport,
+      shortcut: { key: "i", ctrlKey: true, altKey: true },
     },
     {
       label: "save",
       Icon: SaveIcon,
       onClick: handleSave,
+      shortcut: { key: "s", ctrlKey: true },
     },
   ];
+
+  React.useEffect(() => {
+    const visibleActions = thumbnailActions.filter(({ label }) =>
+      configuredActions.some((a) => a.label === label && a.mode.includes(mode))
+    );
+
+    const handleKeyDown = (e) => {
+      if (e.repeat || modal.opened) return;
+
+      const target = e.target;
+      const isEditable =
+        ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) ||
+        target.isContentEditable;
+      if (isEditable) return;
+
+      const action = visibleActions.find((a) => matchesShortcut(e, a.shortcut));
+      if (!action || action.disabled) return;
+
+      e.preventDefault();
+      if (action.isFileInput) {
+        fileInputRef.current?.click();
+      } else {
+        action.onClick?.();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pages, activePage, clipboard, mode, configuredActions, modal.opened]);
 
   return (
     <div className={styles["studio-thumbnails"]}>
@@ -185,18 +232,26 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
               (a) => a.label === label && a.mode.includes(mode)
             )
           )
-          .map(({ label, Icon, onClick, isFileInput, disabled }) => (
-            <Tooltip key={label} placement="top" title={label}>
+          .map(({ label, Icon, onClick, isFileInput, disabled, shortcut }) => (
+            <Tooltip
+              key={label}
+              placement="top"
+              title={`${label} (${formatShortcut(shortcut)})`}
+            >
               <span>
                 <IconButton
                   aria-label={label}
                   disabled={disabled}
-                  {...(isFileInput
-                    ? { component: "label", onChange }
-                    : { onClick })}
+                  {...(isFileInput ? { component: "label" } : { onClick })}
                 >
                   <Icon />
-                  {isFileInput && <VisuallyHiddenInput type="file" />}
+                  {isFileInput && (
+                    <VisuallyHiddenInput
+                      ref={fileInputRef}
+                      type="file"
+                      onChange={onChange}
+                    />
+                  )}
                 </IconButton>
               </span>
             </Tooltip>
