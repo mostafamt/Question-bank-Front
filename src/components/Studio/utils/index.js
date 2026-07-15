@@ -5,6 +5,7 @@
 
 // Area utilities (initialization, manipulation)
 export {
+  isDeepBlock,
   initializeAreas,
   initializeAreasProperties,
   initializeColorIndex,

@@ -33,8 +33,10 @@ export const pages = [
         },
         contentType: "Text MCQ",
         contentValue: "6662f6e41f62310044bd897d",
+        isDeep: true,
       },
       {
+        // No isDeep key — mirrors blocks saved before the flag existed.
         blockId: "667a9eacd67020431ef4a699",
         coordinates: {
           x: 12.5,

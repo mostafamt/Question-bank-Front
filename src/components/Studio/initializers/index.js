@@ -45,6 +45,7 @@ export const initAreasProperties = (pages = [], types = []) => {
         order: idx,
         open: false,
         isServer: "true",
+        isDeep: block.isDeep === true,
         blockId: block.blockId,
         name: block.objectName,
       };

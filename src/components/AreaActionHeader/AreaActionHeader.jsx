@@ -3,7 +3,8 @@ import MuiSelect from "../MuiSelect/MuiSelect";
 
 import styles from "./areaActionHeader.module.scss";
 import { getLabels } from "../../utils/ocr";
-import { Box } from "@mui/material";
+import { Box, Checkbox, FormControlLabel } from "@mui/material";
+import { isDeepBlock } from "../Studio/utils";
 
 const AreaActionHeader = (props) => {
   const {
@@ -31,6 +32,26 @@ const AreaActionHeader = (props) => {
         }}
       ></div>
       <Box sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        {/* Sub-object areas submit as a label->value map, which has nowhere to
+            carry a per-area flag, so the control is hidden rather than shown
+            with no effect. */}
+        {!subObject && (
+          <FormControlLabel
+            label="Deep"
+            onClick={(event) => event.stopPropagation()}
+            control={
+              <Checkbox
+                size="small"
+                checked={isDeepBlock(trialArea)}
+                onChange={(event) =>
+                  updateAreaPropertyById(trialArea.id, {
+                    isDeep: event.target.checked,
+                  })
+                }
+              />
+            }
+          />
+        )}
         <div>
           <MuiSelect
             list={
