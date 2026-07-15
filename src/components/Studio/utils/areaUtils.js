@@ -7,6 +7,15 @@ import { colors } from "../../../constants/highlight-color";
 import { v4 as uuidv4 } from "uuid";
 
 /**
+ * Read the isDeep flag off a block/areaProperty.
+ * Blocks persisted before this flag existed have no isDeep key, so an absent
+ * value must read as false rather than undefined.
+ * @param {Object} area - Area property or server block
+ * @returns {boolean}
+ */
+export const isDeepBlock = (area) => area?.isDeep === true;
+
+/**
  * Initialize areas array from pages data
  * @param {Page[]} pages - Array of page objects
  * @returns {Area[][]} - 2D array of areas for each page
@@ -67,6 +76,7 @@ export const initializeAreasProperties = (
             order: idx,
             open: false,
             isServer: "true",
+            isDeep: block.isDeep === true,
             blockId: block.blockId,
           };
         }) || []

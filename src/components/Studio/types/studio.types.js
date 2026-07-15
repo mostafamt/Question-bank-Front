@@ -50,6 +50,7 @@
  * @property {number} order - Display order in the list
  * @property {boolean} open - Whether area is expanded in UI
  * @property {string | boolean} isServer - Whether area exists on server ("true" for yes)
+ * @property {boolean} [isDeep] - Whether area is marked "deep". Absent means false — read via isDeepBlock()
  * @property {string} [blockId] - Block ID if saved to server
  * @property {AreaStatus} [status] - Area status (e.g., "deleted")
  */
@@ -108,6 +109,7 @@
  * @property {string} contentType - Type of content
  * @property {string} contentValue - Content value (text, URL, etc.)
  * @property {Coordinates} coordinates - Block coordinates
+ * @property {boolean} [isDeep] - Whether block is marked "deep". Absent on blocks saved before the flag existed
  */
 
 /**

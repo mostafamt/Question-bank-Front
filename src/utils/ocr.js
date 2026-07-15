@@ -171,6 +171,7 @@ export const updateAreasProperties = (
         open: areasProperties[activePage][block].open,
         status: status === DELETED ? status : isServer ? UPDATED : CREATED,
         isServer,
+        isDeep: areasProperties[activePage][block].isDeep === true,
       },
     ];
   }
@@ -196,6 +197,7 @@ export const updateAreasProperties = (
         open: true,
         status: CREATED,
         isServer: false,
+        isDeep: false,
       },
     ];
   }

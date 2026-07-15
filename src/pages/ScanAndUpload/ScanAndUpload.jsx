@@ -87,6 +87,7 @@ const ScanAndUpload = () => {
               contentType: item.label,
               contentValue:
                 item.typeOfLabel === "image" ? item.image : item.text,
+              isDeep: item.isDeep === true,
             };
           } else if (item.status === CREATED) {
             return {
@@ -104,6 +105,7 @@ const ScanAndUpload = () => {
                 item.typeOfLabel === "image"
                   ? await newUpload(item.image)
                   : item.text,
+              isDeep: item.isDeep === true,
             };
           } else {
             return {
@@ -120,6 +122,7 @@ const ScanAndUpload = () => {
               contentType: item.label,
               contentValue:
                 item.typeOfLabel === "image" ? item.image : item.text,
+              isDeep: item.isDeep === true,
             };
           }
         })
