@@ -39,3 +39,18 @@
     max-width: 100%;
   }
 }
+
+.deep-block-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+
+  // Same reasoning as .deep-block-content: opaque replacement of the scan, no
+  // z-index (keeps AreaSelector's resize handles visible), transparent to hit
+  // testing so the area stays draggable.
+  background-color: #fff;
+  pointer-events: none;
+  user-select: none;
+}

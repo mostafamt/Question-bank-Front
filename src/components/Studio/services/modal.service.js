@@ -19,6 +19,8 @@ export const STUDIO_MODALS = {
   QUILL: "quill",
   /** Modal for editing sub-objects (nested complex types) */
   SUB_OBJECT: "sub-object",
+  /** Modal for uploading/replacing a deep block's image */
+  DEEP_IMAGE: "deep-image",
   /** Modal for selecting composite blocks */
   COMPOSITE_BLOCKS: "composite-blocks-modal",
   /** Modal for playing composite blocks */

@@ -103,7 +103,9 @@ const ScanAndUpload = () => {
               contentType: item.label,
               contentValue:
                 item.typeOfLabel === "image"
-                  ? await newUpload(item.image)
+                  ? item.image?.startsWith("data:")
+                    ? await newUpload(item.image) // raw crop → upload it
+                    : item.image // already a hosted URL (deep image) → use as-is
                   : item.text,
               isDeep: item.isDeep === true,
             };

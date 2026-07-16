@@ -39,7 +39,11 @@ export {
 } from "./modal.service";
 
 // Deep handlers service (per-typeOfLabel behaviour for blocks marked deep)
-export { getDeepHandler, getDeepBlockText } from "./deepHandlers.service";
+export {
+  getDeepHandler,
+  getDeepBlockText,
+  getDeepBlockImage,
+} from "./deepHandlers.service";
 
 // Block service (block operations)
 export {
