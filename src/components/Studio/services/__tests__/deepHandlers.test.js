@@ -2,7 +2,7 @@
  * Tests for deep block handlers
  */
 
-import { getDeepHandler } from "../deepHandlers.service";
+import { getDeepHandler, getDeepBlockText } from "../deepHandlers.service";
 import { STUDIO_MODALS } from "../modal.service";
 
 const makeArea = (overrides = {}) => ({
@@ -35,6 +35,42 @@ describe("getDeepHandler", () => {
       expect(getDeepHandler(makeArea({ isDeep: true }), labelType)).toBeNull();
     }
   );
+});
+
+describe("getDeepBlockText", () => {
+  it("returns the text of a deep text block", () => {
+    expect(
+      getDeepBlockText(
+        makeArea({ isDeep: true, typeOfLabel: "text", text: "<p>hi</p>" })
+      )
+    ).toBe("<p>hi</p>");
+  });
+
+  it("returns empty for a deep text block with no text yet", () => {
+    expect(getDeepBlockText(makeArea({ isDeep: true, typeOfLabel: "text" }))).toBe(
+      ""
+    );
+  });
+
+  // An OCR'd block's text belongs in the side panel, not painted over the scan.
+  it("returns empty for a non-deep text block", () => {
+    expect(
+      getDeepBlockText(makeArea({ typeOfLabel: "text", text: "ocr'd" }))
+    ).toBe("");
+  });
+
+  it.each(["number", "Coordinate", "image", undefined])(
+    "returns empty for a deep block of typeOfLabel %s",
+    (typeOfLabel) => {
+      expect(
+        getDeepBlockText(makeArea({ isDeep: true, typeOfLabel, text: "x" }))
+      ).toBe("");
+    }
+  );
+
+  it.each([[undefined], [null]])("returns empty for a missing area", (area) => {
+    expect(getDeepBlockText(area)).toBe("");
+  });
 });
 
 describe("deep text handler", () => {

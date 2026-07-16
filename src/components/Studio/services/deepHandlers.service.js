@@ -55,6 +55,17 @@ const DEEP_HANDLERS = {
 export const getDeepHandler = (area, labelType) =>
   (isDeepBlock(area) && DEEP_HANDLERS[labelType]) || null;
 
+/**
+ * The authored HTML to paint over a block's area, or "" when the block is not a
+ * deep text block. Deep text is authored rather than OCR'd, so it is the only
+ * content that replaces what the scan shows underneath.
+ * @param {Object} area - The areaProperty
+ * @returns {string} HTML, or "" when nothing should be painted
+ */
+export const getDeepBlockText = (area) =>
+  isDeepBlock(area) && area?.typeOfLabel === "text" ? area.text || "" : "";
+
 export default {
   getDeepHandler,
+  getDeepBlockText,
 };
