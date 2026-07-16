@@ -39,11 +39,27 @@ const handleDeepText = ({ area, labelType, updateAreaPropertyById, openModal }) 
 };
 
 /**
+ * Deep + image: the author uploads/replaces the image via a modal rather than
+ * using the OCR crop. The chosen URL is written back to area.image.
+ * @param {DeepHandlerContext} context
+ */
+const handleDeepImage = ({ area, updateAreaPropertyById, openModal }) => {
+  openModal(STUDIO_MODALS.DEEP_IMAGE, {
+    workingArea: {
+      id: area.id,
+      image: area.image,
+    },
+    updateAreaPropertyById,
+  });
+};
+
+/**
  * typeOfLabel -> handler. A missing key means the default path applies.
  * @type {Object<string, function(DeepHandlerContext): void|Promise<void>>}
  */
 const DEEP_HANDLERS = {
   text: handleDeepText,
+  image: handleDeepImage,
 };
 
 /**
@@ -65,7 +81,23 @@ export const getDeepHandler = (area, labelType) =>
 export const getDeepBlockText = (area) =>
   isDeepBlock(area) && area?.typeOfLabel === "text" ? area.text || "" : "";
 
+/**
+ * The author-provided image URL to paint over a deep image block's area, or "".
+ * Only a hosted URL counts — a data: crop is the raw scan, not a chosen
+ * replacement, so it is not painted over itself.
+ * @param {Object} area - The areaProperty
+ * @returns {string} Image URL, or "" when nothing should be painted
+ */
+export const getDeepBlockImage = (area) =>
+  isDeepBlock(area) &&
+  area?.typeOfLabel === "image" &&
+  typeof area.image === "string" &&
+  !area.image.startsWith("data:")
+    ? area.image
+    : "";
+
 export default {
   getDeepHandler,
   getDeepBlockText,
+  getDeepBlockImage,
 };

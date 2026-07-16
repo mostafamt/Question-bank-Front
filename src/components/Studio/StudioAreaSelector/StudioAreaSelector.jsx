@@ -13,8 +13,12 @@ import {
 import { RIGHT_TAB_NAMES } from "../constants";
 import { hexToRgbA } from "../../../utils/helper";
 import { useAppMode } from "../../../utils/tabFiltering";
-import { getDeepBlockText } from "../services/deepHandlers.service";
+import {
+  getDeepBlockText,
+  getDeepBlockImage,
+} from "../services/deepHandlers.service";
 import DeepBlockContent from "../DeepBlockContent/DeepBlockContent";
+import DeepBlockImage from "../DeepBlockContent/DeepBlockImage";
 
 const StudioAreaSelector = React.memo(
   React.forwardRef((props, ref) => {
@@ -120,7 +124,7 @@ const StudioAreaSelector = React.memo(
           const isCompositeBlocksTab = activeRightTab.id === "composite-blocks";
           const areaIndex = areaProps.areaNumber - 1;
 
-          let areaType, areaLabel, deepText;
+          let areaType, areaLabel, deepText, deepImage;
 
           if (isCompositeBlocksTab) {
             const area = compositeBlocks.areas?.[areaIndex];
@@ -131,6 +135,7 @@ const StudioAreaSelector = React.memo(
             areaType = area?.type;
             areaLabel = area?.label;
             deepText = getDeepBlockText(area);
+            deepImage = getDeepBlockImage(area);
           }
 
           if (areaType) {
@@ -150,6 +155,7 @@ const StudioAreaSelector = React.memo(
                   {areaType} - {areaLabel}
                 </div>
                 {deepText ? <DeepBlockContent html={deepText} /> : null}
+                {deepImage ? <DeepBlockImage src={deepImage} /> : null}
               </div>
             );
           }

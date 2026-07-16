@@ -10,6 +10,7 @@ import QuillModal from "./QuillModal/QuillModal";
 import TextEditorModal from "./TextEditorModal/TextEditorModal";
 import LinkEditorModal from "./LinkEditorModal/LinkEditorModal";
 import SubObjectModal from "./SubObjectModal/SubObjectModal";
+import DeepImageModal from "./DeepImageModal/DeepImageModal";
 import PlayCompositeBlocks from "./PlayCompositeBlocks/PlayCompositeBlocks";
 import EditCompositeBlocks from "./EditCompositeBlocks/EditCompositeBlocks";
 import GlossaryModal from "./GlossaryModal/GlossaryModal";
@@ -38,6 +39,7 @@ const MODAL_COMPONENTS = {
   "text-editor": TextEditorModal,
   "link-editor": LinkEditorModal,
   "sub-object": SubObjectModal,
+  "deep-image": DeepImageModal,
   "play-composite-blocks": PlayCompositeBlocks,
   "edit-composite-blocks": EditCompositeBlocks,
   glossary: GlossaryModal,
