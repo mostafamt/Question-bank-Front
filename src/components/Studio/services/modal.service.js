@@ -30,6 +30,8 @@ export const STUDIO_MODALS = {
 /**
  * @typedef {Object} QuillModalProps
  * @property {Object} workingArea - The area being edited
+ * @property {string} workingArea.id - Area ID. QuillModal writes back with this — omitting it
+ *   makes the editor silently update nothing
  * @property {string} workingArea.blockId - Block ID
  * @property {string} workingArea.contentType - Content type
  * @property {string} workingArea.text - Text content
@@ -57,6 +59,7 @@ export const STUDIO_MODALS = {
 /**
  * Create props for opening Quill modal
  * @param {Object} params - Parameters
+ * @param {string} params.id - Area ID
  * @param {string} params.blockId - Block ID
  * @param {string} params.contentType - Content type
  * @param {string} params.text - Text content
@@ -66,6 +69,7 @@ export const STUDIO_MODALS = {
  * @returns {QuillModalProps} Modal props
  */
 export function createQuillModalProps({
+  id,
   blockId,
   contentType,
   text,
@@ -75,6 +79,7 @@ export function createQuillModalProps({
 }) {
   return {
     workingArea: {
+      id,
       blockId,
       contentType,
       text,
@@ -161,6 +166,7 @@ export class StudioModalService {
    */
   openQuillModal(areaProps, updateCallback = () => {}) {
     const props = createQuillModalProps({
+      id: areaProps.id,
       blockId: areaProps.blockId,
       contentType: areaProps.type,
       text: areaProps.text,

@@ -15,6 +15,7 @@ import {
   ocr,
 } from "../../../utils/ocr";
 import { STUDIO_MODALS } from "../services/modal.service";
+import { getDeepHandler } from "../services/deepHandlers.service";
 
 /**
  * Hook for managing label changes and OCR processing
@@ -30,6 +31,7 @@ import { STUDIO_MODALS } from "../services/modal.service";
  * @param {string} params.language - OCR language
  * @param {Function} params.syncAreasProperties - Sync areas properties function
  * @param {Function} params.updateAreaProperty - Update area property function
+ * @param {Function} params.updateAreaPropertyById - Update area property by id function
  * @param {Function} params.openModal - Open modal function
  * @returns {Object} Label management state and functions
  */
@@ -45,6 +47,7 @@ const useLabelManagement = ({
   language,
   syncAreasProperties,
   updateAreaProperty,
+  updateAreaPropertyById,
   openModal,
 }) => {
   // Color index for cycling through highlight colors per page
@@ -55,6 +58,20 @@ const useLabelManagement = ({
   // Sub-object state
   const [activeType, setActiveType] = React.useState("");
   const [typeOfActiveType, setTypeOfActiveType] = React.useState("");
+
+  // updateAreaPropertyById is recreated every render and closes over
+  // areasProperties, so it is held in a ref rather than depended on: deep
+  // handlers hand it to a modal that fires arbitrarily later, and keeping it out
+  // of onChangeLabel's deps keeps onChangeLabel (and rightColumnProps) stable.
+  const updateAreaPropertyByIdRef = React.useRef(updateAreaPropertyById);
+  React.useEffect(() => {
+    updateAreaPropertyByIdRef.current = updateAreaPropertyById;
+  });
+
+  const updateAreaPropertyByIdStable = React.useCallback(
+    (id, property) => updateAreaPropertyByIdRef.current?.(id, property),
+    []
+  );
 
   /**
    * Get next color and increment index
@@ -142,6 +159,24 @@ const useLabelManagement = ({
         image: img,
       });
 
+      // A deep block replaces the default handling below rather than adding to
+      // it — a deep text block must not also start an OCR run whose result would
+      // land on top of what the author typed.
+      const area = areasProperties[activePageIndex][idx];
+      const deepHandler = getDeepHandler(area, labelType);
+
+      if (deepHandler) {
+        deepHandler({
+          area,
+          idx,
+          labelType,
+          image: img,
+          updateAreaPropertyById: updateAreaPropertyByIdStable,
+          openModal,
+        });
+        return;
+      }
+
       // Process based on label type
       if (labelType === "text" || labelType === "number") {
         // Perform OCR for text/number types
@@ -186,6 +221,7 @@ const useLabelManagement = ({
       language,
       syncAreasProperties,
       updateAreaProperty,
+      updateAreaPropertyByIdStable,
       openModal,
       getNextColor,
       extractCoordinateText,

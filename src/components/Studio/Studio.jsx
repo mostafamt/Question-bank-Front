@@ -206,6 +206,7 @@ const Studio = (props) => {
     language,
     syncAreasProperties,
     updateAreaProperty,
+    updateAreaPropertyById,
     openModal,
   });
 
