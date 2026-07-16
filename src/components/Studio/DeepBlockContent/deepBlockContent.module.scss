@@ -1,0 +1,41 @@
+.deep-block-content {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+
+  // No z-index on purpose: AreaSelector renders its resize handles after the
+  // custom renderer's output and gives them no z-index of their own, so any
+  // stacking order here would paint over them and hide them.
+
+  // Opaque: deep text replaces the scanned content under the area rather than
+  // overlaying it.
+  background-color: #fff;
+  padding: 0.25rem;
+
+  font-size: 0.875rem;
+  line-height: 1.35;
+  text-align: left;
+  color: #000;
+
+  // Transparent to hit-testing so the area underneath stays draggable and
+  // resizable, and so a click still toggles the block open.
+  pointer-events: none;
+  user-select: none;
+
+  p,
+  ol,
+  ul,
+  blockquote {
+    margin: 0 0 0.25rem;
+  }
+
+  ol,
+  ul {
+    padding-inline-start: 1.25rem;
+  }
+
+  img,
+  iframe {
+    max-width: 100%;
+  }
+}
