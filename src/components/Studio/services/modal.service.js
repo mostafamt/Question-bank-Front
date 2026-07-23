@@ -21,6 +21,10 @@ export const STUDIO_MODALS = {
   SUB_OBJECT: "sub-object",
   /** Modal for uploading/replacing a deep block's image */
   DEEP_IMAGE: "deep-image",
+  /** Modal for uploading/replacing a deep block's audio */
+  DEEP_AUDIO: "deep-audio",
+  /** Modal for uploading/replacing a deep block's video */
+  DEEP_VIDEO: "deep-video",
   /** Modal for selecting composite blocks */
   COMPOSITE_BLOCKS: "composite-blocks-modal",
   /** Modal for playing composite blocks */

@@ -11,6 +11,8 @@ import TextEditorModal from "./TextEditorModal/TextEditorModal";
 import LinkEditorModal from "./LinkEditorModal/LinkEditorModal";
 import SubObjectModal from "./SubObjectModal/SubObjectModal";
 import DeepImageModal from "./DeepImageModal/DeepImageModal";
+import DeepAudioModal from "./DeepAudioModal/DeepAudioModal";
+import DeepVideoModal from "./DeepVideoModal/DeepVideoModal";
 import PlayCompositeBlocks from "./PlayCompositeBlocks/PlayCompositeBlocks";
 import EditCompositeBlocks from "./EditCompositeBlocks/EditCompositeBlocks";
 import GlossaryModal from "./GlossaryModal/GlossaryModal";
@@ -40,6 +42,8 @@ const MODAL_COMPONENTS = {
   "link-editor": LinkEditorModal,
   "sub-object": SubObjectModal,
   "deep-image": DeepImageModal,
+  "deep-audio": DeepAudioModal,
+  "deep-video": DeepVideoModal,
   "play-composite-blocks": PlayCompositeBlocks,
   "edit-composite-blocks": EditCompositeBlocks,
   glossary: GlossaryModal,

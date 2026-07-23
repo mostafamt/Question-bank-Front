@@ -25,7 +25,12 @@ import { STUDIO_MODALS } from "./modal.service";
  * Deep + text: the author writes the text in Quill rather than OCR-ing the crop.
  * @param {DeepHandlerContext} context
  */
-const handleDeepText = ({ area, labelType, updateAreaPropertyById, openModal }) => {
+const handleDeepText = ({
+  area,
+  labelType,
+  updateAreaPropertyById,
+  openModal,
+}) => {
   openModal(STUDIO_MODALS.QUILL, {
     workingArea: {
       id: area.id,
@@ -54,12 +59,44 @@ const handleDeepImage = ({ area, updateAreaPropertyById, openModal }) => {
 };
 
 /**
+ * Deep + audio: the author uploads/pastes an audio URL via a modal.
+ * The chosen URL is written back to area.audio.
+ * @param {DeepHandlerContext} context
+ */
+const handleDeepAudio = ({ area, updateAreaPropertyById, openModal }) => {
+  openModal(STUDIO_MODALS.DEEP_AUDIO, {
+    workingArea: {
+      id: area.id,
+      audio: area.audio,
+    },
+    updateAreaPropertyById,
+  });
+};
+
+/**
+ * Deep + video: the author uploads/pastes a video URL via a modal.
+ * The chosen URL is written back to area.video.
+ * @param {DeepHandlerContext} context
+ */
+const handleDeepVideo = ({ area, updateAreaPropertyById, openModal }) => {
+  openModal(STUDIO_MODALS.DEEP_VIDEO, {
+    workingArea: {
+      id: area.id,
+      video: area.video,
+    },
+    updateAreaPropertyById,
+  });
+};
+
+/**
  * typeOfLabel -> handler. A missing key means the default path applies.
  * @type {Object<string, function(DeepHandlerContext): void|Promise<void>>}
  */
 const DEEP_HANDLERS = {
   text: handleDeepText,
   image: handleDeepImage,
+  audio: handleDeepAudio,
+  video: handleDeepVideo,
 };
 
 /**
@@ -96,8 +133,36 @@ export const getDeepBlockImage = (area) =>
     ? area.image
     : "";
 
+/**
+ * The author-provided audio URL to paint over a deep audio block's area, or "".
+ * @param {Object} area - The areaProperty
+ * @returns {string} Audio URL, or "" when nothing should be painted
+ */
+export const getDeepBlockAudio = (area) =>
+  isDeepBlock(area) &&
+  area?.typeOfLabel === "audio" &&
+  typeof area.audio === "string" &&
+  area.audio
+    ? area.audio
+    : "";
+
+/**
+ * The author-provided video URL to paint over a deep video block's area, or "".
+ * @param {Object} area - The areaProperty
+ * @returns {string} Video URL, or "" when nothing should be painted
+ */
+export const getDeepBlockVideo = (area) =>
+  isDeepBlock(area) &&
+  area?.typeOfLabel === "video" &&
+  typeof area.video === "string" &&
+  area.video
+    ? area.video
+    : "";
+
 export default {
   getDeepHandler,
   getDeepBlockText,
   getDeepBlockImage,
+  getDeepBlockAudio,
+  getDeepBlockVideo,
 };

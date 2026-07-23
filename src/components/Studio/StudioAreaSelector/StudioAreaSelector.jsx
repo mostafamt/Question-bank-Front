@@ -16,9 +16,13 @@ import { useAppMode } from "../../../utils/tabFiltering";
 import {
   getDeepBlockText,
   getDeepBlockImage,
+  getDeepBlockAudio,
+  getDeepBlockVideo,
 } from "../services/deepHandlers.service";
 import DeepBlockContent from "../DeepBlockContent/DeepBlockContent";
 import DeepBlockImage from "../DeepBlockContent/DeepBlockImage";
+import DeepBlockAudio from "../DeepBlockContent/DeepBlockAudio";
+import DeepBlockVideo from "../DeepBlockContent/DeepBlockVideo";
 
 const StudioAreaSelector = React.memo(
   React.forwardRef((props, ref) => {
@@ -124,7 +128,7 @@ const StudioAreaSelector = React.memo(
           const isCompositeBlocksTab = activeRightTab.id === "composite-blocks";
           const areaIndex = areaProps.areaNumber - 1;
 
-          let areaType, areaLabel, deepText, deepImage;
+          let areaType, areaLabel, deepText, deepImage, deepAudio, deepVideo;
 
           if (isCompositeBlocksTab) {
             const area = compositeBlocks.areas?.[areaIndex];
@@ -136,6 +140,8 @@ const StudioAreaSelector = React.memo(
             areaLabel = area?.label;
             deepText = getDeepBlockText(area);
             deepImage = getDeepBlockImage(area);
+            deepAudio = getDeepBlockAudio(area);
+            deepVideo = getDeepBlockVideo(area);
           }
 
           if (areaType) {
@@ -156,6 +162,8 @@ const StudioAreaSelector = React.memo(
                 </div>
                 {deepText ? <DeepBlockContent html={deepText} /> : null}
                 {deepImage ? <DeepBlockImage src={deepImage} /> : null}
+                {deepAudio ? <DeepBlockAudio src={deepAudio} /> : null}
+                {deepVideo ? <DeepBlockVideo src={deepVideo} /> : null}
               </div>
             );
           }
