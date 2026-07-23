@@ -9,7 +9,7 @@
  */
 
 import { isDeepBlock } from "../utils";
-import { STUDIO_MODALS } from "./modal.service";
+import { STUDIO_MODALS, COMPLEX_AREA_TYPES } from "./modal.service";
 
 /**
  * @typedef {Object} DeepHandlerContext
@@ -89,6 +89,21 @@ const handleDeepVideo = ({ area, updateAreaPropertyById, openModal }) => {
 };
 
 /**
+ * Deep + object (Question / Illustrative Object): the author links an existing
+ * interactive object from the library rather than auto-generating one from the
+ * OCR crop. The chosen ID is written back to area.text — the same field used by
+ * the non-deep path — so playback via PlayObjectModal2 works identically.
+ * @param {DeepHandlerContext} context
+ */
+const handleDeepObject = ({ area, updateAreaPropertyById, openModal }) => {
+  openModal("select-from-library", {
+    onSelect: (objectId) => {
+      updateAreaPropertyById(area.id, { text: objectId });
+    },
+  });
+};
+
+/**
  * typeOfLabel -> handler. A missing key means the default path applies.
  * @type {Object<string, function(DeepHandlerContext): void|Promise<void>>}
  */
@@ -101,12 +116,19 @@ const DEEP_HANDLERS = {
 
 /**
  * Resolve the deep handler for a block, or null when the default path applies.
+ * Primitive types (text/image/audio/video) are matched by exact labelType key.
+ * Object blocks are matched by area.type category so that all object label
+ * variants (Text MCQ, Essay, TrueFalse, …) share one handler.
  * @param {Object} area - The areaProperty
  * @param {string} labelType - Resolved typeOfLabel
  * @returns {Function|null} Handler, or null
  */
-export const getDeepHandler = (area, labelType) =>
-  (isDeepBlock(area) && DEEP_HANDLERS[labelType]) || null;
+export const getDeepHandler = (area, labelType) => {
+  if (!isDeepBlock(area)) return null;
+  if (DEEP_HANDLERS[labelType]) return DEEP_HANDLERS[labelType];
+  if (COMPLEX_AREA_TYPES.includes(area?.type)) return handleDeepObject;
+  return null;
+};
 
 /**
  * The authored HTML to paint over a block's area, or "" when the block is not a
@@ -159,10 +181,26 @@ export const getDeepBlockVideo = (area) =>
     ? area.video
     : "";
 
+/**
+ * The linked object ID for a deep object block, or "" when nothing is linked.
+ * Returns the value stored in area.text (same field used by the non-deep path)
+ * so that playback via determineModalForArea / PlayObjectModal2 is unchanged.
+ * @param {Object} area - The areaProperty
+ * @returns {string} Object ID, or "" when nothing is linked
+ */
+export const getDeepBlockObject = (area) =>
+  isDeepBlock(area) &&
+  COMPLEX_AREA_TYPES.includes(area?.type) &&
+  typeof area.text === "string" &&
+  area.text
+    ? area.text
+    : "";
+
 export default {
   getDeepHandler,
   getDeepBlockText,
   getDeepBlockImage,
   getDeepBlockAudio,
   getDeepBlockVideo,
+  getDeepBlockObject,
 };

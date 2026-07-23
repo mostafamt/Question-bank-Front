@@ -256,7 +256,7 @@ export function createModalService(openModal, setFormState) {
  * Types that should open PlayObjectModal2 (iframe-based playback)
  * These are interactive objects that have their own rendering URL
  */
-const COMPLEX_AREA_TYPES = [
+export const COMPLEX_AREA_TYPES = [
   "Question",
   "Illustrative Object",
   "Illustrative object", // Handle case variations
