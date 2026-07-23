@@ -18,11 +18,13 @@ import {
   getDeepBlockImage,
   getDeepBlockAudio,
   getDeepBlockVideo,
+  getDeepBlockObject,
 } from "../services/deepHandlers.service";
 import DeepBlockContent from "../DeepBlockContent/DeepBlockContent";
 import DeepBlockImage from "../DeepBlockContent/DeepBlockImage";
 import DeepBlockAudio from "../DeepBlockContent/DeepBlockAudio";
 import DeepBlockVideo from "../DeepBlockContent/DeepBlockVideo";
+import DeepBlockObject from "../DeepBlockContent/DeepBlockObject";
 
 const StudioAreaSelector = React.memo(
   React.forwardRef((props, ref) => {
@@ -128,7 +130,7 @@ const StudioAreaSelector = React.memo(
           const isCompositeBlocksTab = activeRightTab.id === "composite-blocks";
           const areaIndex = areaProps.areaNumber - 1;
 
-          let areaType, areaLabel, deepText, deepImage, deepAudio, deepVideo;
+          let areaType, areaLabel, deepText, deepImage, deepAudio, deepVideo, deepObjectId;
 
           if (isCompositeBlocksTab) {
             const area = compositeBlocks.areas?.[areaIndex];
@@ -142,6 +144,7 @@ const StudioAreaSelector = React.memo(
             deepImage = getDeepBlockImage(area);
             deepAudio = getDeepBlockAudio(area);
             deepVideo = getDeepBlockVideo(area);
+            deepObjectId = getDeepBlockObject(area);
           }
 
           if (areaType) {
@@ -164,6 +167,7 @@ const StudioAreaSelector = React.memo(
                 {deepImage ? <DeepBlockImage src={deepImage} /> : null}
                 {deepAudio ? <DeepBlockAudio src={deepAudio} /> : null}
                 {deepVideo ? <DeepBlockVideo src={deepVideo} /> : null}
+                {deepObjectId ? <DeepBlockObject objectId={deepObjectId} interactive={isReaderMode} /> : null}
               </div>
             );
           }
@@ -177,6 +181,7 @@ const StudioAreaSelector = React.memo(
         areasProperties,
         readOnly,
         onAreaClick,
+        isReaderMode,
       ]
     );
 

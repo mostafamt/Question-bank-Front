@@ -45,6 +45,7 @@ export {
   getDeepBlockImage,
   getDeepBlockAudio,
   getDeepBlockVideo,
+  getDeepBlockObject,
 } from "./deepHandlers.service";
 
 // Block service (block operations)
