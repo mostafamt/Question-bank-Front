@@ -43,6 +43,8 @@ export {
   getDeepHandler,
   getDeepBlockText,
   getDeepBlockImage,
+  getDeepBlockAudio,
+  getDeepBlockVideo,
 } from "./deepHandlers.service";
 
 // Block service (block operations)
