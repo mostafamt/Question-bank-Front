@@ -38,6 +38,8 @@ export const initAreasProperties = (pages = [], types = []) => {
         loading: false,
         text: block.contentValue,
         image: block.contentValue,
+        audio: block.contentValue,
+        video: block.contentValue,
         type: typeName,
         parameter: "",
         label: block.contentType,
