@@ -49,6 +49,7 @@ const StudioAreaSelector = React.memo(
       onAreaClick,
       onPlayBlock,
       pageContainerRef,
+      showBlocksStyling,
     } = props;
 
     console.log("StudioAreaSelector");
@@ -75,41 +76,42 @@ const StudioAreaSelector = React.memo(
           };
         } else {
           // Studio / read-only mode
-          const areaProps = areasProperties[activePage]?.[idx];
-
-          if (!areaProps?.color) {
-            // No color assigned yet — dashed border (added but not typed)
-            return {
-              position: "absolute",
-              top: `${area.y}%`,
-              left: `${area.x}%`,
-              width: `${area.width}%`,
-              height: `${area.height}%`,
-              border: "2px dashed rgba(0, 0, 0, 0.5)",
-              backgroundColor: "rgba(0, 0, 0, 0.05)",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            };
-          }
-
-          return {
+          const baseStyle = {
             position: "absolute",
             top: `${area.y}%`,
             left: `${area.x}%`,
             width: `${area.width}%`,
             height: `${area.height}%`,
-            border: `2px solid ${areaProps.color}`,
-            backgroundColor: hexToRgbA(areaProps.color),
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
           };
+
+          // Only add border and background if showBlocksStyling is true
+          if (!showBlocksStyling) {
+            return baseStyle;
+          }
+
+          const areaProps = areasProperties[activePage]?.[idx];
+
+          if (!areaProps?.color) {
+            // No color assigned yet — dashed border (added but not typed)
+            return {
+              ...baseStyle,
+              border: "2px dashed rgba(0, 0, 0, 0.5)",
+              backgroundColor: "rgba(0, 0, 0, 0.05)",
+            };
+          }
+
+          return {
+            ...baseStyle,
+            border: `2px solid ${areaProps.color}`,
+            backgroundColor: hexToRgbA(areaProps.color),
+          };
         }
       },
-      [isReaderMode, areasProperties, activePage]
+      [isReaderMode, areasProperties, activePage, showBlocksStyling]
     );
 
     const onClickExistedArea = useCallback(
@@ -351,14 +353,18 @@ const StudioAreaSelector = React.memo(
       >
         <div
           ref={pageContainerRef}
-          className={styles.block}
+          className={clsx(
+            styles.block,
+            !showBlocksStyling && styles.hideBlocksStyling
+          )}
           css={constructBoxColors(
             readOnly
               ? [] // read-only mode: let inline getBlockStyle handle borders
               : activeRightTab.id === "composite-blocks"
               ? compositeBlocks.areas || []
               : areasProperties[activePage] || [],
-            highlightedBlockId
+            highlightedBlockId,
+            showBlocksStyling
           )}
         >
           {isReaderMode ? (

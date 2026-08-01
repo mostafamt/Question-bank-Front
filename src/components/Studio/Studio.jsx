@@ -72,6 +72,7 @@ const Studio = (props) => {
   const [imageScaleFactor, setImageScaleFactor] = React.useState(
     DEFAULTS.IMAGE_SCALE_FACTOR
   );
+  const [showBlocksStyling, setShowBlocksStyling] = React.useState(true);
 
   // ============ PAGE NAVIGATION ============
   const insertPageAtRef = React.useRef(null);
@@ -457,6 +458,8 @@ const Studio = (props) => {
         setHighlight={setHighlight}
         highlightedBlockId={highlightedBlockId}
         onPlayBlock={onPlayBlock}
+        showBlocksStyling={showBlocksStyling}
+        setShowBlocksStyling={setShowBlocksStyling}
       />
 
       <canvas ref={canvasRef} style={{ display: "none" }} />
