@@ -17,6 +17,9 @@ import styles from "../studio.module.scss";
 const StudioLayout = React.forwardRef(
   (
     {
+      // Refs
+      pageContainerRef,
+
       // Left column props
       leftColumns,
       activeLeftTab,
@@ -67,6 +70,7 @@ const StudioLayout = React.forwardRef(
         {/* Main Editor */}
         <StudioEditor
           ref={ref}
+          pageContainerRef={pageContainerRef}
           areasProperties={areasProperties}
           setAreasProperties={setAreasProperties}
           activePage={activePageIndex}

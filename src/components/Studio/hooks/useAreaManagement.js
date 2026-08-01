@@ -8,6 +8,7 @@ import {
   processPageAreas,
 } from "../services/coordinate.service";
 import { deleteAreaByIndex } from "../utils";
+import { isDeepBlock } from "../utils";
 import {
   CREATED,
   DELETED,
@@ -17,6 +18,7 @@ import {
 } from "../../../utils/ocr";
 import { parseVirtualBlocksFromPages } from "../../../utils/virtual-blocks";
 import { TIMEOUTS } from "../constants";
+import { capturePageSnapshot } from "../services/pageCapture.service";
 
 const useAreaManagement = ({
   pages,
@@ -30,6 +32,7 @@ const useAreaManagement = ({
   activePageId,
   virtualBlocks,
   refetch,
+  pageContainerRef,
 }) => {
   // Store raw pages for deferred conversion (% → px on first image load)
   const rawPagesRef = React.useRef(pages);
@@ -268,10 +271,15 @@ const useAreaManagement = ({
       id && toast.success("Sub-Object created successfully!");
       // handleClose();
     } else {
+      const hasDeepBlock = areasProperties[activePageIndex]?.some(isDeepBlock);
+      const pageSnapshot = hasDeepBlock
+        ? await capturePageSnapshot(pageContainerRef.current)
+        : null;
       const id = await handleSubmit(
         activePageId,
         areasProperties[activePageIndex],
-        virtualBlocks[activePageIndex]
+        virtualBlocks[activePageIndex],
+        pageSnapshot
       );
       id && toast.success("Object created successfully!");
       refetch();
