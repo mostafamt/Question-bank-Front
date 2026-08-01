@@ -10,7 +10,7 @@ import {
   getList2FromData,
   getTypeOfLabelForCompositeBlocks,
 } from "../../../utils/studio";
-import { RIGHT_TAB_NAMES } from "../constants";
+import { RIGHT_TAB_NAMES, WHITE_PAGE_FALLBACK } from "../constants";
 import { hexToRgbA } from "../../../utils/helper";
 import { useAppMode } from "../../../utils/tabFiltering";
 import {
@@ -51,6 +51,12 @@ const StudioAreaSelector = React.memo(
       pageContainerRef,
       showBlocksStyling,
     } = props;
+
+    // Get image source with fallback to white canvas if URL is missing
+    const getImageSource = useCallback(() => {
+      const url = pages[activePage]?.url;
+      return url && typeof url === 'string' && url.trim().length > 0 ? url : WHITE_PAGE_FALLBACK;
+    }, [pages, activePage]);
 
     console.log("StudioAreaSelector");
     console.log("pages= ", pages);
@@ -349,7 +355,7 @@ const StudioAreaSelector = React.memo(
         setVirtualBlocks={setVirtualBlocks}
         activePage={activePage}
         reader={isReaderMode}
-        pageImageUrl={pages[activePage]?.url}
+        pageImageUrl={getImageSource()}
       >
         <div
           ref={pageContainerRef}
@@ -384,7 +390,7 @@ const StudioAreaSelector = React.memo(
                 );
               })}
               <img
-                src={pages[activePage]?.url}
+                src={getImageSource()}
                 alt={pages[activePage]?.url || pages[activePage]}
                 crossOrigin="anonymous"
                 ref={ref}
@@ -413,7 +419,7 @@ const StudioAreaSelector = React.memo(
                 );
               })}
               <img
-                src={pages[activePage]?.url}
+                src={getImageSource()}
                 alt={pages[activePage]?.url || pages[activePage]}
                 crossOrigin="anonymous"
                 ref={ref}
@@ -429,7 +435,7 @@ const StudioAreaSelector = React.memo(
             <div style={{ position: "relative" }}>
               {blocksToRender}
               <img
-                src={pages[activePage]?.url}
+                src={getImageSource()}
                 alt={pages[activePage]?.url || pages[activePage]}
                 crossOrigin="anonymous"
                 ref={ref}
@@ -455,7 +461,7 @@ const StudioAreaSelector = React.memo(
               unit="percentage"
             >
               <img
-                src={pages[activePage]?.url}
+                src={getImageSource()}
                 alt={pages[activePage]?.url || pages[activePage]}
                 crossOrigin="anonymous"
                 ref={ref}
@@ -470,7 +476,7 @@ const StudioAreaSelector = React.memo(
           ) : (
             <div style={{ position: "relative" }}>
               <img
-                src={pages[activePage]?.url}
+                src={getImageSource()}
                 alt={pages[activePage]?.url || pages[activePage]}
                 crossOrigin="anonymous"
                 ref={ref}

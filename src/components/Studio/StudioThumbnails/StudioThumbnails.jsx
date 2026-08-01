@@ -19,6 +19,7 @@ import { toast } from "react-toastify";
 import styles from "./studioThumbnails.module.scss";
 import VisuallyHiddenInput from "../../VisuallyHiddenInput/VisuallyHiddenInput";
 import { useAppMode, getTabById } from "../../../utils/tabFiltering";
+import { WHITE_PAGE_FALLBACK } from "../constants";
 
 const formatShortcut = ({ key, ctrlKey, altKey, shiftKey }) => {
   const parts = [];
@@ -285,6 +286,10 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
                 const border = isActive
                   ? "1rem solid #ccc"
                   : "1rem solid transparent";
+                // Get image source with fallback to white canvas if URL is missing
+                const imgSrc = img?.url && typeof img.url === 'string' && img.url.trim().length > 0
+                  ? img.url
+                  : WHITE_PAGE_FALLBACK;
                 return (
                   <Draggable key={key} draggableId={String(key)} index={idx}>
                     {(dragProvided, snapshot) => (
@@ -292,7 +297,7 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
                         ref={dragProvided.innerRef}
                         {...dragProvided.draggableProps}
                         {...dragProvided.dragHandleProps}
-                        src={img?.url || img}
+                        src={imgSrc}
                         alt={img?.url || img}
                         width="100%"
                         onClick={() => onClickImage(idx)}
