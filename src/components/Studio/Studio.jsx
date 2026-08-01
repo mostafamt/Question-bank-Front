@@ -134,6 +134,7 @@ const Studio = (props) => {
     virtualBlocks,
     refetch,
     pageContainerRef,
+    setShowBlocksStyling,
   });
 
   // Keep recalculateAreas ref updated (to avoid dependency in useEffect)
