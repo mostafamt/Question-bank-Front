@@ -10,6 +10,7 @@ import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
 import BackHandIcon from "@mui/icons-material/BackHand";
+import BorderStyleIcon from "@mui/icons-material/BorderStyle";
 
 import styles from "./styles.module.scss";
 import { useAppMode } from "../../utils/tabFiltering";
@@ -32,6 +33,8 @@ const ImageActions = React.forwardRef((props, ref) => {
     onImageLoad,
     pages,
     onClickImage,
+    showBlocksStyling,
+    onToggleBlocksStyling,
   } = props;
 
   const [oldAreas, setOldAreas] = React.useState(areas?.[activePage] || []);
@@ -144,6 +147,23 @@ const ImageActions = React.forwardRef((props, ref) => {
 
         <IconButton aria-label="zoom-out" onClick={onClickZoomOut}>
           <ZoomOutIcon fontSize={iconFontSize} />
+        </IconButton>
+      </div>
+      <div>
+        <span>|</span>
+      </div>
+
+      <div>
+        <IconButton
+          aria-label="toggle-blocks-styling"
+          onClick={onToggleBlocksStyling}
+          title={showBlocksStyling ? "Hide block borders" : "Show block borders"}
+        >
+          {showBlocksStyling ? (
+            <BorderStyleIcon fontSize={iconFontSize} />
+          ) : (
+            <BorderStyleIcon fontSize={iconFontSize} sx={{ opacity: 0.4 }} />
+          )}
         </IconButton>
       </div>
       {isReaderMode && (

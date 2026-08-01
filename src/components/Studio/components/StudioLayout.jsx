@@ -53,6 +53,8 @@ const StudioLayout = React.forwardRef(
       setHighlight,
       highlightedBlockId,
       onPlayBlock,
+      showBlocksStyling,
+      setShowBlocksStyling,
     },
     ref
   ) => {
@@ -94,6 +96,8 @@ const StudioLayout = React.forwardRef(
           setHighlight={setHighlight}
           highlightedBlockId={highlightedBlockId}
           onPlayBlock={onPlayBlock}
+          showBlocksStyling={showBlocksStyling}
+          setShowBlocksStyling={setShowBlocksStyling}
         />
 
         {/* Right Panel */}

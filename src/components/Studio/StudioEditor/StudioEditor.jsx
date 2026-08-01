@@ -23,6 +23,8 @@ const StudioEditor = React.memo(
       onClickImage,
       readOnly = false,
       onAreaClick,
+      showBlocksStyling,
+      setShowBlocksStyling,
     } = props;
 
     const studioEditorSelectorRef = React.useRef(null);
@@ -50,10 +52,13 @@ const StudioEditor = React.memo(
           onClickImage={onClickImage}
           showVB={showVB}
           onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
+          showBlocksStyling={showBlocksStyling}
+          onToggleBlocksStyling={() => setShowBlocksStyling(!showBlocksStyling)}
         />
         <StudioAreaSelector
           {...props}
           showVB={showVB}
+          showBlocksStyling={showBlocksStyling}
           ref={studioEditorSelectorRef}
         />
       </div>

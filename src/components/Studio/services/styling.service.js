@@ -31,17 +31,18 @@ import { DELETED } from "../../../utils/ocr";
  *   Each area should have: id, color, status (optional), and coordinate properties
  * @param {string} highlightedBlockId - UUID of the currently highlighted block
  *   When an area's id matches this, it receives prominent highlighting
+ * @param {boolean} showBlocksStyling - Whether to show borders and backgrounds (default: true)
  * @returns {Object} Emotion CSS-in-JS object for styling area boxes
  *   Returns an object with nested selectors targeting specific area divs
  *
  * @example
  * // For regular areas
- * const styles = constructBoxColors(areasProperties[activePage], highlightedBlockId);
+ * const styles = constructBoxColors(areasProperties[activePage], highlightedBlockId, true);
  * <div css={styles}>...</div>
  *
  * @example
  * // For composite block areas
- * const styles = constructBoxColors(compositeBlocks.areas, highlightedBlockId);
+ * const styles = constructBoxColors(compositeBlocks.areas, highlightedBlockId, true);
  * <div css={styles}>...</div>
  *
  * @example
@@ -51,11 +52,12 @@ import { DELETED } from "../../../utils/ocr";
  *     activeRightTab.label === "Composite Blocks"
  *       ? compositeBlocks.areas
  *       : areasProperties[activePage],
- *     highlightedBlockId
+ *     highlightedBlockId,
+ *     showBlocksStyling
  *   )
  * }
  */
-export const constructBoxColors = (areas, highlightedBlockId) => {
+export const constructBoxColors = (areas, highlightedBlockId, showBlocksStyling = true) => {
   // Generate nth-child selectors for each area
   // Starts at index 2 to account for wrapper div structure
   const values = areas?.map((_, idx) => `& > div:nth-of-type(${idx + 2})`);
@@ -67,6 +69,18 @@ export const constructBoxColors = (areas, highlightedBlockId) => {
   // Generate CSS object for each area based on its state
   const obj = areas?.map((area, idx) => {
     if (values[idx]) {
+      // If showBlocksStyling is false, explicitly remove all styling
+      if (!showBlocksStyling) {
+        return {
+          [values[idx]]: {
+            border: "none !important",
+            backgroundColor: "transparent !important",
+            outline: "none !important",
+            boxShadow: "none !important",
+          },
+        };
+      }
+
       // Case 1: Deleted area - Show dark styling
       if (area.status === DELETED) {
         return {

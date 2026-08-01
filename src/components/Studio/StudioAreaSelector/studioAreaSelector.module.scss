@@ -56,6 +56,29 @@
       box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
       display: none;
     }
+
+    /* Hide react-image-area library default borders when styling is toggled off */
+    &.hideBlocksStyling {
+      /* Remove all border-related styles from area elements */
+      & div {
+        border: none !important;
+        background-color: transparent !important;
+        outline: none !important;
+        box-shadow: none !important;
+      }
+
+      /* Specifically target divs with borders */
+      & [style*="border"] {
+        border: none !important;
+      }
+
+      /* Reset any dashed/solid border patterns */
+      & [style*="dashed"],
+      & [style*="solid"] {
+        border: none !important;
+        background-color: transparent !important;
+      }
+    }
   }
 }
 
