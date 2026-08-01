@@ -29,10 +29,7 @@ const upload = async (file) => {
   const data = new FormData();
   data.append("file", file);
   try {
-    const res = await axios.post("/upload", data, {
-      timeout: 10000,
-      signal: newAbortSignal(10000),
-    });
+    const res = await axios.post("/upload", data);
     return res.data;
   } catch (error) {
     console.log("error= ", error);
