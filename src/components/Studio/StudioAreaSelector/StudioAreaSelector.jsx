@@ -48,6 +48,7 @@ const StudioAreaSelector = React.memo(
       readOnly = false,
       onAreaClick,
       onPlayBlock,
+      pageContainerRef,
     } = props;
 
     console.log("StudioAreaSelector");
@@ -349,6 +350,7 @@ const StudioAreaSelector = React.memo(
         pageImageUrl={pages[activePage]?.url}
       >
         <div
+          ref={pageContainerRef}
           className={styles.block}
           css={constructBoxColors(
             readOnly

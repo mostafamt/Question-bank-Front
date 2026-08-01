@@ -62,13 +62,7 @@ const ScanAndUpload = () => {
     }
   }, [fetchedPages]);
 
-  const handleSubmit = async (pageId, areas, virtualBlocks) => {
-    console.log("areas= ", areas);
-    // let image = areas[1].image;
-    // console.log("image= ", image);
-    // let url = await newUpload(image);
-    // console.log("url= ", url);
-    // return;
+  const handleSubmit = async (pageId, areas, virtualBlocks, pageSnapshot) => {
     const blocks = await Promise.all(
       [...areas]
         .sort((a, b) => a.order - b.order)
@@ -136,8 +130,14 @@ const ScanAndUpload = () => {
       pageId
     );
 
+    // Upload page snapshot if provided (deep blocks present)
+    const pageUrl = pageSnapshot ? await newUpload(pageSnapshot) : null;
+
     // Only include v_blocks if there are any contents
     const data = {
+      pageId,
+      chapterId,
+      ...(pageUrl && { pageUrl }),
       blocks,
       ...(formattedVBlocks && { v_blocks: [formattedVBlocks] }),
     };

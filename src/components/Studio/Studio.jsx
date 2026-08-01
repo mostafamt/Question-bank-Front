@@ -51,6 +51,7 @@ const Studio = (props) => {
   const canvasRef = React.useRef(null);
   const thumbnailsRef = React.useRef(null);
   const recalculateAreasRef = React.useRef(null);
+  const pageContainerRef = React.useRef(null);
 
   // ============ ROUTER & MODE ============
   const { chapterId } = useParams();
@@ -131,6 +132,7 @@ const Studio = (props) => {
     activePageId,
     virtualBlocks,
     refetch,
+    pageContainerRef,
   });
 
   // Keep recalculateAreas ref updated (to avoid dependency in useEffect)
@@ -426,6 +428,7 @@ const Studio = (props) => {
 
       <StudioLayout
         ref={studioEditorRef}
+        pageContainerRef={pageContainerRef}
         leftColumns={leftColumns}
         activeLeftTab={activeLeftTab}
         setActiveLeftTab={setActiveLeftTab}
