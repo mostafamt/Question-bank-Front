@@ -33,6 +33,7 @@ const useAreaManagement = ({
   virtualBlocks,
   refetch,
   pageContainerRef,
+  setShowBlocksStyling,
 }) => {
   // Store raw pages for deferred conversion (% → px on first image load)
   const rawPagesRef = React.useRef(pages);
@@ -272,9 +273,16 @@ const useAreaManagement = ({
       // handleClose();
     } else {
       const hasDeepBlock = areasProperties[activePageIndex]?.some(isDeepBlock);
-      const pageSnapshot = hasDeepBlock
-        ? await capturePageSnapshot(pageContainerRef.current)
-        : null;
+      let pageSnapshot = null;
+      if (hasDeepBlock) {
+        // Temporarily hide block borders and backgrounds during capture
+        setShowBlocksStyling(false);
+        // Give React time to update the DOM
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        pageSnapshot = await capturePageSnapshot(pageContainerRef.current);
+        // Restore block styling
+        setShowBlocksStyling(true);
+      }
       const id = await handleSubmit(
         activePageId,
         areasProperties[activePageIndex],
