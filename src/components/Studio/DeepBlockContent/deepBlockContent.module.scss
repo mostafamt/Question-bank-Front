@@ -59,10 +59,19 @@
   position: absolute;
   inset: 0;
   width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   background-color: #fff;
   pointer-events: none;
   user-select: none;
+}
+
+.deep-block-audio-icon {
+  color: #666;
+  font-size: 2rem;
 }
 
 .deep-block-video {

@@ -14,7 +14,11 @@ const DeepBlockVideo = ({ src }) => {
   }
 
   return (
-    <video className={styles["deep-block-video"]} controls>
+    <video
+      className={styles["deep-block-video"]}
+      controls
+      crossOrigin="anonymous"
+    >
       <source src={src} type="video/mp4" />
     </video>
   );
