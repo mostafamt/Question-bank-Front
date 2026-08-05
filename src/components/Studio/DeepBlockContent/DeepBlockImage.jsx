@@ -13,7 +13,14 @@ const DeepBlockImage = ({ src }) => {
     return null;
   }
 
-  return <img className={styles["deep-block-image"]} src={src} alt="" />;
+  return (
+    <img
+      className={styles["deep-block-image"]}
+      src={src}
+      alt=""
+      crossOrigin="anonymous"
+    />
+  );
 };
 
 export default DeepBlockImage;
