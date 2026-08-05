@@ -180,10 +180,10 @@ export const updateAreasProperties = (
     newAreas = [
       ...newAreas,
       {
-        x: areas[areas.length - 1].x,
-        y: areas[areas.length - 1].y,
-        width: areas[areas.length - 1].width,
-        height: areas[areas.length - 1].height,
+        x: areas[activePage][areas[activePage].length - 1].x,
+        y: areas[activePage][areas[activePage].length - 1].y,
+        width: areas[activePage][areas[activePage].length - 1].width,
+        height: areas[activePage][areas[activePage].length - 1].height,
         id: uuidv4(),
         color: null,
         loading: false,
