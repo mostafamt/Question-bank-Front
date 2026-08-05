@@ -227,22 +227,41 @@ const useAreaManagement = ({
       syncAreasProperties();
     }
 
+    console.log("onChangeArea");
+    console.log("areasParam= ", areasParam);
     // Add metadata to new areas
     const areasWithMetadata = areasParam.map((area, idx) => {
       // Check if this is an existing area
       const existingArea = areas[activePageIndex]?.[idx];
 
       if (existingArea) {
-        // Preserve metadata from existing area
+        // AreaSelector echoes back the SAME (px) coordinates for every area
+        // not currently being dragged/resized — only the one actively being
+        // edited gets genuinely fresh values. Detect that by comparing against
+        // what we last stored: unchanged means static (preserve _percent*,
+        // since area.x/y/width/height here are stale px, not percentages);
+        // changed means this is the active area (recompute _percent* from it).
+        // Using `existingArea._percentWidth ?? area.width` unconditionally
+        // would freeze at a legitimate 0 (mousedown start) forever, since `??`
+        // only falls back on null/undefined.
+        const hasMoved =
+          area.x !== existingArea.x ||
+          area.y !== existingArea.y ||
+          area.width !== existingArea.width ||
+          area.height !== existingArea.height;
+
         return {
           ...area,
           _unit: existingArea._unit || "percentage",
           _updated: existingArea._updated || false,
-          // Preserve or store percentage coordinates
-          _percentX: existingArea._percentX ?? area.x,
-          _percentY: existingArea._percentY ?? area.y,
-          _percentWidth: existingArea._percentWidth ?? area.width,
-          _percentHeight: existingArea._percentHeight ?? area.height,
+          _percentX: hasMoved ? area.x : existingArea._percentX ?? area.x,
+          _percentY: hasMoved ? area.y : existingArea._percentY ?? area.y,
+          _percentWidth: hasMoved
+            ? area.width
+            : existingArea._percentWidth ?? area.width,
+          _percentHeight: hasMoved
+            ? area.height
+            : existingArea._percentHeight ?? area.height,
         };
       } else {
         // New area - set metadata (AreaSelector uses percentage)
