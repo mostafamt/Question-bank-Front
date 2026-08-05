@@ -21,10 +21,30 @@ const AreaActionResult = (props) => {
 
   return (
     <div>
-      {trialArea?.typeOfLabel === "text" ||
-      trialArea?.typeOfLabel === "number" ||
-      trialArea?.typeOfLabel === "Coordinate" ||
-      foundComplexType ? (
+      {trialArea?.typeOfLabel === "video" ? (
+        trialArea?.video ? (
+          <video
+            src={trialArea.video}
+            controls
+            style={{ width: "100%", marginTop: "0.5rem" }}
+          />
+        ) : (
+          <div className={styles.placeholder}>No video selected</div>
+        )
+      ) : trialArea?.typeOfLabel === "audio" ? (
+        trialArea?.audio ? (
+          <audio
+            src={trialArea.audio}
+            controls
+            style={{ width: "100%", marginTop: "0.5rem" }}
+          />
+        ) : (
+          <div className={styles.placeholder}>No audio selected</div>
+        )
+      ) : trialArea?.typeOfLabel === "text" ||
+        trialArea?.typeOfLabel === "number" ||
+        trialArea?.typeOfLabel === "Coordinate" ||
+        foundComplexType ? (
         <TextField
           sx={{
             width: "100%",
