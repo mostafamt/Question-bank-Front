@@ -211,11 +211,11 @@ const useAreaManagement = ({
     setAreasProperties(newAreasProperties);
   };
 
-  const syncAreasProperties = () => {
+  const syncAreasProperties = (areasToSync = areas) => {
     const newAreasProperties = updateAreasProperties(
       areasProperties,
       activePageIndex,
-      areas,
+      areasToSync,
       subObject,
       type
     );
@@ -223,9 +223,7 @@ const useAreaManagement = ({
   };
 
   const onChangeArea = (areasParam) => {
-    if (areasParam.length > areasProperties[activePageIndex].length) {
-      syncAreasProperties();
-    }
+    const isNewAreaAdded = areasParam.length > areasProperties[activePageIndex].length;
 
     console.log("onChangeArea");
     console.log("areasParam= ", areasParam);
@@ -281,6 +279,25 @@ const useAreaManagement = ({
     const newAreasParam = [...areas];
     newAreasParam[activePageIndex] = areasWithMetadata;
     setAreas(newAreasParam);
+
+    // Sync areasProperties whenever areas change (new area added or existing area moved)
+    if (isNewAreaAdded) {
+      syncAreasProperties(newAreasParam);
+    } else {
+      // Check if any existing area has moved
+      const hasMovedAreas = areasWithMetadata.some((area, idx) => {
+        const existingArea = areas[activePageIndex]?.[idx];
+        return existingArea && (
+          area.x !== existingArea.x ||
+          area.y !== existingArea.y ||
+          area.width !== existingArea.width ||
+          area.height !== existingArea.height
+        );
+      });
+      if (hasMovedAreas) {
+        syncAreasProperties(newAreasParam);
+      }
+    }
   };
 
   const onClickSubmit = async () => {
