@@ -7,7 +7,6 @@ import {
   uploadForStudio,
 } from "../../utils/upload";
 import { uploadBase64 as newUpload } from "../../utils/NewUpload";
-import { uploadBase64ToCloudinary } from "../../services/cloudinary";
 import { saveBlocks } from "../../services/api";
 import {
   getChapterPages,
@@ -140,9 +139,7 @@ const ScanAndUpload = () => {
     );
 
     // Upload page snapshot if provided (deep blocks present)
-    const pageUrl = pageSnapshot
-      ? (await uploadBase64ToCloudinary(pageSnapshot)).url
-      : null;
+    const pageUrl = pageSnapshot ? await newUpload(pageSnapshot) : null;
 
     // Only include v_blocks if there are any contents
     const data = {

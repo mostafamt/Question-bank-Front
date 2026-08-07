@@ -21,6 +21,8 @@ const DeepBlockObject = ({ objectId, interactive = false }) => {
     staleTime: Infinity,
   });
 
+  const [showIframe, setShowIframe] = React.useState(false);
+
   if (!objectId) {
     return null;
   }
@@ -37,17 +39,34 @@ const DeepBlockObject = ({ objectId, interactive = false }) => {
     );
   }
 
+  const thumbnailUrl = `https://image.thum.io/get/${object.url}`;
+
   return (
-    <iframe
-      src={object.url}
-      title="interactive-object"
-      frameBorder="0"
-      className={
-        interactive
-          ? styles["deep-block-object-iframe-interactive"]
-          : styles["deep-block-object-iframe"]
-      }
-    />
+    <div style={{ position: "relative", width: "100%", height: "400px" }}>
+      {!showIframe && (
+        <img
+          src={thumbnailUrl}
+          alt="thumbnail"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            cursor: "pointer",
+          }}
+          onClick={() => setShowIframe(true)}
+        />
+      )}
+
+      {showIframe && (
+        <iframe
+          src={object.url}
+          title="content"
+          width="100%"
+          height="100%"
+          style={{ border: "none" }}
+        />
+      )}
+    </div>
   );
 };
 
