@@ -3,7 +3,7 @@ import { default as BootstrapModal } from "react-bootstrap/Modal";
 import Button from "@mui/material/Button";
 import QuillEditor from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { quillModules } from "../../../utils/quill";
+import { quillModules, quillFormats } from "../../../utils/quill";
 
 import styles from "./textEditorModal.module.scss";
 
@@ -83,6 +83,7 @@ const TextEditorModal = (props) => {
           onChange={onChange}
           readOnly={isReadOnly}
           modules={isReadOnly ? { toolbar: false } : quillModules}
+          formats={quillFormats}
         />
       </BootstrapModal.Body>
 

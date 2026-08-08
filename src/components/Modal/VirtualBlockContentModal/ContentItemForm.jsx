@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import QuillEditor from "react-quill";
-import { quillModules } from "../../../utils/quill";
+import { quillModules, quillFormats } from "../../../utils/quill";
 import RadioQuestionsTable from "../../Tables/RadioQuestionsTable/RadioQuestionsTable";
 import { simulateSubmitAutoGen } from "../../../services/autogen.simulator";
 
@@ -346,6 +346,7 @@ const ContentItemForm = (props) => {
               value={textValue}
               onChange={setTextValue}
               modules={quillModules}
+              formats={quillFormats}
               placeholder="Enter your text content here..."
             />
           </div>
