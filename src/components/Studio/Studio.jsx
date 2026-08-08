@@ -107,6 +107,8 @@ const Studio = (props) => {
     setAreas,
     areasProperties,
     setAreasProperties,
+    deletedDeepBlockAreas,
+    setDeletedDeepBlockAreas,
     insertPageAt,
     insertPagesAt,
     deletePageAt,
@@ -461,6 +463,7 @@ const Studio = (props) => {
         onPlayBlock={onPlayBlock}
         showBlocksStyling={showBlocksStyling}
         setShowBlocksStyling={setShowBlocksStyling}
+        deletedDeepBlockAreas={deletedDeepBlockAreas}
       />
 
       <canvas ref={canvasRef} style={{ display: "none" }} />

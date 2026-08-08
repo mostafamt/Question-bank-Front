@@ -25,6 +25,7 @@ import DeepBlockImage from "../DeepBlockContent/DeepBlockImage";
 import DeepBlockAudio from "../DeepBlockContent/DeepBlockAudio";
 import DeepBlockVideo from "../DeepBlockContent/DeepBlockVideo";
 import DeepBlockObject from "../DeepBlockContent/DeepBlockObject";
+import WhiteAreaOverlay from "../WhiteAreaOverlay";
 
 const StudioAreaSelector = React.memo(
   React.forwardRef((props, ref) => {
@@ -50,6 +51,7 @@ const StudioAreaSelector = React.memo(
       onPlayBlock,
       pageContainerRef,
       showBlocksStyling,
+      deletedDeepBlockAreas = [],
     } = props;
 
     // Get image source with fallback to white canvas if URL is missing
@@ -389,6 +391,10 @@ const StudioAreaSelector = React.memo(
                   />
                 );
               })}
+              <WhiteAreaOverlay
+                deletedAreas={deletedDeepBlockAreas[activePage]}
+                visible={true}
+              />
               <img
                 src={getImageSource()}
                 alt={pages[activePage]?.url || pages[activePage]}
@@ -418,6 +424,10 @@ const StudioAreaSelector = React.memo(
                   </div>
                 );
               })}
+              <WhiteAreaOverlay
+                deletedAreas={deletedDeepBlockAreas[activePage]}
+                visible={true}
+              />
               <img
                 src={getImageSource()}
                 alt={pages[activePage]?.url || pages[activePage]}
@@ -434,6 +444,10 @@ const StudioAreaSelector = React.memo(
           ) : highlight === "hand" ? (
             <div style={{ position: "relative" }}>
               {blocksToRender}
+              <WhiteAreaOverlay
+                deletedAreas={deletedDeepBlockAreas[activePage]}
+                visible={true}
+              />
               <img
                 src={getImageSource()}
                 alt={pages[activePage]?.url || pages[activePage]}
@@ -460,6 +474,10 @@ const StudioAreaSelector = React.memo(
               areaProps={areaPropsConfig}
               unit="percentage"
             >
+              <WhiteAreaOverlay
+                deletedAreas={deletedDeepBlockAreas[activePage]}
+                visible={true}
+              />
               <img
                 src={getImageSource()}
                 alt={pages[activePage]?.url || pages[activePage]}
@@ -475,6 +493,10 @@ const StudioAreaSelector = React.memo(
             </AreaSelector>
           ) : (
             <div style={{ position: "relative" }}>
+              <WhiteAreaOverlay
+                deletedAreas={deletedDeepBlockAreas[activePage]}
+                visible={true}
+              />
               <img
                 src={getImageSource()}
                 alt={pages[activePage]?.url || pages[activePage]}

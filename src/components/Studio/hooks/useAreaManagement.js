@@ -49,6 +49,12 @@ const useAreaManagement = ({
 
   const [showVB, setShowVB] = React.useState(false);
 
+  // Track deleted deep block areas for white background rendering during snapshot
+  // Structure: deletedDeepBlockAreas[pageIndex] = [{ id, x, y, width, height, unit }, ...]
+  const [deletedDeepBlockAreas, setDeletedDeepBlockAreas] = React.useState(() =>
+    pages.map(() => [])
+  );
+
   // When pages grows (e.g. after a new page is added and refetched), append
   // empty entries so areas/areasProperties stay in sync with the pages array.
   React.useEffect(() => {
@@ -57,6 +63,10 @@ const useAreaManagement = ({
       return [...prev, ...Array(pages.length - prev.length).fill([])];
     });
     setAreasProperties((prev) => {
+      if (prev.length >= pages.length) return prev;
+      return [...prev, ...Array(pages.length - prev.length).fill([])];
+    });
+    setDeletedDeepBlockAreas((prev) => {
       if (prev.length >= pages.length) return prev;
       return [...prev, ...Array(pages.length - prev.length).fill([])];
     });
@@ -149,6 +159,7 @@ const useAreaManagement = ({
   /**
    * Handle area deletion
    * - First checks if area exists in areas array
+   * - Deep blocks: Store for white background rendering, then proceed with deletion
    * - Server areas: Mark as DELETED status (soft delete)
    * - Client areas: Remove from both arrays (hard delete)
    * @param {number} idx - Index of area to delete
@@ -168,7 +179,12 @@ const useAreaManagement = ({
       // 2. Get corresponding areaProps for server status check
       const areaProps = areasProperties[activePageIndex]?.[idx];
 
-      // 3. Determine delete strategy based on server status
+      // 3. Check if this is a deep block and store coordinates for white rendering
+      if (isDeepBlock(areaProps)) {
+        addDeletedDeepBlockArea(area, areaProps);
+      }
+
+      // 4. Determine delete strategy based on server status
       if (areaProps?.isServer) {
         // Soft delete: mark as deleted for server sync
         updateAreaProperty(idx, { status: DELETED });
@@ -199,6 +215,24 @@ const useAreaManagement = ({
       return area;
     });
     setAreasProperties(newAreasProperties);
+  };
+
+  const addDeletedDeepBlockArea = (area, areaProps) => {
+    setDeletedDeepBlockAreas((prevState) => {
+      const newDeletedAreas = [...prevState];
+      newDeletedAreas[activePageIndex] = [
+        ...newDeletedAreas[activePageIndex],
+        {
+          id: areaProps.id,
+          x: area._percentX ?? area.x,
+          y: area._percentY ?? area.y,
+          width: area._percentWidth ?? area.width,
+          height: area._percentHeight ?? area.height,
+          unit: area._unit || "percentage",
+        },
+      ];
+      return newDeletedAreas;
+    });
   };
 
   const onEditText = (id, text) => {
@@ -311,12 +345,17 @@ const useAreaManagement = ({
       const hasDeepBlock = areasProperties[activePageIndex]?.some(isDeepBlock);
       let pageSnapshot = null;
       if (hasDeepBlock) {
-        // Temporarily hide block borders and backgrounds during capture
+        // Snapshot capture flow for deep blocks
+        // White area overlays (deleted deep blocks) are automatically included in the snapshot
+        // They're rendered in the page and appear as white backgrounds in the final image
+
+        // 1. Temporarily hide area selection borders and backgrounds during capture
         setShowBlocksStyling(false);
-        // Give React time to update the DOM
+        // 2. Give React time to update the DOM
         await new Promise((resolve) => setTimeout(resolve, 50));
+        // 3. Capture snapshot (includes white areas for deleted deep blocks)
         pageSnapshot = await capturePageSnapshot(pageContainerRef.current);
-        // Restore block styling
+        // 4. Restore area selection styling for continued editing
         setShowBlocksStyling(true);
       }
       const id = await handleSubmit(
@@ -348,6 +387,11 @@ const useAreaManagement = ({
       [],
       ...prev.slice(insertAt),
     ]);
+    setDeletedDeepBlockAreas((prev) => [
+      ...prev.slice(0, insertAt),
+      [],
+      ...prev.slice(insertAt),
+    ]);
   };
 
   const insertPagesAt = (insertAt, newPages) => {
@@ -367,12 +411,18 @@ const useAreaManagement = ({
       ...emptyArrays,
       ...prev.slice(insertAt),
     ]);
+    setDeletedDeepBlockAreas((prev) => [
+      ...prev.slice(0, insertAt),
+      ...emptyArrays,
+      ...prev.slice(insertAt),
+    ]);
   };
 
   const deletePageAt = (pageIndex) => {
     rawPagesRef.current = rawPagesRef.current.filter((_, idx) => idx !== pageIndex);
     setAreas((prev) => prev.filter((_, idx) => idx !== pageIndex));
     setAreasProperties((prev) => prev.filter((_, idx) => idx !== pageIndex));
+    setDeletedDeepBlockAreas((prev) => prev.filter((_, idx) => idx !== pageIndex));
   };
 
   // Reorder the per-page area structures to match a pages reorder. Must apply the
@@ -383,6 +433,7 @@ const useAreaManagement = ({
     rawPagesRef.current = reorder(rawPagesRef.current, fromIndex, toIndex);
     setAreas((prev) => reorder(prev, fromIndex, toIndex));
     setAreasProperties((prev) => reorder(prev, fromIndex, toIndex));
+    setDeletedDeepBlockAreas((prev) => reorder(prev, fromIndex, toIndex));
   };
 
   const onClickToggleVirutalBlocks = () => {
@@ -397,6 +448,8 @@ const useAreaManagement = ({
     setAreas,
     areasProperties,
     setAreasProperties,
+    deletedDeepBlockAreas,
+    setDeletedDeepBlockAreas,
     insertPageAt,
     insertPagesAt,
     deletePageAt,
