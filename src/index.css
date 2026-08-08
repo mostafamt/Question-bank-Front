@@ -18,3 +18,60 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+/* Global Quill Font Styles - Applied everywhere on the page */
+/* Sans Serif */
+.ql-font-sans-serif {
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+.ql-font-verdana {
+  font-family: Verdana, sans-serif !important;
+}
+
+.ql-font-trebuchet {
+  font-family: 'Trebuchet MS', sans-serif !important;
+}
+
+.ql-font-tahoma {
+  font-family: Tahoma, sans-serif !important;
+}
+
+/* Serif */
+.ql-font-georgia {
+  font-family: Georgia, serif !important;
+}
+
+.ql-font-times {
+  font-family: 'Times New Roman', serif !important;
+}
+
+.ql-font-garamond {
+  font-family: Garamond, serif !important;
+}
+
+.ql-font-book {
+  font-family: 'Book Antiqua', serif !important;
+}
+
+/* Monospace */
+.ql-font-courier {
+  font-family: 'Courier New', monospace !important;
+}
+
+.ql-font-consolas {
+  font-family: Consolas, monospace !important;
+}
+
+.ql-font-monaco {
+  font-family: Monaco, monospace !important;
+}
+
+/* Display/Decorative */
+.ql-font-comic {
+  font-family: 'Comic Sans MS', cursive !important;
+}
+
+.ql-font-impact {
+  font-family: Impact, sans-serif !important;
+}
