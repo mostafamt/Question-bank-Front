@@ -140,6 +140,8 @@ const StudioAreaSelector = React.memo(
         if (!areaProps.isChanging) {
           const isCompositeBlocksTab = activeRightTab.id === "composite-blocks";
           const areaIndex = areaProps.areaNumber - 1;
+          const isInteractiveMode = isReaderMode || (!showBlocksStyling && !readOnly);
+          console.log("customRender - isInteractiveMode:", isInteractiveMode, "isReaderMode:", isReaderMode, "showBlocksStyling:", showBlocksStyling, "readOnly:", readOnly);
 
           let areaType, areaLabel, deepText, deepImage, deepAudio, deepVideo, deepObjectId;
 
@@ -159,26 +161,37 @@ const StudioAreaSelector = React.memo(
           }
 
           if (areaType) {
+            const handleWrapperClick = (e) => {
+              // Don't interfere with interactive media controls in view-and-play mode
+              if (isInteractiveMode && e.target.closest('video, audio, iframe')) {
+                e.stopPropagation();
+                return;
+              }
+
+              if (readOnly && onAreaClick) {
+                onAreaClick(areaProps);
+              } else {
+                onClickExistedArea(areaProps);
+              }
+            };
+
             return (
               <div
                 key={areaProps.areaNumber}
-                onClick={() => {
-                  if (readOnly && onAreaClick) {
-                    onAreaClick(areaProps);
-                  } else {
-                    onClickExistedArea(areaProps);
-                  }
+                onClick={handleWrapperClick}
+                style={{
+                  cursor: readOnly ? "pointer" : "default",
+                  pointerEvents: isInteractiveMode ? "auto" : undefined,
                 }}
-                style={{ cursor: readOnly ? "pointer" : "default" }}
               >
                 <div className={styles.type}>
                   {areaType} - {areaLabel}
                 </div>
                 {deepText ? <DeepBlockContent html={deepText} /> : null}
                 {deepImage ? <DeepBlockImage src={deepImage} /> : null}
-                {deepAudio ? <DeepBlockAudio src={deepAudio} /> : null}
-                {deepVideo ? <DeepBlockVideo src={deepVideo} /> : null}
-                {deepObjectId ? <DeepBlockObject objectId={deepObjectId} interactive={isReaderMode} /> : null}
+                {deepAudio ? <DeepBlockAudio src={deepAudio} interactive={isInteractiveMode} /> : null}
+                {deepVideo ? <DeepBlockVideo src={deepVideo} interactive={isInteractiveMode} /> : null}
+                {deepObjectId ? <DeepBlockObject objectId={deepObjectId} interactive={isInteractiveMode} /> : null}
               </div>
             );
           }
@@ -193,6 +206,7 @@ const StudioAreaSelector = React.memo(
         readOnly,
         onAreaClick,
         isReaderMode,
+        showBlocksStyling,
       ]
     );
 
@@ -375,6 +389,7 @@ const StudioAreaSelector = React.memo(
             showBlocksStyling
           )}
         >
+          {console.log("Rendering mode - isReaderMode:", isReaderMode, "showBlocksStyling:", showBlocksStyling, "readOnly:", readOnly, "highlight:", highlight, "activeRightTab:", activeRightTab.id)}
           {isReaderMode ? (
             <div style={{ position: "relative" }}>
               {areas[activePage]?.map((area, idx) => {
@@ -408,6 +423,47 @@ const StudioAreaSelector = React.memo(
                 onLoad={onImageLoad}
               />
             </div>
+          ) : !showBlocksStyling && !readOnly ? (
+            <>
+              {console.log("VIEW-AND-PLAY MODE ACTIVE - areas:", areas[activePage]?.length, "areasProperties:", areasProperties[activePage]?.length)}
+              <div style={{ position: "relative" }}>
+              <img
+                src={getImageSource()}
+                alt={pages[activePage]?.url || pages[activePage]}
+                crossOrigin="anonymous"
+                ref={ref}
+                style={{
+                  width: `${imageScaleFactor * 100}%`,
+                  height: `${imageScaleFactor * 100}%`,
+                  overflow: "scroll",
+                  position: "relative",
+                }}
+                onLoad={onImageLoad}
+              />
+              {areas[activePage]?.map((area, idx) => {
+                const areaProps = areasProperties[activePage]?.[idx];
+                console.log(`View-and-play area ${idx}:`, { area, areaProps, hasBlockId: areaProps?.blockId });
+                if (!areaProps?.blockId) return null;
+
+                return (
+                  <div
+                    key={idx}
+                    style={{
+                      ...getBlockStyle(area, idx),
+                      zIndex: 10,
+                    }}
+                    onClick={() => onAreaClick?.({ areaNumber: idx + 1 })}
+                  >
+                    {customRender({ areaNumber: idx + 1, isChanging: false })}
+                  </div>
+                );
+              })}
+              <WhiteAreaOverlay
+                deletedAreas={deletedDeepBlockAreas[activePage]}
+                visible={true}
+              />
+              </div>
+            </>
           ) : readOnly ? (
             <div style={{ position: "relative" }}>
               {areas[activePage]?.map((area, idx) => {

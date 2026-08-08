@@ -1,5 +1,5 @@
 import React from "react";
-
+import clsx from "clsx";
 import styles from "./deepBlockContent.module.scss";
 
 /**
@@ -7,15 +7,22 @@ import styles from "./deepBlockContent.module.scss";
  * covering the scanned content it replaces.
  * @param {Object} props
  * @param {string} props.src - The block's video URL
+ * @param {boolean} props.interactive - Enable video controls (view-and-play mode)
  */
-const DeepBlockVideo = ({ src }) => {
+const DeepBlockVideo = ({ src, interactive = false }) => {
   if (!src) {
     return null;
   }
 
+  console.log("DeepBlockVideo - interactive:", interactive, "src:", src);
+
   return (
     <video
-      className={styles["deep-block-video"]}
+      className={clsx(
+        styles["deep-block-video"],
+        interactive && styles["deep-block-video-interactive"]
+      )}
+      style={interactive ? { pointerEvents: "auto" } : {}}
       controls
       crossOrigin="anonymous"
     >
