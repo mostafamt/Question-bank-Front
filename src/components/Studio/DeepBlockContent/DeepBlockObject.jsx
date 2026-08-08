@@ -1,6 +1,6 @@
 import React from "react";
+import clsx from "clsx";
 import { useQuery } from "@tanstack/react-query";
-
 import { getObject } from "../../../api/bookapi";
 import styles from "./deepBlockContent.module.scss";
 
@@ -9,9 +9,12 @@ import styles from "./deepBlockContent.module.scss";
  * Fetches object.url from the API; shows a loading indicator while pending and
  * a text badge fallback if no URL is returned.
  *
+ * In non-interactive mode: shows thumbnail preview only.
+ * In interactive mode (reader/view-and-play): allows full iframe interaction.
+ *
  * @param {Object}  props
  * @param {string}  props.objectId    - The linked object's ID (from area.text)
- * @param {boolean} props.interactive - true in reader mode (pointer-events: auto)
+ * @param {boolean} props.interactive - Enable iframe interaction (reader/view-and-play mode)
  */
 const DeepBlockObject = ({ objectId, interactive = false }) => {
   const { data: object, isLoading } = useQuery({
@@ -63,7 +66,12 @@ const DeepBlockObject = ({ objectId, interactive = false }) => {
           title="content"
           width="100%"
           height="100%"
-          style={{ border: "none" }}
+          className={clsx(
+            interactive
+              ? styles["deep-block-object-iframe-interactive"]
+              : styles["deep-block-object-iframe"]
+          )}
+          style={interactive ? { pointerEvents: "auto" } : {}}
         />
       )}
     </div>

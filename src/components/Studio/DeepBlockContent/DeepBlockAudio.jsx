@@ -1,30 +1,45 @@
 import React from "react";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
-
 import styles from "./deepBlockContent.module.scss";
 
 /**
- * Paints a deep audio block's placeholder over its area on the page, covering
- * the scanned content it replaces.
+ * Paints a deep audio block's content over its area on the page.
  *
- * Renders an icon rather than a native `<audio>` player: this overlay is
- * non-interactive (see `pointer-events: none` below) and audio has no visual
- * frame, so html2canvas (used by pageCapture.service.js) has nothing to
- * rasterize from a native player's shadow-DOM controls — the icon is plain
- * DOM it can actually capture. Playback/preview happens in the DEEP_AUDIO
- * modal, not here.
+ * In non-interactive mode (Studio editing): shows an icon placeholder.
+ * This overlay is non-interactive (pointer-events: none) so html2canvas
+ * (used by pageCapture.service.js) can capture the page without audio controls.
+ *
+ * In interactive mode (view-and-play): shows a playable audio element with controls.
+ * User can play/pause, adjust volume, and seek through the audio.
+ *
  * @param {Object} props
  * @param {string} props.src - The block's audio URL
+ * @param {boolean} props.interactive - Show playable audio player (view-and-play mode)
  */
-const DeepBlockAudio = ({ src }) => {
+const DeepBlockAudio = ({ src, interactive = false }) => {
   if (!src) {
     return null;
   }
 
+  // Non-interactive mode: show icon (for Studio editing/page capture)
+  if (!interactive) {
+    return (
+      <div className={styles["deep-block-audio"]}>
+        <MusicNoteIcon className={styles["deep-block-audio-icon"]} />
+      </div>
+    );
+  }
+
+  // Interactive mode: show audio player (for view-and-play)
   return (
-    <div className={styles["deep-block-audio"]}>
-      <MusicNoteIcon className={styles["deep-block-audio-icon"]} />
-    </div>
+    <audio
+      className={styles["deep-block-audio-interactive"]}
+      style={{ pointerEvents: "auto" }}
+      controls
+      crossOrigin="anonymous"
+    >
+      <source src={src} type="audio/mpeg" />
+    </audio>
   );
 };
 
