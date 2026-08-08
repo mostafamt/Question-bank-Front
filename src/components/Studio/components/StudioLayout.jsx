@@ -55,6 +55,7 @@ const StudioLayout = React.forwardRef(
       onPlayBlock,
       showBlocksStyling,
       setShowBlocksStyling,
+      deletedDeepBlockAreas,
     },
     ref
   ) => {
@@ -98,6 +99,7 @@ const StudioLayout = React.forwardRef(
           onPlayBlock={onPlayBlock}
           showBlocksStyling={showBlocksStyling}
           setShowBlocksStyling={setShowBlocksStyling}
+          deletedDeepBlockAreas={deletedDeepBlockAreas}
         />
 
         {/* Right Panel */}

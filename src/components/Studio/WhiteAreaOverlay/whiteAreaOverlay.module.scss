@@ -1,0 +1,44 @@
+/**
+ * @file whiteAreaOverlay.module.scss
+ * @description Styling for white area overlays (deleted deep block markers)
+ */
+
+.whiteArea {
+  position: absolute;
+  background-color: #ffffff;
+  opacity: 1;
+  border: 1px dashed #e0e0e0;
+  pointer-events: none; // Don't interfere with area selection
+  z-index: 1; // Above page content but below interactive elements
+
+  &:hover {
+    border-color: #ccc;
+  }
+
+  &.snapshot-mode {
+    // During snapshot capture, ensure maximum visibility
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    border: 1px solid #f0f0f0; // Lighter border during snapshot
+  }
+
+  &.editing {
+    // While editing, provide subtle feedback
+    border-color: #ddd;
+
+    &:hover {
+      border-color: #bbb;
+    }
+  }
+}
+
+// Utility class for snapshot preparation
+.snapshotReady {
+  .whiteArea {
+    // Maximize visibility during snapshot
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+}
