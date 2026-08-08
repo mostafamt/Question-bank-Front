@@ -180,7 +180,8 @@ const useAreaManagement = ({
       const areaProps = areasProperties[activePageIndex]?.[idx];
 
       // 3. Check if this is a deep block and store coordinates for white rendering
-      if (isDeepBlock(areaProps)) {
+      // Only store if it's server-side (has a snapshot to render the overlay on)
+      if (isDeepBlock(areaProps) && areaProps?.isServer) {
         addDeletedDeepBlockArea(area, areaProps);
       }
 
