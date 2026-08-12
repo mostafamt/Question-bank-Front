@@ -48,7 +48,6 @@ export const saveBlocks = async (data) => {
     const res = await axios2.post("/save-blocks", data);
     return res.data;
   } catch (error) {
-    console.log(error);
     toast.error(error?.message);
     return null;
   }

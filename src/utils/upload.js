@@ -32,7 +32,6 @@ const upload = async (file) => {
     const res = await axios.post("/upload", data);
     return res.data;
   } catch (error) {
-    console.log("error= ", error);
     toast.error(error?.message);
   }
 };

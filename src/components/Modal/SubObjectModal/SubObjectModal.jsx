@@ -64,7 +64,6 @@ const SubObjectModal = (props) => {
   };
 
   const onSelectFromLibrary = () => {
-    console.log("onSelectFromLibrary");
     openModal("select-from-library", {
       onSelect: (objectId) => {
         updateAreaProperty(-1, { text: objectId });
@@ -95,7 +94,6 @@ const SubObjectModal = (props) => {
       objectElements,
     };
 
-    console.log("data= ", data);
 
     const id = await saveObject(data);
     updateAreaProperty(-1, { text: id });

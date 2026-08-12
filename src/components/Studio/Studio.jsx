@@ -223,8 +223,6 @@ const Studio = (props) => {
 
   const onPageDeleted = React.useCallback(
     (pageIndex) => {
-      console.log("onPageDeleted");
-      console.log("pageIndex= ", pageIndex);
       deletePageAt(pageIndex);
       changePageByIndex(Math.max(0, pageIndex - 1));
     },

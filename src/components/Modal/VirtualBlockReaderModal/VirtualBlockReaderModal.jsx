@@ -35,10 +35,6 @@ const VirtualBlockReaderModal = (props) => {
   // Loading state for fetching object URLs
   const [loadingObjectUrl, setLoadingObjectUrl] = React.useState(false);
 
-  console.log("VirtualBlockReaderModal opened with:", {
-    blockLabel,
-    contents,
-  });
 
   /**
    * Get display icon for content type
@@ -138,7 +134,6 @@ const VirtualBlockReaderModal = (props) => {
     switch (item.type) {
       case "text":
         // Text content - open text viewer (read-only)
-        console.log("Opening text content in text editor");
         openModal("text-editor", {
           value: item.contentValue,
           title: item.contentType,
@@ -148,7 +143,6 @@ const VirtualBlockReaderModal = (props) => {
 
       case "link":
         // Link content - open in iframe
-        console.log("Opening link content in iframe:", item.contentValue);
         openModal("iframe-display", {
           title: item.contentType,
           url: item.contentValue,
@@ -157,11 +151,9 @@ const VirtualBlockReaderModal = (props) => {
 
       case "object":
         // Object content - fetch URL and open in iframe
-        console.log("Fetching URL for object:", item.contentValue);
         setLoadingObjectUrl(true);
         try {
           const url = await getObjectUrl(item.contentValue);
-          console.log("Object URL retrieved:", url);
 
           openModal("iframe-display", {
             title: item.contentType,

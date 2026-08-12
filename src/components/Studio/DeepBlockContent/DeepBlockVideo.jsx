@@ -14,7 +14,6 @@ const DeepBlockVideo = ({ src, interactive = false }) => {
     return null;
   }
 
-  console.log("DeepBlockVideo - interactive:", interactive, "src:", src);
 
   return (
     <video

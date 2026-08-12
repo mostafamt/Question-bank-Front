@@ -294,7 +294,5 @@ if (process.env.NODE_ENV === "development") {
   const validation = validateTabConfig();
   if (!validation.isValid) {
     console.warn("⚠️ Tab configuration validation errors:", validation.errors);
-  } else {
-    // console.log("✅ Tab configuration is valid");
   }
 }

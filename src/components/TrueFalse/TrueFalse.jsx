@@ -101,7 +101,6 @@ const TrueFalse = () => {
       }
       return question;
     });
-    console.log(newQuestions);
     setQuestions(newQuestions);
   };
 

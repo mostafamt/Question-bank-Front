@@ -11,7 +11,6 @@ const Test = () => {
   React.useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        console.log(entry);
         // If the target is NOT visible → show sticky content
         setStickyVisible(!entry.isIntersecting);
       },
@@ -22,7 +21,6 @@ const Test = () => {
     );
 
     if (targetRef.current) {
-      console.log(targetRef.current);
       observer.observe(targetRef.current);
     }
 

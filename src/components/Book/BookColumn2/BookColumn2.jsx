@@ -17,10 +17,8 @@ const BookColumn2 = (props) => {
   }, [props.columns]);
 
   React.useEffect(() => {
-    console.log("window.innerWidth= ", window.innerWidth);
     const checkMobile = () => {
       if (window.innerWidth <= 768) {
-        console.log("here");
         setActiveColumn(null);
       }
     };

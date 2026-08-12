@@ -57,7 +57,6 @@ export async function capturePageSnapshot(containerEl) {
         // IMPORTANT: Process white areas FIRST to preserve them
         // Find all white area overlays in the cloned tree
         const whiteAreas = Array.from(clonedEl.querySelectorAll('.white-area-overlay'));
-        console.log(`[Snapshot] Found ${whiteAreas.length} white area overlays`);
 
         // Store original white area styles
         const whiteAreaOriginalStyles = whiteAreas.map((area) => ({
@@ -77,7 +76,6 @@ export async function capturePageSnapshot(containerEl) {
           whiteArea.style.setProperty('background-color', '#ffffff', 'important');
           whiteArea.style.setProperty('position', 'absolute', 'important');
           whiteArea.style.setProperty('pointer-events', 'none', 'important');
-          console.log(`[Snapshot] White area styled for capture:`, whiteArea);
         });
 
         // Now strip area selection styling from area boxes (NOT white areas)
@@ -86,7 +84,6 @@ export async function capturePageSnapshot(containerEl) {
           (element) => {
             // Skip white area overlays - they should have already been set up above
             if (element.classList?.contains('white-area-overlay')) {
-              console.log('[Snapshot] Skipping white area overlay');
               return;
             }
 
@@ -100,28 +97,12 @@ export async function capturePageSnapshot(containerEl) {
 
             // Only strip if it has area selection styling (not regular content)
             if ((hasBorder || hasBackground) && !element.querySelector('img')) {
-              console.log(`[Snapshot] Stripping styling from selection box:`, element);
               element.style.setProperty('border', 'none', 'important');
               element.style.setProperty('background-color', 'transparent', 'important');
               element.style.setProperty('box-shadow', 'none', 'important');
             }
           }
         );
-
-        // Verify white areas are still in the cloned tree
-        const verifyWhiteAreas = clonedEl.querySelectorAll('.white-area-overlay');
-        console.log(
-          `[Snapshot] Verification: ${verifyWhiteAreas.length} white areas ready for capture`
-        );
-        verifyWhiteAreas.forEach((area, idx) => {
-          const style = window.getComputedStyle(area);
-          console.log(`[Snapshot] White area ${idx}:`, {
-            display: style.display,
-            visibility: style.visibility,
-            opacity: style.opacity,
-            backgroundColor: style.backgroundColor,
-          });
-        });
       },
     });
 

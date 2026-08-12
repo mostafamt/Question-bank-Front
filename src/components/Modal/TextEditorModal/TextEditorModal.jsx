@@ -30,10 +30,6 @@ const TextEditorModal = (props) => {
   // Local state for editor value
   const [value, setValue] = React.useState(initialValue);
 
-  console.log("TextEditorModal props:", {
-    initialValue,
-    hasSubmitHandler: !!onClickSubmit,
-  });
 
   // Determine if modal is in read-only mode
   const isReadOnly = !onClickSubmit;

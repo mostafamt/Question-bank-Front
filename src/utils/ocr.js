@@ -219,8 +219,6 @@ export const useTypes = () => {
 
 function compareStringsIgnoreSpaces(str1, str2) {
   // Remove all spaces from both strings
-  // console.log("str1 =", str1);
-  // console.log("str2 =", str2);
   const cleanStr1 = str1?.replace(/\s+/g, "");
   const cleanStr2 = str2?.replace(/\s+/g, "");
 
@@ -257,8 +255,6 @@ export const getTypeNameOfLabelKey = (types, labelKey) => {
 };
 
 export const getValue = (types, type, label) => {
-  console.log("types= ", types);
-  console.log("type= ", type);
   let labels =
     types.find((item) => compareStringsIgnoreSpaces(item.typeName, type))
       ?.labels || [];

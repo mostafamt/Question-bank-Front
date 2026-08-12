@@ -44,7 +44,6 @@ const MultipleChoiceForm = (props) => {
 
   const fetchData = async (id) => {
     const res = await axios.get(`/interactive-objects/${id}`);
-    console.log(res.data);
     const { parameters } = res.data;
     const newParameters = appendIdToAnswers(parameters);
     setParameters(newParameters);
@@ -79,13 +78,11 @@ const MultipleChoiceForm = (props) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    console.log(state);
     const data = {
       ...state,
       isAnswered: "g",
       parameters,
     };
-    console.log(data);
     try {
       setLoading(true);
       if (location.pathname.includes("/edit-question/")) {

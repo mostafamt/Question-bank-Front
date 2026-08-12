@@ -9,7 +9,6 @@ import VirtualBlock from "../../VirtualBlocks/VirtualBlock/VirtualBlock";
 import { getImageDimensions } from "../../../utils/image";
 
 const BookViewer = (props) => {
-  console.log("BookViewer");
   const {
     activePage,
     onChangePage,

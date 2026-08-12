@@ -260,8 +260,6 @@ const useAreaManagement = ({
   const onChangeArea = (areasParam) => {
     const isNewAreaAdded = areasParam.length > areasProperties[activePageIndex].length;
 
-    console.log("onChangeArea");
-    console.log("areasParam= ", areasParam);
     // Add metadata to new areas
     const areasWithMetadata = areasParam.map((area, idx) => {
       // Check if this is an existing area

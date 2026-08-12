@@ -56,11 +56,9 @@ const EditObjectModal = (props) => {
 
   const onSubmit = (event) => {
     event.preventDefault();
-    console.log("state= ", state);
     const selectedTypeObject = state?.types.find(
       (item) => item.typeName === type
     );
-    console.log("selectedTypeObject= ", selectedTypeObject);
     setFormState({
       ...state,
       questionName: name,
@@ -68,7 +66,6 @@ const EditObjectModal = (props) => {
       // types: selectedTypeObject,
       labels: selectedTypeObject?.labels,
     });
-    console.log(state);
     handleClose();
   };
 

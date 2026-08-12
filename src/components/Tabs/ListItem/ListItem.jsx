@@ -17,7 +17,6 @@ const ListItem = ({ item, onPlay, onDelete, onMoveUp, onMoveDown, reader }) => {
     if (onMoveUp) {
       onMoveUp();
     } else {
-      console.log("onClickUp - no handler provided");
     }
   };
 
@@ -26,7 +25,6 @@ const ListItem = ({ item, onPlay, onDelete, onMoveUp, onMoveDown, reader }) => {
     if (onMoveDown) {
       onMoveDown();
     } else {
-      console.log("onClickDown - no handler provided");
     }
   };
 
