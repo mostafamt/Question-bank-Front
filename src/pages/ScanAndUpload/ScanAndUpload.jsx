@@ -6,7 +6,8 @@ import {
   uploadBase64,
   uploadForStudio,
 } from "../../utils/upload";
-import { uploadBase64 as newUpload } from "../../utils/NewUpload";
+import { uploadBase64ToCloudinary } from "../../services/cloudinary";
+import { uploadPageImage } from "../../utils/NewUpload";
 import { saveBlocks } from "../../services/api";
 import {
   getChapterPages,
@@ -101,7 +102,7 @@ const ScanAndUpload = () => {
               contentValue:
                 item.typeOfLabel === "image"
                   ? item.image?.startsWith("data:")
-                    ? await newUpload(item.image) // raw crop → upload it
+                    ? (await uploadBase64ToCloudinary(item.image)).url // raw crop → upload it
                     : item.image // already a hosted URL (deep image) → use as-is
                   : item.typeOfLabel === "audio" ? item.audio :
                   item.typeOfLabel === "video" ? item.video :
@@ -139,7 +140,9 @@ const ScanAndUpload = () => {
     );
 
     // Upload page snapshot if provided (deep blocks present)
-    const pageUrl = pageSnapshot ? await newUpload(pageSnapshot) : null;
+    const pageUrl = pageSnapshot
+      ? await uploadPageImage(pageSnapshot, pageId)
+      : null;
 
     // Only include v_blocks if there are any contents
     const data = {
