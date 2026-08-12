@@ -120,8 +120,8 @@ export function convertPercentageToPixels(area, dimensions) {
     width: (percentWidth / 100) * clientWidth,
     height: (percentHeight / 100) * clientHeight,
     unit: "px",
-    isChanging: true,
-    isNew: true,
+    isChanging: area.isChanging ?? true,
+    isNew: area.isNew ?? true,
   };
 }
 
