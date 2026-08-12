@@ -6,7 +6,6 @@ import DrawnUI from "../../../pages/DrawnUI/DrawnUI";
 const AutoUiModal = (props) => {
   const { workingArea } = props;
 
-  console.log("workingArea= ", workingArea);
 
   return (
     <div>

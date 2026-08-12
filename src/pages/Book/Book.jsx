@@ -194,7 +194,6 @@ const Book = () => {
       }
 
       if (isDebugEnabled()) {
-        console.log(`Highlighting block: ${blockId}`);
       }
 
       setHighlightedBlockId(blockId);
@@ -205,7 +204,6 @@ const Book = () => {
         highlightTimeoutRef.current = setTimeout(() => {
           setHighlightedBlockId(null);
           if (isDebugEnabled()) {
-            console.log(`Cleared highlight for block: ${blockId}`);
           }
         }, timeout);
       }

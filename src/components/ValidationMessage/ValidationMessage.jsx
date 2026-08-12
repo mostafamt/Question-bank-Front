@@ -5,8 +5,6 @@ import styles from "./validationMessage.module.scss";
 const ValidationMessage = (props) => {
   const { path, errors } = props;
 
-  // console.log('path ')
-
   let error = {};
   path.forEach((element, idx) => {
     error = idx === 0 ? errors?.[element] : error?.[element];

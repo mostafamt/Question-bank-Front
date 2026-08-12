@@ -119,7 +119,6 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
   };
 
   const onDragEnd = (result) => {
-    console.log('result= ', result);
     if (!result.destination) return;
     const from = result.source.index;
     const to = result.destination.index;

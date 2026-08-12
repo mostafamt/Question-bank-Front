@@ -22,7 +22,6 @@ const AddType = () => {
     } else {
       const { id } = params;
       const res = await axios.get(`/io-types/${id}`);
-      console.log("res= ", res);
       return {
         typeName: "",
         questionOrExplanation: "",
@@ -43,7 +42,6 @@ const AddType = () => {
   });
 
   const onSubmit = async (values) => {
-    console.log("onSubmit");
     try {
       const res = await axios.post("/interactive-object-types", {
         ...values,
@@ -51,9 +49,7 @@ const AddType = () => {
       });
       const data = res.data;
       toast.success("Type added successfully!");
-      console.log("data= ", data);
     } catch (error) {
-      console.log(error);
     }
   };
 

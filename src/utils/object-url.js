@@ -51,22 +51,18 @@ export const getObjectUrl = async (objectId) => {
     throw new Error("Object ID is required");
   }
 
-  console.log("Getting URL for object:", objectId);
 
   // Check cache first
   const cached = getCachedUrl(objectId);
   if (cached) {
-    console.log("Using cached URL:", cached);
     return cached;
   }
 
   try {
     // Fetch object data from API
-    console.log("Fetching object data from API...");
     const response = await axios.get(`/interactive-objects/${objectId}`);
     const objectData = response.data;
 
-    console.log("Object data received:", objectData);
 
     let url = null;
 
@@ -81,7 +77,6 @@ export const getObjectUrl = async (objectId) => {
         objectData.contentUrl;
 
       if (url) {
-        console.log("Found direct URL in object data:", url);
         setCachedUrl(objectId, url);
         return url;
       }
@@ -96,7 +91,6 @@ export const getObjectUrl = async (objectId) => {
         .replace(/[^a-z0-9-]/g, "");
 
       url = `${URL_CONFIG.PLAYER_BASE_PATH}/${typeSlug}/${objectId}`;
-      console.log("Constructed URL from type:", url);
       setCachedUrl(objectId, url);
       return url;
     }
@@ -110,7 +104,6 @@ export const getObjectUrl = async (objectId) => {
         .substring(0, 50); // Limit length
 
       url = `${URL_CONFIG.PLAYER_BASE_PATH}/${nameSlug}/${objectId}`;
-      console.log("Constructed URL from name:", url);
       setCachedUrl(objectId, url);
       return url;
     }
@@ -120,14 +113,12 @@ export const getObjectUrl = async (objectId) => {
       // Create data URL with HTML content
       const htmlContent = objectData.embedCode || objectData.htmlContent;
       url = `data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`;
-      console.log("Using embedded HTML content");
       setCachedUrl(objectId, url);
       return url;
     }
 
     // Strategy 5: Fallback to generic player with object ID
     url = `${URL_CONFIG.FALLBACK_PLAYER}/${objectId}`;
-    console.log("Using fallback player URL:", url);
     setCachedUrl(objectId, url);
     return url;
   } catch (error) {
@@ -184,7 +175,6 @@ const getCachedUrl = (objectId) => {
   // Check if cache entry has expired
   const now = Date.now();
   if (now - entry.timestamp > CACHE_EXPIRY_MS) {
-    console.log("Cache expired for object:", objectId);
     cacheEntries.delete(objectId);
     return null;
   }
@@ -212,10 +202,8 @@ const setCachedUrl = (objectId, url) => {
  */
 export const clearUrlCache = (objectId) => {
   if (objectId) {
-    console.log("Clearing cache for object:", objectId);
     cacheEntries.delete(objectId);
   } else {
-    console.log("Clearing entire URL cache");
     cacheEntries.clear();
   }
 };
@@ -227,7 +215,6 @@ export const clearUrlCache = (objectId) => {
  * @returns {Promise<Object>} - Map of objectId to URL
  */
 export const prefetchObjectUrls = async (objectIds) => {
-  console.log("Prefetching URLs for objects:", objectIds);
 
   const results = {};
 
@@ -295,7 +282,6 @@ export const configureObjectUrl = (config) => {
     URL_CONFIG.CONSTRUCT_FROM_TYPE = config.constructFromType;
   }
 
-  console.log("Object URL configuration updated:", URL_CONFIG);
 };
 
 /**
@@ -345,8 +331,4 @@ if (process.env.NODE_ENV === "development") {
     getUrlConfig,
     isSafeUrl,
   };
-
-  // console.log(
-  //   "💡 Object URL utilities available in development mode via window.objectUrlUtils"
-  // );
 }

@@ -116,7 +116,6 @@ export const getPageOrderByPageId = (pages, id) =>
   pages?.findIndex((page) => page._id === id) + 1;
 
 export const toggleColumn = (columns, id) => {
-  // console.log("columns= ", columns);
   // return columns;
   return columns.map((item) => {
     if (item.id === id) {

@@ -168,39 +168,11 @@ export const findDeletedAreaAtPoint = (deletedDeepBlockAreas, pageIndex, x, y) =
 export const debugWhiteAreas = (containerEl, deletedDeepBlockAreas, pageIndex) => {
   console.group('🔍 WHITE AREAS DEBUG INFO');
 
-  // Check state
   const stateAreas = getDeletedBlocksForPage(deletedDeepBlockAreas, pageIndex);
-  console.log('📊 State:');
-  console.log(`  - Deleted areas in state: ${stateAreas.length}`);
-  stateAreas.forEach((area, idx) => {
-    console.log(`    [${idx}] ${area.id}: x=${area.x}%, y=${area.y}%, w=${area.width}%, h=${area.height}%`);
-  });
-
-  // Check DOM
   const whiteAreaElements = getWhiteAreaElements(containerEl);
-  console.log('\n🏗️ DOM:');
-  console.log(`  - White area elements in DOM: ${whiteAreaElements.length}`);
-  whiteAreaElements.forEach((el, idx) => {
-    const rect = el.getBoundingClientRect();
-    const computedStyle = window.getComputedStyle(el);
-    console.log(`    [${idx}] ID=${el.getAttribute('data-area-id')}`);
-    console.log(`        Position: x=${el.style.left}, y=${el.style.top}, w=${el.style.width}, h=${el.style.height}`);
-    console.log(`        Display: display=${computedStyle.display}, visibility=${computedStyle.visibility}, opacity=${computedStyle.opacity}`);
-    console.log(`        Color: background=${computedStyle.backgroundColor}, border=${computedStyle.border}`);
-    console.log(`        Rect: left=${rect.left}, top=${rect.top}, width=${rect.width}, height=${rect.height}`);
-  });
-
-  // Check visibility
   const verification = verifyWhiteAreasVisible(containerEl);
-  console.log('\n✅ Visibility Check:');
-  console.log(`  - All visible: ${verification.allVisible}`);
-  console.log(`  - Count: ${verification.count}`);
-  verification.details.forEach((detail, idx) => {
-    console.log(`    [${idx}] ID=${detail.id}: display=${detail.display}, visibility=${detail.visibility}, opacity=${detail.opacity}`);
-  });
 
   // Recommendations
-  console.log('\n💡 Recommendations:');
   if (stateAreas.length === 0) {
     console.warn('  ⚠️  No deleted areas in state. Check if deep blocks are being tracked.');
   }
@@ -216,9 +188,6 @@ export const debugWhiteAreas = (containerEl, deletedDeepBlockAreas, pageIndex) =
     console.warn(
       '  ⚠️  Not all white areas visible. Check CSS or style overrides.'
     );
-  }
-  if (verification.allVisible && whiteAreaElements.length > 0) {
-    console.log('  ✅ All checks passed! White areas should be captured in snapshot.');
   }
 
   console.groupEnd();

@@ -343,7 +343,6 @@ const uploadPageImage = async (base64Data, pageId, options = {}) => {
  * });
  */
 const uploadBase64 = async (base64Data, options = {}) => {
-  console.log("uploadBase64");
   if (!base64Data || typeof base64Data !== "string") {
     throw new Error("Invalid base64 data. Expected string.");
   }
@@ -359,7 +358,6 @@ const uploadBase64 = async (base64Data, options = {}) => {
   try {
     const blob = await base64ToBlob(base64Data);
     const file = blobToFile(blob, fileName);
-    console.log("file= ", file);
 
     return uploadFile(file, uploadOptions);
   } catch (error) {
@@ -441,9 +439,6 @@ const ensureFileExtension = (file) => {
 
   const newFileName = `${baseName}.${expectedExtension}`;
 
-  console.log(
-    `File extension corrected: "${fileName}" → "${newFileName}"`
-  );
 
   return new File([file], newFileName, { type: file.type });
 };

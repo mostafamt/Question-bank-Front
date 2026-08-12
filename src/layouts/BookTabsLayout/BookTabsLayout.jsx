@@ -54,7 +54,6 @@ const BookTabsLayout = React.forwardRef((props, ref) => {
         }, getNavigationDelay());
       } else {
         // Fallback: just log (for contexts without highlighting)
-        console.log(`Navigated to block ${blockId} on page ${pageId}`);
       }
     },
     [changePageById, hightBlock]

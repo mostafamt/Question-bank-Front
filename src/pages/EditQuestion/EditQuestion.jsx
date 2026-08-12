@@ -76,7 +76,6 @@ const EditQuestion = () => {
 
   const getData = async () => {
     const res = await axios.get(`/question/${id}`);
-    console.log(res.data);
     return {
       name: res.data.name,
       domain: res.data.domain,
@@ -94,17 +93,14 @@ const EditQuestion = () => {
     } else {
       setValid(false);
     }
-    console.log("valid= ", valid);
   };
 
   const onChangeValues = (name, value) => {
     setValues((prevState) => ({ ...prevState, [name]: value }));
-    console.log("hello");
     checkValidity();
   };
 
   const onClickManualForm = () => {
-    console.log("onClickManualUpload");
     window.open(`/manual-form/${values.question_type}`, "_blank");
   };
 
@@ -113,13 +109,10 @@ const EditQuestion = () => {
   };
 
   const onClickScanAndUpload = () => {
-    console.log("onClickScanAndUpload");
   };
 
   const onSubmit = (values) => {
-    console.log("values= ", values);
     setFormState(values);
-    console.log(values.question_type);
     if (values.question_type === "multiple-choice") {
       navigate("/add-question/multiple-choice/manual");
     } else if (values.question_type === "true-false") {
@@ -129,7 +122,6 @@ const EditQuestion = () => {
     }
   };
 
-  console.log("watch= ", watch());
 
   return (
     <div className={styles["edit-question"]}>

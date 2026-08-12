@@ -81,7 +81,6 @@ const ArrayUI = (props) => {
     </List>
   );
 
-  console.log("errors= ", errors);
 
   return (
     <Box sx={{ mb: space }}>

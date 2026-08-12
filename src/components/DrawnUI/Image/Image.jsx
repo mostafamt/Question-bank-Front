@@ -29,14 +29,10 @@ const Image = (props) => {
   };
 
   const onChangeInput = (event) => {
-    console.log("value= ", event.target.value);
     setValue(name, event.target.value);
-    console.log("newValue= ", getValues(name));
   };
 
   const onClickImage = (event) => {
-    console.log("event= ", event);
-    console.log("ref= ", imageRef);
     const rect = event.target.getBoundingClientRect();
     const scaledX = event.clientX - rect.left;
     const scaledY = event.clientY - rect.top;
@@ -47,8 +43,6 @@ const Image = (props) => {
     const y = parseInt(scaledY * ratioY);
     setCoordinate({ x, y });
     setScaledCoordinate({ x: scaledX, y: scaledY });
-    console.log("x= ", scaledX * ratioX);
-    console.log("y= ", scaledY * ratioY);
   };
 
   return (

@@ -78,7 +78,6 @@ const MultipleChoice = () => {
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
-    console.log(file);
     setFile(file);
   };
 
@@ -145,7 +144,6 @@ const MultipleChoice = () => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
-    console.log("questions= ", questions);
     // if (uploadMethod === "bulk") {
     //   const data = new FormData();
     //   data.append("file", file);
