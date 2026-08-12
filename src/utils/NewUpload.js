@@ -226,6 +226,103 @@ const upload = async (file, options = {}) => {
 };
 
 /**
+ * Upload a page snapshot File to the `/upload-page-image` endpoint, tagging it
+ * with the pageId it belongs to.
+ * @param {File} file - The page snapshot file to upload
+ * @param {string|number} pageId - The page this snapshot belongs to
+ * @param {Object} [options={}] - Upload configuration options (see uploadFile)
+ * @returns {Promise<string>} The uploaded page image URL
+ * @throws {Error} If upload fails or times out
+ */
+const uploadPageImageFile = async (file, pageId, options = {}) => {
+  const {
+    timeout = 10000,
+    signal = null,
+    onProgress = null,
+    showToast = true,
+  } = options;
+
+  const data = new FormData();
+  data.append("file", file);
+  data.append("pageId", pageId);
+
+  try {
+    const config = {
+      timeout,
+      signal: signal || newAbortSignal(timeout),
+    };
+
+    if (onProgress && typeof onProgress === "function") {
+
+      config.onUploadProgress = (progressEvent) => {
+        if (progressEvent.total) {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          onProgress(percentCompleted);
+        }
+      };
+    }
+
+    const res = await axios.post("/upload-page-image", data, config);
+    return res.data;
+  } catch (error) {
+    console.error("Upload page image error:", error);
+
+    const errorMessage =
+      error?.response?.data?.message ||
+      error?.message ||
+      "Upload failed. Please try again.";
+
+    if (showToast) {
+      toast.error(errorMessage);
+    }
+
+    throw error;
+  }
+};
+
+/**
+ * Upload a page snapshot from a base64 data URL to `/upload-page-image`.
+ * Automatically converts base64 to blob, then to file before uploading.
+ * @param {string} base64Data - Base64 data URL (must start with "data:")
+ * @param {string|number} pageId - The page this snapshot belongs to
+ * @param {Object} [options={}] - Upload options (see uploadPageImageFile)
+ * @param {string} [options.fileName] - Custom filename (without extension)
+ * @returns {Promise<string>} The uploaded page image URL
+ * @throws {Error} If base64 data is invalid or upload fails
+ * @example
+ * const url = await uploadPageImage(pageSnapshot, pageId);
+ */
+const uploadPageImage = async (base64Data, pageId, options = {}) => {
+  if (!base64Data || typeof base64Data !== "string") {
+    throw new Error("Invalid base64 data. Expected string.");
+  }
+
+  if (!base64Data.startsWith("data:")) {
+    throw new Error(
+      'Invalid base64 format. Expected data URL starting with "data:"'
+    );
+  }
+
+  if (!pageId) {
+    throw new Error("pageId is required.");
+  }
+
+  const { fileName, ...uploadOptions } = options;
+
+  try {
+    const blob = await base64ToBlob(base64Data);
+    const file = blobToFile(blob, fileName);
+
+    return uploadPageImageFile(file, pageId, uploadOptions);
+  } catch (error) {
+    console.error("uploadPageImage error:", error);
+    throw new Error(`Failed to upload page image: ${error.message}`);
+  }
+};
+
+/**
  * Upload from base64 data URL (e.g., from canvas, data URI)
  * Automatically converts base64 to blob, then to file before uploading
  * @param {string} base64Data - Base64 data URL (must start with "data:")
@@ -383,6 +480,8 @@ export {
   uploadBlob,
   uploadFile,
   uploadWithExtension,
+  uploadPageImage,
+  uploadPageImageFile,
   // Utility functions
   base64ToBlob,
   blobToFile,
