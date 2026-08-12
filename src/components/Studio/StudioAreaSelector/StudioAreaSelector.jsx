@@ -80,13 +80,16 @@ const StudioAreaSelector = React.memo(
           };
         }
 
-        // Studio / read-only mode
+        // Studio / read-only mode — areas are always stored in px (see
+        // processPageAreas/convertPercentageToPixels), matching how the
+        // AreaSelector library itself positions boxes via area.unit.
+        const unit = area.unit || "px";
         const baseStyle = {
           position: "absolute",
-          top: `${area.y}%`,
-          left: `${area.x}%`,
-          width: `${area.width}%`,
-          height: `${area.height}%`,
+          top: `${area.y}${unit}`,
+          left: `${area.x}${unit}`,
+          width: `${area.width}${unit}`,
+          height: `${area.height}${unit}`,
           cursor: "pointer",
           display: "flex",
           alignItems: "center",

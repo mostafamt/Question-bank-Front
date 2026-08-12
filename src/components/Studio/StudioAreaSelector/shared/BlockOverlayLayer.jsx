@@ -5,10 +5,13 @@ import PageImage from "./PageImage";
 /**
  * @file BlockOverlayLayer.jsx
  * @description Shared area layer for StudioAreaSelector's `readOnly` and
- * `view-and-play` modes. Both modes were duplicating the same JSX: skip areas
- * without a blockId, position the rest via getBlockStyle, paint their content
- * via customRender, and click through to onAreaClick — over the deleted-area
- * white overlay and the page image.
+ * `view-and-play` modes. Both modes were duplicating the same JSX: position
+ * every area via getBlockStyle, paint its content via customRender (which
+ * already skips unlabeled areas via its own areaType check), and click
+ * through to onAreaClick — over the deleted-area white overlay and the page
+ * image. Areas are never filtered by blockId here — a block only gets one
+ * once it's been saved to the server, and view-and-play must still show
+ * newly-drawn, not-yet-saved blocks.
  *
  * The two original branches differed only in DOM order (image before vs after
  * the area boxes) and an inert `zIndex: 10` on the view-and-play boxes.
@@ -24,7 +27,6 @@ import PageImage from "./PageImage";
 /**
  * @param {Object} props
  * @param {Object[][]} props.areas - Areas per page
- * @param {Object[][]} props.areasProperties - Area properties per page
  * @param {number} props.activePage
  * @param {Function} props.getBlockStyle - (area, idx) => style object
  * @param {Function} props.customRender - AreaSelector-compatible custom renderer
@@ -39,7 +41,6 @@ const BlockOverlayLayer = React.forwardRef(
   (
     {
       areas,
-      areasProperties,
       activePage,
       getBlockStyle,
       customRender,
@@ -55,9 +56,6 @@ const BlockOverlayLayer = React.forwardRef(
     return (
       <div style={{ position: "relative" }}>
         {areas[activePage]?.map((area, idx) => {
-          const areaProps = areasProperties[activePage]?.[idx];
-          if (!areaProps?.blockId) return null;
-
           return (
             <div
               key={idx}
