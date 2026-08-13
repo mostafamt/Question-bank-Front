@@ -15,6 +15,9 @@ export const TIMEOUTS = {
 
   /** Delay for page navigation recalculation */
   PAGE_NAVIGATION_DELAY: 50,
+
+  /** Delay for area recalculation after post-submit state resync */
+  POST_SUBMIT_SYNC_DELAY: 50,
 };
 
 /**

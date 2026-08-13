@@ -38,6 +38,11 @@ const useAreaManagement = ({
   // Store raw pages for deferred conversion (% → px on first image load)
   const rawPagesRef = React.useRef(pages);
 
+  // Ref to the latest recalculateAreas, so async flows (e.g. post-submit
+  // resync) always call the version closed over fresh state, not the one
+  // captured when the async function started.
+  const recalculateAreasRef = React.useRef(null);
+
   // Start with empty arrays — areas are populated after image loads with real pixel values
   const [areas, setAreas] = React.useState(() => pages.map(() => []));
 
@@ -136,6 +141,10 @@ const useAreaManagement = ({
       return newAreas;
     });
   };
+
+  React.useEffect(() => {
+    recalculateAreasRef.current = recalculateAreas;
+  });
 
   const updateAreaProperty = (idx, property) => {
     setAreasProperties((prevState) => {
@@ -370,8 +379,54 @@ const useAreaManagement = ({
         virtualBlocks[activePageIndex],
         pageSnapshot
       );
-      id && toast.success("Object created successfully!");
-      refetch();
+
+      if (id) {
+        toast.success("Object created successfully!");
+
+        // The submit just persisted every block on this page (created, updated,
+        // and deleted alike). Re-sync this page's local state from the server's
+        // response so newly-created blocks pick up their real blockId and
+        // isServer flag — otherwise a block created and submitted in the same
+        // session still looks client-only, and deleting it afterwards only
+        // removes it locally instead of soft-deleting it for server sync.
+        const refetchResult = await refetch();
+        const freshPages = refetchResult?.data;
+        const freshPage = Array.isArray(freshPages)
+          ? freshPages.find((p) => p._id === activePageId) ??
+            freshPages[activePageIndex]
+          : null;
+
+        if (freshPage) {
+          rawPagesRef.current[activePageIndex] = freshPage;
+          const [freshAreasProperties] = initAreasProperties(
+            [freshPage],
+            types
+          );
+
+          setAreasProperties((prev) => {
+            const updated = [...prev];
+            updated[activePageIndex] = freshAreasProperties;
+            return updated;
+          });
+          // Clear so recalculateAreas rebuilds pixel coordinates from the
+          // fresh raw page data instead of reusing stale (possibly deleted) areas.
+          setAreas((prev) => {
+            const updated = [...prev];
+            updated[activePageIndex] = [];
+            return updated;
+          });
+          setDeletedDeepBlockAreas((prev) => {
+            const updated = [...prev];
+            updated[activePageIndex] = [];
+            return updated;
+          });
+
+          setTimeout(
+            () => recalculateAreasRef.current?.(),
+            TIMEOUTS.POST_SUBMIT_SYNC_DELAY
+          );
+        }
+      }
     }
     // clear();
     setLoadingSubmit(false);
