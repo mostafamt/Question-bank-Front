@@ -239,8 +239,50 @@ const useAreaManagement = ({
           width: area._percentWidth ?? area.width,
           height: area._percentHeight ?? area.height,
           unit: area._unit || "percentage",
+          source: "deep-block",
         },
       ];
+      return newDeletedAreas;
+    });
+  };
+
+  /**
+   * Add a manually-drawn white-out rectangle (from the ImageActions "white
+   * overlay" tool). Reuses the deep-block white-overlay pipeline — it's
+   * rendered by the same WhiteAreaOverlay and baked into the same submit-time
+   * snapshot — but is tagged `source: "manual"` so it can be individually
+   * removed before submit, unlike deep-block overlays.
+   * @param {{x: number, y: number, width: number, height: number, unit?: string}} area
+   */
+  const addManualWhiteOverlayArea = (area) => {
+    setDeletedDeepBlockAreas((prevState) => {
+      const newDeletedAreas = [...prevState];
+      newDeletedAreas[activePageIndex] = [
+        ...newDeletedAreas[activePageIndex],
+        {
+          id: uuidv4(),
+          x: area.x,
+          y: area.y,
+          width: area.width,
+          height: area.height,
+          unit: area.unit || "percentage",
+          source: "manual",
+        },
+      ];
+      return newDeletedAreas;
+    });
+  };
+
+  /**
+   * Remove a single manual white-out rectangle by id (undo before submit).
+   * @param {string} id
+   */
+  const removeWhiteOverlayArea = (id) => {
+    setDeletedDeepBlockAreas((prevState) => {
+      const newDeletedAreas = [...prevState];
+      newDeletedAreas[activePageIndex] = newDeletedAreas[activePageIndex].filter(
+        (area) => area.id !== id
+      );
       return newDeletedAreas;
     });
   };
@@ -358,11 +400,15 @@ const useAreaManagement = ({
       }
 
       const hasDeepBlock = areasProperties[activePageIndex]?.some(isDeepBlock);
+      const hasManualWhiteOverlay = deletedDeepBlockAreas[activePageIndex]?.some(
+        (area) => area.source === "manual"
+      );
       let pageSnapshot = null;
-      if (hasDeepBlock) {
-        // Snapshot capture flow for deep blocks
-        // White area overlays (deleted deep blocks) are automatically included in the snapshot
-        // They're rendered in the page and appear as white backgrounds in the final image
+      if (hasDeepBlock || hasManualWhiteOverlay) {
+        // Snapshot capture flow for deep blocks and manual white-out rectangles
+        // White area overlays (deleted deep blocks + manual white-outs) are automatically
+        // included in the snapshot. They're rendered in the page and appear as white
+        // backgrounds in the final image
 
         // 1. Temporarily hide area selection borders and backgrounds during capture
         setShowBlocksStyling(false);
@@ -511,6 +557,8 @@ const useAreaManagement = ({
     setAreasProperties,
     deletedDeepBlockAreas,
     setDeletedDeepBlockAreas,
+    addManualWhiteOverlayArea,
+    removeWhiteOverlayArea,
     insertPageAt,
     insertPagesAt,
     deletePageAt,

@@ -73,6 +73,11 @@ const Studio = (props) => {
     DEFAULTS.IMAGE_SCALE_FACTOR
   );
   const [showBlocksStyling, setShowBlocksStyling] = React.useState(true);
+  const [isWhiteOutMode, setIsWhiteOutMode] = React.useState(false);
+  const onToggleWhiteOutMode = React.useCallback(
+    () => setIsWhiteOutMode((prev) => !prev),
+    []
+  );
 
   // ============ PAGE NAVIGATION ============
   const insertPageAtRef = React.useRef(null);
@@ -109,6 +114,8 @@ const Studio = (props) => {
     setAreasProperties,
     deletedDeepBlockAreas,
     setDeletedDeepBlockAreas,
+    addManualWhiteOverlayArea,
+    removeWhiteOverlayArea,
     insertPageAt,
     insertPagesAt,
     deletePageAt,
@@ -462,6 +469,10 @@ const Studio = (props) => {
         showBlocksStyling={showBlocksStyling}
         setShowBlocksStyling={setShowBlocksStyling}
         deletedDeepBlockAreas={deletedDeepBlockAreas}
+        isWhiteOutMode={isWhiteOutMode}
+        onToggleWhiteOutMode={onToggleWhiteOutMode}
+        addManualWhiteOverlayArea={addManualWhiteOverlayArea}
+        removeWhiteOverlayArea={removeWhiteOverlayArea}
       />
 
       <canvas ref={canvasRef} style={{ display: "none" }} />

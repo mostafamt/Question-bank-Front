@@ -10,21 +10,26 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import CloseIcon from '@mui/icons-material/Close';
 
 /**
  * WhiteAreaOverlay Component
  *
  * Renders white rectangles for deleted deep block areas to obscure the underlying
- * page content during snapshot capture.
+ * page content during snapshot capture. Manually-drawn white-out rectangles
+ * (source: 'manual') additionally get a delete button so they can be undone
+ * before submit; deep-block-derived ones (source: 'deep-block') stay
+ * non-interactive, matching existing behavior.
  *
- * @param {Array} deletedAreas - Array of deleted deep block areas
- *   Structure: [{ id, x, y, width, height, unit }, ...]
+ * @param {Array} deletedAreas - Array of deleted deep block / white-out areas
+ *   Structure: [{ id, x, y, width, height, unit, source }, ...]
  * @param {boolean} [visible=true] - Whether to show the white overlays
  * @param {number} [opacity=1] - Opacity of white areas (0-1)
+ * @param {Function} [onRemove] - Called with an area's id when its delete button is clicked
  *
  * @returns {React.ReactNode} White area overlay elements
  */
-const WhiteAreaOverlay = ({ deletedAreas = [], visible = true, opacity = 1 }) => {
+const WhiteAreaOverlay = ({ deletedAreas = [], visible = true, opacity = 1, onRemove }) => {
   if (!visible || !Array.isArray(deletedAreas) || deletedAreas.length === 0) {
     return null;
   }
@@ -32,7 +37,7 @@ const WhiteAreaOverlay = ({ deletedAreas = [], visible = true, opacity = 1 }) =>
   return deletedAreas.map((area) => {
     if (!area) return null;
 
-    const { id, x, y, width, height, unit = 'percentage' } = area;
+    const { id, x, y, width, height, unit = 'percentage', source } = area;
 
     // Validate coordinates
     if (typeof x !== 'number' || typeof y !== 'number' ||
@@ -44,6 +49,7 @@ const WhiteAreaOverlay = ({ deletedAreas = [], visible = true, opacity = 1 }) =>
     // Build style based on unit (percentage or pixels)
     const isPercentage = unit === 'percentage';
     const positionUnit = isPercentage ? '%' : 'px';
+    const isRemovable = source === 'manual' && typeof onRemove === 'function';
 
     const style = {
       position: 'absolute',
@@ -67,9 +73,41 @@ const WhiteAreaOverlay = ({ deletedAreas = [], visible = true, opacity = 1 }) =>
         data-testid={`white-area-${id}`}
         data-area-id={id}
         style={style}
-        title="Deleted deep block area"
+        title={isRemovable ? 'White-out area' : 'Deleted deep block area'}
         className="white-area-overlay"
-      />
+      >
+        {isRemovable && (
+          <button
+            type="button"
+            className="white-area-delete-btn"
+            title="Remove white-out area"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove(id);
+            }}
+            style={{
+              position: 'absolute',
+              top: 2,
+              right: 2,
+              width: 20,
+              height: 20,
+              padding: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: 'none',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(0, 0, 0, 0.6)',
+              color: '#fff',
+              cursor: 'pointer',
+              pointerEvents: 'auto', // Overrides parent's 'none' so it's clickable
+              zIndex: 101,
+            }}
+          >
+            <CloseIcon style={{ fontSize: 14 }} />
+          </button>
+        )}
+      </div>
     );
   });
 };
@@ -83,10 +121,12 @@ WhiteAreaOverlay.propTypes = {
       width: PropTypes.number.isRequired,
       height: PropTypes.number.isRequired,
       unit: PropTypes.oneOf(['percentage', 'px']),
+      source: PropTypes.oneOf(['deep-block', 'manual']),
     })
   ),
   visible: PropTypes.bool,
   opacity: PropTypes.number,
+  onRemove: PropTypes.func,
 };
 
 export default React.memo(WhiteAreaOverlay);

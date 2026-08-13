@@ -11,6 +11,7 @@ import LastPageIcon from "@mui/icons-material/LastPage";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
 import BackHandIcon from "@mui/icons-material/BackHand";
 import BorderStyleIcon from "@mui/icons-material/BorderStyle";
+import FormatColorResetIcon from "@mui/icons-material/FormatColorReset";
 
 import styles from "./styles.module.scss";
 import { useAppMode } from "../../utils/tabFiltering";
@@ -35,6 +36,8 @@ const ImageActions = React.forwardRef((props, ref) => {
     onClickImage,
     showBlocksStyling,
     onToggleBlocksStyling,
+    isWhiteOutMode,
+    onToggleWhiteOutMode,
   } = props;
 
   const [oldAreas, setOldAreas] = React.useState(areas?.[activePage] || []);
@@ -165,6 +168,23 @@ const ImageActions = React.forwardRef((props, ref) => {
             <BorderStyleIcon fontSize={iconFontSize} sx={{ opacity: 0.4 }} />
           )}
         </IconButton>
+        {onToggleWhiteOutMode && (
+          <IconButton
+            aria-label="toggle-white-out"
+            onClick={onToggleWhiteOutMode}
+            title={
+              isWhiteOutMode
+                ? "White-out mode on — draw a rectangle to white out content"
+                : "White-out: draw a rectangle to permanently white out content"
+            }
+            sx={isWhiteOutMode ? { backgroundColor: "rgba(0, 0, 0, 0.08)" } : undefined}
+          >
+            <FormatColorResetIcon
+              fontSize={iconFontSize}
+              sx={!isWhiteOutMode ? { opacity: 0.4 } : undefined}
+            />
+          </IconButton>
+        )}
       </div>
       {isReaderMode && (
         <>

@@ -56,6 +56,10 @@ const StudioLayout = React.forwardRef(
       showBlocksStyling,
       setShowBlocksStyling,
       deletedDeepBlockAreas,
+      isWhiteOutMode,
+      onToggleWhiteOutMode,
+      addManualWhiteOverlayArea,
+      removeWhiteOverlayArea,
     },
     ref
   ) => {
@@ -100,6 +104,10 @@ const StudioLayout = React.forwardRef(
           showBlocksStyling={showBlocksStyling}
           setShowBlocksStyling={setShowBlocksStyling}
           deletedDeepBlockAreas={deletedDeepBlockAreas}
+          isWhiteOutMode={isWhiteOutMode}
+          onToggleWhiteOutMode={onToggleWhiteOutMode}
+          addManualWhiteOverlayArea={addManualWhiteOverlayArea}
+          removeWhiteOverlayArea={removeWhiteOverlayArea}
         />
 
         {/* Right Panel */}
