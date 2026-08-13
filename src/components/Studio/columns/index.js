@@ -241,6 +241,7 @@ export const buildRightColumns = ({
               areasProperties={areasProperties}
               setAreasProperties={setAreasProperties}
               activePage={activePageIndex}
+              isActivePagePending={Boolean(pages?.[activePageIndex]?._isPending)}
               onEditText={onEditText}
               onClickDeleteArea={onClickDeleteArea}
               type={type}
