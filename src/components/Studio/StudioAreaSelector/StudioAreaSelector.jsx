@@ -52,6 +52,9 @@ const StudioAreaSelector = React.memo(
       pageContainerRef,
       showBlocksStyling,
       deletedDeepBlockAreas = [],
+      isWhiteOutMode,
+      addManualWhiteOverlayArea,
+      removeWhiteOverlayArea,
     } = props;
 
     // Detect mode (reader vs studio)
@@ -249,6 +252,9 @@ const StudioAreaSelector = React.memo(
               wrapperStyle={wrapperStyle}
               customRender={customRender}
               areaPropsConfig={areaPropsConfig}
+              isWhiteOutMode={isWhiteOutMode}
+              onAddWhiteOverlay={addManualWhiteOverlayArea}
+              onRemoveWhiteOverlay={removeWhiteOverlayArea}
               {...sharedRendererProps}
             />
           )}

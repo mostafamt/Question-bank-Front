@@ -78,6 +78,14 @@ export async function capturePageSnapshot(containerEl) {
           whiteArea.style.setProperty('pointer-events', 'none', 'important');
         });
 
+        // Hide the manual white-out delete buttons — they're authoring UI
+        // chrome, not page content, so they must not end up in the snapshot.
+        Array.from(clonedEl.querySelectorAll('.white-area-delete-btn')).forEach(
+          (deleteBtn) => {
+            deleteBtn.style.setProperty('display', 'none', 'important');
+          }
+        );
+
         // Now strip area selection styling from area boxes (NOT white areas)
         // These are typically the AreaSelector-generated divs with borders
         Array.from(clonedEl.querySelectorAll('[style*="border"], [style*="background"]')).forEach(
