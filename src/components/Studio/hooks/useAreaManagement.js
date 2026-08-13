@@ -341,6 +341,13 @@ const useAreaManagement = ({
       id && toast.success("Sub-Object created successfully!");
       // handleClose();
     } else {
+      const activePageData = pages[activePageIndex];
+      if (activePageData?._isPending) {
+        toast.error("Please save this page first before submitting blocks.");
+        setLoadingSubmit(false);
+        return;
+      }
+
       const hasDeepBlock = areasProperties[activePageIndex]?.some(isDeepBlock);
       let pageSnapshot = null;
       if (hasDeepBlock) {
