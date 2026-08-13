@@ -60,7 +60,10 @@
     /* Hide react-image-area library default borders when styling is toggled off */
     &.hideBlocksStyling {
       /* Remove all border-related styles from area elements */
-      & div {
+      /* Exclude .white-area-overlay: it must keep its white fill/border so
+         deleted deep blocks still render as blank in view-and-play and in
+         the exported page snapshot (showBlocksStyling is false in both). */
+      & div:not(.white-area-overlay) {
         border: none !important;
         background-color: transparent !important;
         outline: none !important;
@@ -68,13 +71,13 @@
       }
 
       /* Specifically target divs with borders */
-      & [style*="border"] {
+      & [style*="border"]:not(.white-area-overlay) {
         border: none !important;
       }
 
       /* Reset any dashed/solid border patterns */
-      & [style*="dashed"],
-      & [style*="solid"] {
+      & [style*="dashed"]:not(.white-area-overlay),
+      & [style*="solid"]:not(.white-area-overlay) {
         border: none !important;
         background-color: transparent !important;
       }

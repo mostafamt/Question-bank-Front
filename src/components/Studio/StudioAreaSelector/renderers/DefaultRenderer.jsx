@@ -25,10 +25,6 @@ const DefaultRenderer = React.forwardRef(
   ) => {
     return (
       <div style={{ position: "relative" }}>
-        <WhiteAreaOverlay
-          deletedAreas={deletedDeepBlockAreas[activePage]}
-          visible={true}
-        />
         <PageImage
           ref={ref}
           src={getImageSource()}
@@ -36,6 +32,10 @@ const DefaultRenderer = React.forwardRef(
           scaleFactor={imageScaleFactor}
           cursor="pointer"
           onLoad={onImageLoad}
+        />
+        <WhiteAreaOverlay
+          deletedAreas={deletedDeepBlockAreas[activePage]}
+          visible={true}
         />
       </div>
     );
