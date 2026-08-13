@@ -37,10 +37,6 @@ const HandToolRenderer = React.forwardRef(
     return (
       <div style={{ position: "relative" }}>
         {blocksToRender}
-        <WhiteAreaOverlay
-          deletedAreas={deletedDeepBlockAreas[activePage]}
-          visible={true}
-        />
         <PageImage
           ref={ref}
           src={getImageSource()}
@@ -48,6 +44,10 @@ const HandToolRenderer = React.forwardRef(
           scaleFactor={imageScaleFactor}
           cursor="pointer"
           onLoad={onImageLoad}
+        />
+        <WhiteAreaOverlay
+          deletedAreas={deletedDeepBlockAreas[activePage]}
+          visible={true}
         />
       </div>
     );

@@ -59,8 +59,15 @@ import { DELETED } from "../../../utils/ocr";
  */
 export const constructBoxColors = (areas, highlightedBlockId, showBlocksStyling = true) => {
   // Generate nth-child selectors for each area
-  // Starts at index 2 to account for wrapper div structure
-  const values = areas?.map((_, idx) => `& > div:nth-of-type(${idx + 2})`);
+  // Starts at index 2 to account for the media-wrapper div that precedes
+  // area boxes in edit mode (AreaSelector). In view-and-play/read-only mode
+  // (BlockOverlayLayer) there is no such leading wrapper, so this offset can
+  // overshoot the real area boxes and land on the white-area-overlay div(s)
+  // that render deleted deep blocks — :not() guards against ever styling
+  // those regardless of the positional math.
+  const values = areas?.map(
+    (_, idx) => `& > div:nth-of-type(${idx + 2}):not(.white-area-overlay)`
+  );
 
   // Fetch styling configurations from centralized config
   const highlightStyles = getStudioHighlightStyles();

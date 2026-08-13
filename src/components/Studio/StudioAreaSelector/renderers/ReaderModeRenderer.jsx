@@ -55,16 +55,16 @@ const ReaderModeRenderer = React.forwardRef(
             />
           );
         })}
-        <WhiteAreaOverlay
-          deletedAreas={deletedDeepBlockAreas[activePage]}
-          visible={true}
-        />
         <PageImage
           ref={ref}
           src={getImageSource()}
           alt={pages[activePage]?.url || pages[activePage]}
           scaleFactor={imageScaleFactor}
           onLoad={onImageLoad}
+        />
+        <WhiteAreaOverlay
+          deletedAreas={deletedDeepBlockAreas[activePage]}
+          visible={true}
         />
       </div>
     );
