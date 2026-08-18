@@ -1,8 +1,5 @@
 import React, { useCallback, useRef, useMemo } from "react";
-import clsx from "clsx";
 import VirtualBlock from "./VirtualBlock/VirtualBlock";
-
-import styles from "./virtualBlocks.module.scss";
 
 const VirtualBlocks = React.memo((props) => {
   const {

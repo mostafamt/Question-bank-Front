@@ -9,7 +9,6 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
-import BackHandIcon from "@mui/icons-material/BackHand";
 import BorderStyleIcon from "@mui/icons-material/BorderStyle";
 import FormatColorResetIcon from "@mui/icons-material/FormatColorReset";
 
@@ -40,7 +39,7 @@ const ImageActions = React.forwardRef((props, ref) => {
     onToggleWhiteOutMode,
   } = props;
 
-  const [oldAreas, setOldAreas] = React.useState(areas?.[activePage] || []);
+  const [oldAreas] = React.useState(areas?.[activePage] || []);
 
   const mode = useAppMode();
   const isReaderMode = mode === "reader";
@@ -49,7 +48,6 @@ const ImageActions = React.forwardRef((props, ref) => {
     setImageScaleFactor(imageScaleFactor + DEGREE);
     const newAreas = [...areas];
     newAreas[activePage] = areas[activePage].map((area, idx) => {
-      const { x, y, width, height } = areasProperties[activePage][idx];
       area.x = area.x + oldAreas[idx].x * DEGREE;
       area.y = area.y + oldAreas[idx].y * DEGREE;
       area.height = area.height + oldAreas[idx].height * DEGREE;
@@ -83,7 +81,6 @@ const ImageActions = React.forwardRef((props, ref) => {
     setImageScaleFactor(imageScaleFactor - DEGREE);
     const newAreas = [...areas];
     newAreas[activePage] = areas[activePage].map((area, idx) => {
-      const { x, y, width, height } = areasProperties[activePage][idx];
       area.x = area.x - oldAreas[idx].x * DEGREE;
       area.y = area.y - oldAreas[idx].y * DEGREE;
       area.height = area.height - oldAreas[idx].height * DEGREE;

@@ -1,12 +1,10 @@
 import React from "react";
-import { PAGES } from "../../../utils/book";
 import BookViewerTopBar from "../BookViewerTopBar/BookViewerTopBar";
 import { getHighlightStyles } from "../../../config/highlighting";
 
 import styles from "./bookViewer.module.scss";
 import { parseVirtualBlocksFromActivePage } from "../../../utils/virtual-blocks";
 import VirtualBlock from "../../VirtualBlocks/VirtualBlock/VirtualBlock";
-import { getImageDimensions } from "../../../utils/image";
 
 const BookViewer = (props) => {
   const {
@@ -17,7 +15,6 @@ const BookViewer = (props) => {
     onChangeActivePage,
     highlightedBlockId,
   } = props;
-  const [width, setWidth] = React.useState(null);
   const [showVB, setShowVB] = React.useState(false);
   const ref = React.createRef(null);
 

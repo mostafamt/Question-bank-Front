@@ -34,7 +34,6 @@ const StudioCompositeBlocks = (props) => {
     loadingSubmitCompositeBlocks,
     DeleteCompositeBlocks,
     highlight,
-    setHighlight,
     onClickHand,
   } = props;
 

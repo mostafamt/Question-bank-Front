@@ -5,9 +5,6 @@
 
 import axios from "../axios";
 
-// Cache for object URLs to avoid repeated API calls
-const urlCache = new Map();
-
 // Cache expiry time (30 minutes)
 const CACHE_EXPIRY_MS = 30 * 60 * 1000;
 

@@ -9,7 +9,7 @@ import styles from "./bookColumn.module.scss";
 const BookColumn2 = (props) => {
   const [columns, setColumns] = React.useState(props.columns);
   const [activeColumn, setActiveColumn] = React.useState(props.columns[0]);
-  const { activePage, setActivePage } = props;
+  const { activePage } = props;
   const language = useStore((s) => s.language);
 
   React.useEffect(() => {

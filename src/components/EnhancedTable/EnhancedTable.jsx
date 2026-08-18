@@ -3,7 +3,7 @@ import axios from "../../axios";
 import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
 
 const EnhancedTable = () => {
-  const [loading, setLoading] = React.useState(false);
+  const [, setLoading] = React.useState(false);
   const [rows, setRows] = React.useState([]);
 
   const fetchQuestions = React.useCallback(async () => {

@@ -1,5 +1,5 @@
 import { default as axios } from "../axios";
-import { chapters, pages } from "./test-data";
+import { chapters } from "./test-data";
 import { toast } from "react-toastify";
 
 export const wait = (ms) => {

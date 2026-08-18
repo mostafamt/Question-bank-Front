@@ -5,7 +5,7 @@ import { CircularProgress, TextField } from "@mui/material";
 import { COMPLEX_TYPES } from "../../utils/ocr";
 
 const AreaActionResult = (props) => {
-  const { type, onEditText, trialArea } = props;
+  const { onEditText, trialArea } = props;
 
   if (trialArea.loading) {
     return (

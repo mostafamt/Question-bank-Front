@@ -4,7 +4,6 @@ import { default as axios2 } from "../axios";
 import { v4 as uuidv4 } from "uuid";
 
 import newTypes from "./NewTypes.json";
-import { useStore } from "../store/store";
 import { RIGHT_TAB_NAMES } from "../components/Studio/constants";
 
 export const wait = (ms) => {

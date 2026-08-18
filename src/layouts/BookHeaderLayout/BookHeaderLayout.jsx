@@ -16,7 +16,6 @@ const BookHeaderLayout = ({ children }) => {
   const [innerValue, setInnerValue] = useState(0); // nested tabs
 
   const outerTab = tabsConfig[outerValue];
-  const innerTab = outerTab.children[innerValue];
 
   return (
     <div className="container">

@@ -16,7 +16,7 @@ const BooksTable = () => {
     pageSize: 5,
   });
 
-  const { data, isError, isLoading, isSuccess } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["books"],
     queryFn: getBooks,
   });
@@ -31,7 +31,7 @@ const BooksTable = () => {
       width: 70,
       renderCell: (params) => (
         <Radio
-          checked={params.id == selectedRowId}
+          checked={params.id === selectedRowId}
           value={params.id}
           onChange={(e) => {
             setSelectedRowId(e.target.value);

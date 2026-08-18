@@ -44,6 +44,10 @@ const EditObjectModal = (props) => {
     if (!subObject) {
       getData();
     }
+    // Intentionally run once on mount only: getData/subObject are stable for
+    // the lifetime of this modal and re-adding them would re-trigger the fetch
+    // on every render since getData is recreated each render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleChangeName = (event) => {

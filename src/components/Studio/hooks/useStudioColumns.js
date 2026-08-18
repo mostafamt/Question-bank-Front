@@ -4,7 +4,7 @@
  * Centralizes the complex column building logic from Studio.jsx
  */
 
-import React, {
+import {
   useRef,
   useCallback,
   useMemo,
@@ -138,6 +138,13 @@ const useStudioColumns = ({
     thumbnailsRef,
     setActivePage,
     navigateToBlock,
+    setPages,
+    rightColumnProps.addLocalPages,
+    addEmptyPage,
+    addImportedPages,
+    insertPageLocally,
+    reorderPages,
+    onPageDeleted,
   ]);
 
   // Store rightColumnProps in ref for stable access
@@ -188,25 +195,25 @@ const useStudioColumns = ({
     // These props either:
     // 1. Use activePageIndex in their closures (callbacks)
     // 2. Are state values that change frequently
-    const {
-      areasProperties,
-      compositeBlocks,
-      loadingSubmitCompositeBlocks,
-      onClickDeleteArea,
-      loadingSubmit,
-      // Callbacks that use activePageIndex in closures
-      updateAreaProperty,
-      updateAreaPropertyById,
-      onEditText,
-      onClickSubmit,
-      onChangeLabel,
-      onClickToggleVirutalBlocks,
-      onClickHand,
-      // State values that change
-      showVB,
-      highlight,
-      loadingAutoGenerate,
-    } = rightColumnProps;
+    const areasProperties = rightColumnProps.areasProperties;
+    const compositeBlocks = rightColumnProps.compositeBlocks;
+    const loadingSubmitCompositeBlocks =
+      rightColumnProps.loadingSubmitCompositeBlocks;
+    const onClickDeleteArea = rightColumnProps.onClickDeleteArea;
+    const loadingSubmit = rightColumnProps.loadingSubmit;
+    // Callbacks that use activePageIndex in closures
+    const updateAreaProperty = rightColumnProps.updateAreaProperty;
+    const updateAreaPropertyById = rightColumnProps.updateAreaPropertyById;
+    const onEditText = rightColumnProps.onEditText;
+    const onClickSubmit = rightColumnProps.onClickSubmit;
+    const onChangeLabel = rightColumnProps.onChangeLabel;
+    const onClickToggleVirutalBlocks =
+      rightColumnProps.onClickToggleVirutalBlocks;
+    const onClickHand = rightColumnProps.onClickHand;
+    // State values that change
+    const showVB = rightColumnProps.showVB;
+    const highlight = rightColumnProps.highlight;
+    const loadingAutoGenerate = rightColumnProps.loadingAutoGenerate;
 
     return buildRightColumns({
       areasProperties,

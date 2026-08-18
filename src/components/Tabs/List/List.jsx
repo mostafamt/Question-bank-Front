@@ -59,7 +59,7 @@ const List = (props) => {
       ...prevState,
       activeTab: tab.name,
     }));
-  }, []);
+  }, [setFormState, tab.name]);
 
   React.useEffect(() => {
     setOpen(Array(tabObjects?.length).fill(false));
@@ -84,7 +84,7 @@ const List = (props) => {
     } else {
       setObjects(tabObjects);
     }
-  }, [tabObjects, tab, setObjects]);
+  }, [tabObjects, tab, setObjects, isEnrichingContent]);
 
   const onClickPlus = () => {
     if (tab.name === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.name) {
@@ -321,6 +321,7 @@ const List = (props) => {
     handlePlay,
     handleMoveUp,
     handleMoveDown,
+    reader,
   ]);
 
   return (

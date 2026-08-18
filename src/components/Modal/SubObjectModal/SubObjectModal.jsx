@@ -3,7 +3,6 @@ import { default as BootstrapModal } from "react-bootstrap/Modal";
 import Studio from "../../Studio/Studio";
 import QuestionNameHeader from "../../QuestionNameHeader/QuestionNameHeader";
 
-import styles from "./subObjectModal.module.scss";
 import { saveObject } from "../../../services/api";
 import { uploadBase64, uploadForStudio } from "../../../utils/upload";
 import { instructionalRoles } from "../../../utils/ocr";

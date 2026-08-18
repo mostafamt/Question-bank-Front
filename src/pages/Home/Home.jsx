@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import QuestionsTable from "../../components/Tables/QuestionsTable/QuestionsTable";
 
 import styles from "./home.module.scss";

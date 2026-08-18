@@ -19,6 +19,10 @@ const SnapLearningPlayer = ({ data }) => {
 
   React.useEffect(() => {
     setParagraphValues(slides.map((s) => s?.Paragraph || ""));
+    // `slides` is derived from `data` and falls back to a new `[]` on every
+    // render when Slides is absent; depending on `slides` directly would
+    // retrigger this effect (and the resulting setState) every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   const hasMedia = slide?.Picture || slide?.Voice;

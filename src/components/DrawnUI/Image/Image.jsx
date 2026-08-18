@@ -10,12 +10,11 @@ import { Controller } from "react-hook-form";
 import ValidationMessage from "../../ValidationMessage/ValidationMessage";
 
 const Image = (props) => {
-  const { space, setValue, name, getValues, control, errors, path } = props;
+  const { setValue, name, control, errors, path } = props;
   const [coordinate, setCoordinate] = React.useState();
   const [scaledCoordinate, setScaledCoordinate] = React.useState();
   const imageRef = React.createRef();
 
-  let value = getValues(name);
   const [loading, setLoading] = React.useState(false);
 
   const onChangeHandler = async (event) => {
