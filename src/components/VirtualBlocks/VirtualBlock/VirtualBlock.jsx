@@ -1,10 +1,6 @@
 import React, { useRef } from "react";
 import MuiSelect from "../../MuiSelect/MuiSelect";
-import {
-  CREATED,
-  DELETED,
-  VIRTUAL_BLOCK_MENU,
-} from "../../../utils/virtual-blocks";
+import { VIRTUAL_BLOCK_MENU } from "../../../utils/virtual-blocks";
 import IconButton from "@mui/material/IconButton";
 import Badge from "@mui/material/Badge";
 import { DeleteForever } from "@mui/icons-material";
@@ -82,7 +78,7 @@ const VirtualBlock = React.memo((props) => {
         onSave: handleSaveContents,
       });
     },
-    [label, openModal, handleSaveContents]
+    [label, openModal, handleSaveContents, pageImageUrl]
   );
 
   /**
@@ -129,7 +125,7 @@ const VirtualBlock = React.memo((props) => {
       pageImageUrl: pageImageUrl,
       onSave: handleSaveContents,
     });
-  }, [label, openModal, handleSaveContents]);
+  }, [label, openModal, handleSaveContents, pageImageUrl]);
 
   /**
    * Handle play button click in reader mode

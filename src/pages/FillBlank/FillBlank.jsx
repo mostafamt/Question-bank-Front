@@ -42,7 +42,10 @@ const FillBlankForm = () => {
       const { id } = params;
       fetchData(id);
     }
-  }, []);
+    // fetchData intentionally omitted: it's redefined every render and only
+    // reads params/state that are already covered by the deps below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, params]);
 
   const handleEditQuestionParam = (param, value) => {
     setParameters((prevState) => ({ ...prevState, [param]: value }));

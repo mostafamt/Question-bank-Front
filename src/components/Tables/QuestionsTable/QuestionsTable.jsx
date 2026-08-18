@@ -1,21 +1,18 @@
 import * as React from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { Link, useNavigate } from "react-router-dom";
-import { Button, Checkbox, Radio } from "@mui/material";
-import { RadioButtonCheckedRounded, Delete } from "@mui/icons-material";
+import { Link } from "react-router-dom";
+import { Checkbox } from "@mui/material";
+import { RadioButtonCheckedRounded } from "@mui/icons-material";
 import { fetchObjects } from "../../../services/api";
-import CategoryIcon from "@mui/icons-material/Category";
 
 import styles from "./questionsTable.module.scss";
 
 const QuestionsTable = (props) => {
   const { objects, setObjects } = props;
 
-  const navigate = useNavigate();
   const [rows, setRows] = React.useState([]);
   const [total, setTotal] = React.useState(0);
   const [loading, setLoading] = React.useState(false);
-  const [selectedRowId, setSelectedRowId] = React.useState();
   const [paginationModel, setPaginationModel] = React.useState({
     page: 1,
     pageSize: 5,

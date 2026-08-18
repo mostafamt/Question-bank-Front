@@ -196,7 +196,7 @@ export const getDeepBlockObject = (area) =>
     ? area.text
     : "";
 
-export default {
+const deepHandlersService = {
   getDeepHandler,
   getDeepBlockText,
   getDeepBlockImage,
@@ -204,3 +204,5 @@ export default {
   getDeepBlockVideo,
   getDeepBlockObject,
 };
+
+export default deepHandlersService;

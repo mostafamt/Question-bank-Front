@@ -16,7 +16,6 @@ const BookTabsLayout = React.forwardRef((props, ref) => {
     activePage,
     setActivePage,
     onChangeActivePage,
-    getBlockFromBlockId,
     hightBlock,
   } = props;
 

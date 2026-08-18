@@ -53,10 +53,6 @@ export const searchIfHintExist = (hints, label) => {
   return hint;
 };
 
-const searchIfAtLeastOneCorrect = (labels, label) => {
-  return true;
-};
-
 const searchIfHasMinimumLength = (label) => {
   const numbers = label.match(/\d+/g);
   return numbers ? parseInt(numbers[0]) : 0;

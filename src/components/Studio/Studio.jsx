@@ -12,7 +12,7 @@ import { useAppMode } from "../../utils/tabFiltering";
 import { ENGLISH, ARABIC } from "../../utils/ocr";
 import { useStore } from "../../store/store";
 
-import { RIGHT_TAB_NAMES, DEFAULTS, LANGUAGE_CODES } from "./constants";
+import { DEFAULTS, LANGUAGE_CODES } from "./constants";
 import { StudioHeader, StudioLayout } from "./components";
 
 // Import hooks
@@ -113,7 +113,6 @@ const Studio = (props) => {
     areasProperties,
     setAreasProperties,
     deletedDeepBlockAreas,
-    setDeletedDeepBlockAreas,
     addManualWhiteOverlayArea,
     removeWhiteOverlayArea,
     insertPageAt,

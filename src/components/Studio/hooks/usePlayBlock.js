@@ -24,7 +24,7 @@ const usePlayBlock = ({ openModal, setFormState }) => {
     (area, areaProps) => {
       if (!areaProps) return;
 
-      const { modalName, isComplex } = determineModalForArea(areaProps);
+      const { isComplex } = determineModalForArea(areaProps);
 
       if (isComplex) {
         // Set the activeId in the store for PlayObjectModal2

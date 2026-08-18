@@ -21,7 +21,7 @@ const AddType = () => {
       };
     } else {
       const { id } = params;
-      const res = await axios.get(`/io-types/${id}`);
+      await axios.get(`/io-types/${id}`);
       return {
         typeName: "",
         questionOrExplanation: "",
@@ -36,18 +36,16 @@ const AddType = () => {
     register,
     formState: { errors },
     handleSubmit,
-    watch,
   } = useForm({
     defaultValues: async () => await fetchData(),
   });
 
   const onSubmit = async (values) => {
     try {
-      const res = await axios.post("/interactive-object-types", {
+      await axios.post("/interactive-object-types", {
         ...values,
         abstractParameter: JSON.parse(values.abstractParameter),
       });
-      const data = res.data;
       toast.success("Type added successfully!");
     } catch (error) {
     }

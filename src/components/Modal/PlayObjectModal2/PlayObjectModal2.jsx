@@ -2,21 +2,16 @@ import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
 import { useQuery } from "@tanstack/react-query";
 
-import styles from "./playObjectModal2.module.scss";
 import { getObject } from "../../../api/bookapi";
-import { isComplexType } from "../../../utils/ocr";
 import { useStore } from "../../../store/store";
 
 const PlayObjectModal2 = () => {
-  const { data: state, setFormState } = useStore();
+  const { data: state } = useStore();
 
   const id = state.activeId;
 
   const {
     data: object,
-    isError: isErrorObject,
-    isLoading: isLoadingObject,
-    isSuccess: isSuccessObject,
     isFetching,
   } = useQuery({
     queryKey: [`get-object`],

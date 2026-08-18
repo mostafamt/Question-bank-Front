@@ -2,7 +2,6 @@ import React, { useState, useMemo, useCallback } from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
 import { Button } from "react-bootstrap";
 import StudioEditor from "../../Studio/StudioEditor/StudioEditor";
-import ImageActions from "../../ImageActions/ImageActions";
 import {
   getList2FromData,
   getTypeOfLabelForCompositeBlocks,
@@ -11,7 +10,6 @@ import {
 const CompositeBlocksModal = (props) => {
   const {
     handleCloseModal,
-    compositeBlockAreaId, // Composite block area ID being edited
     onSelectObject, // Callback when object is selected
     compositeBlocks, // Current composite blocks — used to reflect type-assigned colors
     compositeBlocksTypes, // Full type definitions from API

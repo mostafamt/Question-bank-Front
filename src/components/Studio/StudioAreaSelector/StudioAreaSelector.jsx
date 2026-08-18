@@ -55,6 +55,7 @@ const StudioAreaSelector = React.memo(
       isWhiteOutMode,
       addManualWhiteOverlayArea,
       removeWhiteOverlayArea,
+      onImageLoad,
     } = props;
 
     // Detect mode (reader vs studio)
@@ -145,9 +146,9 @@ const StudioAreaSelector = React.memo(
       setCompositeBlocks,
     });
 
-    const onImageLoad = useCallback(() => {
-      props.onImageLoad();
-    }, [props.onImageLoad]);
+    const handleImageLoad = useCallback(() => {
+      onImageLoad();
+    }, [onImageLoad]);
 
     const renderedAreas = useMemo(() => {
       return activeRightTab.id === "composite-blocks"
@@ -182,7 +183,7 @@ const StudioAreaSelector = React.memo(
       activePage,
       pages,
       imageScaleFactor,
-      onImageLoad,
+      onImageLoad: handleImageLoad,
       getImageSource,
     };
 

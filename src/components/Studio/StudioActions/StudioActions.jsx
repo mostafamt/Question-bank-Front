@@ -47,7 +47,7 @@ const StudioActions = (props) => {
 
     // TODO
     // Need to fix
-
+    // eslint-disable-next-line no-unreachable
     const orderArray = areasProperties[activePage]?.map((area) => area.order);
 
     const newOrderArray = reorder(

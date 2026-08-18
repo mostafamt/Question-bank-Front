@@ -2,7 +2,7 @@ import React from "react";
 import Box from "@mui/material/Box";
 import { SimpleTreeView } from "@mui/x-tree-view/SimpleTreeView";
 import { TreeItem } from "@mui/x-tree-view/TreeItem";
-import { mapTableOfContents } from "../../../utils/book";
+import { mapTableOfContents } from "../../../utils/tableOfContents";
 import { getChapterTOC } from "../../../api/bookapi";
 import { useQuery } from "@tanstack/react-query";
 import { CircularProgress } from "@mui/material";

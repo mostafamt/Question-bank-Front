@@ -40,7 +40,7 @@ const syntaxHighlight = (json) => {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
   return json.replace(
-    /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+    /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g,
     function (match) {
       var cls = "number";
       if (/^"/.test(match)) {
@@ -57,13 +57,6 @@ const syntaxHighlight = (json) => {
       return '<span class="' + cls + '">' + match + "</span>";
     }
   );
-};
-
-const getQuestionType = (questionTypes, questionName) => {
-  const selectedType = questionTypes.find(
-    (item) => item.typeName.toUpperCase() === questionName.toUpperCase()
-  );
-  return selectedType;
 };
 
 export const trimText = (text) =>

@@ -1,22 +1,12 @@
 import React from "react";
 import { Box, Button, TextField } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import AddIcon from "@mui/icons-material/Add";
-
-import TreeItem from "@mui/lab/TreeItem";
 
 import { v4 as uuidv4 } from "uuid";
 
 import styles from "./multipleChoice.module.scss";
 // import { BACKEND_URL } from "../../config/config";
-import { useNavigate } from "react-router-dom";
-import { TreeView } from "@mui/lab";
-import QuestionForm from "./QuestionForm/QuestionForm";
-import AvailableQuestionCreationMethod from "./UploadMethods/UploadMethods";
 import Questions from "./Questions/Questions";
 import UploadMethods from "./UploadMethods/UploadMethods";
-import { upload } from "@testing-library/user-event/dist/upload";
 import Bulk from "./Bulk/Bulk";
 
 const styleSheet = {
@@ -57,20 +47,10 @@ const generateQuestion = () => {
 };
 
 const MultipleChoice = () => {
-  const navigate = useNavigate();
-
   const [uploadMethod, setUploadMethod] = React.useState("manual");
   const [file, setFile] = React.useState(null);
   const [name, setName] = React.useState(`Object Name`);
   const [questions, setQuestions] = React.useState([generateQuestion()]);
-  const [title, setTitle] = React.useState("Question Title");
-  const [options, setOptions] = React.useState([
-    {
-      id: uuidv4(),
-      text: "Option 1",
-      checked: false,
-    },
-  ]);
 
   const changeUploadMethod = (value) => {
     setUploadMethod(value);

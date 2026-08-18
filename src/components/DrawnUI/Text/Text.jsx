@@ -7,7 +7,7 @@ import { Controller } from "react-hook-form";
 import { fullTextTrim } from "../../../utils/data";
 
 const Text = (props) => {
-  const { space, label, name, errors, type, path, required, control } = props;
+  const { label, name, errors, type, path, required, control } = props;
 
   const newLabel = fullTextTrim(label);
 

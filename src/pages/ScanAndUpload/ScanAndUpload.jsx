@@ -1,11 +1,6 @@
 import React from "react";
 import Studio from "../../components/Studio/Studio";
 import { useLocation, useParams } from "react-router-dom";
-import {
-  baseUploadBase64,
-  uploadBase64,
-  uploadForStudio,
-} from "../../utils/upload";
 import { uploadBase64ToCloudinary } from "../../services/cloudinary";
 import { uploadPageImage } from "../../utils/NewUpload";
 import { saveBlocks } from "../../services/api";

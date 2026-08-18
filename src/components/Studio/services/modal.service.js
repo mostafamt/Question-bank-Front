@@ -321,7 +321,7 @@ export function determineModalForArea(areaProps) {
   };
 }
 
-export default {
+const modalService = {
   STUDIO_MODALS,
   createQuillModalProps,
   createSubObjectModalProps,
@@ -330,3 +330,5 @@ export default {
   StudioModalService,
   determineModalForArea,
 };
+
+export default modalService;

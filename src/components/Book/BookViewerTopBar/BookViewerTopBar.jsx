@@ -13,7 +13,6 @@ import styles from "./bookViewerTopBar.module.scss";
 const BookViewerTopBar = (props) => {
   const {
     activePage,
-    onChangePage,
     pages,
     showVB,
     setShowVB,

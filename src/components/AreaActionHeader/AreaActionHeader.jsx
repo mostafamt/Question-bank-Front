@@ -13,7 +13,6 @@ const AreaActionHeader = (props) => {
     onChangeLabel,
     subObject,
     type,
-    updateAreaProperty,
     updateAreaPropertyById,
     typeOfActiveType,
   } = props;

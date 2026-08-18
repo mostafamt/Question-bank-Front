@@ -8,7 +8,7 @@ import styles from "./sound.module.scss";
 import { upload } from "../../../utils/upload";
 
 const Sound = (props) => {
-  const { setValue, name, space, getValues } = props;
+  const { setValue, name, getValues } = props;
 
   let value = getValues(name);
 

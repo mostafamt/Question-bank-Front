@@ -1,8 +1,6 @@
 import React from "react";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import DeleteIcon from "@mui/icons-material/Delete";
-import NorthIcon from "@mui/icons-material/North";
-import SouthIcon from "@mui/icons-material/South";
 import { IconButton } from "@mui/material";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";

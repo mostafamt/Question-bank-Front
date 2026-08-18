@@ -1,13 +1,6 @@
 import { toast } from "react-toastify";
 import axios from "../axios";
 
-function newAbortSignal(timeoutMs) {
-  const abortController = new AbortController();
-  setTimeout(() => abortController.abort(), timeoutMs || 0);
-
-  return abortController.signal;
-}
-
 function getExtensionFromMimeType(mimeType) {
   const cleanType = mimeType.split(";")[0]; // remove the ";codecs=opus" part
 

@@ -10,13 +10,11 @@ import {
 import { deleteAreaByIndex } from "../utils";
 import { isDeepBlock } from "../utils";
 import {
-  CREATED,
   DELETED,
   onEditTextField,
   reorder,
   updateAreasProperties,
 } from "../../../utils/ocr";
-import { parseVirtualBlocksFromPages } from "../../../utils/virtual-blocks";
 import { TIMEOUTS } from "../constants";
 import { capturePageSnapshot } from "../services/pageCapture.service";
 
@@ -52,7 +50,7 @@ const useAreaManagement = ({
     initAreasProperties(pages, types)
   );
 
-  const [showVB, setShowVB] = React.useState(false);
+  const [, setShowVB] = React.useState(false);
 
   // Track deleted deep block areas for white background rendering during snapshot
   // Structure: deletedDeepBlockAreas[pageIndex] = [{ id, x, y, width, height, unit }, ...]
@@ -146,24 +144,27 @@ const useAreaManagement = ({
     recalculateAreasRef.current = recalculateAreas;
   });
 
-  const updateAreaProperty = (idx, property) => {
-    setAreasProperties((prevState) => {
-      let newTrialAreas = [...prevState];
-      if (idx === -1) {
-        const lastIndex = idx + areasProperties[activePageIndex].length;
-        newTrialAreas[activePageIndex][lastIndex] = {
-          ...newTrialAreas[activePageIndex][lastIndex],
-          ...property,
-        };
-      } else {
-        newTrialAreas[activePageIndex][idx] = {
-          ...newTrialAreas[activePageIndex][idx],
-          ...property,
-        };
-      }
-      return newTrialAreas;
-    });
-  };
+  const updateAreaProperty = React.useCallback(
+    (idx, property) => {
+      setAreasProperties((prevState) => {
+        let newTrialAreas = [...prevState];
+        if (idx === -1) {
+          const lastIndex = idx + areasProperties[activePageIndex].length;
+          newTrialAreas[activePageIndex][lastIndex] = {
+            ...newTrialAreas[activePageIndex][lastIndex],
+            ...property,
+          };
+        } else {
+          newTrialAreas[activePageIndex][idx] = {
+            ...newTrialAreas[activePageIndex][idx],
+            ...property,
+          };
+        }
+        return newTrialAreas;
+      });
+    },
+    [activePageIndex, areasProperties]
+  );
 
   /**
    * Handle area deletion
@@ -173,6 +174,28 @@ const useAreaManagement = ({
    * - Client areas: Remove from both arrays (hard delete)
    * @param {number} idx - Index of area to delete
    */
+  const addDeletedDeepBlockArea = React.useCallback(
+    (area, areaProps) => {
+      setDeletedDeepBlockAreas((prevState) => {
+        const newDeletedAreas = [...prevState];
+        newDeletedAreas[activePageIndex] = [
+          ...newDeletedAreas[activePageIndex],
+          {
+            id: areaProps.id,
+            x: area._percentX ?? area.x,
+            y: area._percentY ?? area.y,
+            width: area._percentWidth ?? area.width,
+            height: area._percentHeight ?? area.height,
+            unit: area._unit || "percentage",
+            source: "deep-block",
+          },
+        ];
+        return newDeletedAreas;
+      });
+    },
+    [activePageIndex]
+  );
+
   const onClickDeleteArea = React.useCallback(
     (idx) => {
       // 1. Check areas first (source of truth for rendered areas)
@@ -208,7 +231,13 @@ const useAreaManagement = ({
         );
       }
     },
-    [activePageIndex, areas, areasProperties, updateAreaProperty]
+    [
+      activePageIndex,
+      areas,
+      areasProperties,
+      updateAreaProperty,
+      addDeletedDeepBlockArea,
+    ]
   );
 
   const updateAreaPropertyById = (id, property) => {
@@ -225,25 +254,6 @@ const useAreaManagement = ({
       return area;
     });
     setAreasProperties(newAreasProperties);
-  };
-
-  const addDeletedDeepBlockArea = (area, areaProps) => {
-    setDeletedDeepBlockAreas((prevState) => {
-      const newDeletedAreas = [...prevState];
-      newDeletedAreas[activePageIndex] = [
-        ...newDeletedAreas[activePageIndex],
-        {
-          id: areaProps.id,
-          x: area._percentX ?? area.x,
-          y: area._percentY ?? area.y,
-          width: area._percentWidth ?? area.width,
-          height: area._percentHeight ?? area.height,
-          unit: area._unit || "percentage",
-          source: "deep-block",
-        },
-      ];
-      return newDeletedAreas;
-    });
   };
 
   /**

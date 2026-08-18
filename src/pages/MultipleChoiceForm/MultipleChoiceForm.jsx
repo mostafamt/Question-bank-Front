@@ -24,7 +24,7 @@ const MultipleChoiceForm = (props) => {
   const [parameters, setParameters] = React.useState(
     generateMultipleChoiceQuestion
   );
-  const [json, setJSON] = React.useState("");
+  const [, setJSON] = React.useState("");
   const location = useLocation();
   const params = useParams();
   const [showForm, setShowForm] = React.useState(true);
@@ -64,7 +64,13 @@ const MultipleChoiceForm = (props) => {
         }
       }
     }
-  }, []);
+    // fetchData and state.parameters intentionally omitted: this is a
+    // mount-only "load initial data for this route" effect. fetchData is
+    // redefined every render (would loop if added), and state.parameters is
+    // only meant to be consumed once on mount (OCR hand-off) — re-running
+    // this when it changes later would wipe in-progress edits.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, params]);
 
   const handleEditQuestionParam = (param, value) => {
     setParameters((prevState) => ({ ...prevState, [param]: value }));

@@ -2,7 +2,6 @@
 import StudioThumbnails from "../StudioThumbnails/StudioThumbnails";
 import List from "../../Tabs/List/List";
 import TableOfContents from "../../Book/TableOfContents/TableOfContents";
-import GlossaryAndKeywords from "../../Tabs/GlossaryAndKeywords/GlossaryAndKeywords";
 import StudioCompositeBlocks from "../StudioCompositeBlocks/StudioCompositeBlocks";
 import StudioActions from "../StudioActions/StudioActions";
 import ExerciseTab from "../components/ExerciseTab/ExerciseTab";

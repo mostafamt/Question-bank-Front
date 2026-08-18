@@ -1,6 +1,6 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
-import { Box, Button } from "@mui/material";
+import { Button } from "@mui/material";
 import RadioQuestionsTable from "../../Tables/RadioQuestionsTable/RadioQuestionsTable";
 
 /**

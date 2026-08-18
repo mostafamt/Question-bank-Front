@@ -6,7 +6,6 @@ import { getChapterPages } from "../../api/bookapi";
 import { INITIAL_PAGE_INDEX } from "../../utils/book";
 import { tabsConfig } from "../../config/reader";
 import {
-  HIGHLIGHT_CONFIG,
   getAutoClearTimeout,
   isDebugEnabled,
 } from "../../config/highlighting";
@@ -30,14 +29,14 @@ const Book = () => {
     queryFn: () => getChapterPages(chapterId),
     refetchOnWindowFocus: false,
   });
-  const [outerValue, setOuterValue] = React.useState(0); // top-level tabs
-  const [innerValue, setInnerValue] = React.useState(0); // nested tabs
+  const [outerValue] = React.useState(0); // top-level tabs
+  const [innerValue] = React.useState(0); // nested tabs
   const [activePage, setActivePage] = useState(null);
   const thumbnailsRef = React.useRef(null);
   const highlightTimeoutRef = useRef(null);
   const [highlightedBlockId, setHighlightedBlockId] = React.useState(null);
 
-  const [areas, setAreas] = React.useState(
+  const [, setAreas] = React.useState(
     pages?.map((page) =>
       page.blocks?.map((block) => {
         return {

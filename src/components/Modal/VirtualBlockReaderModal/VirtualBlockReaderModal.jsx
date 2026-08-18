@@ -8,7 +8,6 @@ import {
   Typography,
   Box,
   Chip,
-  IconButton,
   CircularProgress,
 } from "@mui/material";
 import { OpenInNew, Visibility, PlayArrow } from "@mui/icons-material";

@@ -31,8 +31,6 @@ import styles from "./virtualBlockContentModal.module.scss";
  */
 const ContentItemForm = (props) => {
   const {
-    selectedLabel,
-    iconLocation,
     editingContent = null,
     pageImageUrl,
     onSubmit,

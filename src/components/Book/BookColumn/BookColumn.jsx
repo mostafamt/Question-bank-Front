@@ -7,7 +7,7 @@ import { useStore } from "../../../store/store";
 import styles from "./bookColumn.module.scss";
 
 const BookColumn = (props) => {
-  const { COLUMNS, activeColumn, onImageLoad, activeTab, setActiveTab } = props;
+  const { COLUMNS, onImageLoad, activeTab, setActiveTab } = props;
   const language = useStore((s) => s.language);
 
   const onChangeActiveTab = (tab) => {

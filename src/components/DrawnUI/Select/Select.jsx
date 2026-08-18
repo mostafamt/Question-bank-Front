@@ -8,7 +8,7 @@ import ValidationMessage from "../../ValidationMessage/ValidationMessage";
 import { Controller } from "react-hook-form";
 
 const Select = (props) => {
-  const { label, options, space, name, required, path, errors, control } =
+  const { label, options, name, required, path, errors, control } =
     props;
 
   const trimmedLabel = label.replaceAll("_", "");

@@ -4,7 +4,6 @@ import "react-quill/dist/quill.snow.css";
 import EnhancedTable from "../../components/EnhancedTable/EnhancedTable";
 
 import styles from "./smartInteractive.module.scss";
-import { Button } from "@mui/material";
 
 const SmartInteractive = () => {
   const [value, setValue] = React.useState("");

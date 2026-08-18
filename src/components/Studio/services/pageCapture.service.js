@@ -58,16 +58,6 @@ export async function capturePageSnapshot(containerEl) {
         // Find all white area overlays in the cloned tree
         const whiteAreas = Array.from(clonedEl.querySelectorAll('.white-area-overlay'));
 
-        // Store original white area styles
-        const whiteAreaOriginalStyles = whiteAreas.map((area) => ({
-          element: area,
-          display: area.style.display,
-          visibility: area.style.visibility,
-          opacity: area.style.opacity,
-          backgroundColor: area.style.backgroundColor,
-          position: area.style.position,
-        }));
-
         // Ensure white areas are visible and will be captured
         whiteAreas.forEach((whiteArea) => {
           whiteArea.style.setProperty('display', 'block', 'important');

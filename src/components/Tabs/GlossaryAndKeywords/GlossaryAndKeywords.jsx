@@ -59,7 +59,7 @@ const GlossaryAndKeywords = (props) => {
     } else {
       // Fallback to original implementation (for Studio context)
       changePageById?.(pageId);
-      const blockDetails = getBlockFromBlockId?.(blockId);
+      getBlockFromBlockId?.(blockId);
       hightBlock?.(blockId);
     }
   };
@@ -79,7 +79,7 @@ const GlossaryAndKeywords = (props) => {
     } else {
       // Fallback to original implementation (for Studio context)
       changePageById?.(pageId);
-      const blockDetails = getBlockFromBlockId?.(blockId);
+      getBlockFromBlockId?.(blockId);
       hightBlock?.(blockId);
     }
   };
