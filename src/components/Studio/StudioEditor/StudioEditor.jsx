@@ -20,9 +20,6 @@ const StudioEditor = React.memo(
       onClickToggleVirutalBlocks,
       onClickImage,
       showBlocksStyling,
-      setShowBlocksStyling,
-      isWhiteOutMode,
-      onToggleWhiteOutMode,
     } = props;
 
     const studioEditorSelectorRef = React.useRef(null);
@@ -50,10 +47,6 @@ const StudioEditor = React.memo(
           onClickImage={onClickImage}
           showVB={showVB}
           onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
-          showBlocksStyling={showBlocksStyling}
-          onToggleBlocksStyling={() => setShowBlocksStyling(!showBlocksStyling)}
-          isWhiteOutMode={isWhiteOutMode}
-          onToggleWhiteOutMode={onToggleWhiteOutMode}
         />
         <StudioAreaSelector
           {...props}

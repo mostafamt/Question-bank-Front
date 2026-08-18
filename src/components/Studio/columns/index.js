@@ -169,6 +169,10 @@ export const buildRightColumns = ({
   hightBlock,
   changePageByIndex,
   onClickHand,
+  showBlocksStyling,
+  setShowBlocksStyling,
+  isWhiteOutMode,
+  onToggleWhiteOutMode,
 }) => {
   // Create navigation function that combines page change and highlighting
   const navigateToBlock = (pageId, blockId) => {
@@ -257,6 +261,12 @@ export const buildRightColumns = ({
               onSelectFromLibrary={onSelectFromLibrary}
               onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
               showVB={showVB}
+              showBlocksStyling={showBlocksStyling}
+              onToggleBlocksStyling={() =>
+                setShowBlocksStyling(!showBlocksStyling)
+              }
+              isWhiteOutMode={isWhiteOutMode}
+              onToggleWhiteOutMode={onToggleWhiteOutMode}
             />
           ),
         };

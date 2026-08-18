@@ -9,8 +9,6 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
-import BorderStyleIcon from "@mui/icons-material/BorderStyle";
-import FormatColorResetIcon from "@mui/icons-material/FormatColorReset";
 
 import styles from "./styles.module.scss";
 import { useAppMode } from "../../utils/tabFiltering";
@@ -33,13 +31,20 @@ const ImageActions = React.forwardRef((props, ref) => {
     onImageLoad,
     pages,
     onClickImage,
-    showBlocksStyling,
-    onToggleBlocksStyling,
-    isWhiteOutMode,
-    onToggleWhiteOutMode,
   } = props;
 
-  const [oldAreas] = React.useState(areas?.[activePage] || []);
+  const [oldAreas, setOldAreas] = React.useState(areas?.[activePage] || []);
+  const currentPageAreasCount = areas?.[activePage]?.length;
+
+  // Re-baseline the zoom reference points whenever the active page changes,
+  // or that page's areas array size changes — areas[activePage] starts empty
+  // and is populated asynchronously after the page image loads (independent
+  // of any activePage change), so relying on activePage alone still leaves a
+  // window where oldAreas is stale/empty and indexing into it throws.
+  React.useEffect(() => {
+    setOldAreas(areas?.[activePage] || []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activePage, currentPageAreasCount]);
 
   const mode = useAppMode();
   const isReaderMode = mode === "reader";
@@ -48,10 +53,11 @@ const ImageActions = React.forwardRef((props, ref) => {
     setImageScaleFactor(imageScaleFactor + DEGREE);
     const newAreas = [...areas];
     newAreas[activePage] = areas[activePage].map((area, idx) => {
-      area.x = area.x + oldAreas[idx].x * DEGREE;
-      area.y = area.y + oldAreas[idx].y * DEGREE;
-      area.height = area.height + oldAreas[idx].height * DEGREE;
-      area.width = area.width + oldAreas[idx].width * DEGREE;
+      const baseline = oldAreas[idx] || area;
+      area.x = area.x + baseline.x * DEGREE;
+      area.y = area.y + baseline.y * DEGREE;
+      area.height = area.height + baseline.height * DEGREE;
+      area.width = area.width + baseline.width * DEGREE;
       return area;
     });
     setAreas(newAreas);
@@ -81,10 +87,11 @@ const ImageActions = React.forwardRef((props, ref) => {
     setImageScaleFactor(imageScaleFactor - DEGREE);
     const newAreas = [...areas];
     newAreas[activePage] = areas[activePage].map((area, idx) => {
-      area.x = area.x - oldAreas[idx].x * DEGREE;
-      area.y = area.y - oldAreas[idx].y * DEGREE;
-      area.height = area.height - oldAreas[idx].height * DEGREE;
-      area.width = area.width - oldAreas[idx].width * DEGREE;
+      const baseline = oldAreas[idx] || area;
+      area.x = area.x - baseline.x * DEGREE;
+      area.y = area.y - baseline.y * DEGREE;
+      area.height = area.height - baseline.height * DEGREE;
+      area.width = area.width - baseline.width * DEGREE;
       return area;
     });
     setAreas(newAreas);
@@ -149,40 +156,7 @@ const ImageActions = React.forwardRef((props, ref) => {
           <ZoomOutIcon fontSize={iconFontSize} />
         </IconButton>
       </div>
-      <div>
-        <span>|</span>
-      </div>
 
-      <div>
-        <IconButton
-          aria-label="toggle-blocks-styling"
-          onClick={onToggleBlocksStyling}
-          title={showBlocksStyling ? "Hide block borders" : "Show block borders"}
-        >
-          {showBlocksStyling ? (
-            <BorderStyleIcon fontSize={iconFontSize} />
-          ) : (
-            <BorderStyleIcon fontSize={iconFontSize} sx={{ opacity: 0.4 }} />
-          )}
-        </IconButton>
-        {onToggleWhiteOutMode && (
-          <IconButton
-            aria-label="toggle-white-out"
-            onClick={onToggleWhiteOutMode}
-            title={
-              isWhiteOutMode
-                ? "White-out mode on — draw a rectangle to white out content"
-                : "White-out: draw a rectangle to permanently white out content"
-            }
-            sx={isWhiteOutMode ? { backgroundColor: "rgba(0, 0, 0, 0.08)" } : undefined}
-          >
-            <FormatColorResetIcon
-              fontSize={iconFontSize}
-              sx={!isWhiteOutMode ? { opacity: 0.4 } : undefined}
-            />
-          </IconButton>
-        )}
-      </div>
       {isReaderMode && (
         <>
           <div>

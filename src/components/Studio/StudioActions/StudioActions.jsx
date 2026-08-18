@@ -1,18 +1,13 @@
 import React from "react";
-import { Button, CircularProgress, List, IconButton, Alert } from "@mui/material";
+import { Button, CircularProgress, List, Alert } from "@mui/material";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import AreaAction from "../../AreaAction/AreaAction";
 import { DELETED, reorder } from "../../../utils/ocr";
 import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import VisibilityIcon from "@mui/icons-material/Visibility";
+import StudioActionsButtons from "../StudioActionsButtons/StudioActionsButtons";
 
 import styles from "./studioActions.module.scss";
-
-// large | medium | small
-const iconFontSize = "medium";
-// const text
 
 const StudioActions = (props) => {
   const {
@@ -36,6 +31,10 @@ const StudioActions = (props) => {
     onSelectFromLibrary,
     onClickToggleVirutalBlocks,
     showVB,
+    showBlocksStyling,
+    onToggleBlocksStyling,
+    isWhiteOutMode,
+    onToggleWhiteOutMode,
   } = props;
 
   const onDragEnd = (result) => {
@@ -71,18 +70,14 @@ const StudioActions = (props) => {
   return (
     <div className={styles["studio-actions"]}>
       <div>
-        <div>
-          <IconButton
-            aria-label="visibility-icon"
-            onClick={onClickToggleVirutalBlocks}
-          >
-            {showVB ? (
-              <VisibilityOffIcon fontSize={iconFontSize} />
-            ) : (
-              <VisibilityIcon fontSize={iconFontSize} />
-            )}
-          </IconButton>
-        </div>
+        <StudioActionsButtons
+          onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
+          showVB={showVB}
+          showBlocksStyling={showBlocksStyling}
+          onToggleBlocksStyling={onToggleBlocksStyling}
+          isWhiteOutMode={isWhiteOutMode}
+          onToggleWhiteOutMode={onToggleWhiteOutMode}
+        />
       </div>
       <List sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
         <DragDropContext onDragEnd={onDragEnd}>
