@@ -214,6 +214,10 @@ const useStudioColumns = ({
     const showVB = rightColumnProps.showVB;
     const highlight = rightColumnProps.highlight;
     const loadingAutoGenerate = rightColumnProps.loadingAutoGenerate;
+    const showBlocksStyling = rightColumnProps.showBlocksStyling;
+    const setShowBlocksStyling = rightColumnProps.setShowBlocksStyling;
+    const isWhiteOutMode = rightColumnProps.isWhiteOutMode;
+    const onToggleWhiteOutMode = rightColumnProps.onToggleWhiteOutMode;
 
     return buildRightColumns({
       areasProperties,
@@ -252,6 +256,10 @@ const useStudioColumns = ({
       hightBlock: hightBlockRef.current,
       changePageByIndex: changePageByIndexRef.current,
       onClickHand,
+      showBlocksStyling,
+      setShowBlocksStyling,
+      isWhiteOutMode,
+      onToggleWhiteOutMode,
     });
   }, [
     isReaderMode,
@@ -278,6 +286,10 @@ const useStudioColumns = ({
     rightColumnProps.onChangeLabel,
     rightColumnProps.onClickToggleVirutalBlocks,
     rightColumnProps.onClickHand,
+    rightColumnProps.showBlocksStyling,
+    rightColumnProps.setShowBlocksStyling,
+    rightColumnProps.isWhiteOutMode,
+    rightColumnProps.onToggleWhiteOutMode,
   ]);
 
   // Create stable strings of tab IDs to detect actual tab configuration changes

@@ -269,6 +269,10 @@ const Studio = (props) => {
       setHighlight,
       setActivePageIndex,
       onClickHand,
+      showBlocksStyling,
+      setShowBlocksStyling,
+      isWhiteOutMode,
+      onToggleWhiteOutMode,
     }),
     [
       areasProperties,
@@ -302,6 +306,10 @@ const Studio = (props) => {
       setHighlight,
       setActivePageIndex,
       onClickHand,
+      showBlocksStyling,
+      setShowBlocksStyling,
+      isWhiteOutMode,
+      onToggleWhiteOutMode,
     ]
   );
 
