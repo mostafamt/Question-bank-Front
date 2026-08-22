@@ -90,7 +90,7 @@ const useAreaCustomRenderer = ({
         if (areaType) {
           const handleWrapperClick = (e) => {
             // Don't interfere with interactive media controls in view-and-play mode
-            if (isInteractiveMode && e.target.closest("video, audio, iframe")) {
+            if (isInteractiveMode && e.target.closest("video, audio")) {
               e.stopPropagation();
               return;
             }
@@ -123,7 +123,7 @@ const useAreaCustomRenderer = ({
                 <DeepBlockVideo src={deepVideo} interactive={isInteractiveMode} />
               ) : null}
               {deepObjectId ? (
-                <DeepBlockObject objectId={deepObjectId} interactive={isInteractiveMode} />
+                <DeepBlockObject objectId={deepObjectId} />
               ) : null}
             </div>
           );
