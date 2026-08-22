@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, CircularProgress, List, Alert } from "@mui/material";
+import { Button, CircularProgress, List } from "@mui/material";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import AreaAction from "../../AreaAction/AreaAction";
 import { DELETED, reorder } from "../../../utils/ocr";
@@ -14,7 +14,6 @@ const StudioActions = (props) => {
     areasProperties,
     setAreasProperties,
     activePage,
-    isActivePagePending,
     onEditText,
     onClickDeleteArea,
     type,
@@ -163,17 +162,11 @@ const StudioActions = (props) => {
 
         {(areasProperties[activePage] || []).length > 0 && (
           <div>
-            {isActivePagePending && (
-              <Alert severity="warning" sx={{ mb: 1 }}>
-                This page isn't saved yet. Save it from the thumbnails panel
-                before submitting blocks.
-              </Alert>
-            )}
             <Button
               variant="contained"
               onClick={onClickSubmit}
               sx={{ width: "100%" }}
-              disabled={loadingSubmit || isActivePagePending}
+              disabled={loadingSubmit}
               startIcon={
                 loadingSubmit ? <CircularProgress size="1rem" /> : <></>
               }

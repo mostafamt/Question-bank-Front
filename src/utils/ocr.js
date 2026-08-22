@@ -144,7 +144,8 @@ export const updateAreasProperties = (
   activePage,
   areas,
   subObject,
-  type
+  type,
+  isNewPage = false
 ) => {
   let newAreas = [];
 
@@ -197,7 +198,10 @@ export const updateAreasProperties = (
         open: true,
         status: CREATED,
         isServer: false,
-        isDeep: false,
+        // Pages flagged isNewPage by the server carry no scanned content, so
+        // every block drawn on them defaults to deep (author-entered) rather
+        // than OCR/crop-derived.
+        isDeep: isNewPage === true,
       },
     ];
   }

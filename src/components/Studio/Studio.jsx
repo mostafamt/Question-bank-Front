@@ -131,6 +131,7 @@ const Studio = (props) => {
     loadingSubmit,
   } = useAreaManagement({
     pages,
+    setPages,
     activePageIndex,
     types,
     studioEditorRef,
@@ -143,6 +144,7 @@ const Studio = (props) => {
     refetch,
     pageContainerRef,
     setShowBlocksStyling,
+    chapterId,
   });
 
   // Keep recalculateAreas ref updated (to avoid dependency in useEffect)

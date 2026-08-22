@@ -82,4 +82,20 @@ describe("updateAreasProperties isDeep preservation", () => {
     expect(result[0][0].isDeep).toBe(true);
     expect(result[0][1].isDeep).toBe(false);
   });
+
+  // A page the server flags isNewPage has no scanned content, so blocks drawn
+  // on it default to deep (author-entered) rather than OCR/crop-derived.
+  it("defaults a newly drawn area to isDeep true on an isNewPage page", () => {
+    const result = updateAreasProperties(
+      [[makeProperty({ isDeep: false })]],
+      0,
+      [[makeArea(), makeArea()]],
+      false,
+      "",
+      true
+    );
+
+    expect(result[0][0].isDeep).toBe(false);
+    expect(result[0][1].isDeep).toBe(true);
+  });
 });

@@ -17,9 +17,11 @@ import {
 } from "../../../utils/ocr";
 import { TIMEOUTS } from "../constants";
 import { capturePageSnapshot } from "../services/pageCapture.service";
+import { submitPages } from "../../../api/bookapi";
 
 const useAreaManagement = ({
   pages,
+  setPages,
   activePageIndex,
   types,
   studioEditorRef,
@@ -32,6 +34,7 @@ const useAreaManagement = ({
   refetch,
   pageContainerRef,
   setShowBlocksStyling,
+  chapterId,
 }) => {
   // Store raw pages for deferred conversion (% → px on first image load)
   const rawPagesRef = React.useRef(pages);
@@ -313,7 +316,8 @@ const useAreaManagement = ({
       activePageIndex,
       areasToSync,
       subObject,
-      type
+      type,
+      pages?.[activePageIndex]?.isNewPage === true
     );
     setAreasProperties(newAreasProperties);
   };
@@ -402,11 +406,21 @@ const useAreaManagement = ({
       id && toast.success("Sub-Object created successfully!");
       // handleClose();
     } else {
-      const activePageData = pages[activePageIndex];
-      if (activePageData?._isPending) {
-        toast.error("Please save this page first before submitting blocks.");
-        setLoadingSubmit(false);
-        return;
+      // Persist any unsaved (pending) pages first so they aren't lost if block
+      // submission fails or the session ends before the user hits "Save".
+      const hasPendingPage = pages.some((p) => p._isPending);
+      if (hasPendingPage) {
+        try {
+          const pageIds = pages.map((p) => p._id).filter(Boolean);
+          await submitPages({ pageIds, chapterId });
+          setPages?.((prev) =>
+            prev.map((p) => ({ ...p, _isPending: false }))
+          );
+        } catch {
+          toast.error("Failed to save pages before submitting blocks.");
+          setLoadingSubmit(false);
+          return;
+        }
       }
 
       const hasDeepBlock = areasProperties[activePageIndex]?.some(isDeepBlock);
