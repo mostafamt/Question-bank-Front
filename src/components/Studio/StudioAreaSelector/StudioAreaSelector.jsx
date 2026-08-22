@@ -27,8 +27,7 @@ import { useAreaCustomRenderer, useCompositeBlockPicking } from "./hooks";
  * inline styling (getBlockStyle), the VirtualBlocks wrapper, and the
  * container's box-color CSS.
  */
-const StudioAreaSelector = React.memo(
-  React.forwardRef((props, ref) => {
+const StudioAreaSelectorComponent = React.forwardRef((props, ref) => {
     const {
       areasProperties,
       setAreasProperties,
@@ -265,7 +264,45 @@ const StudioAreaSelector = React.memo(
         </div>
       </VirtualBlocks>
     );
-  })
+  });
+
+// Prevent re-renders when only showBlocksStyling changes
+const StudioAreaSelector = React.memo(
+  StudioAreaSelectorComponent,
+  (prevProps, nextProps) => {
+    // Return true if props are equal (skip re-render).
+    // showBlocksStyling is intentionally omitted — toggling it should not
+    // re-render deep block media (video/audio/object); see getBlockStyle,
+    // which reads showBlocksStyling directly as a prop and is unaffected by
+    // this bail-out.
+    return (
+      prevProps.areasProperties === nextProps.areasProperties &&
+      prevProps.activePage === nextProps.activePage &&
+      prevProps.imageScaleFactor === nextProps.imageScaleFactor &&
+      prevProps.areas === nextProps.areas &&
+      prevProps.pages === nextProps.pages &&
+      prevProps.showVB === nextProps.showVB &&
+      prevProps.virtualBlocks === nextProps.virtualBlocks &&
+      prevProps.activeRightTab === nextProps.activeRightTab &&
+      prevProps.compositeBlocksTypes === nextProps.compositeBlocksTypes &&
+      prevProps.compositeBlocks === nextProps.compositeBlocks &&
+      prevProps.highlight === nextProps.highlight &&
+      prevProps.highlightedBlockId === nextProps.highlightedBlockId &&
+      prevProps.readOnly === nextProps.readOnly &&
+      prevProps.deletedDeepBlockAreas === nextProps.deletedDeepBlockAreas &&
+      prevProps.isWhiteOutMode === nextProps.isWhiteOutMode &&
+      prevProps.onImageLoad === nextProps.onImageLoad &&
+      prevProps.onChangeHandler === nextProps.onChangeHandler &&
+      prevProps.setAreasProperties === nextProps.setAreasProperties &&
+      prevProps.setVirtualBlocks === nextProps.setVirtualBlocks &&
+      prevProps.setCompositeBlocks === nextProps.setCompositeBlocks &&
+      prevProps.onAreaClick === nextProps.onAreaClick &&
+      prevProps.addManualWhiteOverlayArea === nextProps.addManualWhiteOverlayArea &&
+      prevProps.removeWhiteOverlayArea === nextProps.removeWhiteOverlayArea &&
+      prevProps.onPlayBlock === nextProps.onPlayBlock &&
+      prevProps.pageContainerRef === nextProps.pageContainerRef
+    );
+  }
 );
 
 export default StudioAreaSelector;

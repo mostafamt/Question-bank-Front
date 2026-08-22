@@ -43,4 +43,8 @@ const DeepBlockAudio = ({ src, interactive = false }) => {
   );
 };
 
-export default DeepBlockAudio;
+export default React.memo(DeepBlockAudio, (prevProps, nextProps) => {
+  // Only re-render if src changes. Ignore interactive prop changes
+  // to prevent audio reload when toggling block styling
+  return prevProps.src === nextProps.src;
+});

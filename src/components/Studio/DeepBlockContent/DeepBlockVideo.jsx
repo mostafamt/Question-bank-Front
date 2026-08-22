@@ -14,6 +14,7 @@ const DeepBlockVideo = ({ src, interactive = false }) => {
     return null;
   }
 
+  console.log('DeepBlockVideo');
 
   return (
     <video
@@ -30,4 +31,8 @@ const DeepBlockVideo = ({ src, interactive = false }) => {
   );
 };
 
-export default DeepBlockVideo;
+export default React.memo(DeepBlockVideo, (prevProps, nextProps) => {
+  // Only re-render if src changes. Ignore interactive prop changes
+  // to prevent video reload when toggling block styling
+  return prevProps.src === nextProps.src;
+});

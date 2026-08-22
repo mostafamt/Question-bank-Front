@@ -104,7 +104,7 @@ const useAreaManagement = ({
    * and converts % → px in one step. On subsequent calls (zoom, virtual blocks),
    * reconverts existing areas using stored percentage metadata.
    */
-  const recalculateAreas = () => {
+  const recalculateAreasImpl = () => {
     setAreas((prevState) => {
       const refValidation = validateRefAccess(studioEditorRef);
       if (!refValidation.isValid) return prevState;
@@ -141,8 +141,16 @@ const useAreaManagement = ({
   };
 
   React.useEffect(() => {
-    recalculateAreasRef.current = recalculateAreas;
+    recalculateAreasRef.current = recalculateAreasImpl;
   });
+
+  // Stable identity across renders (unlike recalculateAreasImpl, which closes
+  // over activePageIndex/areasProperties and would otherwise be recreated on
+  // every render) — consumers like StudioAreaSelector rely on referential
+  // stability here to avoid re-rendering deep block media on unrelated toggles.
+  const recalculateAreas = React.useCallback(() => {
+    recalculateAreasRef.current?.();
+  }, []);
 
   const updateAreaProperty = React.useCallback(
     (idx, property) => {
@@ -264,38 +272,54 @@ const useAreaManagement = ({
    * removed before submit, unlike deep-block overlays.
    * @param {{x: number, y: number, width: number, height: number, unit?: string}} area
    */
-  const addManualWhiteOverlayArea = (area) => {
-    setDeletedDeepBlockAreas((prevState) => {
-      const newDeletedAreas = [...prevState];
-      newDeletedAreas[activePageIndex] = [
-        ...newDeletedAreas[activePageIndex],
-        {
-          id: uuidv4(),
-          x: area.x,
-          y: area.y,
-          width: area.width,
-          height: area.height,
-          unit: area.unit || "percentage",
-          source: "manual",
-        },
-      ];
-      return newDeletedAreas;
-    });
-  };
+  const addManualWhiteOverlayAreaRef = React.useRef();
+  React.useEffect(() => {
+    addManualWhiteOverlayAreaRef.current = (area) => {
+      setDeletedDeepBlockAreas((prevState) => {
+        const newDeletedAreas = [...prevState];
+        newDeletedAreas[activePageIndex] = [
+          ...newDeletedAreas[activePageIndex],
+          {
+            id: uuidv4(),
+            x: area.x,
+            y: area.y,
+            width: area.width,
+            height: area.height,
+            unit: area.unit || "percentage",
+            source: "manual",
+          },
+        ];
+        return newDeletedAreas;
+      });
+    };
+  });
+
+  // Stable identity — see recalculateAreas above for why this matters.
+  const addManualWhiteOverlayArea = React.useCallback((area) => {
+    addManualWhiteOverlayAreaRef.current?.(area);
+  }, []);
 
   /**
    * Remove a single manual white-out rectangle by id (undo before submit).
    * @param {string} id
    */
-  const removeWhiteOverlayArea = (id) => {
-    setDeletedDeepBlockAreas((prevState) => {
-      const newDeletedAreas = [...prevState];
-      newDeletedAreas[activePageIndex] = newDeletedAreas[activePageIndex].filter(
-        (area) => area.id !== id
-      );
-      return newDeletedAreas;
-    });
-  };
+  const removeWhiteOverlayAreaRef = React.useRef();
+  React.useEffect(() => {
+    removeWhiteOverlayAreaRef.current = (id) => {
+      setDeletedDeepBlockAreas((prevState) => {
+        const newDeletedAreas = [...prevState];
+        newDeletedAreas[activePageIndex] = newDeletedAreas[activePageIndex].filter(
+          (area) => area.id !== id
+        );
+        return newDeletedAreas;
+      });
+    };
+  });
+
+  // Stable identity — see recalculateAreas above for why this matters.
+  const removeWhiteOverlayArea = React.useCallback((id) => {
+    removeWhiteOverlayAreaRef.current?.(id);
+  }, []);
 
   const onEditText = (id, text) => {
     const newAreasProperties = onEditTextField(
@@ -318,81 +342,89 @@ const useAreaManagement = ({
     setAreasProperties(newAreasProperties);
   };
 
-  const onChangeArea = (areasParam) => {
-    const isNewAreaAdded = areasParam.length > areasProperties[activePageIndex].length;
+  const onChangeAreaRef = React.useRef();
+  React.useEffect(() => {
+    onChangeAreaRef.current = (areasParam) => {
+      const isNewAreaAdded = areasParam.length > areasProperties[activePageIndex].length;
 
-    // Add metadata to new areas
-    const areasWithMetadata = areasParam.map((area, idx) => {
-      // Check if this is an existing area
-      const existingArea = areas[activePageIndex]?.[idx];
-
-      if (existingArea) {
-        // AreaSelector echoes back the SAME (px) coordinates for every area
-        // not currently being dragged/resized — only the one actively being
-        // edited gets genuinely fresh values. Detect that by comparing against
-        // what we last stored: unchanged means static (preserve _percent*,
-        // since area.x/y/width/height here are stale px, not percentages);
-        // changed means this is the active area (recompute _percent* from it).
-        // Using `existingArea._percentWidth ?? area.width` unconditionally
-        // would freeze at a legitimate 0 (mousedown start) forever, since `??`
-        // only falls back on null/undefined.
-        const hasMoved =
-          area.x !== existingArea.x ||
-          area.y !== existingArea.y ||
-          area.width !== existingArea.width ||
-          area.height !== existingArea.height;
-
-        return {
-          ...area,
-          _unit: existingArea._unit || "percentage",
-          _updated: existingArea._updated || false,
-          _percentX: hasMoved ? area.x : existingArea._percentX ?? area.x,
-          _percentY: hasMoved ? area.y : existingArea._percentY ?? area.y,
-          _percentWidth: hasMoved
-            ? area.width
-            : existingArea._percentWidth ?? area.width,
-          _percentHeight: hasMoved
-            ? area.height
-            : existingArea._percentHeight ?? area.height,
-        };
-      } else {
-        // New area - set metadata (AreaSelector uses percentage)
-        return {
-          ...area,
-          _unit: "percentage",
-          _updated: false,
-          // Store original percentage coordinates
-          _percentX: area.x,
-          _percentY: area.y,
-          _percentWidth: area.width,
-          _percentHeight: area.height,
-        };
-      }
-    });
-
-    const newAreasParam = [...areas];
-    newAreasParam[activePageIndex] = areasWithMetadata;
-    setAreas(newAreasParam);
-
-    // Sync areasProperties whenever areas change (new area added or existing area moved)
-    if (isNewAreaAdded) {
-      syncAreasProperties(newAreasParam);
-    } else {
-      // Check if any existing area has moved
-      const hasMovedAreas = areasWithMetadata.some((area, idx) => {
+      // Add metadata to new areas
+      const areasWithMetadata = areasParam.map((area, idx) => {
+        // Check if this is an existing area
         const existingArea = areas[activePageIndex]?.[idx];
-        return existingArea && (
-          area.x !== existingArea.x ||
-          area.y !== existingArea.y ||
-          area.width !== existingArea.width ||
-          area.height !== existingArea.height
-        );
+
+        if (existingArea) {
+          // AreaSelector echoes back the SAME (px) coordinates for every area
+          // not currently being dragged/resized — only the one actively being
+          // edited gets genuinely fresh values. Detect that by comparing against
+          // what we last stored: unchanged means static (preserve _percent*,
+          // since area.x/y/width/height here are stale px, not percentages);
+          // changed means this is the active area (recompute _percent* from it).
+          // Using `existingArea._percentWidth ?? area.width` unconditionally
+          // would freeze at a legitimate 0 (mousedown start) forever, since `??`
+          // only falls back on null/undefined.
+          const hasMoved =
+            area.x !== existingArea.x ||
+            area.y !== existingArea.y ||
+            area.width !== existingArea.width ||
+            area.height !== existingArea.height;
+
+          return {
+            ...area,
+            _unit: existingArea._unit || "percentage",
+            _updated: existingArea._updated || false,
+            _percentX: hasMoved ? area.x : existingArea._percentX ?? area.x,
+            _percentY: hasMoved ? area.y : existingArea._percentY ?? area.y,
+            _percentWidth: hasMoved
+              ? area.width
+              : existingArea._percentWidth ?? area.width,
+            _percentHeight: hasMoved
+              ? area.height
+              : existingArea._percentHeight ?? area.height,
+          };
+        } else {
+          // New area - set metadata (AreaSelector uses percentage)
+          return {
+            ...area,
+            _unit: "percentage",
+            _updated: false,
+            // Store original percentage coordinates
+            _percentX: area.x,
+            _percentY: area.y,
+            _percentWidth: area.width,
+            _percentHeight: area.height,
+          };
+        }
       });
-      if (hasMovedAreas) {
+
+      const newAreasParam = [...areas];
+      newAreasParam[activePageIndex] = areasWithMetadata;
+      setAreas(newAreasParam);
+
+      // Sync areasProperties whenever areas change (new area added or existing area moved)
+      if (isNewAreaAdded) {
         syncAreasProperties(newAreasParam);
+      } else {
+        // Check if any existing area has moved
+        const hasMovedAreas = areasWithMetadata.some((area, idx) => {
+          const existingArea = areas[activePageIndex]?.[idx];
+          return existingArea && (
+            area.x !== existingArea.x ||
+            area.y !== existingArea.y ||
+            area.width !== existingArea.width ||
+            area.height !== existingArea.height
+          );
+        });
+        if (hasMovedAreas) {
+          syncAreasProperties(newAreasParam);
+        }
       }
-    }
-  };
+    };
+  });
+
+  // Stable identity — see recalculateAreas above for why this matters.
+  const onChangeArea = React.useCallback((areasParam) => {
+    onChangeAreaRef.current?.(areasParam);
+  }, []);
 
   const onClickSubmit = async () => {
     setLoadingSubmit(true);

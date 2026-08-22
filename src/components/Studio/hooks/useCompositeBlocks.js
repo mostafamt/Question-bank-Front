@@ -154,27 +154,38 @@ const useCompositeBlocks = ({
     setLoadingSubmitCompositeBlocks(false);
   };
 
-  const onChangeCompositeBlockArea = (areasParam) => {
-    setCompositeBlocks((prev) => {
-      // Build active-page view so addPropsToAreasForCompositeBlocks index-matches correctly
-      const activeView = {
-        ...prev,
-        areas: prev.areas.filter((a) => a.pageIndex === activePageIndex),
-      };
-      const updated = addPropsToAreasForCompositeBlocks(activeView, areasParam);
-      // Tag any new areas (no pageIndex yet) with the active page
-      const updatedAreas = updated.areas.map((a) =>
-        a.pageIndex === undefined ? { ...a, pageIndex: activePageIndex } : a
-      );
-      return {
-        ...prev,
-        areas: [
-          ...prev.areas.filter((a) => a.pageIndex !== activePageIndex),
-          ...updatedAreas,
-        ],
-      };
-    });
-  };
+  const onChangeCompositeBlockAreaRef = React.useRef();
+  React.useEffect(() => {
+    onChangeCompositeBlockAreaRef.current = (areasParam) => {
+      setCompositeBlocks((prev) => {
+        // Build active-page view so addPropsToAreasForCompositeBlocks index-matches correctly
+        const activeView = {
+          ...prev,
+          areas: prev.areas.filter((a) => a.pageIndex === activePageIndex),
+        };
+        const updated = addPropsToAreasForCompositeBlocks(activeView, areasParam);
+        // Tag any new areas (no pageIndex yet) with the active page
+        const updatedAreas = updated.areas.map((a) =>
+          a.pageIndex === undefined ? { ...a, pageIndex: activePageIndex } : a
+        );
+        return {
+          ...prev,
+          areas: [
+            ...prev.areas.filter((a) => a.pageIndex !== activePageIndex),
+            ...updatedAreas,
+          ],
+        };
+      });
+    };
+  });
+
+  // Stable identity across renders — consumers (e.g. Studio.jsx's
+  // onChangeHandler, and transitively StudioAreaSelector) rely on this not
+  // changing on unrelated renders (see useAreaManagement's recalculateAreas
+  // for the same pattern and rationale).
+  const onChangeCompositeBlockArea = React.useCallback((areasParam) => {
+    onChangeCompositeBlockAreaRef.current?.(areasParam);
+  }, []);
 
   const onClickHand = () => {
     // Pass filtered active-page view to the modal for color tracking
@@ -254,12 +265,17 @@ const useCompositeBlocks = ({
   };
 
   // Active page's composite block — consumed by the UI
-  const activeCompositeBlock = {
-    ...compositeBlocks,
-    areas: compositeBlocks.areas.filter(
-      (area) => area.pageIndex === activePageIndex
-    ),
-  };
+  // Memoized so consumers relying on reference equality (e.g. StudioAreaSelector's
+  // custom memo comparator) don't see a new object on every unrelated render.
+  const activeCompositeBlock = React.useMemo(
+    () => ({
+      ...compositeBlocks,
+      areas: compositeBlocks.areas.filter(
+        (area) => area.pageIndex === activePageIndex
+      ),
+    }),
+    [compositeBlocks, activePageIndex]
+  );
 
   return {
     compositeBlocks,

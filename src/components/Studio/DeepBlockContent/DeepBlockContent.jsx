@@ -25,4 +25,4 @@ const DeepBlockContent = ({ html }) => {
   );
 };
 
-export default DeepBlockContent;
+export default React.memo(DeepBlockContent);

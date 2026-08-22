@@ -78,4 +78,8 @@ const DeepBlockObject = ({ objectId, interactive = false }) => {
   );
 };
 
-export default DeepBlockObject;
+export default React.memo(DeepBlockObject, (prevProps, nextProps) => {
+  // Only re-render if objectId changes. Ignore interactive prop changes
+  // to prevent object reload when toggling block styling
+  return prevProps.objectId === nextProps.objectId;
+});

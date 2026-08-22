@@ -49,6 +49,12 @@ const useAreaCustomRenderer = ({
   isReaderMode,
   showBlocksStyling,
 }) => {
+  const showBlocksStylingRef = React.useRef(showBlocksStyling);
+
+  React.useEffect(() => {
+    showBlocksStylingRef.current = showBlocksStyling;
+  }, [showBlocksStyling]);
+
   const onClickExistedArea = useCallback(
     (areaProps) => {
       setAreasProperties((prevAreasProperties) => {
@@ -68,7 +74,7 @@ const useAreaCustomRenderer = ({
         const isCompositeBlocksTab = activeRightTabId === "composite-blocks";
         const areaIndex = areaProps.areaNumber - 1;
         const isInteractiveMode =
-          isReaderMode || (!showBlocksStyling && !readOnly);
+          isReaderMode || (!showBlocksStylingRef.current && !readOnly);
 
         let areaType, areaLabel, deepText, deepImage, deepAudio, deepVideo, deepObjectId;
 
@@ -102,6 +108,10 @@ const useAreaCustomRenderer = ({
             }
           };
 
+          // Only pass interactive to media components in reader mode
+          // In edit mode, don't pass interactive to prevent re-renders when toggling styling
+          const mediaInteractive = isReaderMode ? isInteractiveMode : false;
+
           return (
             <div
               key={areaProps.areaNumber}
@@ -117,13 +127,13 @@ const useAreaCustomRenderer = ({
               {deepText ? <DeepBlockContent html={deepText} /> : null}
               {deepImage ? <DeepBlockImage src={deepImage} /> : null}
               {deepAudio ? (
-                <DeepBlockAudio src={deepAudio} interactive={isInteractiveMode} />
+                <DeepBlockAudio src={deepAudio} interactive={mediaInteractive} />
               ) : null}
               {deepVideo ? (
-                <DeepBlockVideo src={deepVideo} interactive={isInteractiveMode} />
+                <DeepBlockVideo src={deepVideo} interactive={mediaInteractive} />
               ) : null}
               {deepObjectId ? (
-                <DeepBlockObject objectId={deepObjectId} interactive={isInteractiveMode} />
+                <DeepBlockObject objectId={deepObjectId} interactive={mediaInteractive} />
               ) : null}
             </div>
           );
@@ -139,7 +149,6 @@ const useAreaCustomRenderer = ({
       readOnly,
       onAreaClick,
       isReaderMode,
-      showBlocksStyling,
     ]
   );
 

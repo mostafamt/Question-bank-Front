@@ -23,4 +23,4 @@ const DeepBlockImage = ({ src }) => {
   );
 };
 
-export default DeepBlockImage;
+export default React.memo(DeepBlockImage);
