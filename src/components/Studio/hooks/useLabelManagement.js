@@ -177,6 +177,20 @@ const useLabelManagement = ({
         return;
       }
 
+      // Non-deep audio/video: unlike text/image there is no OCR/crop-based
+      // default content for these types, so they still need the upload modal —
+      // just without ever setting isDeep, which keeps them out of the page
+      // snapshot / video-frame-capture flow reserved for deep blocks.
+      if (labelType === "audio" || labelType === "video") {
+        const modalName =
+          labelType === "audio" ? STUDIO_MODALS.DEEP_AUDIO : STUDIO_MODALS.DEEP_VIDEO;
+        openModal(modalName, {
+          workingArea: { id: area.id, [labelType]: area[labelType] },
+          updateAreaPropertyById: updateAreaPropertyByIdStable,
+        });
+        return;
+      }
+
       // Process based on label type
       if (labelType === "text" || labelType === "number") {
         // Perform OCR for text/number types
