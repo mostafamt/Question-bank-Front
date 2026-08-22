@@ -110,8 +110,8 @@ function paintOneFrame(video) {
  * onto an offscreen canvas and swap the cloned `<video>` for an `<img>` of
  * that frame, which html2canvas renders like any other image.
  *
- * **Limitation:** Cross-origin `<iframe>` content (e.g., `DeepBlockObject`)
- * cannot be rasterized by html2canvas and will appear blank in the snapshot.
+ * @note `DeepBlockObject` renders its linked object as a thumbnail `<img>`
+ * (not an `<iframe>`), so it rasterizes normally like any other image.
  */
 export async function capturePageSnapshot(containerEl) {
   if (!containerEl) {

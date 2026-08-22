@@ -86,30 +86,6 @@
   user-select: none;
 }
 
-// Studio mode: non-interactive preview — author can still click/resize the area
-.deep-block-object-iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: none;
-  background-color: #fff;
-  pointer-events: none;
-  user-select: none;
-}
-
-// Reader mode: fully interactive — student uses the object directly
-.deep-block-object-iframe-interactive {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: none;
-  background-color: #fff;
-  pointer-events: auto;
-  user-select: none;
-}
-
 // Shown while object.url is being fetched
 .deep-block-object-loading {
   position: absolute;

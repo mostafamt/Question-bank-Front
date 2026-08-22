@@ -1,30 +1,23 @@
 import React from "react";
-import clsx from "clsx";
 import { useQuery } from "@tanstack/react-query";
 import { getObject } from "../../../api/bookapi";
 import styles from "./deepBlockContent.module.scss";
 
 /**
- * Renders a deep object block's linked interactive object inline as an iframe.
- * Fetches object.url from the API; shows a loading indicator while pending and
- * a text badge fallback if no URL is returned.
- *
- * In non-interactive mode: shows thumbnail preview only.
- * In interactive mode (reader/view-and-play): allows full iframe interaction.
+ * Renders a deep object block's linked interactive object inline as a
+ * thumbnail image. Fetches object.url from the API; shows a loading
+ * indicator while pending and a text badge fallback if no URL is returned.
  *
  * @param {Object}  props
  * @param {string}  props.objectId    - The linked object's ID (from area.text)
- * @param {boolean} props.interactive - Enable iframe interaction (reader/view-and-play mode)
  */
-const DeepBlockObject = ({ objectId, interactive = false }) => {
+const DeepBlockObject = ({ objectId }) => {
   const { data: object, isLoading } = useQuery({
     queryKey: ["deep-object", objectId],
     queryFn: () => getObject(objectId),
     enabled: Boolean(objectId),
     staleTime: Infinity,
   });
-
-  const [showIframe, setShowIframe] = React.useState(false);
 
   if (!objectId) {
     return null;
@@ -42,38 +35,25 @@ const DeepBlockObject = ({ objectId, interactive = false }) => {
     );
   }
 
-  const thumbnailUrl = `https://image.thum.io/get/${object.url}`;
+  // width/crop request a landscape capture (matching typical block areas)
+  // instead of thum.io's default square-ish 600x1200 crop, and noanimate
+  // skips thum.io's animated "still generating" placeholder so we always
+  // get the final render instead of a mostly-blank loading frame — both of
+  // which were the source of the large white space. See
+  // https://www.thum.io/documentation/api/url#options
+  const thumbnailUrl = `https://image.thum.io/get/width/1200/crop/400/noanimate/${object.url}`;
 
   return (
-    <div style={{ position: "relative", width: "100%", height: "400px" }}>
-      {!showIframe && (
-        <img
-          src={thumbnailUrl}
-          alt="thumbnail"
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            cursor: "pointer",
-          }}
-          onClick={() => setShowIframe(true)}
-        />
-      )}
-
-      {showIframe && (
-        <iframe
-          src={object.url}
-          title="content"
-          width="100%"
-          height="100%"
-          className={clsx(
-            interactive
-              ? styles["deep-block-object-iframe-interactive"]
-              : styles["deep-block-object-iframe"]
-          )}
-          style={interactive ? { pointerEvents: "auto" } : {}}
-        />
-      )}
+    <div style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}>
+      <img
+        src={thumbnailUrl}
+        alt="thumbnail"
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+        }}
+      />
     </div>
   );
 };
