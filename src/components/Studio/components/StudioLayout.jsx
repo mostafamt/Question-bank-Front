@@ -60,6 +60,8 @@ const StudioLayout = React.forwardRef(
       onToggleWhiteOutMode,
       addManualWhiteOverlayArea,
       removeWhiteOverlayArea,
+      chapterId,
+      publishLanguage,
     },
     ref
   ) => {
@@ -108,6 +110,8 @@ const StudioLayout = React.forwardRef(
           onToggleWhiteOutMode={onToggleWhiteOutMode}
           addManualWhiteOverlayArea={addManualWhiteOverlayArea}
           removeWhiteOverlayArea={removeWhiteOverlayArea}
+          chapterId={chapterId}
+          publishLanguage={publishLanguage}
         />
 
         {/* Right Panel */}

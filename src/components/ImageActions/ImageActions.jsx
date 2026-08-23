@@ -1,5 +1,5 @@
 import React from "react";
-import { IconButton, Typography } from "@mui/material";
+import { CircularProgress, IconButton, Typography } from "@mui/material";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import ZoomOutIcon from "@mui/icons-material/ZoomOut";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
@@ -9,9 +9,11 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
+import PublishIcon from "@mui/icons-material/Publish";
 
 import styles from "./styles.module.scss";
 import { useAppMode } from "../../utils/tabFiltering";
+import { publishChapter } from "../../services/api";
 
 const DEGREE = 0.1;
 // large | medium | small
@@ -31,10 +33,13 @@ const ImageActions = React.forwardRef((props, ref) => {
     onImageLoad,
     pages,
     onClickImage,
+    chapterId,
+    publishLanguage,
   } = props;
 
   const [oldAreas, setOldAreas] = React.useState(areas?.[activePage] || []);
   const currentPageAreasCount = areas?.[activePage]?.length;
+  const [isPublishing, setIsPublishing] = React.useState(false);
 
   // Re-baseline the zoom reference points whenever the active page changes,
   // or that page's areas array size changes — areas[activePage] starts empty
@@ -120,6 +125,13 @@ const ImageActions = React.forwardRef((props, ref) => {
     onClickImage(pages.length - 1);
   };
 
+  const onClickPublish = async () => {
+    if (!chapterId || isPublishing) return;
+    setIsPublishing(true);
+    await publishChapter(chapterId, [publishLanguage]);
+    setIsPublishing(false);
+  };
+
   return (
     <div className={styles["image-actions"]} ref={ref}>
       <div>
@@ -156,6 +168,28 @@ const ImageActions = React.forwardRef((props, ref) => {
           <ZoomOutIcon fontSize={iconFontSize} />
         </IconButton>
       </div>
+
+      {!isReaderMode && (
+        <>
+          <div>
+            <span>|</span>
+          </div>
+
+          <div>
+            <IconButton
+              aria-label="publish-chapter"
+              onClick={onClickPublish}
+              disabled={isPublishing}
+            >
+              {isPublishing ? (
+                <CircularProgress size={24} />
+              ) : (
+                <PublishIcon fontSize={iconFontSize} />
+              )}
+            </IconButton>
+          </div>
+        </>
+      )}
 
       {isReaderMode && (
         <>
