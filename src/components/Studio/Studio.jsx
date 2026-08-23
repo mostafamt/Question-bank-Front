@@ -405,6 +405,9 @@ const Studio = (props) => {
     [activeRightTab, onChangeCompositeBlockArea, onChangeArea]
   );
 
+  const publishLanguageCode =
+    language === ARABIC ? LANGUAGE_CODES.ARABIC : LANGUAGE_CODES.ENGLISH;
+
   const handleSetVirtualBlocks = React.useCallback(
     (value) => {
       setVirtualBlocks((prev) => {
@@ -442,6 +445,8 @@ const Studio = (props) => {
         onClickImage={changePageByIndex}
         language={language}
         setLanguage={setLanguage}
+        chapterId={chapterId}
+        publishLanguage={publishLanguageCode}
       />
 
       <StudioLayout
@@ -477,6 +482,8 @@ const Studio = (props) => {
         onPlayBlock={onPlayBlock}
         showBlocksStyling={showBlocksStyling}
         setShowBlocksStyling={setShowBlocksStyling}
+        chapterId={chapterId}
+        publishLanguage={publishLanguageCode}
         deletedDeepBlockAreas={deletedDeepBlockAreas}
         isWhiteOutMode={isWhiteOutMode}
         onToggleWhiteOutMode={onToggleWhiteOutMode}

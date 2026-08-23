@@ -20,6 +20,8 @@ const StudioEditor = React.memo(
       onClickToggleVirutalBlocks,
       onClickImage,
       showBlocksStyling,
+      chapterId,
+      publishLanguage,
     } = props;
 
     const studioEditorSelectorRef = React.useRef(null);
@@ -47,6 +49,8 @@ const StudioEditor = React.memo(
           onClickImage={onClickImage}
           showVB={showVB}
           onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
+          chapterId={chapterId}
+          publishLanguage={publishLanguage}
         />
         <StudioAreaSelector
           {...props}
