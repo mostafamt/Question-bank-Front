@@ -66,6 +66,13 @@ export const addNewPage = async ({ chapterId }) => {
   return res.data;
 };
 
+export const convertPdfToImages = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await axios.post("/pdf/to-images", formData);
+  return res.data;
+};
+
 export const createChapter = async (payload) => {
   const res = await axios.post("/chapters", payload);
   return res.data;

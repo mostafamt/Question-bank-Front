@@ -100,10 +100,15 @@ const usePageNavigation = ({
     changePageByIndex(insertAt);
   };
 
-  const addImportedPages = (afterIndex, importedPages) => {
+  const addImportedPages = (
+    afterIndex,
+    importedPages,
+    { needsPageUrlSync = false } = {}
+  ) => {
     const newPages = importedPages.map(({ pageId, url }) => ({
       _id: pageId,
       _isPending: true,
+      ...(needsPageUrlSync && { _pendingPageUrlSync: true }),
       blocks: [],
       v_blocks: [],
       url: url ?? BLANK_PAGE_URL,
