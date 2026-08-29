@@ -124,3 +124,11 @@ export const ILLUSTRATIVE_OBJECT = "Illustrative object";
  * Dimensions: 929x1173px, allows area selection on blank canvas
  */
 export const WHITE_PAGE_FALLBACK = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="929" height="1173"%3E%3Crect fill="white" width="929" height="1173"/%3E%3C/svg%3E';
+
+/**
+ * File types accepted by the thumbnails "add" upload action
+ */
+export const UPLOAD_FILE_TYPES = {
+  ACCEPT: "image/*,application/pdf",
+  PDF_MIME: "application/pdf",
+};

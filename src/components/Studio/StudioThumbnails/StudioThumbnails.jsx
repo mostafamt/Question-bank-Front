@@ -2,7 +2,7 @@ import React from "react";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import SaveIcon from "@mui/icons-material/Save";
-import { Tooltip } from "@mui/material";
+import { CircularProgress, Tooltip } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import ContentCutIcon from "@mui/icons-material/ContentCut";
@@ -13,13 +13,15 @@ import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useStore } from "../../../store/store";
-import { submitPages, addNewPage } from "../../../api/bookapi";
+import { submitPages, addNewPage, convertPdfToImages } from "../../../api/bookapi";
+import { saveBlocks } from "../../../services/api";
+import { upload } from "../../../utils/upload";
 import { toast } from "react-toastify";
 
 import styles from "./studioThumbnails.module.scss";
 import VisuallyHiddenInput from "../../VisuallyHiddenInput/VisuallyHiddenInput";
 import { useAppMode, getTabById } from "../../../utils/tabFiltering";
-import { WHITE_PAGE_FALLBACK } from "../constants";
+import { WHITE_PAGE_FALLBACK, UPLOAD_FILE_TYPES } from "../constants";
 
 const formatShortcut = ({ key, ctrlKey, altKey, shiftKey }) => {
   const parts = [];
@@ -44,7 +46,6 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
   const {
     pages,
     setPages,
-    addLocalPages,
     addEmptyPage,
     addImportedPages,
     insertPageLocally,
@@ -55,6 +56,7 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
   } = props;
 
   const [clipboard, setClipboard] = React.useState(null);
+  const [isUploadingFiles, setIsUploadingFiles] = React.useState(false);
 
   const queryClient = useQueryClient();
   const { openModal, modal } = useStore();
@@ -66,8 +68,46 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
   const containerRef = React.useRef(null);
   const fileInputRef = React.useRef(null);
 
-  const onChange = (event) => {
-    addLocalPages?.(event.target.files, activePage);
+  const handleAddFiles = async (event) => {
+    const files = Array.from(event.target.files || []);
+    event.target.value = null; // allow re-selecting the same file(s) later
+    if (!files.length) return;
+
+    setIsUploadingFiles(true);
+    try {
+      const fileUrlGroups = await Promise.all(
+        files.map(async (file) => {
+          if (file.type === UPLOAD_FILE_TYPES.PDF_MIME) {
+            const { pages: pdfPages } = await convertPdfToImages(file);
+            return pdfPages ?? [];
+          }
+          const url = await upload(file);
+          return url ? [url] : [];
+        })
+      );
+      const urls = fileUrlGroups.flat();
+      if (!urls.length) {
+        toast.error("No pages could be added from the selected file(s).");
+        return;
+      }
+
+      const mintedPages = await Promise.all(
+        urls.map(() => addNewPage({ chapterId }))
+      );
+      const importedPages = mintedPages.map(({ pageId }, i) => ({
+        pageId,
+        url: urls[i],
+      }));
+
+      addImportedPages(activePage, importedPages, { needsPageUrlSync: true });
+      toast.success(
+        `${importedPages.length} page(s) added. Click Save to persist.`
+      );
+    } catch {
+      toast.error("Failed to add page(s) from file.");
+    } finally {
+      setIsUploadingFiles(false);
+    }
   };
 
   const handleAddNewPage = async () => {
@@ -83,7 +123,23 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
     try {
       const pageIds = pages.map((p) => p._id).filter(Boolean);
       await submitPages({ pageIds, chapterId });
-      setPages(pages.map((p) => ({ ...p, _isPending: false })));
+
+      const pagesNeedingUrlSync = pages.filter((p) => p._pendingPageUrlSync);
+      if (pagesNeedingUrlSync.length) {
+        await Promise.allSettled(
+          pagesNeedingUrlSync.map((p) =>
+            saveBlocks({ pageId: p._id, chapterId, pageUrl: p.url, blocks: [] })
+          )
+        );
+      }
+
+      setPages(
+        pages.map((p) => ({
+          ...p,
+          _isPending: false,
+          _pendingPageUrlSync: false,
+        }))
+      );
       await queryClient.invalidateQueries({
         queryKey: [`book-${bookId}-chapter-${chapterId}`],
       });
@@ -161,7 +217,8 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
       label: "add",
       Icon: AddPhotoAlternateIcon,
       isFileInput: true,
-      disabled: true,
+      disabled: isUploadingFiles,
+      loading: isUploadingFiles,
       shortcut: { key: "a", ctrlKey: true, shiftKey: true },
     },
     {
@@ -232,7 +289,15 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pages, activePage, clipboard, mode, configuredActions, modal.opened]);
+  }, [
+    pages,
+    activePage,
+    clipboard,
+    mode,
+    configuredActions,
+    modal.opened,
+    isUploadingFiles,
+  ]);
 
   return (
     <div className={styles["studio-thumbnails"]}>
@@ -243,7 +308,16 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
               (a) => a.label === label && a.mode.includes(mode)
             )
           )
-          .map(({ label, Icon, onClick, isFileInput, disabled, shortcut }) => (
+          .map(
+            ({
+              label,
+              Icon,
+              onClick,
+              isFileInput,
+              disabled,
+              loading,
+              shortcut,
+            }) => (
             <Tooltip
               key={label}
               placement="top"
@@ -255,12 +329,14 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
                   disabled={disabled}
                   {...(isFileInput ? { component: "label" } : { onClick })}
                 >
-                  <Icon />
+                  {loading ? <CircularProgress size={20} /> : <Icon />}
                   {isFileInput && (
                     <VisuallyHiddenInput
                       ref={fileInputRef}
                       type="file"
-                      onChange={onChange}
+                      multiple
+                      accept={UPLOAD_FILE_TYPES.ACCEPT}
+                      onChange={handleAddFiles}
                     />
                   )}
                 </IconButton>
