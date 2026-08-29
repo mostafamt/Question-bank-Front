@@ -1,5 +1,11 @@
 import React from "react";
-import { CircularProgress, IconButton, Typography } from "@mui/material";
+import {
+  CircularProgress,
+  IconButton,
+  Menu,
+  MenuItem,
+  Typography,
+} from "@mui/material";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import ZoomOutIcon from "@mui/icons-material/ZoomOut";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
@@ -14,6 +20,7 @@ import PublishIcon from "@mui/icons-material/Publish";
 import styles from "./styles.module.scss";
 import { useAppMode } from "../../utils/tabFiltering";
 import { publishChapter } from "../../services/api";
+import { LANGUAGE_CODES } from "../Studio/constants";
 
 const DEGREE = 0.1;
 // large | medium | small
@@ -40,6 +47,7 @@ const ImageActions = React.forwardRef((props, ref) => {
   const [oldAreas, setOldAreas] = React.useState(areas?.[activePage] || []);
   const currentPageAreasCount = areas?.[activePage]?.length;
   const [isPublishing, setIsPublishing] = React.useState(false);
+  const [publishMenuAnchor, setPublishMenuAnchor] = React.useState(null);
 
   // Re-baseline the zoom reference points whenever the active page changes,
   // or that page's areas array size changes — areas[activePage] starts empty
@@ -125,10 +133,18 @@ const ImageActions = React.forwardRef((props, ref) => {
     onClickImage(pages.length - 1);
   };
 
-  const onClickPublish = async () => {
+  const handleOpenPublishMenu = (event) => {
+    if (isPublishing) return;
+    setPublishMenuAnchor(event.currentTarget);
+  };
+
+  const handleClosePublishMenu = () => setPublishMenuAnchor(null);
+
+  const handlePublish = async (languageCode) => {
+    handleClosePublishMenu();
     if (!chapterId || isPublishing) return;
     setIsPublishing(true);
-    await publishChapter(chapterId, [publishLanguage]);
+    await publishChapter(chapterId, [languageCode]);
     setIsPublishing(false);
   };
 
@@ -178,7 +194,9 @@ const ImageActions = React.forwardRef((props, ref) => {
           <div>
             <IconButton
               aria-label="publish-chapter"
-              onClick={onClickPublish}
+              aria-haspopup="true"
+              aria-controls={publishMenuAnchor ? "publish-language-menu" : undefined}
+              onClick={handleOpenPublishMenu}
               disabled={isPublishing}
             >
               {isPublishing ? (
@@ -187,6 +205,25 @@ const ImageActions = React.forwardRef((props, ref) => {
                 <PublishIcon fontSize={iconFontSize} />
               )}
             </IconButton>
+            <Menu
+              id="publish-language-menu"
+              anchorEl={publishMenuAnchor}
+              open={Boolean(publishMenuAnchor)}
+              onClose={handleClosePublishMenu}
+            >
+              <MenuItem
+                selected={publishLanguage === LANGUAGE_CODES.ARABIC}
+                onClick={() => handlePublish(LANGUAGE_CODES.ARABIC)}
+              >
+                Arabic
+              </MenuItem>
+              <MenuItem
+                selected={publishLanguage === LANGUAGE_CODES.ENGLISH}
+                onClick={() => handlePublish(LANGUAGE_CODES.ENGLISH)}
+              >
+                English
+              </MenuItem>
+            </Menu>
           </div>
         </>
       )}
