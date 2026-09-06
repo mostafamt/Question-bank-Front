@@ -13,8 +13,12 @@ import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useStore } from "../../../store/store";
-import { submitPages, addNewPage, convertPdfToImages } from "../../../api/bookapi";
-import { saveBlocks } from "../../../services/api";
+import {
+  submitPages,
+  addNewPage,
+  addNewPages,
+  convertPdfToImages,
+} from "../../../api/bookapi";
 import { upload } from "../../../utils/upload";
 import { toast } from "react-toastify";
 
@@ -91,15 +95,16 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
         return;
       }
 
-      const mintedPages = await Promise.all(
-        urls.map(() => addNewPage({ chapterId }))
-      );
-      const importedPages = mintedPages.map(({ pageId }, i) => ({
+      const { pages: createdPages } = await addNewPages({
+        chapterId,
+        pageUrls: urls,
+      });
+      const importedPages = createdPages.map(({ pageId, url }) => ({
         pageId,
-        url: urls[i],
+        url,
       }));
 
-      addImportedPages(activePage, importedPages, { needsPageUrlSync: true });
+      addImportedPages(activePage, importedPages);
       toast.success(
         `${importedPages.length} page(s) added. Click Save to persist.`
       );
@@ -124,22 +129,7 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
       const pageIds = pages.map((p) => p._id).filter(Boolean);
       await submitPages({ pageIds, chapterId });
 
-      const pagesNeedingUrlSync = pages.filter((p) => p._pendingPageUrlSync);
-      if (pagesNeedingUrlSync.length) {
-        await Promise.allSettled(
-          pagesNeedingUrlSync.map((p) =>
-            saveBlocks({ pageId: p._id, chapterId, pageUrl: p.url, blocks: [] })
-          )
-        );
-      }
-
-      setPages(
-        pages.map((p) => ({
-          ...p,
-          _isPending: false,
-          _pendingPageUrlSync: false,
-        }))
-      );
+      setPages(pages.map((p) => ({ ...p, _isPending: false })));
       await queryClient.invalidateQueries({
         queryKey: [`book-${bookId}-chapter-${chapterId}`],
       });
