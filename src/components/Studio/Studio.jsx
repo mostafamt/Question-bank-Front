@@ -6,7 +6,6 @@
 
 import React from "react";
 import { useParams } from "react-router-dom";
-import { Alert } from "@mui/material";
 import { parseVirtualBlocksFromPages } from "../../utils/virtual-blocks";
 import { useAppMode } from "../../utils/tabFiltering";
 import { ENGLISH, ARABIC } from "../../utils/ocr";
@@ -423,10 +422,6 @@ const Studio = (props) => {
   );
 
   // ============ RENDER ============
-
-  if (!pages?.length) {
-    return <Alert severity="error">No pages available.</Alert>;
-  }
 
   return (
     <>
