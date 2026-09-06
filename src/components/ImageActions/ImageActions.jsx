@@ -19,8 +19,7 @@ import PublishIcon from "@mui/icons-material/Publish";
 
 import styles from "./styles.module.scss";
 import { useAppMode } from "../../utils/tabFiltering";
-import { publishChapter } from "../../services/api";
-import { LANGUAGE_CODES } from "../Studio/constants";
+import { getLanguages, publishChapter } from "../../services/api";
 
 const DEGREE = 0.1;
 // large | medium | small
@@ -48,6 +47,8 @@ const ImageActions = React.forwardRef((props, ref) => {
   const currentPageAreasCount = areas?.[activePage]?.length;
   const [isPublishing, setIsPublishing] = React.useState(false);
   const [publishMenuAnchor, setPublishMenuAnchor] = React.useState(null);
+  const [languages, setLanguages] = React.useState([]);
+  const [isLoadingLanguages, setIsLoadingLanguages] = React.useState(false);
 
   // Re-baseline the zoom reference points whenever the active page changes,
   // or that page's areas array size changes — areas[activePage] starts empty
@@ -136,6 +137,10 @@ const ImageActions = React.forwardRef((props, ref) => {
   const handleOpenPublishMenu = (event) => {
     if (isPublishing) return;
     setPublishMenuAnchor(event.currentTarget);
+    setIsLoadingLanguages(true);
+    getLanguages()
+      .then(setLanguages)
+      .finally(() => setIsLoadingLanguages(false));
   };
 
   const handleClosePublishMenu = () => setPublishMenuAnchor(null);
@@ -211,18 +216,21 @@ const ImageActions = React.forwardRef((props, ref) => {
               open={Boolean(publishMenuAnchor)}
               onClose={handleClosePublishMenu}
             >
-              <MenuItem
-                selected={publishLanguage === LANGUAGE_CODES.ARABIC}
-                onClick={() => handlePublish(LANGUAGE_CODES.ARABIC)}
-              >
-                Arabic
-              </MenuItem>
-              <MenuItem
-                selected={publishLanguage === LANGUAGE_CODES.ENGLISH}
-                onClick={() => handlePublish(LANGUAGE_CODES.ENGLISH)}
-              >
-                English
-              </MenuItem>
+              {isLoadingLanguages ? (
+                <MenuItem disabled sx={{ justifyContent: "center" }}>
+                  <CircularProgress size={20} />
+                </MenuItem>
+              ) : (
+                languages.map((language) => (
+                  <MenuItem
+                    key={language.code}
+                    selected={publishLanguage === language.code}
+                    onClick={() => handlePublish(language.code)}
+                  >
+                    {language.label}
+                  </MenuItem>
+                ))
+              )}
             </Menu>
           </div>
         </>

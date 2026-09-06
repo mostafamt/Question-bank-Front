@@ -177,6 +177,16 @@ export const getEnrichingContents = async (chapterId) => {
   }
 };
 
+export const getLanguages = async () => {
+  try {
+    const res = await axios2.get("/languages");
+    return res.data;
+  } catch (error) {
+    toast.error(error?.message);
+    return [];
+  }
+};
+
 export const publishChapter = async (chapterId, languages) => {
   try {
     const res = await axios2.post(`/publish/${chapterId}`, { languages });
