@@ -14,11 +14,13 @@ import {
   Select,
   MenuItem,
   Box,
+  Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { toast } from "react-toastify";
 import { createChapter } from "../../../api/bookapi";
 import { domainList, subDomainList } from "../../../config";
+import VisuallyHiddenInput from "../../VisuallyHiddenInput/VisuallyHiddenInput";
 
 const COGNITIVE_OPTIONS = [
   { value: "remember", label: "Remember" },
@@ -41,6 +43,7 @@ const INITIAL_FORM = {
   domainName: "",
   subDomainId: "",
   subDomainName: "",
+  file: null,
 };
 
 
@@ -148,6 +151,39 @@ const ChapterForm = ({ form, setForm, titleError, setTitleError, disabled }) => 
           </Select>
         </FormControl>
       </Box>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Button component="label" variant="outlined" disabled={disabled}>
+          {form.file ? "Replace PDF" : "Upload PDF"}
+          <VisuallyHiddenInput
+            type="file"
+            accept="application/pdf"
+            onChange={(e) => {
+              const selected = e.target.files?.[0] || null;
+              if (selected && selected.type !== "application/pdf") {
+                toast.error("Please select a PDF file");
+                e.target.value = "";
+                return;
+              }
+              setForm({ file: selected });
+              e.target.value = "";
+            }}
+          />
+        </Button>
+        {form.file && (
+          <>
+            <Typography variant="body2" noWrap sx={{ flex: 1 }}>
+              {form.file.name}
+            </Typography>
+            <IconButton
+              size="small"
+              onClick={() => setForm({ file: null })}
+              disabled={disabled}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </>
+        )}
+      </Box>
     </Box>
   );
 };
@@ -187,17 +223,19 @@ const AddChapterModal = ({ open, handleCloseModal, bookId, onChapterCreated }) =
           subDomainId: form.subDomainId,
           subDomainName: form.subDomainName,
         }),
-        pdfUrl: "",
-        toc: [],
         ...(form.cognitive && { cognitive: form.cognitive }),
         ...(form.topicName && { topicName: form.topicName }),
         ...(form.depth !== "" && { depth: Number(form.depth) }),
+        ...(form.file && { file: form.file }),
       };
 
       const newChapter = await createChapter(payload);
       toast.success("Chapter created");
       handleClose();
-      onChapterCreated?.(newChapter);
+      onChapterCreated?.({
+        _id: newChapter.chapterId ?? newChapter._id,
+        ...newChapter,
+      });
     } catch (error) {
       toast.error(
         error?.response?.data?.message || error?.message || "Failed to create chapter"

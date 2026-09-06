@@ -74,7 +74,22 @@ export const convertPdfToImages = async (file) => {
 };
 
 export const createChapter = async (payload) => {
-  const res = await axios.post("/chapters", payload);
+  const { file, ...fields } = payload;
+
+  if (!file) {
+    const res = await axios.post("/chapters", fields);
+    return res.data;
+  }
+
+  const formData = new FormData();
+  Object.entries(fields).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      formData.append(key, value);
+    }
+  });
+  formData.append("file", file);
+
+  const res = await axios.post("/chapters", formData);
   return res.data;
 };
 
