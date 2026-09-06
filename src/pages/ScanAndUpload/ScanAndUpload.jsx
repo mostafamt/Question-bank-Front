@@ -6,6 +6,7 @@ import { uploadPageImage } from "../../utils/NewUpload";
 import { saveBlocks } from "../../services/api";
 import {
   getChapterPages,
+  getChapterPagesByLanguage,
   getCompositeTypes,
   getTypes,
 } from "../../api/bookapi";
@@ -13,6 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Box, CircularProgress } from "@mui/material";
 import { formatVirtualBlocksForSubmission } from "../../utils/virtual-blocks";
 import { useStore } from "../../store/store";
+import { useAppMode } from "../../utils/tabFiltering";
 
 import styles from "./scanAndUpload.module.scss";
 import { CREATED, DELETED, UPDATED } from "../../utils/ocr";
@@ -22,6 +24,14 @@ const ScanAndUpload = () => {
   const location = useLocation();
   const language = location.state?.language;
   const setLanguage = useStore((s) => s.setLanguage);
+  const mode = useAppMode();
+  const isReaderMode = mode === "reader";
+  // Reader-only: the language chosen on the Read button. Used solely to
+  // query the pages endpoint below — never touches the navbar's layout
+  // (RTL/LTR) language. Absent when the chapter has no language options,
+  // in which case the query below omits the language filter entirely.
+  const contentLanguage = location.state?.contentLanguage;
+  const shouldQueryByLanguage = isReaderMode && Boolean(contentLanguage);
   const [pages, setPages] = React.useState([]);
 
   React.useEffect(() => {
@@ -47,8 +57,19 @@ const ScanAndUpload = () => {
     refetch,
     isLoading: isLoadingPages,
   } = useQuery({
-    queryKey: [`book-${bookId}-chapter-${chapterId}`],
-    queryFn: () => getChapterPages(chapterId),
+    queryKey: shouldQueryByLanguage
+      ? [`book-${bookId}-chapter-${chapterId}`, contentLanguage]
+      : [`book-${bookId}-chapter-${chapterId}`],
+    queryFn: async () => {
+      if (shouldQueryByLanguage) {
+        const { pages: langPages } = await getChapterPagesByLanguage({
+          chapterId,
+          language: contentLanguage,
+        });
+        return langPages;
+      }
+      return getChapterPages(chapterId);
+    },
     refetchOnWindowFocus: false,
   });
 

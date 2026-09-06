@@ -2,7 +2,7 @@ import React, { useState, useCallback, useRef } from "react";
 import { useParams, useLocation } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { CircularProgress } from "@mui/material";
-import { getChapterPages } from "../../api/bookapi";
+import { getChapterPagesByLanguage } from "../../api/bookapi";
 import { INITIAL_PAGE_INDEX } from "../../utils/book";
 import { tabsConfig } from "../../config/reader";
 import {
@@ -11,24 +11,21 @@ import {
 } from "../../config/highlighting";
 import BookHeaderLayout from "../../layouts/BookHeaderLayout/BookHeaderLayout";
 import BookTabsLayout from "../../layouts/BookTabsLayout/BookTabsLayout";
-import { useStore } from "../../store/store";
 
 const Book = () => {
   const { bookId, chapterId } = useParams();
   const location = useLocation();
-  const chapterLanguage = location.state?.language;
-  const setLanguage = useStore((s) => s.setLanguage);
+  // Content language for this chapter's reading endpoint only — separate
+  // from the navbar's layout (RTL/LTR) language switcher.
+  const contentLanguage = location.state?.contentLanguage || "en";
 
-  React.useEffect(() => {
-    if (chapterLanguage) {
-      setLanguage(chapterLanguage);
-    }
-  }, [chapterLanguage, setLanguage]);
-  const { data: pages = [], isFetching } = useQuery({
-    queryKey: [`book-${bookId}-chapter-${chapterId}`],
-    queryFn: () => getChapterPages(chapterId),
+  const { data, isFetching } = useQuery({
+    queryKey: [`book-${bookId}-chapter-${chapterId}`, contentLanguage],
+    queryFn: () =>
+      getChapterPagesByLanguage({ chapterId, language: contentLanguage }),
     refetchOnWindowFocus: false,
   });
+  const { pages = [] } = data ?? {};
   const [outerValue] = React.useState(0); // top-level tabs
   const [innerValue] = React.useState(0); // nested tabs
   const [activePage, setActivePage] = useState(null);
@@ -56,9 +53,11 @@ const Book = () => {
   );
 
   React.useEffect(() => {
-    if (pages?.length) {
-      setActivePage(pages[INITIAL_PAGE_INDEX]);
-    }
+    if (!pages?.length) return;
+    setActivePage((prev) => {
+      if (!prev) return pages[INITIAL_PAGE_INDEX];
+      return pages.find((p) => p._id === prev._id) ?? pages[INITIAL_PAGE_INDEX];
+    });
   }, [pages]);
 
   // Update areas when pages data changes

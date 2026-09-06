@@ -28,17 +28,12 @@ import { useNavigate } from "react-router-dom";
 import { useStore } from "../../store/store";
 import { getTypes } from "../../services/api";
 
-const DEFAULT_LANGUAGES = [
-  { code: "en", label: "English" },
-  { code: "ar", label: "Arabic" },
-];
-
 const AddBook = () => {
   const navigate = useNavigate();
   const { setFormState, setLanguage, openModal } = useStore();
   const queryClient = useQueryClient();
   const [loadingScan, setLoadingScan] = React.useState(false);
-  const [readLanguage, setReadLanguage] = React.useState("en");
+  const [readLanguage, setReadLanguage] = React.useState(null);
   const [languageMenuAnchor, setLanguageMenuAnchor] = React.useState(null);
   const {
     register,
@@ -67,11 +62,14 @@ const AddBook = () => {
     enabled: !!chapterId,
   });
 
-  const availableLanguages = languagesData?.languages?.length
-    ? languagesData.languages
-    : DEFAULT_LANGUAGES;
+  const availableLanguages = languagesData?.languages ?? [];
+  const hasLanguageOptions = availableLanguages.length > 0;
 
   React.useEffect(() => {
+    if (!hasLanguageOptions) {
+      setReadLanguage(null);
+      return;
+    }
     const chapterDetails = chapters?.find((c) => c._id === chapterId);
     const preferred = availableLanguages.find(
       (l) => l.code === chapterDetails?.language
@@ -94,9 +92,12 @@ const AddBook = () => {
   });
 
   const handleRead = ({ book, chapter }) => {
-    setLanguage(readLanguage);
+    // readLanguage only selects which language the reader fetches content
+    // in — it must not touch the navbar's layout (RTL/LTR) language. When
+    // the chapter has no language options, omit it entirely so the reader
+    // fetches pages without a language filter.
     navigate(`/read/book/${book}/chapter/${chapter}`, {
-      state: { language: readLanguage },
+      state: readLanguage ? { contentLanguage: readLanguage } : {},
     });
   };
 
@@ -237,14 +238,17 @@ const AddBook = () => {
                   name="read"
                   sx={{ bgcolor: "#e65100", "&:hover": { bgcolor: "#bf360c" } }}
                 >
-                  Read (
-                  {availableLanguages.find((l) => l.code === readLanguage)
-                    ?.label || readLanguage}
-                  )
+                  Read
+                  {readLanguage &&
+                    ` (${
+                      availableLanguages.find((l) => l.code === readLanguage)
+                        ?.label || readLanguage
+                    })`}
                 </Button>
                 <Button
                   type="button"
                   size="small"
+                  disabled={!hasLanguageOptions}
                   onClick={(e) => setLanguageMenuAnchor(e.currentTarget)}
                   sx={{
                     bgcolor: "#e65100",

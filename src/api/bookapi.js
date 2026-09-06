@@ -36,6 +36,11 @@ export const getChapterPages = async (id) => {
   return res.data;
 };
 
+export const getChapterPagesByLanguage = async ({ chapterId, language }) => {
+  const res = await axios.get("/pages", { params: { chapterId, language } });
+  return res.data;
+};
+
 export const getChapterLanguages = async (chapterId) => {
   const res = await axios.get(`/chapters/${chapterId}/languages`);
   return res.data;
