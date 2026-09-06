@@ -36,6 +36,11 @@ export const getChapterPages = async (id) => {
   return res.data;
 };
 
+export const getChapterLanguages = async (chapterId) => {
+  const res = await axios.get(`/chapters/${chapterId}/languages`);
+  return res.data;
+};
+
 export const submitBlock = async () => {};
 
 export const getChapterTOC = async (chapterId) => {
@@ -63,6 +68,11 @@ export const submitPages = async ({ pageIds, chapterId }) => {
 
 export const addNewPage = async ({ chapterId }) => {
   const res = await axios.post("/pages/new", { blocks: [], chapterId });
+  return res.data;
+};
+
+export const addNewPages = async ({ chapterId, pageUrls }) => {
+  const res = await axios.post("/pages/new", { chapterId, pageUrls });
   return res.data;
 };
 
