@@ -1,0 +1,32 @@
+.bag {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+  margin-top: 16px;
+  border-radius: 4px;
+  background-color: #f5a623;
+}
+
+.bagLabel {
+  color: #1a4e8a;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.addButton {
+  position: absolute;
+  left: 8px;
+  bottom: -16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background-color: #5b93c6;
+  color: #fff;
+  cursor: pointer;
+}

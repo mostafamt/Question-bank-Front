@@ -1,0 +1,55 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #d6dee6;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: #eaeaea;
+}
+
+.backButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #1a4e8a;
+  cursor: pointer;
+  padding: 0;
+}
+
+.headerTitle {
+  color: #1a4e8a;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.body {
+  padding: 12px;
+}
+
+.actionGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.actionButton {
+  padding: 12px 8px;
+  border: none;
+  border-radius: 6px;
+  background-color: #5b93c6;
+  color: #fff;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-align: center;
+}
+
+.actionButton:hover {
+  background-color: #4a80b0;
+}

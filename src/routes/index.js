@@ -17,6 +17,7 @@ import Types from "../pages/Types/Types";
 import Error from "../pages/Error/Error";
 import AddBook from "../pages/AddBook/AddBook";
 import Show from "../pages/Show/Show";
+import Reader from "../pages/Reader/Reader";
 
 const routes = [
   {
@@ -34,6 +35,10 @@ const routes = [
   {
     path: "/read/book/:bookId/chapter/:chapterId",
     component: ScanAndUpload,
+  },
+  {
+    path: "/reader/book/:bookId/chapter/:chapterId",
+    component: Reader,
   },
   {
     path: "/bulk",
