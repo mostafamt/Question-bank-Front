@@ -67,8 +67,10 @@ const ScanAndUpload = () => {
           language: contentLanguage,
         });
         return langPages;
+      } else {
+        const { pages: langPages } = await getChapterPages(chapterId);
+        return langPages;
       }
-      return getChapterPages(chapterId);
     },
     refetchOnWindowFocus: false,
   });
