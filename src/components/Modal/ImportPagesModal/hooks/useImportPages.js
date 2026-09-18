@@ -8,7 +8,13 @@ import {
   importPages,
 } from "../../../../api/bookapi";
 
-const useImportPages = ({ open, onClose, bookId, chapterId, onPagesImported }) => {
+const useImportPages = ({
+  open,
+  onClose,
+  bookId,
+  chapterId,
+  onPagesImported,
+}) => {
   const [selectedBook, setSelectedBook] = useState("");
   const [selectedChapter, setSelectedChapter] = useState("");
   const [selectedPages, setSelectedPages] = useState([]);
@@ -27,7 +33,10 @@ const useImportPages = ({ open, onClose, bookId, chapterId, onPagesImported }) =
 
   const { data: pages, isLoading: isLoadingPages } = useQuery({
     queryKey: ["pages", selectedChapter],
-    queryFn: () => getChapterPages(selectedChapter),
+    queryFn: () => {
+      const { pages } = getChapterPages(selectedChapter);
+      return pages;
+    },
     enabled: !!selectedChapter,
   });
 
