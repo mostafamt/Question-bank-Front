@@ -117,8 +117,8 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
 
   const handleAddNewPage = async () => {
     try {
-      const { pageId, url } = await addNewPage({ chapterId });
-      addEmptyPage?.(activePage, { pageId, url });
+      const { pageId, url, isNewPage } = await addNewPage({ chapterId });
+      addEmptyPage?.(activePage, { pageId, url, isNewPage });
     } catch {
       toast.error("Failed to create new page.");
     }

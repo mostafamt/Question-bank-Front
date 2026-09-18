@@ -87,13 +87,14 @@ const usePageNavigation = ({
     insertPageAtRef?.current?.(insertAt, page);
   };
 
-  const addEmptyPage = (afterIndex, { pageId, url }) => {
+  const addEmptyPage = (afterIndex, { pageId, url, isNewPage }) => {
     const newPage = {
       _id: pageId,
       _isPending: true,
       blocks: [],
       v_blocks: [],
       url,
+      isNewPage,
     };
     const insertAt = afterIndex + 1;
     insertPageLocally(insertAt, newPage);
