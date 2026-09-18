@@ -99,10 +99,13 @@ const ScanAndUpload = () => {
               },
               contentType: item.label,
               contentValue:
-                item.typeOfLabel === "image" ? item.image :
-                item.typeOfLabel === "audio" ? item.audio :
-                item.typeOfLabel === "video" ? item.video :
-                item.text,
+                item.typeOfLabel === "image"
+                  ? item.image
+                  : item.typeOfLabel === "audio"
+                  ? item.audio
+                  : item.typeOfLabel === "video"
+                  ? item.video
+                  : item.text,
               isDeep: item.isDeep === true,
             };
           } else if (item.status === CREATED) {
@@ -122,9 +125,11 @@ const ScanAndUpload = () => {
                   ? item.image?.startsWith("data:")
                     ? (await uploadBase64ToCloudinary(item.image)).url // raw crop → upload it
                     : item.image // already a hosted URL (deep image) → use as-is
-                  : item.typeOfLabel === "audio" ? item.audio :
-                  item.typeOfLabel === "video" ? item.video :
-                  item.text,
+                  : item.typeOfLabel === "audio"
+                  ? item.audio
+                  : item.typeOfLabel === "video"
+                  ? item.video
+                  : item.text,
               isDeep: item.isDeep === true,
             };
           } else {
@@ -141,10 +146,13 @@ const ScanAndUpload = () => {
               },
               contentType: item.label,
               contentValue:
-                item.typeOfLabel === "image" ? item.image :
-                item.typeOfLabel === "audio" ? item.audio :
-                item.typeOfLabel === "video" ? item.video :
-                item.text,
+                item.typeOfLabel === "image"
+                  ? item.image
+                  : item.typeOfLabel === "audio"
+                  ? item.audio
+                  : item.typeOfLabel === "video"
+                  ? item.video
+                  : item.text,
               isDeep: item.isDeep === true,
             };
           }
