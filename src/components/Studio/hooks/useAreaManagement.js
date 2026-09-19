@@ -61,8 +61,21 @@ const useAreaManagement = ({
     pages.map(() => [])
   );
 
-  // When pages grows (e.g. after a new page is added and refetched), append
-  // empty entries so areas/areasProperties stay in sync with the pages array.
+  // Keep rawPagesRef aligned with the `pages` prop. It's the source of truth
+  // recalculateAreas reads raw block coordinates from, and the lazy useState
+  // above only captures `pages` once at mount — if pages arrive asynchronously
+  // (e.g. ScanAndUpload starts with [] while its query is loading) this ref
+  // would otherwise stay stale forever.
+  React.useEffect(() => {
+    rawPagesRef.current = pages;
+  }, [pages]);
+
+  // When pages grows (e.g. a new page is added, or pages arrive asynchronously
+  // after this hook first mounted with pages=[]), extend areasProperties with
+  // real data from those pages' blocks — padding with blank arrays here would
+  // silently drop already-fetched blocks and make them disappear from
+  // StudioActions. `areas` stays blank per new page by design (recalculateAreas
+  // fills it in once the image has loaded and pixel conversion is possible).
   React.useEffect(() => {
     setAreas((prev) => {
       if (prev.length >= pages.length) return prev;
@@ -70,13 +83,14 @@ const useAreaManagement = ({
     });
     setAreasProperties((prev) => {
       if (prev.length >= pages.length) return prev;
-      return [...prev, ...Array(pages.length - prev.length).fill([])];
+      const newPages = pages.slice(prev.length);
+      return [...prev, ...initAreasProperties(newPages, types)];
     });
     setDeletedDeepBlockAreas((prev) => {
       if (prev.length >= pages.length) return prev;
       return [...prev, ...Array(pages.length - prev.length).fill([])];
     });
-  }, [pages.length]);
+  }, [pages, pages.length, types]);
 
   const getBlockFromBlockId = (id) => {
     if (!id) return null;

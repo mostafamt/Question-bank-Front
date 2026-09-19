@@ -167,7 +167,7 @@ export const formatVirtualBlocksForSubmission = (virtualBlocks, pageId) => {
   const contents = [];
 
   // Iterate through all locations
-  Object.entries(virtualBlocks).forEach(([location, data]) => {
+  Object.entries(virtualBlocks || {}).forEach(([location, data]) => {
     if (data.contents && data.contents.length > 0) {
       // Add each content item with iconLocation
       data.contents.forEach((item) => {

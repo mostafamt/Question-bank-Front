@@ -67,6 +67,21 @@ const Studio = (props) => {
   const [virtualBlocks, setVirtualBlocks] = React.useState(() =>
     subObject ? [] : parseVirtualBlocksFromPages(pages)
   );
+
+  // `pages` can arrive after mount (e.g. ScanAndUpload starts with an empty
+  // array while its query is loading, then swaps in the fetched pages) or
+  // gain/lose entries later (add/import/delete page). The lazy useState
+  // initializer above only runs once, so keep virtualBlocks' length aligned
+  // with pages here — otherwise virtualBlocks[activePageIndex] goes
+  // undefined and crashes formatVirtualBlocksForSubmission on submit.
+  React.useEffect(() => {
+    if (subObject) return;
+    setVirtualBlocks((prev) => {
+      if (prev.length === pages.length) return prev;
+      const parsed = parseVirtualBlocksFromPages(pages);
+      return pages.map((_, idx) => prev[idx] ?? parsed[idx]);
+    });
+  }, [pages, subObject]);
   const [showStickyToolbar, setShowStickyToolbar] = React.useState(false);
   const [imageScaleFactor, setImageScaleFactor] = React.useState(
     DEFAULTS.IMAGE_SCALE_FACTOR
