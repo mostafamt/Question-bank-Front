@@ -261,15 +261,18 @@ const DrawnUIForm = ({
   }
 
   return (
-    <form className="mb-4" onSubmit={handleSubmit(onSubmit)}>
-      {isMapToFormMode && (
-        <Alert severity="info" sx={{ mb: 2 }}>
-          Fields are pre-filled from scanned areas. Review and submit to create
-          a new object.
-        </Alert>
-      )}
-      {abstractParameters && parseParameters(abstractParameters)}
-    </form>
+    <>
+      <form className="mb-4" onSubmit={handleSubmit(onSubmit)}>
+        {isMapToFormMode && (
+          <Alert severity="info" sx={{ mb: 2 }}>
+            Fields are pre-filled from scanned areas. Review and submit to create
+            a new object.
+          </Alert>
+        )}
+        {abstractParameters && parseParameters(abstractParameters)}
+      </form>
+      <pre>{JSON.stringify(values, null, 4)}</pre>
+    </>
   );
 };
 
