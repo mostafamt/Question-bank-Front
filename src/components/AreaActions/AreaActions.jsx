@@ -86,13 +86,13 @@ const AreaActions = (props) => {
       {trialAreas.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <Button
-            variant="outlined"
+            variant="contained"
             onClick={onClickMapToForm}
             sx={{ width: "100%" }}
           >
             Map to Form
           </Button>
-          <Button
+          {/* <Button
             variant="contained"
             onClick={onClickSubmit}
             sx={{ width: "100%" }}
@@ -100,7 +100,7 @@ const AreaActions = (props) => {
             startIcon={loadingSubmit ? <CircularProgress size="1rem" /> : <></>}
           >
             Submit
-          </Button>
+          </Button> */}
         </div>
       )}
       <div>Num of areas: {trialAreas.length}</div>
