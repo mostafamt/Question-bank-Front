@@ -18,6 +18,7 @@ const AreaActions = (props) => {
     setTrialAreas,
     updateTrialAreas,
     onClickMapToForm,
+    loadingMapToForm,
   } = props;
 
   const onDragEnd = (result) => {
@@ -89,6 +90,10 @@ const AreaActions = (props) => {
             variant="contained"
             onClick={onClickMapToForm}
             sx={{ width: "100%" }}
+            disabled={loadingMapToForm}
+            startIcon={
+              loadingMapToForm ? <CircularProgress size="1rem" /> : <></>
+            }
           >
             Map to Form
           </Button>

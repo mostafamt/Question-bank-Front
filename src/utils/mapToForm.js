@@ -1,4 +1,6 @@
-export function mapToForm(typeName, trialAreas, typeDefinitions) {
+import { uploadForStudio } from "./upload";
+
+export async function mapToForm(typeName, trialAreas, typeDefinitions) {
   const typeDef = typeDefinitions?.find((t) => t.typeName === typeName);
   if (!typeDef) throw new Error(`mapToForm: unknown type "${typeName}"`);
 
@@ -20,25 +22,29 @@ export function mapToForm(typeName, trialAreas, typeDefinitions) {
     if (Array.isArray(value)) {
       const template = value[0] ?? {};
       const anchorField = findAnchorField(template, labels, areasByField);
-      const anchorAreas = anchorField ? areasByField[anchorField] ?? [] : [];
+      const anchorAreas = anchorField
+        ? areasByField[anchorField] ?? lookupAreas(areasByField, anchorField)
+        : [];
 
-      const items = anchorAreas.map((anchorArea, i) => {
-        const item = {};
-        for (const [templateKey, templateType] of Object.entries(template)) {
-          if (templateKey === anchorField) {
-            item[templateKey] = resolveValue(anchorArea, templateType);
-          } else {
-            const siblings =
-              areasByField[templateKey] ??
-              lookupAreas(areasByField, templateKey);
-            const sibling = siblings[i] ?? siblings[0];
-            item[templateKey] = sibling
-              ? resolveValue(sibling, templateType)
-              : defaultForType(templateType);
+      const items = await Promise.all(
+        anchorAreas.map(async (anchorArea, i) => {
+          const item = {};
+          for (const [templateKey, templateType] of Object.entries(template)) {
+            if (templateKey === anchorField) {
+              item[templateKey] = await resolveValue(anchorArea, templateType);
+            } else {
+              const siblings =
+                areasByField[templateKey] ??
+                lookupAreas(areasByField, templateKey);
+              const sibling = siblings[i] ?? siblings[0];
+              item[templateKey] = sibling
+                ? await resolveValue(sibling, templateType)
+                : defaultForType(templateType);
+            }
           }
-        }
-        return item;
-      });
+          return item;
+        })
+      );
 
       const baseName = key.replace(/\s*\d+$/, "").trim();
       const outputKey = `${baseName} ${items.length}`;
@@ -46,7 +52,7 @@ export function mapToForm(typeName, trialAreas, typeDefinitions) {
     } else {
       const areas = areasByField[key] ?? lookupAreas(areasByField, key);
       result[key] = areas[0]
-        ? resolveValue(areas[0], value)
+        ? await resolveValue(areas[0], value)
         : defaultForType(value);
     }
   }
@@ -71,14 +77,18 @@ function lookupAreas(areasByField, key) {
 }
 
 function findAnchorField(template, labels, areasByField) {
-  // Primary: find a template key that labels mark as repeatable (*-prefixed)
+  const countFor = (k) => (areasByField[k] ?? lookupAreas(areasByField, k)).length;
+
+  // Primary: a template key that labels mark as repeatable (*-prefixed) AND actually has areas
   if (Array.isArray(labels) && labels.length > 0) {
     const starredFields = labels
       .flatMap(Object.keys)
       .filter((k) => k.startsWith("*"))
       .map((k) => k.slice(1));
 
-    const found = Object.keys(template).find((k) => starredFields.includes(k));
+    const found = Object.keys(template).find(
+      (k) => starredFields.includes(k) && countFor(k) > 0
+    );
     if (found) return found;
   }
 
@@ -86,7 +96,7 @@ function findAnchorField(template, labels, areasByField) {
   let bestKey = null;
   let bestCount = 0;
   for (const k of Object.keys(template)) {
-    const count = (areasByField[k] ?? lookupAreas(areasByField, k)).length;
+    const count = countFor(k);
     if (count > bestCount) {
       bestCount = count;
       bestKey = k;
@@ -95,8 +105,14 @@ function findAnchorField(template, labels, areasByField) {
   return bestKey;
 }
 
-function resolveValue(area, templateType) {
+async function resolveValue(area, templateType) {
   if (templateType === "Bool") return area.text === "true" || area.text === "1";
+  if (templateType === "image") {
+    const image = area.image ?? "";
+    if (!image || !image.startsWith("data:")) return image;
+    const url = await uploadForStudio(image);
+    return url ?? "";
+  }
   return area.text ?? "";
 }
 

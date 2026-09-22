@@ -55,6 +55,7 @@ const Studio = (props) => {
   const [pageId, setPageId] = React.useState(images?.[0]?._id);
   const [subTypeObjects, setSubTypeObjects] = React.useState([]);
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
+  const [loadingMapToForm, setLoadingMapToForm] = React.useState(false);
   const [language, setLanguage] = React.useState(
     state.language === "ar" ? ARABIC : ENGLISH
   );
@@ -217,10 +218,11 @@ const Studio = (props) => {
     setLoadingSubmit(false);
   };
 
-  const handleMapToForm = () => {
+  const handleMapToForm = async () => {
     const { type, types } = state;
+    setLoadingMapToForm(true);
     try {
-      const json = mapToForm(type, trialAreas, types);
+      const json = await mapToForm(type, trialAreas, types);
 
       console.log("json= ", json);
 
@@ -249,6 +251,8 @@ const Studio = (props) => {
       });
     } catch (e) {
       toast.error(e.message);
+    } finally {
+      setLoadingMapToForm(false);
     }
   };
 
@@ -340,6 +344,7 @@ const Studio = (props) => {
             loadingSubmit={loadingSubmit}
             updateTrialAreas={updateTrialAreas}
             onClickMapToForm={handleMapToForm}
+            loadingMapToForm={loadingMapToForm}
           />
         </div>
       </div>
