@@ -42,11 +42,11 @@ const ScanAndUpload = () => {
 
     try {
       const res = await axios.post(
-        "http://34.246.140.123:5000/api/pdf2img",
+        "https://questions-api-navy.vercel.app/api/pdf/to-images",
         formData
       );
       setLoading(false);
-      return res.data?.images;
+      return res.data?.pages;
     } catch (error) {
       toast.error("This service isn't available at the moment !");
       setLoading(false);
