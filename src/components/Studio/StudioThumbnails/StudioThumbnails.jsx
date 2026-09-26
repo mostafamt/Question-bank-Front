@@ -26,6 +26,8 @@ import styles from "./studioThumbnails.module.scss";
 import VisuallyHiddenInput from "../../VisuallyHiddenInput/VisuallyHiddenInput";
 import { useAppMode, getTabById } from "../../../utils/tabFiltering";
 import { WHITE_PAGE_FALLBACK, UPLOAD_FILE_TYPES } from "../constants";
+import usePageBookmarks from "../hooks/usePageBookmarks";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
 
 const formatShortcut = ({ key, ctrlKey, altKey, shiftKey }) => {
   const parts = [];
@@ -67,6 +69,8 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
   const { bookId, chapterId } = useParams();
 
   const mode = useAppMode();
+  const isReaderMode = mode === "reader";
+  const { isBookmarked } = usePageBookmarks();
   const configuredActions = getTabById("thumbnails")?.actions ?? [];
 
   const containerRef = React.useRef(null);
@@ -357,7 +361,33 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
                   : WHITE_PAGE_FALLBACK;
                 return (
                   <Draggable key={key} draggableId={String(key)} index={idx}>
-                    {(dragProvided, snapshot) => (
+                    {(dragProvided, snapshot) =>
+                      isReaderMode ? (
+                        // Reader mode wraps the thumbnail so a bookmark marker
+                        // can sit on top; the drag ref moves to the wrapper.
+                        // Author modes keep the bare <img> as the draggable.
+                        <div
+                          ref={dragProvided.innerRef}
+                          {...dragProvided.draggableProps}
+                          {...dragProvided.dragHandleProps}
+                          className={styles["thumbnail-wrapper"]}
+                          style={dragProvided.draggableProps.style}
+                        >
+                          <img
+                            src={imgSrc}
+                            alt={img?.url || img}
+                            width="100%"
+                            onClick={() => onClickImage(idx)}
+                            style={{ border, display: "block" }}
+                          />
+                          {isBookmarked(img?._id) && (
+                            <BookmarkIcon
+                              className={styles["bookmark-marker"]}
+                              aria-label="bookmarked"
+                            />
+                          )}
+                        </div>
+                      ) : (
                       <img
                         ref={dragProvided.innerRef}
                         {...dragProvided.draggableProps}
@@ -372,7 +402,8 @@ const StudioThumbnails = React.forwardRef((props, ref) => {
                           ...dragProvided.draggableProps.style,
                         }}
                       />
-                    )}
+                      )
+                    }
                   </Draggable>
                 );
               })}

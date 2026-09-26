@@ -26,6 +26,8 @@ export const TIMEOUTS = {
 export const STORAGE_KEYS = {
   /** Key for storing active page index */
   AUTHOR_PAGE: "author_page",
+  /** Prefix for reader page bookmarks; full key is `${prefix}_${chapterId}` */
+  READER_BOOKMARKS: "reader_bookmarks",
 };
 
 /**
