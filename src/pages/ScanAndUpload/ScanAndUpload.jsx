@@ -53,27 +53,21 @@ const ScanAndUpload = () => {
   });
 
   const {
-    data: fetchedPages,
+    data: chapterData,
     refetch,
     isLoading: isLoadingPages,
   } = useQuery({
     queryKey: shouldQueryByLanguage
       ? [`book-${bookId}-chapter-${chapterId}`, contentLanguage]
       : [`book-${bookId}-chapter-${chapterId}`],
-    queryFn: async () => {
-      if (shouldQueryByLanguage) {
-        const { pages: langPages } = await getChapterPagesByLanguage({
-          chapterId,
-          language: contentLanguage,
-        });
-        return langPages;
-      } else {
-        const { pages: langPages } = await getChapterPages(chapterId);
-        return langPages;
-      }
-    },
+    queryFn: () =>
+      shouldQueryByLanguage
+        ? getChapterPagesByLanguage({ chapterId, language: contentLanguage })
+        : getChapterPages(chapterId),
     refetchOnWindowFocus: false,
   });
+  const fetchedPages = chapterData?.pages;
+  const { bookName, chapterName } = chapterData ?? {};
 
   React.useEffect(() => {
     if (fetchedPages) {
@@ -190,7 +184,18 @@ const ScanAndUpload = () => {
           <CircularProgress size="2rem" />
         </Box>
       ) : (
-        <Studio
+        <>
+          {isReaderMode && (bookName || chapterName) && (
+            <div className={styles["reader-title"]}>
+              {bookName && (
+                <h1 className={styles["book-name"]}>{bookName}</h1>
+              )}
+              {chapterName && (
+                <h2 className={styles["chapter-name"]}>{chapterName}</h2>
+              )}
+            </div>
+          )}
+          <Studio
           types={types}
           compositeBlocksTypes={compositeBlocksTypes}
           pages={pages}
@@ -199,7 +204,8 @@ const ScanAndUpload = () => {
           handleSubmit={handleSubmit}
           language={language}
           refetch={refetch}
-        />
+          />
+        </>
       )}
     </div>
   );
