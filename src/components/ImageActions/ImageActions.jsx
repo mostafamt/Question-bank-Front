@@ -23,6 +23,7 @@ import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import styles from "./styles.module.scss";
 import { useAppMode } from "../../utils/tabFiltering";
 import usePageBookmarks from "../Studio/hooks/usePageBookmarks";
+import ReaderAudioControls from "../ReaderAudioControls/ReaderAudioControls";
 import { getLanguages, publishChapter } from "../../services/api";
 
 const DEGREE = 0.1;
@@ -281,6 +282,14 @@ const ImageActions = React.forwardRef((props, ref) => {
                 </IconButton>
               </span>
             </Tooltip>
+          </div>
+
+          <div>
+            <span>|</span>
+          </div>
+
+          <div>
+            <ReaderAudioControls />
           </div>
         </>
       )}

@@ -1,0 +1,30 @@
+.reader-audio {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  // The toolbar styles every `span` inside its direct child divs as a large
+  // "|" separator; reset that for the MUI internals rendered here.
+  &.reader-audio span {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  & .mode-icon {
+    color: #212529;
+  }
+
+  & .pill {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0 0.25rem;
+    border-radius: 999px;
+    background-color: #eef0f2;
+  }
+
+  & .slider {
+    width: 80px;
+    margin: 0 0.5rem;
+  }
+}
