@@ -4,6 +4,7 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
@@ -16,9 +17,12 @@ import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
 import PublishIcon from "@mui/icons-material/Publish";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 
 import styles from "./styles.module.scss";
 import { useAppMode } from "../../utils/tabFiltering";
+import usePageBookmarks from "../Studio/hooks/usePageBookmarks";
 import { getLanguages, publishChapter } from "../../services/api";
 
 const DEGREE = 0.1;
@@ -62,6 +66,10 @@ const ImageActions = React.forwardRef((props, ref) => {
 
   const mode = useAppMode();
   const isReaderMode = mode === "reader";
+
+  const { isBookmarked, toggleBookmark } = usePageBookmarks();
+  const activePageId = pages?.[activePage]?._id;
+  const isActivePageBookmarked = isBookmarked(activePageId);
 
   const onClickZoomIn = () => {
     setImageScaleFactor(imageScaleFactor + DEGREE);
@@ -253,6 +261,26 @@ const ImageActions = React.forwardRef((props, ref) => {
                 <VisibilityIcon fontSize={iconFontSize} />
               )}
             </IconButton>
+            <Tooltip
+              title={
+                isActivePageBookmarked ? "Remove bookmark" : "Bookmark this page"
+              }
+            >
+              <span>
+                <IconButton
+                  aria-label="toggle-bookmark"
+                  aria-pressed={isActivePageBookmarked}
+                  onClick={() => toggleBookmark(activePageId)}
+                  disabled={!activePageId}
+                >
+                  {isActivePageBookmarked ? (
+                    <BookmarkIcon fontSize={iconFontSize} />
+                  ) : (
+                    <BookmarkBorderIcon fontSize={iconFontSize} />
+                  )}
+                </IconButton>
+              </span>
+            </Tooltip>
           </div>
         </>
       )}
