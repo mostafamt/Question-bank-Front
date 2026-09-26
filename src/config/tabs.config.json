@@ -83,6 +83,28 @@
         "description": "Additional learning resources"
       },
       {
+        "id": "my-bag",
+        "label": { "en": "My Bag", "ar": "حقيبتي" },
+        "icon": "WorkIcon",
+        "modes": ["reader"],
+        "position": "left",
+        "order": 5,
+        "component": "MyBagTab",
+        "enabled": true,
+        "description": "Reader's personal bag of saved items"
+      },
+      {
+        "id": "chat",
+        "label": { "en": "Chat", "ar": "المحادثة" },
+        "icon": "ChatIcon",
+        "modes": ["reader"],
+        "position": "left",
+        "order": 6,
+        "component": "ChatTab",
+        "enabled": true,
+        "description": "Reader chat"
+      },
+      {
         "id": "check-yourself-left",
         "label": { "en": "Check Yourself", "ar": "اختبر نفسك" },
         "icon": "QuizIcon",
