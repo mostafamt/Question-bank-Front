@@ -1,4 +1,5 @@
 import React from "react";
+import clsx from "clsx";
 import WhiteAreaOverlay from "../../WhiteAreaOverlay";
 import PageImage from "../shared/PageImage";
 import styles from "../studioAreaSelector.module.scss";
@@ -17,6 +18,7 @@ import styles from "../studioAreaSelector.module.scss";
  * @param {number} props.activePage
  * @param {Function} props.getBlockStyle - (area, idx) => style object
  * @param {Function} [props.onPlayBlock] - (area, areaProps) => void
+ * @param {string|null} [props.highlightedBlockId] - Block to highlight (navigation / narration)
  * @param {Object[][]} props.deletedDeepBlockAreas
  * @param {Object[]} props.pages
  * @param {number} props.imageScaleFactor
@@ -31,6 +33,7 @@ const ReaderModeRenderer = React.forwardRef(
       activePage,
       getBlockStyle,
       onPlayBlock,
+      highlightedBlockId,
       deletedDeepBlockAreas,
       pages,
       imageScaleFactor,
@@ -39,16 +42,32 @@ const ReaderModeRenderer = React.forwardRef(
     },
     ref
   ) => {
+    const highlightedRef = React.useRef(null);
+
+    // A page is taller than the screen — keep the highlighted block visible.
+    React.useEffect(() => {
+      if (!highlightedBlockId) return;
+      highlightedRef.current?.scrollIntoView({
+        block: "nearest",
+        behavior: "smooth",
+      });
+    }, [highlightedBlockId]);
+
     return (
       <div style={{ position: "relative" }}>
         {areas[activePage]?.map((area, idx) => {
           const areaProps = areasProperties[activePage]?.[idx];
           if (!areaProps?.blockId) return null;
+          const isHighlighted = areaProps.blockId === highlightedBlockId;
 
           return (
             <button
               key={area.id || idx}
-              className={styles["reader-area-button"]}
+              ref={isHighlighted ? highlightedRef : null}
+              className={clsx(
+                styles["reader-area-button"],
+                isHighlighted && styles["reader-area-highlighted"]
+              )}
               style={getBlockStyle(area, idx)}
               onClick={() => onPlayBlock?.(area, areaProps)}
               aria-label={`Play ${areaProps.type || "content"}`}

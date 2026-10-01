@@ -5,7 +5,7 @@
  */
 
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { parseVirtualBlocksFromPages } from "../../utils/virtual-blocks";
 import { useAppMode } from "../../utils/tabFiltering";
 import { ENGLISH, ARABIC } from "../../utils/ocr";
@@ -23,6 +23,8 @@ import useVirtualBlocks from "./hooks/useVirtualBlocks";
 import useLabelManagement from "./hooks/useLabelManagement";
 import usePlayBlock from "./hooks/usePlayBlock";
 import useStudioColumns from "./hooks/useStudioColumns";
+import useReaderNarration from "./hooks/useReaderNarration";
+import ReaderAudioContext from "./context/ReaderAudioContext";
 
 /**
  * Studio Component - Content authoring tool for book pages
@@ -54,6 +56,7 @@ const Studio = (props) => {
 
   // ============ ROUTER & MODE ============
   const { chapterId } = useParams();
+  const location = useLocation();
   const mode = useAppMode();
   const isReaderMode = mode === "reader";
 
@@ -220,6 +223,16 @@ const Studio = (props) => {
   // ============ STUDIO ACTIONS ============
   const { highlight, setHighlight, highlightedBlockId, hightBlock } =
     useStudioActions({ getBlockFromBlockId });
+
+  // ============ READER NARRATION ============
+  const readerAudio = useReaderNarration({
+    pages,
+    activePageIndex,
+    highlightedBlockId,
+    hightBlock,
+    contentLanguage: location.state?.contentLanguage,
+    enabled: isReaderMode,
+  });
 
   // ============ LABEL MANAGEMENT ============
   const { onChangeLabel } = useLabelManagement({
@@ -439,7 +452,7 @@ const Studio = (props) => {
   // ============ RENDER ============
 
   return (
-    <>
+    <ReaderAudioContext.Provider value={readerAudio}>
       <StudioHeader
         showStickyToolbar={showStickyToolbar}
         imageScaleFactor={imageScaleFactor}
@@ -502,7 +515,7 @@ const Studio = (props) => {
       />
 
       <canvas ref={canvasRef} style={{ display: "none" }} />
-    </>
+    </ReaderAudioContext.Provider>
   );
 };
 

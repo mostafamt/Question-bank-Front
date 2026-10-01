@@ -223,6 +223,7 @@ const StudioAreaSelector = React.memo(
               areasProperties={areasProperties}
               getBlockStyle={getBlockStyle}
               onPlayBlock={onPlayBlock}
+              highlightedBlockId={highlightedBlockId}
               {...sharedRendererProps}
             />
           )}
