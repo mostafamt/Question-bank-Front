@@ -27,8 +27,6 @@ import ReaderAudioControls from "../ReaderAudioControls/ReaderAudioControls";
 import { getLanguages, publishChapter } from "../../services/api";
 
 const DEGREE = 0.1;
-// large | medium | small
-const iconFontSize = "large";
 // const text
 
 const ImageActions = React.forwardRef((props, ref) => {
@@ -67,6 +65,9 @@ const ImageActions = React.forwardRef((props, ref) => {
 
   const mode = useAppMode();
   const isReaderMode = mode === "reader";
+  // large | medium | small — the reader toolbar also holds the bookmark and
+  // audio controls in a narrower column, so its icons are one size down.
+  const iconFontSize = isReaderMode ? "medium" : "large";
 
   const { isBookmarked, toggleBookmark } = usePageBookmarks();
   const activePageId = pages?.[activePage]?._id;

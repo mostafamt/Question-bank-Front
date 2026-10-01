@@ -13,6 +13,7 @@ import {
   ListItemText,
   Menu,
   MenuItem,
+  Popover,
   Slider,
   Tooltip,
 } from "@mui/material";
@@ -20,6 +21,8 @@ import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import RecordVoiceOverIcon from "@mui/icons-material/RecordVoiceOver";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
+import SkipPreviousIcon from "@mui/icons-material/SkipPrevious";
+import SkipNextIcon from "@mui/icons-material/SkipNext";
 import VolumeUpIcon from "@mui/icons-material/VolumeUp";
 import VolumeOffIcon from "@mui/icons-material/VolumeOff";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -45,6 +48,7 @@ const ReaderAudioControls = () => {
   const audio = useReaderAudio();
   const [isMusicPlaying, setIsMusicPlaying] = React.useState(false);
   const [menuAnchor, setMenuAnchor] = React.useState(null);
+  const [volumeAnchor, setVolumeAnchor] = React.useState(null);
 
   if (!audio) return null;
 
@@ -55,8 +59,8 @@ const ReaderAudioControls = () => {
   const isPlaying = isNarration
     ? audio.status === NARRATION_STATUS.PLAYING
     : isMusicPlaying;
-  const showSlider = isPlaying || audio.status === NARRATION_STATUS.PAUSED;
   const isPlayDisabled = isNarration && !hasNarration;
+  const isSkipDisabled = audio.status === NARRATION_STATUS.IDLE;
 
   const onSelectMode = (nextMode) => {
     audio.setMode(nextMode.id);
@@ -88,6 +92,21 @@ const ReaderAudioControls = () => {
       </Tooltip>
 
       <div className={styles.pill}>
+        {isNarration && (
+          <Tooltip title="Previous block">
+            <span>
+              <IconButton
+                size="small"
+                aria-label="previous-block"
+                onClick={audio.previous}
+                disabled={isSkipDisabled}
+              >
+                <SkipPreviousIcon />
+              </IconButton>
+            </span>
+          </Tooltip>
+        )}
+
         <Tooltip title={playTitle}>
           <span>
             <IconButton
@@ -101,25 +120,59 @@ const ReaderAudioControls = () => {
           </span>
         </Tooltip>
 
-        {showSlider && (
-          <Slider
-            size="small"
-            aria-label="volume"
-            value={isMuted ? 0 : volume}
-            onChange={(_, value) => audio.setVolume(value)}
-            className={styles.slider}
-          />
+        {isNarration && (
+          <Tooltip title="Next block">
+            <span>
+              <IconButton
+                size="small"
+                aria-label="next-block"
+                onClick={audio.next}
+                disabled={isSkipDisabled}
+              >
+                <SkipNextIcon />
+              </IconButton>
+            </span>
+          </Tooltip>
         )}
 
-        <Tooltip title={isMuted ? "Unmute" : "Mute"}>
+        <Tooltip title="Volume">
           <IconButton
             size="small"
-            aria-label={isMuted ? "unmute" : "mute"}
-            onClick={audio.toggleMute}
+            aria-label="volume"
+            aria-haspopup="true"
+            onClick={(e) => setVolumeAnchor(e.currentTarget)}
           >
             {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
           </IconButton>
         </Tooltip>
+        {/* The slider lives in a popover so the toolbar keeps a fixed width */}
+        <Popover
+          open={Boolean(volumeAnchor)}
+          anchorEl={volumeAnchor}
+          onClose={() => setVolumeAnchor(null)}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+          transformOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <div className={styles["volume-popover"]}>
+            <Slider
+              size="small"
+              orientation="vertical"
+              aria-label="volume"
+              value={isMuted ? 0 : volume}
+              onChange={(_, value) => audio.setVolume(value)}
+              className={styles.slider}
+            />
+            <Tooltip title={isMuted ? "Unmute" : "Mute"}>
+              <IconButton
+                size="small"
+                aria-label={isMuted ? "unmute" : "mute"}
+                onClick={audio.toggleMute}
+              >
+                {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
+              </IconButton>
+            </Tooltip>
+          </div>
+        </Popover>
       </div>
 
       <IconButton
