@@ -1,8 +1,9 @@
 /**
  * @file ReaderAudioControls.jsx
- * @description Reader toolbar control for Narration / Music (UI only).
- * No audio is played yet — see docs/2026-09-26/READER_NARRATION_MUSIC_PLAN.md
- * for the engine that will drive this.
+ * @description Reader toolbar control for Narration / Music.
+ * Narration is driven by the shared engine (useReaderNarration) through
+ * ReaderAudioContext — see docs/2026-10-01/READER_NARRATION_PLAYBACK_PLAN.md.
+ * Music is still UI only.
  */
 
 import React from "react";
@@ -24,25 +25,59 @@ import VolumeOffIcon from "@mui/icons-material/VolumeOff";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CheckIcon from "@mui/icons-material/Check";
 
+import { useReaderAudio } from "../Studio/context/ReaderAudioContext";
+import {
+  AUDIO_MODES,
+  NARRATION_STATUS,
+} from "../Studio/hooks/useReaderNarration";
 import styles from "./readerAudioControls.module.scss";
 
 const MODES = {
-  NARRATION: { id: "narration", label: "Narration", Icon: RecordVoiceOverIcon },
-  MUSIC: { id: "music", label: "Music", Icon: MusicNoteIcon },
+  NARRATION: {
+    id: AUDIO_MODES.NARRATION,
+    label: "Narration",
+    Icon: RecordVoiceOverIcon,
+  },
+  MUSIC: { id: AUDIO_MODES.MUSIC, label: "Music", Icon: MusicNoteIcon },
 };
 
 const ReaderAudioControls = () => {
-  const [mode, setMode] = React.useState(MODES.NARRATION);
-  const [isPlaying, setIsPlaying] = React.useState(false);
-  const [volume, setVolume] = React.useState(80);
-  const [isMuted, setIsMuted] = React.useState(false);
+  const audio = useReaderAudio();
+  const [isMusicPlaying, setIsMusicPlaying] = React.useState(false);
   const [menuAnchor, setMenuAnchor] = React.useState(null);
 
+  if (!audio) return null;
+
+  const { volume, isMuted, hasNarration } = audio;
+  const mode =
+    Object.values(MODES).find((m) => m.id === audio.mode) || MODES.NARRATION;
+  const isNarration = mode.id === AUDIO_MODES.NARRATION;
+  const isPlaying = isNarration
+    ? audio.status === NARRATION_STATUS.PLAYING
+    : isMusicPlaying;
+  const showSlider = isPlaying || audio.status === NARRATION_STATUS.PAUSED;
+  const isPlayDisabled = isNarration && !hasNarration;
+
   const onSelectMode = (nextMode) => {
-    setMode(nextMode);
-    setIsPlaying(false);
+    audio.setMode(nextMode.id);
+    setIsMusicPlaying(false);
     setMenuAnchor(null);
   };
+
+  const onTogglePlay = () => {
+    if (!isNarration) {
+      setIsMusicPlaying((p) => !p);
+      return;
+    }
+    if (isPlaying) audio.pause();
+    else audio.play();
+  };
+
+  const playTitle = isPlayDisabled
+    ? "No narration for this page"
+    : isPlaying
+    ? "Pause"
+    : "Play";
 
   const ModeIcon = mode.Icon;
 
@@ -53,25 +88,25 @@ const ReaderAudioControls = () => {
       </Tooltip>
 
       <div className={styles.pill}>
-        <Tooltip title={isPlaying ? "Pause" : "Play"}>
-          <IconButton
-            size="small"
-            aria-label={isPlaying ? "pause" : "play"}
-            onClick={() => setIsPlaying((p) => !p)}
-          >
-            {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
-          </IconButton>
+        <Tooltip title={playTitle}>
+          <span>
+            <IconButton
+              size="small"
+              aria-label={isPlaying ? "pause" : "play"}
+              onClick={onTogglePlay}
+              disabled={isPlayDisabled}
+            >
+              {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+            </IconButton>
+          </span>
         </Tooltip>
 
-        {isPlaying && (
+        {showSlider && (
           <Slider
             size="small"
             aria-label="volume"
             value={isMuted ? 0 : volume}
-            onChange={(_, value) => {
-              setVolume(value);
-              setIsMuted(value === 0);
-            }}
+            onChange={(_, value) => audio.setVolume(value)}
             className={styles.slider}
           />
         )}
@@ -80,7 +115,7 @@ const ReaderAudioControls = () => {
           <IconButton
             size="small"
             aria-label={isMuted ? "unmute" : "mute"}
-            onClick={() => setIsMuted((m) => !m)}
+            onClick={audio.toggleMute}
           >
             {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
           </IconButton>
