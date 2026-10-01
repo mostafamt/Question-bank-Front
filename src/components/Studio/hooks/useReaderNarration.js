@@ -19,6 +19,8 @@ export const NARRATION_STATUS = {
 const DEFAULT_LANGUAGE = "en";
 const DEFAULT_VOLUME = 80;
 const MAX_CONSECUTIVE_FAILURES = 3;
+// "Previous" restarts the current block once it has played this long.
+const RESTART_THRESHOLD_SECONDS = 2;
 
 /**
  * @param {Object} params
@@ -182,6 +184,21 @@ const useReaderNarration = ({
     setStatus(NARRATION_STATUS.PAUSED);
   }, []);
 
+  const next = useCallback(() => {
+    if (indexRef.current === -1) return;
+    failuresRef.current = 0;
+    playAt(indexRef.current + 1);
+  }, [playAt]);
+
+  const previous = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio || indexRef.current === -1) return;
+    failuresRef.current = 0;
+    const shouldRestart =
+      audio.currentTime > RESTART_THRESHOLD_SECONDS || indexRef.current === 0;
+    playAt(shouldRestart ? indexRef.current : indexRef.current - 1);
+  }, [playAt]);
+
   const setMode = useCallback(
     (nextMode) => {
       stop();
@@ -209,6 +226,8 @@ const useReaderNarration = ({
       play,
       pause,
       stop,
+      next,
+      previous,
       setVolume: changeVolume,
       toggleMute,
     }),
@@ -223,6 +242,8 @@ const useReaderNarration = ({
       play,
       pause,
       stop,
+      next,
+      previous,
       changeVolume,
       toggleMute,
     ]
