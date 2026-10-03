@@ -16,6 +16,7 @@ import styles from "./virtualBlockContentModal.module.scss";
  * @param {string} props.iconLocation - The icon position (TL, TM, TR, L1-R6, BL, BM, BR)
  * @param {Array} props.existingContents - Array of existing content items
  * @param {string} [props.pageImageUrl] - URL of the current page image (for AutoGen crop)
+ * @param {string[]} [props.allowedTypes] - Content types to offer (default: all); used by reader mode
  * @param {Function} props.onSave - Save handler, receives array of contents
  * @param {Function} props.handleCloseModal - Close modal callback
  */
@@ -25,6 +26,7 @@ const VirtualBlockContentModal = (props) => {
     iconLocation = "",
     existingContents = [],
     pageImageUrl,
+    allowedTypes,
     onSave,
     handleCloseModal,
   } = props;
@@ -60,9 +62,14 @@ const VirtualBlockContentModal = (props) => {
     };
 
     if (editingIndex !== null) {
-      // Update existing item
+      // Update existing item, keeping its identity (reader blocks carry id/createdAt)
+      const { id, createdAt } = contents[editingIndex] || {};
       const updatedContents = [...contents];
-      updatedContents[editingIndex] = newContentItem;
+      updatedContents[editingIndex] = {
+        ...(id && { id }),
+        ...(createdAt && { createdAt }),
+        ...newContentItem,
+      };
       setContents(updatedContents);
       setEditingIndex(null);
     } else {
@@ -183,6 +190,7 @@ const VirtualBlockContentModal = (props) => {
                 iconLocation={iconLocation}
                 editingContent={editingContent}
                 pageImageUrl={pageImageUrl}
+                allowedTypes={allowedTypes}
                 onSubmit={handleAddContent}
                 onCancel={handleCancelForm}
               />

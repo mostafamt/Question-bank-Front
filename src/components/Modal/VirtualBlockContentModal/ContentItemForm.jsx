@@ -26,6 +26,7 @@ import styles from "./virtualBlockContentModal.module.scss";
  * @param {string} props.iconLocation - The icon position
  * @param {Object} props.editingContent - Content being edited (null for new)
  * @param {string} [props.pageImageUrl] - URL of the current page image (for AutoGen inline crop)
+ * @param {string[]} [props.allowedTypes] - Content types to offer (default: all)
  * @param {Function} props.onSubmit - Submit handler, receives contentItem
  * @param {Function} props.onCancel - Cancel handler
  */
@@ -33,13 +34,16 @@ const ContentItemForm = (props) => {
   const {
     editingContent = null,
     pageImageUrl,
+    allowedTypes,
     onSubmit,
     onCancel,
   } = props;
 
+  const isTypeAllowed = (type) => !allowedTypes || allowedTypes.includes(type);
+
   // Initialize state based on editing content or defaults
   const [contentType, setContentType] = React.useState(
-    editingContent?.type || "text"
+    editingContent?.type || allowedTypes?.[0] || "text"
   );
   const [textValue, setTextValue] = React.useState(
     editingContent?.type === "text" ? editingContent.contentValue : ""
@@ -323,13 +327,21 @@ const ContentItemForm = (props) => {
           fullWidth
           size="small"
         >
-          <ToggleButton value="text"   aria-label="text content">📄 Text</ToggleButton>
-          <ToggleButton value="link"   aria-label="link content">🔗 Link</ToggleButton>
-          <ToggleButton value="object" aria-label="object content">🎮 Object</ToggleButton>
-          <ToggleButton value="autogen" aria-label="auto-generate content">
-            <AutoAwesomeIcon fontSize="small" sx={{ mr: 0.5 }} />
-            AutoGen
-          </ToggleButton>
+          {isTypeAllowed("text") && (
+            <ToggleButton value="text"   aria-label="text content">📄 Text</ToggleButton>
+          )}
+          {isTypeAllowed("link") && (
+            <ToggleButton value="link"   aria-label="link content">🔗 Link</ToggleButton>
+          )}
+          {isTypeAllowed("object") && (
+            <ToggleButton value="object" aria-label="object content">🎮 Object</ToggleButton>
+          )}
+          {isTypeAllowed("autogen") && (
+            <ToggleButton value="autogen" aria-label="auto-generate content">
+              <AutoAwesomeIcon fontSize="small" sx={{ mr: 0.5 }} />
+              AutoGen
+            </ToggleButton>
+          )}
         </ToggleButtonGroup>
       </Box>
 

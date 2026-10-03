@@ -8,6 +8,7 @@ import { constructBoxColors } from "../services/styling.service";
 import { hexToRgbA } from "../../../utils/helper";
 import { useAppMode } from "../../../utils/tabFiltering";
 import { WHITE_PAGE_FALLBACK } from "../constants";
+import useReaderVBlocks from "../hooks/useReaderVBlocks";
 
 import { getRenderMode, RENDER_MODES } from "./utils/renderMode";
 import { BlockOverlayLayer } from "./shared";
@@ -61,6 +62,13 @@ const StudioAreaSelector = React.memo(
     // Detect mode (reader vs studio)
     const mode = useAppMode();
     const isReaderMode = mode === "reader";
+
+    // Reader's own virtual blocks for this page (reader mode only)
+    const {
+      readerBlocks,
+      saveSlot: saveReaderSlot,
+      deleteSlot: deleteReaderSlot,
+    } = useReaderVBlocks(pages[activePage]?._id, isReaderMode);
 
     // Get image source with fallback to white canvas if URL is missing
     const getImageSource = useCallback(() => {
@@ -198,6 +206,9 @@ const StudioAreaSelector = React.memo(
         setVirtualBlocks={setVirtualBlocks}
         activePage={activePage}
         reader={isReaderMode}
+        readerBlocks={readerBlocks}
+        onSaveReaderSlot={saveReaderSlot}
+        onDeleteReaderSlot={deleteReaderSlot}
         pageImageUrl={getImageSource()}
       >
         <div
