@@ -28,7 +28,14 @@ export const STORAGE_KEYS = {
   AUTHOR_PAGE: "author_page",
   /** Prefix for reader page bookmarks; full key is `${prefix}_${chapterId}` */
   READER_BOOKMARKS: "reader_bookmarks",
+  /** Prefix for the reader's own virtual blocks; full key is `${prefix}_${chapterId}` */
+  READER_VBLOCKS: "reader_vblocks",
 };
+
+/**
+ * Virtual block content types a reader may add (no library objects or AutoGen)
+ */
+export const READER_VBLOCK_CONTENT_TYPES = ["text", "link"];
 
 /**
  * Default values
