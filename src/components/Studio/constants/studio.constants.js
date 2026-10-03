@@ -30,10 +30,13 @@ export const STORAGE_KEYS = {
   READER_BOOKMARKS: "reader_bookmarks",
   /** Prefix for the reader's own virtual blocks; full key is `${prefix}_${chapterId}` */
   READER_VBLOCKS: "reader_vblocks",
+  /** Prefix for the reader's own Enriching Content items; full key is `${prefix}_${chapterId}` */
+  READER_ENRICHING: "reader_enriching",
 };
 
 /**
- * Virtual block content types a reader may add (no library objects or AutoGen)
+ * Content types a reader may add to virtual blocks and Enriching Content
+ * (no library objects or AutoGen)
  */
 export const READER_VBLOCK_CONTENT_TYPES = ["text", "link"];
 
