@@ -15,16 +15,8 @@ import { useForm } from "react-hook-form";
 import styles from "./list.module.scss";
 import { LEFT_TAB_NAMES, RIGHT_TAB_NAMES } from "../../Studio/constants";
 import GlossaryListItem from "../GlossaryListItem/GlossaryListItem";
-
-const deriveEnrichingContentName = (type, contentValue) => {
-  if (type === "text") {
-    const plain = contentValue.replace(/<[^>]+>/g, "").trim();
-    return plain.length > 40 ? plain.slice(0, 40) + "…" : plain || "Text item";
-  }
-  if (type === "link") return contentValue;
-  if (type === "object") return contentValue;
-  return "Enriching Content item";
-};
+import ReaderEnrichingItems from "../ReaderEnrichingItems/ReaderEnrichingItems";
+import { deriveEnrichingContentName } from "./enrichingContent.utils";
 
 const List = (props) => {
   const { tab, chapterId, reader, changePageById, navigateToBlock } = props;
@@ -41,7 +33,7 @@ const List = (props) => {
   const isEnrichingContent = tab.name === LEFT_TAB_NAMES.ENRICHING_CONTENT.name;
 
   const { data: tabObjects, isFetching } = useQuery({
-    queryKey: [`tab-objects-${tab.name}`],
+    queryKey: [`tab-objects-${tab.name}`, chapterId],
     queryFn: isEnrichingContent
       ? () => getEnrichingContents(chapterId)
       : () => getTabObjects(chapterId, tab.name),
@@ -137,15 +129,18 @@ const List = (props) => {
         if (item.type === "text") {
           openModal("text-editor", {
             value: item.contentValue,
-            onClickSubmit: (newValue) => {
-              setObjects((prev) =>
-                prev.map((obj) =>
-                  obj._id === item._id
-                    ? { ...obj, contentValue: newValue }
-                    : obj
-                )
-              );
-            },
+            // Reader mode: author items are read-only (no onClickSubmit)
+            onClickSubmit: reader
+              ? null
+              : (newValue) => {
+                  setObjects((prev) =>
+                    prev.map((obj) =>
+                      obj._id === item._id
+                        ? { ...obj, contentValue: newValue }
+                        : obj
+                    )
+                  );
+                },
           });
         } else if (item.type === "link") {
           openModal("iframe-display", { url: item.contentValue });
@@ -171,7 +166,7 @@ const List = (props) => {
         },
       });
     },
-    [openModal, tab.name]
+    [openModal, tab.name, reader]
   );
 
   const handleDelete = React.useCallback(
@@ -337,6 +332,10 @@ const List = (props) => {
         </div>
       )}
       <ul>{objectsList}</ul>
+
+      {reader && isEnrichingContent && (
+        <ReaderEnrichingItems chapterId={chapterId} />
+      )}
 
       {!reader && (
         <Box sx={{ display: "flex", justifyContent: "center" }}>
