@@ -3,7 +3,6 @@ import StudioThumbnails from "../StudioThumbnails/StudioThumbnails";
 import List from "../../Tabs/List/List";
 import TableOfContents from "../../Book/TableOfContents/TableOfContents";
 import ExerciseTab from "../components/ExerciseTab/ExerciseTab";
-import MyBagTab from "../components/MyBagTab/MyBagTab";
 import ChatTab from "../components/ChatTab/ChatTab";
 import { LEFT_TAB_NAMES, RIGHT_TAB_NAMES } from "../constants";
 import { getTabsForSidebar } from "../../../utils/tabFiltering";
@@ -102,13 +101,6 @@ export const buildReaderLeftColumns = ({
                 navigateToBlock={navigateToBlock}
               />
             ),
-          };
-
-        case "my-bag":
-          return {
-            id: config.id,
-            label: config.label,
-            component: <MyBagTab chapterId={chapterId} />,
           };
 
         case "chat":
