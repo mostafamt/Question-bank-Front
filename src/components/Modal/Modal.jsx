@@ -22,6 +22,8 @@ import VirtualBlockContentModal from "./VirtualBlockContentModal/VirtualBlockCon
 import VirtualBlockReaderModal from "./VirtualBlockReaderModal/VirtualBlockReaderModal";
 import VirtualBlockReaderNavigationModal from "./VirtualBlockReaderNavigationModal/VirtualBlockReaderNavigationModal";
 import IframeDisplayModal from "./IframeDisplayModal/IframeDisplayModal";
+import VideoPlayerModal from "./VideoPlayerModal/VideoPlayerModal";
+import AudioPlayerModal from "./AudioPlayerModal/AudioPlayerModal";
 import SelectFromLibraryModal from "./SelectFromLibraryModal/SelectFromLibraryModal";
 import ImportPagesModal from "./ImportPagesModal";
 import AddChapterModal from "./AddChapterModal/AddChapterModal";
@@ -36,6 +38,8 @@ const MODAL_COMPONENTS = {
   "virtual-block-reader": VirtualBlockReaderModal,
   "virtual-block-reader-nav": VirtualBlockReaderNavigationModal,
   "iframe-display": IframeDisplayModal,
+  "video-player": VideoPlayerModal,
+  "audio-player": AudioPlayerModal,
   "auto-ui": AutoUiModal,
   quill: QuillModal,
   "text-editor": TextEditorModal,
