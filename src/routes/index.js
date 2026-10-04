@@ -1,15 +1,11 @@
 import DrawnUI from "../pages/DrawnUI/DrawnUI";
 import ExcelFile from "../components/ExcelFile/ExcelFile";
 import Bulk from "../components/MultipleChoice/Bulk/Bulk";
-import MultipleChoice from "../components/MultipleChoice/MultipleChoice";
-import Book from "../pages/Book/Book";
-import TrueFalse from "../components/TrueFalse/TrueFalse";
 import AddObject from "../pages/AddObject/AddObject";
 import DragTheWords from "../pages/DragTheWords/DragTheWords";
 import EditObject from "../pages/EditObject/EditObject";
 import EssayQuestion from "../pages/Essay-Question/EssayQuestion";
 import FillBlankForm from "../pages/FillBlank/FillBlank";
-import Home from "../pages/Home/Home";
 import MultipleChoiceForm from "../pages/MultipleChoiceForm/MultipleChoiceForm";
 import ScanAndUpload from "../pages/ScanAndUpload/ScanAndUpload";
 import SmartInteractive from "../pages/SmartInteractive/SmartInteractive";
@@ -21,11 +17,16 @@ import Types from "../pages/Types/Types";
 import Error from "../pages/Error/Error";
 import AddBook from "../pages/AddBook/AddBook";
 import Show from "../pages/Show/Show";
+import Reader from "../pages/Reader/Reader";
 
 const routes = [
   {
     path: "/",
     component: AddBook,
+  },
+  {
+    path: "/book-author/book/:bookId/chapter/:chapterId",
+    component: ScanAndUpload,
   },
   {
     path: "/book/:bookId/chapter/:chapterId",
@@ -34,6 +35,10 @@ const routes = [
   {
     path: "/read/book/:bookId/chapter/:chapterId",
     component: ScanAndUpload,
+  },
+  {
+    path: "/reader/book/:bookId/chapter/:chapterId",
+    component: Reader,
   },
   {
     path: "/bulk",

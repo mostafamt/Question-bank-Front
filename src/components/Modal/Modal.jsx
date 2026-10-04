@@ -10,14 +10,21 @@ import QuillModal from "./QuillModal/QuillModal";
 import TextEditorModal from "./TextEditorModal/TextEditorModal";
 import LinkEditorModal from "./LinkEditorModal/LinkEditorModal";
 import SubObjectModal from "./SubObjectModal/SubObjectModal";
+import DeepImageModal from "./DeepImageModal/DeepImageModal";
+import DeepAudioModal from "./DeepAudioModal/DeepAudioModal";
+import DeepVideoModal from "./DeepVideoModal/DeepVideoModal";
 import PlayCompositeBlocks from "./PlayCompositeBlocks/PlayCompositeBlocks";
 import EditCompositeBlocks from "./EditCompositeBlocks/EditCompositeBlocks";
 import GlossaryModal from "./GlossaryModal/GlossaryModal";
 import CompositeBlocksModal from "./CompositeBlocksModal/CompositeBlocksModal";
+import EnrichingContentModal from "./EnrichingContentModal/EnrichingContentModal";
 import VirtualBlockContentModal from "./VirtualBlockContentModal/VirtualBlockContentModal";
 import VirtualBlockReaderModal from "./VirtualBlockReaderModal/VirtualBlockReaderModal";
 import VirtualBlockReaderNavigationModal from "./VirtualBlockReaderNavigationModal/VirtualBlockReaderNavigationModal";
 import IframeDisplayModal from "./IframeDisplayModal/IframeDisplayModal";
+import SelectFromLibraryModal from "./SelectFromLibraryModal/SelectFromLibraryModal";
+import ImportPagesModal from "./ImportPagesModal";
+import AddChapterModal from "./AddChapterModal/AddChapterModal";
 
 // Modal registry
 const MODAL_COMPONENTS = {
@@ -34,16 +41,34 @@ const MODAL_COMPONENTS = {
   "text-editor": TextEditorModal,
   "link-editor": LinkEditorModal,
   "sub-object": SubObjectModal,
+  "deep-image": DeepImageModal,
+  "deep-audio": DeepAudioModal,
+  "deep-video": DeepVideoModal,
   "play-composite-blocks": PlayCompositeBlocks,
   "edit-composite-blocks": EditCompositeBlocks,
   glossary: GlossaryModal,
   "composite-blocks-modal": CompositeBlocksModal,
+  "enriching-content": EnrichingContentModal,
+  "select-from-library": SelectFromLibraryModal,
+  "import-pages": ImportPagesModal,
 };
 
 const Modal = () => {
   const { modal, closeModal } = useStore();
 
   const { name = "", size = "xl", opened = false, props = {} } = modal;
+
+  if (name === "import-pages") {
+    return (
+      <ImportPagesModal open={opened} handleCloseModal={closeModal} {...props} />
+    );
+  }
+
+  if (name === "add-chapter") {
+    return (
+      <AddChapterModal open={opened} handleCloseModal={closeModal} {...props} />
+    );
+  }
 
   // Get modal component by name
   const ModalComponent = MODAL_COMPONENTS[name] || null;

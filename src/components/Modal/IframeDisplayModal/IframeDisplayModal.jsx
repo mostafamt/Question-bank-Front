@@ -83,7 +83,6 @@ const IframeDisplayModal = (props) => {
   // Convert URL to embeddable format (YouTube, Vimeo, etc.)
   const embedUrl = React.useMemo(() => getEmbedUrl(url), [url]);
 
-  console.log("IframeDisplayModal opened with:", { title, url, embedUrl });
 
   // State management
   const [loading, setLoading] = React.useState(true);
@@ -94,7 +93,6 @@ const IframeDisplayModal = (props) => {
    * Handle iframe load success
    */
   const handleLoad = () => {
-    console.log("Iframe loaded successfully");
     setLoading(false);
     setError(false);
   };
@@ -112,7 +110,6 @@ const IframeDisplayModal = (props) => {
    * Refresh iframe by incrementing key
    */
   const handleRefresh = () => {
-    console.log("Refreshing iframe");
     setLoading(true);
     setError(false);
     setIframeKey((prev) => prev + 1);
@@ -122,7 +119,6 @@ const IframeDisplayModal = (props) => {
    * Open URL in new browser tab
    */
   const handleOpenNewTab = () => {
-    console.log("Opening in new tab:", url);
     window.open(url, "_blank", "noopener,noreferrer");
   };
 

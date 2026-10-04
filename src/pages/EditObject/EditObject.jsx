@@ -77,7 +77,6 @@ const EditObject = () => {
         navigate("/");
       }, 2000);
     } catch (error) {
-      console.log(error);
     }
   };
 
@@ -97,7 +96,7 @@ const EditObject = () => {
 
   const onSubmit = async (values) => {
     try {
-      const res = await axios.patch(`/interactive-objects/${id}`, {
+      await axios.patch(`/interactive-objects/${id}`, {
         ...values,
         domainName: getDomainName(values.domainId),
         subDomainName: getSubDomainName(values.domainId, values.subDomainId),

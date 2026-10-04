@@ -2,18 +2,15 @@ import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
 import { useQuery } from "@tanstack/react-query";
 
-import styles from "./playObjectModal.module.scss";
 import { getObject } from "../../../api/bookapi";
 import { isComplexType } from "../../../utils/ocr";
+import SnapLearningPlayer from "../../SnapLearningPlayer/SnapLearningPlayer";
 
 const PlayObjectModal = (props) => {
   const { workingArea } = props;
 
   const {
     data: object,
-    isError: isErrorObject,
-    isLoading: isLoadingObject,
-    isSuccess: isSuccessObject,
     isFetching,
   } = useQuery({
     queryKey: [`get-object`],
@@ -26,11 +23,14 @@ const PlayObjectModal = (props) => {
 
   let renderer = <></>;
 
-  if (isComplexType(workingArea.contentType || workingArea.typeOfLabel)) {
+  if (object?.baseType === "SnapLearning Object") {
+    renderer = isFetching ? <p>Loading...</p> : <SnapLearningPlayer data={object} />;
+  } else if (isComplexType(workingArea.contentType || workingArea.typeOfLabel)) {
     renderer = isFetching ? (
       <p>Loading...</p>
     ) : object?.url ? (
       <iframe
+        title="Interactive object player"
         src={object?.url}
         frameBorder="0"
         height={"100%"}

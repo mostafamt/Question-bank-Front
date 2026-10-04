@@ -109,7 +109,7 @@ const DrawnUI = (props) => {
       },
     };
     try {
-      const res = await axios.post("/interactive-objects", data);
+      await axios.post("/interactive-objects", data);
       toast.success(`Object added successfully`);
     } catch (error) {
       toast.error(error?.message);
@@ -123,7 +123,7 @@ const DrawnUI = (props) => {
       },
     };
     try {
-      const res = await axios.patch(`/interactive-objects/${id}`, data);
+      await axios.patch(`/interactive-objects/${id}`, data);
       toast.success(`Object updated successfully`);
     } catch (error) {
       toast.error(error?.message);

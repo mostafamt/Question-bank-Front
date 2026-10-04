@@ -1,20 +1,8 @@
 import React from "react";
 import BookViewer from "../Book/BookViewer/BookViewer";
-import BookThumnails from "../Book/BookThumnails/BookThumnails";
-import Modal from "../Modal/Modal";
-import {
-  changePage,
-  getColumn,
-  INITIAL_PAGE,
-  PAGES,
-  toggleColumn,
-} from "../../utils/book";
-import PlayObjectModal from "../Modal/PlayObjectModal/PlayObjectModal";
+import { changePage } from "../../utils/book";
 import { isComplexType } from "../../utils/ocr";
-import QuillModal from "../Modal/QuillModal/QuillModal";
 import { useStore } from "../../store/store";
-
-import styles from "./studyBook.module.scss";
 
 const StudyBook = (props) => {
   const {

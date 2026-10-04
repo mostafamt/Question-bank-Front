@@ -44,7 +44,16 @@ export const detectModeFromUrl = () => {
  */
 export const useAppMode = () => {
   const location = useLocation();
-  return location.pathname.includes("/read/") ? "reader" : "studio";
+  if (
+    location.pathname.includes("/read/") ||
+    location.pathname.includes("/reader/")
+  ) {
+    return "reader";
+  } else if (location.pathname.includes("/book-author/")) {
+    return "book-author";
+  } else {
+    return "studio";
+  }
 };
 
 /**
@@ -99,6 +108,19 @@ export const filterTabsByMode = (tabs, mode) => {
 export const getTabsForSidebar = (position, mode) => {
   const tabs = tabsConfig.tabs[position] || [];
   return filterTabsByMode(tabs, mode);
+};
+
+/**
+ * Resolve a tab label based on the current language.
+ * Supports both old string labels and new { en, ar } object labels.
+ *
+ * @param {string|Object} label - The tab label (string or { en, ar })
+ * @param {string} language - Current language code ("en" or "ar")
+ * @returns {string} The resolved label string
+ */
+export const getTabLabel = (label, language) => {
+  if (typeof label === "string") return label;
+  return label?.[language] || label?.en || "";
 };
 
 /**
@@ -275,7 +297,5 @@ if (process.env.NODE_ENV === "development") {
   const validation = validateTabConfig();
   if (!validation.isValid) {
     console.warn("⚠️ Tab configuration validation errors:", validation.errors);
-  } else {
-    // console.log("✅ Tab configuration is valid");
   }
 }

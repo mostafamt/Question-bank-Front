@@ -5,14 +5,13 @@
  */
 
 import React from "react";
-import { useParams } from "react-router-dom";
-import { Alert } from "@mui/material";
+import { useLocation, useParams } from "react-router-dom";
 import { parseVirtualBlocksFromPages } from "../../utils/virtual-blocks";
 import { useAppMode } from "../../utils/tabFiltering";
 import { ENGLISH, ARABIC } from "../../utils/ocr";
 import { useStore } from "../../store/store";
 
-import { RIGHT_TAB_NAMES, DEFAULTS, LANGUAGE_CODES } from "./constants";
+import { DEFAULTS, LANGUAGE_CODES } from "./constants";
 import { StudioHeader, StudioLayout } from "./components";
 
 // Import hooks
@@ -24,6 +23,8 @@ import useVirtualBlocks from "./hooks/useVirtualBlocks";
 import useLabelManagement from "./hooks/useLabelManagement";
 import usePlayBlock from "./hooks/usePlayBlock";
 import useStudioColumns from "./hooks/useStudioColumns";
+import useReaderNarration from "./hooks/useReaderNarration";
+import ReaderAudioContext from "./context/ReaderAudioContext";
 
 /**
  * Studio Component - Content authoring tool for book pages
@@ -32,6 +33,7 @@ import useStudioColumns from "./hooks/useStudioColumns";
 const Studio = (props) => {
   const {
     pages,
+    setPages,
     type,
     subObject,
     types,
@@ -40,6 +42,7 @@ const Studio = (props) => {
     typeOfActiveType: tOfActiveType,
     onSubmitAutoGenerate,
     loadingAutoGenerate,
+    onSelectFromLibrary,
     refetch,
     compositeBlocksTypes,
   } = props;
@@ -49,9 +52,11 @@ const Studio = (props) => {
   const canvasRef = React.useRef(null);
   const thumbnailsRef = React.useRef(null);
   const recalculateAreasRef = React.useRef(null);
+  const pageContainerRef = React.useRef(null);
 
   // ============ ROUTER & MODE ============
   const { chapterId } = useParams();
+  const location = useLocation();
   const mode = useAppMode();
   const isReaderMode = mode === "reader";
 
@@ -65,19 +70,58 @@ const Studio = (props) => {
   const [virtualBlocks, setVirtualBlocks] = React.useState(() =>
     subObject ? [] : parseVirtualBlocksFromPages(pages)
   );
+
+  // `pages` can arrive after mount (e.g. ScanAndUpload starts with an empty
+  // array while its query is loading, then swaps in the fetched pages) or
+  // gain/lose entries later (add/import/delete page). The lazy useState
+  // initializer above only runs once, so keep virtualBlocks' length aligned
+  // with pages here — otherwise virtualBlocks[activePageIndex] goes
+  // undefined and crashes formatVirtualBlocksForSubmission on submit.
+  React.useEffect(() => {
+    if (subObject) return;
+    setVirtualBlocks((prev) => {
+      if (prev.length === pages.length) return prev;
+      const parsed = parseVirtualBlocksFromPages(pages);
+      return pages.map((_, idx) => prev[idx] ?? parsed[idx]);
+    });
+  }, [pages, subObject]);
   const [showStickyToolbar, setShowStickyToolbar] = React.useState(false);
   const [imageScaleFactor, setImageScaleFactor] = React.useState(
     DEFAULTS.IMAGE_SCALE_FACTOR
   );
+  const [showBlocksStyling, setShowBlocksStyling] = React.useState(true);
+  const [isWhiteOutMode, setIsWhiteOutMode] = React.useState(false);
+  const onToggleWhiteOutMode = React.useCallback(
+    () => setIsWhiteOutMode((prev) => !prev),
+    []
+  );
 
   // ============ PAGE NAVIGATION ============
+  const insertPageAtRef = React.useRef(null);
+  const insertPagesAtRef = React.useRef(null);
+  const deletePageAtRef = React.useRef(null);
+  const reorderPageAtRef = React.useRef(null);
+
   const {
     activePageIndex,
     setActivePageIndex,
     activePageId,
     changePageByIndex,
     changePageById,
-  } = usePageNavigation({ pages, subObject });
+    addLocalPages,
+    addEmptyPage,
+    addImportedPages,
+    insertPageLocally,
+    reorderPages,
+  } = usePageNavigation({
+    pages,
+    setPages,
+    insertPageAtRef,
+    insertPagesAtRef,
+    deletePageAtRef,
+    reorderPageAtRef,
+    subObject,
+  });
 
   // ============ AREA MANAGEMENT ============
   const {
@@ -85,6 +129,13 @@ const Studio = (props) => {
     setAreas,
     areasProperties,
     setAreasProperties,
+    deletedDeepBlockAreas,
+    addManualWhiteOverlayArea,
+    removeWhiteOverlayArea,
+    insertPageAt,
+    insertPagesAt,
+    deletePageAt,
+    reorderPageAt,
     getBlockFromBlockId,
     recalculateAreas,
     updateAreaProperty,
@@ -97,6 +148,7 @@ const Studio = (props) => {
     loadingSubmit,
   } = useAreaManagement({
     pages,
+    setPages,
     activePageIndex,
     types,
     studioEditorRef,
@@ -107,12 +159,31 @@ const Studio = (props) => {
     activePageId,
     virtualBlocks,
     refetch,
+    pageContainerRef,
+    setShowBlocksStyling,
+    chapterId,
   });
 
   // Keep recalculateAreas ref updated (to avoid dependency in useEffect)
   React.useEffect(() => {
     recalculateAreasRef.current = recalculateAreas;
   }, [recalculateAreas]);
+
+  React.useEffect(() => {
+    insertPageAtRef.current = insertPageAt;
+  }, [insertPageAt]);
+
+  React.useEffect(() => {
+    insertPagesAtRef.current = insertPagesAt;
+  }, [insertPagesAt]);
+
+  React.useEffect(() => {
+    deletePageAtRef.current = deletePageAt;
+  }, [deletePageAt]);
+
+  React.useEffect(() => {
+    reorderPageAtRef.current = reorderPageAt;
+  }, [reorderPageAt]);
 
   // ============ VIRTUAL BLOCKS ============
   const { showVB, onClickToggleVirutalBlocks } = useVirtualBlocks({
@@ -126,6 +197,8 @@ const Studio = (props) => {
   // ============ COMPOSITE BLOCKS ============
   const {
     compositeBlocks,
+    activeCompositeBlock,
+    totalAreas,
     setCompositeBlocks,
     loadingSubmitCompositeBlocks,
     onChangeCompositeBlocks,
@@ -141,12 +214,25 @@ const Studio = (props) => {
     chapterId,
     openModal,
     pages,
+    activePageIndex,
     areasProperties,
+    compositeBlocksTypes,
+    changePageByIndex,
   });
 
   // ============ STUDIO ACTIONS ============
   const { highlight, setHighlight, highlightedBlockId, hightBlock } =
     useStudioActions({ getBlockFromBlockId });
+
+  // ============ READER NARRATION ============
+  const readerAudio = useReaderNarration({
+    pages,
+    activePageIndex,
+    highlightedBlockId,
+    hightBlock,
+    contentLanguage: location.state?.contentLanguage,
+    enabled: isReaderMode,
+  });
 
   // ============ LABEL MANAGEMENT ============
   const { onChangeLabel } = useLabelManagement({
@@ -161,6 +247,7 @@ const Studio = (props) => {
     language,
     syncAreasProperties,
     updateAreaProperty,
+    updateAreaPropertyById,
     openModal,
   });
 
@@ -169,11 +256,20 @@ const Studio = (props) => {
 
   // ============ COLUMNS ============
 
+  const onPageDeleted = React.useCallback(
+    (pageIndex) => {
+      deletePageAt(pageIndex);
+      changePageByIndex(Math.max(0, pageIndex - 1));
+    },
+    [deletePageAt, changePageByIndex]
+  );
+
   // Memoize rightColumnProps to prevent new object reference every render
   const rightColumnProps = React.useMemo(
     () => ({
       areasProperties,
       setAreasProperties,
+      addLocalPages,
       onEditText,
       onClickDeleteArea,
       type,
@@ -187,9 +283,11 @@ const Studio = (props) => {
       tOfActiveType,
       onSubmitAutoGenerate,
       loadingAutoGenerate,
+      onSelectFromLibrary,
       onClickToggleVirutalBlocks,
       showVB,
       compositeBlocks,
+      totalAreas,
       compositeBlocksTypes,
       onChangeCompositeBlocks,
       processCompositeBlock,
@@ -200,10 +298,15 @@ const Studio = (props) => {
       setHighlight,
       setActivePageIndex,
       onClickHand,
+      showBlocksStyling,
+      setShowBlocksStyling,
+      isWhiteOutMode,
+      onToggleWhiteOutMode,
     }),
     [
       areasProperties,
       setAreasProperties,
+      addLocalPages,
       onEditText,
       onClickDeleteArea,
       type,
@@ -217,9 +320,11 @@ const Studio = (props) => {
       tOfActiveType,
       onSubmitAutoGenerate,
       loadingAutoGenerate,
+      onSelectFromLibrary,
       onClickToggleVirutalBlocks,
       showVB,
       compositeBlocks,
+      totalAreas,
       compositeBlocksTypes,
       onChangeCompositeBlocks,
       processCompositeBlock,
@@ -230,6 +335,10 @@ const Studio = (props) => {
       setHighlight,
       setActivePageIndex,
       onClickHand,
+      showBlocksStyling,
+      setShowBlocksStyling,
+      isWhiteOutMode,
+      onToggleWhiteOutMode,
     ]
   );
 
@@ -243,6 +352,7 @@ const Studio = (props) => {
   } = useStudioColumns({
     isReaderMode,
     pages,
+    setPages,
     activePageIndex,
     chapterId,
     thumbnailsRef,
@@ -251,6 +361,12 @@ const Studio = (props) => {
     getBlockFromBlockId,
     hightBlock,
     rightColumnProps,
+    onSelectFromLibrary,
+    onPageDeleted,
+    addEmptyPage,
+    addImportedPages,
+    insertPageLocally,
+    reorderPages,
   });
 
   // ============ EFFECTS ============
@@ -307,7 +423,7 @@ const Studio = (props) => {
 
   const onChangeHandler = React.useCallback(
     (areasParam) => {
-      if (activeRightTab?.label === RIGHT_TAB_NAMES.COMPOSITE_BLOCKS.label) {
+      if (activeRightTab?.id === "composite-blocks") {
         onChangeCompositeBlockArea(areasParam);
       } else {
         onChangeArea(areasParam);
@@ -316,12 +432,17 @@ const Studio = (props) => {
     [activeRightTab, onChangeCompositeBlockArea, onChangeArea]
   );
 
+  const publishLanguageCode =
+    language === ARABIC ? LANGUAGE_CODES.ARABIC : LANGUAGE_CODES.ENGLISH;
+
   const handleSetVirtualBlocks = React.useCallback(
     (value) => {
       setVirtualBlocks((prev) => {
         const newBlocks = [...prev];
         newBlocks[activePageIndex] =
-          typeof value === "function" ? value(newBlocks[activePageIndex]) : value;
+          typeof value === "function"
+            ? value(newBlocks[activePageIndex])
+            : value;
         return newBlocks;
       });
     },
@@ -330,12 +451,8 @@ const Studio = (props) => {
 
   // ============ RENDER ============
 
-  if (!pages?.length) {
-    return <Alert severity="error">No pages available.</Alert>;
-  }
-
   return (
-    <>
+    <ReaderAudioContext.Provider value={readerAudio}>
       <StudioHeader
         showStickyToolbar={showStickyToolbar}
         imageScaleFactor={imageScaleFactor}
@@ -351,10 +468,13 @@ const Studio = (props) => {
         onClickImage={changePageByIndex}
         language={language}
         setLanguage={setLanguage}
+        chapterId={chapterId}
+        publishLanguage={publishLanguageCode}
       />
 
       <StudioLayout
         ref={studioEditorRef}
+        pageContainerRef={pageContainerRef}
         leftColumns={leftColumns}
         activeLeftTab={activeLeftTab}
         setActiveLeftTab={setActiveLeftTab}
@@ -377,16 +497,25 @@ const Studio = (props) => {
         onClickToggleVirtualBlocks={onClickToggleVirutalBlocks}
         onClickImage={changePageByIndex}
         compositeBlocksTypes={compositeBlocksTypes}
-        compositeBlocks={compositeBlocks}
+        compositeBlocks={activeCompositeBlock}
         setCompositeBlocks={setCompositeBlocks}
         highlight={highlight}
         setHighlight={setHighlight}
         highlightedBlockId={highlightedBlockId}
         onPlayBlock={onPlayBlock}
+        showBlocksStyling={showBlocksStyling}
+        setShowBlocksStyling={setShowBlocksStyling}
+        chapterId={chapterId}
+        publishLanguage={publishLanguageCode}
+        deletedDeepBlockAreas={deletedDeepBlockAreas}
+        isWhiteOutMode={isWhiteOutMode}
+        onToggleWhiteOutMode={onToggleWhiteOutMode}
+        addManualWhiteOverlayArea={addManualWhiteOverlayArea}
+        removeWhiteOverlayArea={removeWhiteOverlayArea}
       />
 
       <canvas ref={canvasRef} style={{ display: "none" }} />
-    </>
+    </ReaderAudioContext.Provider>
   );
 };
 

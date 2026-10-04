@@ -38,6 +38,16 @@ export {
   determineModalForArea,
 } from "./modal.service";
 
+// Deep handlers service (per-typeOfLabel behaviour for blocks marked deep)
+export {
+  getDeepHandler,
+  getDeepBlockText,
+  getDeepBlockImage,
+  getDeepBlockAudio,
+  getDeepBlockVideo,
+  getDeepBlockObject,
+} from "./deepHandlers.service";
+
 // Block service (block operations)
 export {
   BLOCK_STATUS,

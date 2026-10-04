@@ -3,19 +3,25 @@ import { toast } from "react-toastify";
 import { v4 as uuidv4 } from "uuid";
 
 import { initAreas, initAreasProperties } from "../initializers";
-import { processAreasForImageLoad } from "../services/coordinate.service";
-import { deleteAreaByIndex } from "../utils";
 import {
-  CREATED,
+  validateRefAccess,
+  processPageAreas,
+} from "../services/coordinate.service";
+import { deleteAreaByIndex } from "../utils";
+import { isDeepBlock } from "../utils";
+import {
   DELETED,
   onEditTextField,
+  reorder,
   updateAreasProperties,
 } from "../../../utils/ocr";
-import { parseVirtualBlocksFromPages } from "../../../utils/virtual-blocks";
 import { TIMEOUTS } from "../constants";
+import { capturePageSnapshot } from "../services/pageCapture.service";
+import { submitPages } from "../../../api/bookapi";
 
 const useAreaManagement = ({
   pages,
+  setPages,
   activePageIndex,
   types,
   studioEditorRef,
@@ -26,8 +32,20 @@ const useAreaManagement = ({
   activePageId,
   virtualBlocks,
   refetch,
+  pageContainerRef,
+  setShowBlocksStyling,
+  chapterId,
 }) => {
-  const [areas, setAreas] = React.useState(() => initAreas(pages));
+  // Store raw pages for deferred conversion (% → px on first image load)
+  const rawPagesRef = React.useRef(pages);
+
+  // Ref to the latest recalculateAreas, so async flows (e.g. post-submit
+  // resync) always call the version closed over fresh state, not the one
+  // captured when the async function started.
+  const recalculateAreasRef = React.useRef(null);
+
+  // Start with empty arrays — areas are populated after image loads with real pixel values
+  const [areas, setAreas] = React.useState(() => pages.map(() => []));
 
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
 
@@ -35,7 +53,44 @@ const useAreaManagement = ({
     initAreasProperties(pages, types)
   );
 
-  const [showVB, setShowVB] = React.useState(false);
+  const [, setShowVB] = React.useState(false);
+
+  // Track deleted deep block areas for white background rendering during snapshot
+  // Structure: deletedDeepBlockAreas[pageIndex] = [{ id, x, y, width, height, unit }, ...]
+  const [deletedDeepBlockAreas, setDeletedDeepBlockAreas] = React.useState(() =>
+    pages.map(() => [])
+  );
+
+  // Keep rawPagesRef aligned with the `pages` prop. It's the source of truth
+  // recalculateAreas reads raw block coordinates from, and the lazy useState
+  // above only captures `pages` once at mount — if pages arrive asynchronously
+  // (e.g. ScanAndUpload starts with [] while its query is loading) this ref
+  // would otherwise stay stale forever.
+  React.useEffect(() => {
+    rawPagesRef.current = pages;
+  }, [pages]);
+
+  // When pages grows (e.g. a new page is added, or pages arrive asynchronously
+  // after this hook first mounted with pages=[]), extend areasProperties with
+  // real data from those pages' blocks — padding with blank arrays here would
+  // silently drop already-fetched blocks and make them disappear from
+  // StudioActions. `areas` stays blank per new page by design (recalculateAreas
+  // fills it in once the image has loaded and pixel conversion is possible).
+  React.useEffect(() => {
+    setAreas((prev) => {
+      if (prev.length >= pages.length) return prev;
+      return [...prev, ...Array(pages.length - prev.length).fill([])];
+    });
+    setAreasProperties((prev) => {
+      if (prev.length >= pages.length) return prev;
+      const newPages = pages.slice(prev.length);
+      return [...prev, ...initAreasProperties(newPages, types)];
+    });
+    setDeletedDeepBlockAreas((prev) => {
+      if (prev.length >= pages.length) return prev;
+      return [...prev, ...Array(pages.length - prev.length).fill([])];
+    });
+  }, [pages, pages.length, types]);
 
   const getBlockFromBlockId = (id) => {
     if (!id) return null;
@@ -62,63 +117,102 @@ const useAreaManagement = ({
   /**
    * Recalculates area pixel coordinates based on the currently loaded image's dimensions.
    *
-   * This function is triggered when:
-   * - An image finishes loading (via onLoad event)
-   * - The user zooms in/out (imageScaleFactor changes) - image scales
-   * - The user navigates to a different page - new image loads
-   * - Virtual blocks are toggled on/off - layout changes
-   *
-   * Why this is needed:
-   * Areas are stored with percentage coordinates to be resolution-independent.
-   * When the image loads or its size changes, we need to recalculate the pixel
-   * positions based on the image's current rendered size. This ensures areas
-   * stay properly aligned with the image content at any zoom level.
-   *
-   * The recalculation logic is delegated to the coordinate service layer which:
-   * 1. Validates the image is fully loaded
-   * 2. Extracts current dimensions from the DOM element
-   * 3. Converts percentage coordinates to pixels
-   * 4. Preserves metadata for future recalculations
+   * On first call for a page (areas are empty), builds areas from raw API data
+   * and converts % → px in one step. On subsequent calls (zoom, virtual blocks),
+   * reconverts existing areas using stored percentage metadata.
    */
   const recalculateAreas = () => {
     setAreas((prevState) => {
-      const processedAreas = processAreasForImageLoad(
-        prevState,
-        areasProperties,
-        studioEditorRef
-      );
+      const refValidation = validateRefAccess(studioEditorRef);
+      if (!refValidation.isValid) return prevState;
 
-      // Return processed areas if successful, otherwise keep previous state
-      return processedAreas || prevState;
-    });
-  };
+      const { dimensions } = refValidation;
+      const newAreas = [...prevState];
+      const activePageAreas = newAreas[activePageIndex];
 
-  const updateAreaProperty = (idx, property) => {
-    setAreasProperties((prevState) => {
-      let newTrialAreas = [...prevState];
-      if (idx === -1) {
-        const lastIndex = idx + areasProperties[activePageIndex].length;
-        newTrialAreas[activePageIndex][lastIndex] = {
-          ...newTrialAreas[activePageIndex][lastIndex],
-          ...property,
-        };
-      } else {
-        newTrialAreas[activePageIndex][idx] = {
-          ...newTrialAreas[activePageIndex][idx],
-          ...property,
-        };
+      // First load: page has no areas yet — build from raw API data + convert
+      if (
+        (!activePageAreas || activePageAreas.length === 0) &&
+        rawPagesRef.current[activePageIndex]?.blocks?.length
+      ) {
+        const rawAreas = initAreas([rawPagesRef.current[activePageIndex]])[0];
+        newAreas[activePageIndex] = processPageAreas(
+          rawAreas,
+          areasProperties[activePageIndex],
+          dimensions
+        );
+        return newAreas;
       }
-      return newTrialAreas;
+
+      // Subsequent calls (zoom, virtual blocks): reconvert existing areas
+      if (activePageAreas?.length) {
+        newAreas[activePageIndex] = processPageAreas(
+          activePageAreas,
+          areasProperties[activePageIndex],
+          dimensions
+        );
+      }
+
+      return newAreas;
     });
   };
+
+  React.useEffect(() => {
+    recalculateAreasRef.current = recalculateAreas;
+  });
+
+  const updateAreaProperty = React.useCallback(
+    (idx, property) => {
+      setAreasProperties((prevState) => {
+        let newTrialAreas = [...prevState];
+        if (idx === -1) {
+          const lastIndex = idx + areasProperties[activePageIndex].length;
+          newTrialAreas[activePageIndex][lastIndex] = {
+            ...newTrialAreas[activePageIndex][lastIndex],
+            ...property,
+          };
+        } else {
+          newTrialAreas[activePageIndex][idx] = {
+            ...newTrialAreas[activePageIndex][idx],
+            ...property,
+          };
+        }
+        return newTrialAreas;
+      });
+    },
+    [activePageIndex, areasProperties]
+  );
 
   /**
    * Handle area deletion
    * - First checks if area exists in areas array
+   * - Deep blocks: Store for white background rendering, then proceed with deletion
    * - Server areas: Mark as DELETED status (soft delete)
    * - Client areas: Remove from both arrays (hard delete)
    * @param {number} idx - Index of area to delete
    */
+  const addDeletedDeepBlockArea = React.useCallback(
+    (area, areaProps) => {
+      setDeletedDeepBlockAreas((prevState) => {
+        const newDeletedAreas = [...prevState];
+        newDeletedAreas[activePageIndex] = [
+          ...newDeletedAreas[activePageIndex],
+          {
+            id: areaProps.id,
+            x: area._percentX ?? area.x,
+            y: area._percentY ?? area.y,
+            width: area._percentWidth ?? area.width,
+            height: area._percentHeight ?? area.height,
+            unit: area._unit || "percentage",
+            source: "deep-block",
+          },
+        ];
+        return newDeletedAreas;
+      });
+    },
+    [activePageIndex]
+  );
+
   const onClickDeleteArea = React.useCallback(
     (idx) => {
       // 1. Check areas first (source of truth for rendered areas)
@@ -134,7 +228,13 @@ const useAreaManagement = ({
       // 2. Get corresponding areaProps for server status check
       const areaProps = areasProperties[activePageIndex]?.[idx];
 
-      // 3. Determine delete strategy based on server status
+      // 3. Check if this is a deep block and store coordinates for white rendering
+      // Only store if it's server-side (has a snapshot to render the overlay on)
+      if (isDeepBlock(areaProps) && areaProps?.isServer) {
+        addDeletedDeepBlockArea(area, areaProps);
+      }
+
+      // 4. Determine delete strategy based on server status
       if (areaProps?.isServer) {
         // Soft delete: mark as deleted for server sync
         updateAreaProperty(idx, { status: DELETED });
@@ -148,7 +248,13 @@ const useAreaManagement = ({
         );
       }
     },
-    [activePageIndex, areas, areasProperties, updateAreaProperty]
+    [
+      activePageIndex,
+      areas,
+      areasProperties,
+      updateAreaProperty,
+      addDeletedDeepBlockArea,
+    ]
   );
 
   const updateAreaPropertyById = (id, property) => {
@@ -167,6 +273,47 @@ const useAreaManagement = ({
     setAreasProperties(newAreasProperties);
   };
 
+  /**
+   * Add a manually-drawn white-out rectangle (from the ImageActions "white
+   * overlay" tool). Reuses the deep-block white-overlay pipeline — it's
+   * rendered by the same WhiteAreaOverlay and baked into the same submit-time
+   * snapshot — but is tagged `source: "manual"` so it can be individually
+   * removed before submit, unlike deep-block overlays.
+   * @param {{x: number, y: number, width: number, height: number, unit?: string}} area
+   */
+  const addManualWhiteOverlayArea = (area) => {
+    setDeletedDeepBlockAreas((prevState) => {
+      const newDeletedAreas = [...prevState];
+      newDeletedAreas[activePageIndex] = [
+        ...newDeletedAreas[activePageIndex],
+        {
+          id: uuidv4(),
+          x: area.x,
+          y: area.y,
+          width: area.width,
+          height: area.height,
+          unit: area.unit || "percentage",
+          source: "manual",
+        },
+      ];
+      return newDeletedAreas;
+    });
+  };
+
+  /**
+   * Remove a single manual white-out rectangle by id (undo before submit).
+   * @param {string} id
+   */
+  const removeWhiteOverlayArea = (id) => {
+    setDeletedDeepBlockAreas((prevState) => {
+      const newDeletedAreas = [...prevState];
+      newDeletedAreas[activePageIndex] = newDeletedAreas[activePageIndex].filter(
+        (area) => area.id !== id
+      );
+      return newDeletedAreas;
+    });
+  };
+
   const onEditText = (id, text) => {
     const newAreasProperties = onEditTextField(
       areasProperties,
@@ -177,21 +324,20 @@ const useAreaManagement = ({
     setAreasProperties(newAreasProperties);
   };
 
-  const syncAreasProperties = () => {
+  const syncAreasProperties = (areasToSync = areas) => {
     const newAreasProperties = updateAreasProperties(
       areasProperties,
       activePageIndex,
-      areas,
+      areasToSync,
       subObject,
-      type
+      type,
+      pages?.[activePageIndex]?.isNewPage === true
     );
     setAreasProperties(newAreasProperties);
   };
 
   const onChangeArea = (areasParam) => {
-    if (areasParam.length > areasProperties[activePageIndex].length) {
-      syncAreasProperties();
-    }
+    const isNewAreaAdded = areasParam.length > areasProperties[activePageIndex].length;
 
     // Add metadata to new areas
     const areasWithMetadata = areasParam.map((area, idx) => {
@@ -199,16 +345,33 @@ const useAreaManagement = ({
       const existingArea = areas[activePageIndex]?.[idx];
 
       if (existingArea) {
-        // Preserve metadata from existing area
+        // AreaSelector echoes back the SAME (px) coordinates for every area
+        // not currently being dragged/resized — only the one actively being
+        // edited gets genuinely fresh values. Detect that by comparing against
+        // what we last stored: unchanged means static (preserve _percent*,
+        // since area.x/y/width/height here are stale px, not percentages);
+        // changed means this is the active area (recompute _percent* from it).
+        // Using `existingArea._percentWidth ?? area.width` unconditionally
+        // would freeze at a legitimate 0 (mousedown start) forever, since `??`
+        // only falls back on null/undefined.
+        const hasMoved =
+          area.x !== existingArea.x ||
+          area.y !== existingArea.y ||
+          area.width !== existingArea.width ||
+          area.height !== existingArea.height;
+
         return {
           ...area,
           _unit: existingArea._unit || "percentage",
           _updated: existingArea._updated || false,
-          // Preserve or store percentage coordinates
-          _percentX: existingArea._percentX ?? area.x,
-          _percentY: existingArea._percentY ?? area.y,
-          _percentWidth: existingArea._percentWidth ?? area.width,
-          _percentHeight: existingArea._percentHeight ?? area.height,
+          _percentX: hasMoved ? area.x : existingArea._percentX ?? area.x,
+          _percentY: hasMoved ? area.y : existingArea._percentY ?? area.y,
+          _percentWidth: hasMoved
+            ? area.width
+            : existingArea._percentWidth ?? area.width,
+          _percentHeight: hasMoved
+            ? area.height
+            : existingArea._percentHeight ?? area.height,
         };
       } else {
         // New area - set metadata (AreaSelector uses percentage)
@@ -228,6 +391,25 @@ const useAreaManagement = ({
     const newAreasParam = [...areas];
     newAreasParam[activePageIndex] = areasWithMetadata;
     setAreas(newAreasParam);
+
+    // Sync areasProperties whenever areas change (new area added or existing area moved)
+    if (isNewAreaAdded) {
+      syncAreasProperties(newAreasParam);
+    } else {
+      // Check if any existing area has moved
+      const hasMovedAreas = areasWithMetadata.some((area, idx) => {
+        const existingArea = areas[activePageIndex]?.[idx];
+        return existingArea && (
+          area.x !== existingArea.x ||
+          area.y !== existingArea.y ||
+          area.width !== existingArea.width ||
+          area.height !== existingArea.height
+        );
+      });
+      if (hasMovedAreas) {
+        syncAreasProperties(newAreasParam);
+      }
+    }
   };
 
   const onClickSubmit = async () => {
@@ -238,16 +420,165 @@ const useAreaManagement = ({
       id && toast.success("Sub-Object created successfully!");
       // handleClose();
     } else {
+      // Persist any unsaved (pending) pages first so they aren't lost if block
+      // submission fails or the session ends before the user hits "Save".
+      const hasPendingPage = pages.some((p) => p._isPending);
+      if (hasPendingPage) {
+        try {
+          const pageIds = pages.map((p) => p._id).filter(Boolean);
+          await submitPages({ pageIds, chapterId });
+          setPages?.((prev) =>
+            prev.map((p) => ({ ...p, _isPending: false }))
+          );
+        } catch {
+          toast.error("Failed to save pages before submitting blocks.");
+          setLoadingSubmit(false);
+          return;
+        }
+      }
+
+      const hasDeepBlock = areasProperties[activePageIndex]?.some(isDeepBlock);
+      const hasManualWhiteOverlay = deletedDeepBlockAreas[activePageIndex]?.some(
+        (area) => area.source === "manual"
+      );
+      let pageSnapshot = null;
+      if (hasDeepBlock || hasManualWhiteOverlay) {
+        // Snapshot capture flow for deep blocks and manual white-out rectangles
+        // White area overlays (deleted deep blocks + manual white-outs) are automatically
+        // included in the snapshot. They're rendered in the page and appear as white
+        // backgrounds in the final image
+
+        // 1. Temporarily hide area selection borders and backgrounds during capture
+        setShowBlocksStyling(false);
+        // 2. Give React time to update the DOM
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        // 3. Capture snapshot (includes white areas for deleted deep blocks)
+        pageSnapshot = await capturePageSnapshot(pageContainerRef.current);
+        // 4. Restore area selection styling for continued editing
+        setShowBlocksStyling(true);
+      }
       const id = await handleSubmit(
         activePageId,
         areasProperties[activePageIndex],
-        virtualBlocks[activePageIndex]
+        virtualBlocks[activePageIndex],
+        pageSnapshot
       );
-      id && toast.success("Object created successfully!");
-      refetch();
+
+      if (id) {
+        toast.success("Object created successfully!");
+
+        // The submit just persisted every block on this page (created, updated,
+        // and deleted alike). Re-sync this page's local state from the server's
+        // response so newly-created blocks pick up their real blockId and
+        // isServer flag — otherwise a block created and submitted in the same
+        // session still looks client-only, and deleting it afterwards only
+        // removes it locally instead of soft-deleting it for server sync.
+        const refetchResult = await refetch();
+        const freshPages = refetchResult?.data;
+        const freshPage = Array.isArray(freshPages)
+          ? freshPages.find((p) => p._id === activePageId) ??
+            freshPages[activePageIndex]
+          : null;
+
+        if (freshPage) {
+          rawPagesRef.current[activePageIndex] = freshPage;
+          const [freshAreasProperties] = initAreasProperties(
+            [freshPage],
+            types
+          );
+
+          setAreasProperties((prev) => {
+            const updated = [...prev];
+            updated[activePageIndex] = freshAreasProperties;
+            return updated;
+          });
+          // Clear so recalculateAreas rebuilds pixel coordinates from the
+          // fresh raw page data instead of reusing stale (possibly deleted) areas.
+          setAreas((prev) => {
+            const updated = [...prev];
+            updated[activePageIndex] = [];
+            return updated;
+          });
+          setDeletedDeepBlockAreas((prev) => {
+            const updated = [...prev];
+            updated[activePageIndex] = [];
+            return updated;
+          });
+
+          setTimeout(
+            () => recalculateAreasRef.current?.(),
+            TIMEOUTS.POST_SUBMIT_SYNC_DELAY
+          );
+        }
+      }
     }
     // clear();
     setLoadingSubmit(false);
+  };
+
+  const insertPageAt = (insertAt, newPage) => {
+    rawPagesRef.current = [
+      ...rawPagesRef.current.slice(0, insertAt),
+      newPage,
+      ...rawPagesRef.current.slice(insertAt),
+    ];
+    setAreas((prev) => [
+      ...prev.slice(0, insertAt),
+      [],
+      ...prev.slice(insertAt),
+    ]);
+    setAreasProperties((prev) => [
+      ...prev.slice(0, insertAt),
+      [],
+      ...prev.slice(insertAt),
+    ]);
+    setDeletedDeepBlockAreas((prev) => [
+      ...prev.slice(0, insertAt),
+      [],
+      ...prev.slice(insertAt),
+    ]);
+  };
+
+  const insertPagesAt = (insertAt, newPages) => {
+    const emptyArrays = newPages.map(() => []);
+    rawPagesRef.current = [
+      ...rawPagesRef.current.slice(0, insertAt),
+      ...newPages,
+      ...rawPagesRef.current.slice(insertAt),
+    ];
+    setAreas((prev) => [
+      ...prev.slice(0, insertAt),
+      ...emptyArrays,
+      ...prev.slice(insertAt),
+    ]);
+    setAreasProperties((prev) => [
+      ...prev.slice(0, insertAt),
+      ...emptyArrays,
+      ...prev.slice(insertAt),
+    ]);
+    setDeletedDeepBlockAreas((prev) => [
+      ...prev.slice(0, insertAt),
+      ...emptyArrays,
+      ...prev.slice(insertAt),
+    ]);
+  };
+
+  const deletePageAt = (pageIndex) => {
+    rawPagesRef.current = rawPagesRef.current.filter((_, idx) => idx !== pageIndex);
+    setAreas((prev) => prev.filter((_, idx) => idx !== pageIndex));
+    setAreasProperties((prev) => prev.filter((_, idx) => idx !== pageIndex));
+    setDeletedDeepBlockAreas((prev) => prev.filter((_, idx) => idx !== pageIndex));
+  };
+
+  // Reorder the per-page area structures to match a pages reorder. Must apply the
+  // exact same permutation the pages array receives, otherwise blocks would attach
+  // to the wrong page (areas/areasProperties are index-aligned with pages).
+  const reorderPageAt = (fromIndex, toIndex) => {
+    if (fromIndex === toIndex) return;
+    rawPagesRef.current = reorder(rawPagesRef.current, fromIndex, toIndex);
+    setAreas((prev) => reorder(prev, fromIndex, toIndex));
+    setAreasProperties((prev) => reorder(prev, fromIndex, toIndex));
+    setDeletedDeepBlockAreas((prev) => reorder(prev, fromIndex, toIndex));
   };
 
   const onClickToggleVirutalBlocks = () => {
@@ -262,6 +593,14 @@ const useAreaManagement = ({
     setAreas,
     areasProperties,
     setAreasProperties,
+    deletedDeepBlockAreas,
+    setDeletedDeepBlockAreas,
+    addManualWhiteOverlayArea,
+    removeWhiteOverlayArea,
+    insertPageAt,
+    insertPagesAt,
+    deletePageAt,
+    reorderPageAt,
     getBlockFromBlockId,
     recalculateAreas,
     updateAreaProperty,

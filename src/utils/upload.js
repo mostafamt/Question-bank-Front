@@ -1,13 +1,6 @@
 import { toast } from "react-toastify";
 import axios from "../axios";
 
-function newAbortSignal(timeoutMs) {
-  const abortController = new AbortController();
-  setTimeout(() => abortController.abort(), timeoutMs || 0);
-
-  return abortController.signal;
-}
-
 function getExtensionFromMimeType(mimeType) {
   const cleanType = mimeType.split(";")[0]; // remove the ";codecs=opus" part
 
@@ -29,13 +22,9 @@ const upload = async (file) => {
   const data = new FormData();
   data.append("file", file);
   try {
-    const res = await axios.post("/upload", data, {
-      timeout: 10000,
-      signal: newAbortSignal(10000),
-    });
+    const res = await axios.post("/upload", data);
     return res.data;
   } catch (error) {
-    console.log("error= ", error);
     toast.error(error?.message);
   }
 };

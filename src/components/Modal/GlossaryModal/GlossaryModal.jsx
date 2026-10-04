@@ -63,15 +63,6 @@ const GlossaryModal = (props) => {
   };
 
   /**
-   * Handle cancel
-   */
-  const handleCancel = () => {
-    if (handleCloseModal) {
-      handleCloseModal();
-    }
-  };
-
-  /**
    * Handle Enter key press
    */
   const handleKeyPress = (event) => {

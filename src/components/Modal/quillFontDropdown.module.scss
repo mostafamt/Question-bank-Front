@@ -1,0 +1,79 @@
+/**
+ * quillFontDropdown.module.scss
+ * Shared font dropdown styling for all Quill editors
+ * Displays proper font labels in the dropdown instead of generic "sans-serif"
+ */
+
+// Mixin for font dropdown styling
+@mixin ql-font-dropdown {
+  :global(.ql-font) {
+    width: 120px;
+
+    :global(.ql-picker-label) {
+      font-size: 13px;
+      padding: 0 8px;
+    }
+
+    // Dropdown option styling with font labels
+    :global(.ql-picker-options) {
+      padding: 4px 0;
+
+      :global(.ql-picker-item) {
+        padding: 6px 12px;
+        font-size: 13px;
+
+        &:hover {
+          background-color: #f0f0f0;
+        }
+
+        // Font-specific labels (displayed in dropdown)
+        // Sans Serif
+        &[data-value="sans-serif"]::before {
+          content: 'Arial';
+        }
+        &[data-value="verdana"]::before {
+          content: 'Verdana';
+        }
+        &[data-value="trebuchet"]::before {
+          content: 'Trebuchet MS';
+        }
+        &[data-value="tahoma"]::before {
+          content: 'Tahoma';
+        }
+
+        // Serif
+        &[data-value="georgia"]::before {
+          content: 'Georgia';
+        }
+        &[data-value="times"]::before {
+          content: 'Times New Roman';
+        }
+        &[data-value="garamond"]::before {
+          content: 'Garamond';
+        }
+        &[data-value="book"]::before {
+          content: 'Book Antiqua';
+        }
+
+        // Monospace
+        &[data-value="courier"]::before {
+          content: 'Courier New';
+        }
+        &[data-value="consolas"]::before {
+          content: 'Consolas';
+        }
+        &[data-value="monaco"]::before {
+          content: 'Monaco';
+        }
+
+        // Display
+        &[data-value="comic"]::before {
+          content: 'Comic Sans MS';
+        }
+        &[data-value="impact"]::before {
+          content: 'Impact';
+        }
+      }
+    }
+  }
+}

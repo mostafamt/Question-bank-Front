@@ -3,7 +3,7 @@ import styles from "./footer.module.scss";
 
 const Footer = () => {
   return (
-    <footer>
+    <footer className={styles.footer}>
       {/* <div className={styles["logo-box"]}>
         <img src="/assets/logo.png" alt="logo" />
       </div> */}

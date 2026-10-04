@@ -15,7 +15,6 @@ const DragTheWords = () => {
       objectOrExplanation: "Q",
       ...state,
     };
-    console.log(data);
     await axios.post("/interactive-objects", data);
     toast.success("Question created successfully!");
   };

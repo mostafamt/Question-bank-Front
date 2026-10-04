@@ -17,6 +17,8 @@ const StudioStickyToolbar = (props) => {
     onImageLoad,
     pages,
     onClickImage,
+    chapterId,
+    publishLanguage,
   } = props;
 
   if (!show) return;
@@ -35,6 +37,8 @@ const StudioStickyToolbar = (props) => {
         onImageLoad={onImageLoad}
         pages={pages}
         onClickImage={onClickImage}
+        chapterId={chapterId}
+        publishLanguage={publishLanguage}
       />
     </div>
   );

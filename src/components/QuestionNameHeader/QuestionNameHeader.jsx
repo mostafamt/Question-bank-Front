@@ -1,25 +1,17 @@
 import React from "react";
-import { useStore } from "../../store/store";
-import Modal from "../Modal/Modal";
-import EditObjectModal from "../Modal/EditObjectModal/EditObjectModal";
-import EditIcon from "@mui/icons-material/Edit";
 
 import styles from "./questionNameHeader.module.scss";
 import {
   FormControl,
   Grid,
-  IconButton,
   InputLabel,
   MenuItem,
   Select,
   TextField,
 } from "@mui/material";
-import MuiSelect from "../MuiSelect/MuiSelect";
 
 const QuestionNameHeader = (props) => {
-  const [show, setShow] = React.useState(false);
   const {
-    subObject,
     name,
     setName,
     type,
@@ -27,10 +19,6 @@ const QuestionNameHeader = (props) => {
     setInstructionalRole,
     instructionalRoles,
   } = props;
-
-  const toggleShow = () => {
-    setShow((prevState) => !prevState);
-  };
 
   return (
     <div className={styles.header}>

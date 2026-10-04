@@ -144,7 +144,8 @@ export const updateAreasProperties = (
   activePage,
   areas,
   subObject,
-  type
+  type,
+  isNewPage = false
 ) => {
   let newAreas = [];
 
@@ -171,6 +172,7 @@ export const updateAreasProperties = (
         open: areasProperties[activePage][block].open,
         status: status === DELETED ? status : isServer ? UPDATED : CREATED,
         isServer,
+        isDeep: areasProperties[activePage][block].isDeep === true,
       },
     ];
   }
@@ -179,10 +181,10 @@ export const updateAreasProperties = (
     newAreas = [
       ...newAreas,
       {
-        x: areas[areas.length - 1].x,
-        y: areas[areas.length - 1].y,
-        width: areas[areas.length - 1].width,
-        height: areas[areas.length - 1].height,
+        x: areas[activePage][areas[activePage].length - 1].x,
+        y: areas[activePage][areas[activePage].length - 1].y,
+        width: areas[activePage][areas[activePage].length - 1].width,
+        height: areas[activePage][areas[activePage].length - 1].height,
         id: uuidv4(),
         color: null,
         loading: false,
@@ -196,6 +198,10 @@ export const updateAreasProperties = (
         open: true,
         status: CREATED,
         isServer: false,
+        // Pages flagged isNewPage by the server carry no scanned content, so
+        // every block drawn on them defaults to deep (author-entered) rather
+        // than OCR/crop-derived.
+        isDeep: isNewPage === true,
       },
     ];
   }
@@ -217,8 +223,6 @@ export const useTypes = () => {
 
 function compareStringsIgnoreSpaces(str1, str2) {
   // Remove all spaces from both strings
-  // console.log("str1 =", str1);
-  // console.log("str2 =", str2);
   const cleanStr1 = str1?.replace(/\s+/g, "");
   const cleanStr2 = str2?.replace(/\s+/g, "");
 
@@ -255,8 +259,6 @@ export const getTypeNameOfLabelKey = (types, labelKey) => {
 };
 
 export const getValue = (types, type, label) => {
-  console.log("types= ", types);
-  console.log("type= ", type);
   let labels =
     types.find((item) => compareStringsIgnoreSpaces(item.typeName, type))
       ?.labels || [];

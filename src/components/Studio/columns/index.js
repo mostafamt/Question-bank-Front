@@ -2,7 +2,6 @@
 import StudioThumbnails from "../StudioThumbnails/StudioThumbnails";
 import List from "../../Tabs/List/List";
 import TableOfContents from "../../Book/TableOfContents/TableOfContents";
-import GlossaryAndKeywords from "../../Tabs/GlossaryAndKeywords/GlossaryAndKeywords";
 import StudioCompositeBlocks from "../StudioCompositeBlocks/StudioCompositeBlocks";
 import StudioActions from "../StudioActions/StudioActions";
 import ExerciseTab from "../components/ExerciseTab/ExerciseTab";
@@ -11,6 +10,12 @@ import { getTabsForSidebar } from "../../../utils/tabFiltering";
 
 export const buildLeftColumns = ({
   pages,
+  setPages,
+  addLocalPages,
+  addEmptyPage,
+  addImportedPages,
+  insertPageLocally,
+  reorderPages,
   chapterId,
   activePageIndex,
   changePageByIndex,
@@ -18,6 +23,7 @@ export const buildLeftColumns = ({
   changePageById,
   getBlockFromBlockId,
   hightBlock,
+  onPageDeleted,
 }) => {
   // Create navigation function that combines page change and highlighting
   const navigateToBlock = (pageId, blockId) => {
@@ -27,93 +33,102 @@ export const buildLeftColumns = ({
   };
 
   // Get filtered tabs for studio mode
-  const tabConfigs = getTabsForSidebar('left', 'studio');
+  const tabConfigs = getTabsForSidebar("left", "studio");
 
   // Map tab configs to column objects
-  return tabConfigs.map(config => {
-    switch (config.id) {
-      case 'thumbnails':
-        return {
-          id: config.id,
-          label: config.label,
-          component: (
-            <StudioThumbnails
-              pages={pages}
-              activePage={activePageIndex}
-              onClickImage={changePageByIndex}
-              ref={thumbnailsRef}
-            />
-          ),
-        };
+  return tabConfigs
+    .map((config) => {
+      switch (config.id) {
+        case "thumbnails":
+          return {
+            id: config.id,
+            label: config.label,
+            component: (
+              <StudioThumbnails
+                pages={pages}
+                setPages={setPages}
+                addLocalPages={addLocalPages}
+                addEmptyPage={addEmptyPage}
+                addImportedPages={addImportedPages}
+                insertPageLocally={insertPageLocally}
+                reorderPages={reorderPages}
+                activePage={activePageIndex}
+                onClickImage={changePageByIndex}
+                ref={thumbnailsRef}
+                onPageDeleted={onPageDeleted}
+              />
+            ),
+          };
 
-      case 'recalls':
-        return {
-          id: config.id,
-          label: config.label,
-          component: (
-            <List
-              chapterId={chapterId}
-              tab={LEFT_TAB_NAMES.RECALLS}
-              changePageById={changePageById}
-              navigateToBlock={navigateToBlock}
-            />
-          ),
-        };
+        case "recalls":
+          return {
+            id: config.id,
+            label: config.label,
+            component: (
+              <List
+                chapterId={chapterId}
+                tab={LEFT_TAB_NAMES.RECALLS}
+                changePageById={changePageById}
+                navigateToBlock={navigateToBlock}
+              />
+            ),
+          };
 
-      case 'micro-learning':
-        return {
-          id: config.id,
-          label: config.label,
-          component: (
-            <List
-              chapterId={chapterId}
-              tab={LEFT_TAB_NAMES.MICRO_LEARNING}
-              changePageById={changePageById}
-              navigateToBlock={navigateToBlock}
-            />
-          ),
-        };
+        case "micro-learning":
+          return {
+            id: config.id,
+            label: config.label,
+            component: (
+              <List
+                chapterId={chapterId}
+                tab={LEFT_TAB_NAMES.MICRO_LEARNING}
+                changePageById={changePageById}
+                navigateToBlock={navigateToBlock}
+              />
+            ),
+          };
 
-      case 'enriching-content':
-        return {
-          id: config.id,
-          label: config.label,
-          component: (
-            <List
-              chapterId={chapterId}
-              tab={LEFT_TAB_NAMES.ENRICHING_CONTENT}
-              changePageById={changePageById}
-              navigateToBlock={navigateToBlock}
-            />
-          ),
-        };
+        case "enriching-content":
+          return {
+            id: config.id,
+            label: config.label,
+            component: (
+              <List
+                chapterId={chapterId}
+                tab={LEFT_TAB_NAMES.ENRICHING_CONTENT}
+                changePageById={changePageById}
+                navigateToBlock={navigateToBlock}
+              />
+            ),
+          };
 
-      case 'check-yourself-left':
-        return {
-          id: config.id,
-          label: config.label,
-          component: (
-            <List
-              chapterId={chapterId}
-              tab={LEFT_TAB_NAMES.CHECK_YOURSELF}
-              changePageById={changePageById}
-              navigateToBlock={navigateToBlock}
-            />
-          ),
-        };
+        case "check-yourself-left":
+          return {
+            id: config.id,
+            label: config.label,
+            component: (
+              <List
+                chapterId={chapterId}
+                tab={LEFT_TAB_NAMES.CHECK_YOURSELF}
+                changePageById={changePageById}
+                navigateToBlock={navigateToBlock}
+              />
+            ),
+          };
 
-      case 'exercise-left':
-        return {
-          id: config.id,
-          label: config.label,
-          component: <ExerciseTab chapterId={chapterId} />,
-        };
+        case "exercise-left":
+          return {
+            id: config.id,
+            label: config.label,
+            component: <ExerciseTab chapterId={chapterId} />,
+          };
 
-      default:
-        console.warn(`Unknown left tab ID: ${config.id}`);
-        return null;
-    }
-  }).filter(Boolean); // Remove nulls
+        default:
+          console.warn(`Unknown left tab ID: ${config.id}`);
+          return null;
+      }
+    })
+    .filter(Boolean); // Remove nulls
 };
 
 export const buildRightColumns = ({
@@ -133,9 +148,11 @@ export const buildRightColumns = ({
   tOfActiveType,
   onSubmitAutoGenerate,
   loadingAutoGenerate,
+  onSelectFromLibrary,
   onClickToggleVirutalBlocks,
   showVB,
   compositeBlocks,
+  totalAreas,
   compositeBlocksTypes,
   onChangeCompositeBlocks,
   processCompositeBlock,
@@ -152,6 +169,10 @@ export const buildRightColumns = ({
   hightBlock,
   changePageByIndex,
   onClickHand,
+  showBlocksStyling,
+  setShowBlocksStyling,
+  isWhiteOutMode,
+  onToggleWhiteOutMode,
 }) => {
   // Create navigation function that combines page change and highlighting
   const navigateToBlock = (pageId, blockId) => {
@@ -236,8 +257,15 @@ export const buildRightColumns = ({
               tOfActiveType={tOfActiveType}
               onSubmitAutoGenerate={onSubmitAutoGenerate}
               loadingAutoGenerate={loadingAutoGenerate}
+              onSelectFromLibrary={onSelectFromLibrary}
               onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
               showVB={showVB}
+              showBlocksStyling={showBlocksStyling}
+              onToggleBlocksStyling={() =>
+                setShowBlocksStyling(!showBlocksStyling)
+              }
+              isWhiteOutMode={isWhiteOutMode}
+              onToggleWhiteOutMode={onToggleWhiteOutMode}
             />
           ),
         };
@@ -249,6 +277,7 @@ export const buildRightColumns = ({
           component: (
             <StudioCompositeBlocks
               compositeBlocks={compositeBlocks}
+              totalAreas={totalAreas}
               compositeBlocksTypes={compositeBlocksTypes}
               onChangeCompositeBlocks={onChangeCompositeBlocks}
               processCompositeBlock={processCompositeBlock}

@@ -9,20 +9,19 @@ const StudioEditor = React.memo(
   React.forwardRef((props, ref) => {
     const {
       areasProperties,
-      setAreasProperties,
       activePage,
       imageScaleFactor,
       setImageScaleFactor,
       areas,
       setAreas,
-      onChangeHandler,
       pages,
       onImageLoad,
       showVB,
       onClickToggleVirutalBlocks,
       onClickImage,
-      readOnly = false,
-      onAreaClick,
+      showBlocksStyling,
+      chapterId,
+      publishLanguage,
     } = props;
 
     const studioEditorSelectorRef = React.useRef(null);
@@ -50,10 +49,13 @@ const StudioEditor = React.memo(
           onClickImage={onClickImage}
           showVB={showVB}
           onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
+          chapterId={chapterId}
+          publishLanguage={publishLanguage}
         />
         <StudioAreaSelector
           {...props}
           showVB={showVB}
+          showBlocksStyling={showBlocksStyling}
           ref={studioEditorSelectorRef}
         />
       </div>

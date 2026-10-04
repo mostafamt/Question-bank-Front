@@ -58,7 +58,6 @@ const QuestionForm = (props) => {
   };
 
   const handleUpdateOption = (optionId, value, isCorrect, tip) => {
-    console.log("optionId= ", optionId);
     const newOptions = question.params.options.map((option) => {
       if (option.id === optionId) {
         return {

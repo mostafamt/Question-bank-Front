@@ -56,6 +56,32 @@
       box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
       display: none;
     }
+
+    /* Hide react-image-area library default borders when styling is toggled off */
+    &.hideBlocksStyling {
+      /* Remove all border-related styles from area elements */
+      /* Exclude .white-area-overlay: it must keep its white fill/border so
+         deleted deep blocks still render as blank in view-and-play and in
+         the exported page snapshot (showBlocksStyling is false in both). */
+      & div:not(.white-area-overlay) {
+        border: none !important;
+        background-color: transparent !important;
+        outline: none !important;
+        box-shadow: none !important;
+      }
+
+      /* Specifically target divs with borders */
+      & [style*="border"]:not(.white-area-overlay) {
+        border: none !important;
+      }
+
+      /* Reset any dashed/solid border patterns */
+      & [style*="dashed"]:not(.white-area-overlay),
+      & [style*="solid"]:not(.white-area-overlay) {
+        border: none !important;
+        background-color: transparent !important;
+      }
+    }
   }
 }
 
@@ -91,5 +117,12 @@
 
   &:active {
     transform: scale(0.98);
+  }
+
+  // Block targeted by navigation (TOC / glossary) or being narrated
+  &.reader-area-highlighted {
+    background-color: rgba(255, 213, 79, 0.3);
+    box-shadow: 0 0 0 2px rgba(245, 166, 35, 0.9),
+                0 0 12px rgba(245, 166, 35, 0.5);
   }
 }

@@ -7,10 +7,7 @@ import ListItemText from "@mui/material/ListItemText";
 import Collapse from "@mui/material/Collapse";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import DeleteIcon from "@mui/icons-material/Delete";
-import NorthIcon from "@mui/icons-material/North";
-import SouthIcon from "@mui/icons-material/South";
 import EditIcon from "@mui/icons-material/Edit";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -23,7 +20,6 @@ const GlossaryListItem = (props) => {
     handleClick,
     idx,
     open,
-    onPlay,
     onEdit,
     onDelete,
     onMoveUp,
@@ -32,13 +28,6 @@ const GlossaryListItem = (props) => {
   } = props;
 
   const hasReferences = item?.references?.length > 0;
-
-  const handlePlay = (e) => {
-    e.stopPropagation();
-    if (onPlay) {
-      onPlay(item);
-    }
-  };
 
   const handleEdit = (e) => {
     e.stopPropagation();

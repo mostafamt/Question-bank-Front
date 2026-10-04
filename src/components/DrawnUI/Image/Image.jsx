@@ -10,12 +10,11 @@ import { Controller } from "react-hook-form";
 import ValidationMessage from "../../ValidationMessage/ValidationMessage";
 
 const Image = (props) => {
-  const { space, setValue, name, getValues, control, errors, path } = props;
+  const { setValue, name, control, errors, path } = props;
   const [coordinate, setCoordinate] = React.useState();
   const [scaledCoordinate, setScaledCoordinate] = React.useState();
   const imageRef = React.createRef();
 
-  let value = getValues(name);
   const [loading, setLoading] = React.useState(false);
 
   const onChangeHandler = async (event) => {
@@ -29,14 +28,10 @@ const Image = (props) => {
   };
 
   const onChangeInput = (event) => {
-    console.log("value= ", event.target.value);
     setValue(name, event.target.value);
-    console.log("newValue= ", getValues(name));
   };
 
   const onClickImage = (event) => {
-    console.log("event= ", event);
-    console.log("ref= ", imageRef);
     const rect = event.target.getBoundingClientRect();
     const scaledX = event.clientX - rect.left;
     const scaledY = event.clientY - rect.top;
@@ -47,8 +42,6 @@ const Image = (props) => {
     const y = parseInt(scaledY * ratioY);
     setCoordinate({ x, y });
     setScaledCoordinate({ x: scaledX, y: scaledY });
-    console.log("x= ", scaledX * ratioX);
-    console.log("y= ", scaledY * ratioY);
   };
 
   return (

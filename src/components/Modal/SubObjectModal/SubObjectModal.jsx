@@ -3,16 +3,17 @@ import { default as BootstrapModal } from "react-bootstrap/Modal";
 import Studio from "../../Studio/Studio";
 import QuestionNameHeader from "../../QuestionNameHeader/QuestionNameHeader";
 
-import styles from "./subObjectModal.module.scss";
 import { saveObject } from "../../../services/api";
 import { uploadBase64, uploadForStudio } from "../../../utils/upload";
 import { instructionalRoles } from "../../../utils/ocr";
 import { v4 as uuidv4 } from "uuid";
 import { useLocation } from "react-router-dom";
+import { useStore } from "../../../store/store";
 
 const SubObjectModal = (props) => {
   const {
-    handleClose,
+    handleClose: handleCloseProp,
+    handleCloseModal,
     image,
     type,
     types,
@@ -26,7 +27,10 @@ const SubObjectModal = (props) => {
   );
   const [loadingAutoGenerate, setLoadingAutoGenerate] = React.useState(false);
   const location = useLocation();
+  const { openModal } = useStore();
   const language = location.state?.language || "en";
+
+  const handleClose = handleCloseProp || handleCloseModal;
 
   const handleSubmit = async (areas) => {
     const objectElements = await Promise.all(
@@ -58,6 +62,15 @@ const SubObjectModal = (props) => {
     return id;
   };
 
+  const onSelectFromLibrary = () => {
+    openModal("select-from-library", {
+      onSelect: (objectId) => {
+        updateAreaProperty(-1, { text: objectId });
+        handleClose();
+      },
+    });
+  };
+
   const onSubmitAutoGenerate = async () => {
     setLoadingAutoGenerate(true);
     const objectElements = [
@@ -80,7 +93,6 @@ const SubObjectModal = (props) => {
       objectElements,
     };
 
-    console.log("data= ", data);
 
     const id = await saveObject(data);
     updateAreaProperty(-1, { text: id });
@@ -117,6 +129,7 @@ const SubObjectModal = (props) => {
           language={language}
           onSubmitAutoGenerate={onSubmitAutoGenerate}
           loadingAutoGenerate={loadingAutoGenerate}
+          onSelectFromLibrary={onSelectFromLibrary}
         />
       </BootstrapModal.Body>
       <BootstrapModal.Footer></BootstrapModal.Footer>

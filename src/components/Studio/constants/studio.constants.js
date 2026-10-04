@@ -15,6 +15,9 @@ export const TIMEOUTS = {
 
   /** Delay for page navigation recalculation */
   PAGE_NAVIGATION_DELAY: 50,
+
+  /** Delay for area recalculation after post-submit state resync */
+  POST_SUBMIT_SYNC_DELAY: 50,
 };
 
 /**
@@ -23,7 +26,19 @@ export const TIMEOUTS = {
 export const STORAGE_KEYS = {
   /** Key for storing active page index */
   AUTHOR_PAGE: "author_page",
+  /** Prefix for reader page bookmarks; full key is `${prefix}_${chapterId}` */
+  READER_BOOKMARKS: "reader_bookmarks",
+  /** Prefix for the reader's own virtual blocks; full key is `${prefix}_${chapterId}` */
+  READER_VBLOCKS: "reader_vblocks",
+  /** Prefix for the reader's own Enriching Content items; full key is `${prefix}_${chapterId}` */
+  READER_ENRICHING: "reader_enriching",
 };
+
+/**
+ * Content types a reader may add to virtual blocks and Enriching Content
+ * (no library objects or AutoGen)
+ */
+export const READER_VBLOCK_CONTENT_TYPES = ["text", "link"];
 
 /**
  * Default values
@@ -115,3 +130,17 @@ export const COORDINATE_RATIOS = {
 
 export const QUESTION = "Question";
 export const ILLUSTRATIVE_OBJECT = "Illustrative object";
+
+/**
+ * White fallback image (SVG data URI) for pages without URL
+ * Dimensions: 929x1173px, allows area selection on blank canvas
+ */
+export const WHITE_PAGE_FALLBACK = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="929" height="1173"%3E%3Crect fill="white" width="929" height="1173"/%3E%3C/svg%3E';
+
+/**
+ * File types accepted by the thumbnails "add" upload action
+ */
+export const UPLOAD_FILE_TYPES = {
+  ACCEPT: "image/*,application/pdf",
+  PDF_MIME: "application/pdf",
+};

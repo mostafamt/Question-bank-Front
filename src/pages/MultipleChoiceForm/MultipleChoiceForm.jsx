@@ -24,7 +24,7 @@ const MultipleChoiceForm = (props) => {
   const [parameters, setParameters] = React.useState(
     generateMultipleChoiceQuestion
   );
-  const [json, setJSON] = React.useState("");
+  const [, setJSON] = React.useState("");
   const location = useLocation();
   const params = useParams();
   const [showForm, setShowForm] = React.useState(true);
@@ -44,7 +44,6 @@ const MultipleChoiceForm = (props) => {
 
   const fetchData = async (id) => {
     const res = await axios.get(`/interactive-objects/${id}`);
-    console.log(res.data);
     const { parameters } = res.data;
     const newParameters = appendIdToAnswers(parameters);
     setParameters(newParameters);
@@ -65,7 +64,13 @@ const MultipleChoiceForm = (props) => {
         }
       }
     }
-  }, []);
+    // fetchData and state.parameters intentionally omitted: this is a
+    // mount-only "load initial data for this route" effect. fetchData is
+    // redefined every render (would loop if added), and state.parameters is
+    // only meant to be consumed once on mount (OCR hand-off) — re-running
+    // this when it changes later would wipe in-progress edits.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, params]);
 
   const handleEditQuestionParam = (param, value) => {
     setParameters((prevState) => ({ ...prevState, [param]: value }));
@@ -79,13 +84,11 @@ const MultipleChoiceForm = (props) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    console.log(state);
     const data = {
       ...state,
       isAnswered: "g",
       parameters,
     };
-    console.log(data);
     try {
       setLoading(true);
       if (location.pathname.includes("/edit-question/")) {

@@ -20,11 +20,6 @@ import { toast } from "react-toastify";
 const ObjectsTableModalContent2 = (props) => {
   const { handleCloseModal, virtualBlocks, setVirtualBlocks } = props;
 
-  console.log("ObjectsTableModalContent2 opened with:", {
-    virtualBlocks,
-    virtual_block_key: useStore.getState().data.virtual_block_key,
-    virtual_block_label: useStore.getState().data.virtual_block_label,
-  });
 
   const { data: state } = useStore();
 
@@ -75,11 +70,6 @@ const ObjectsTableModalContent2 = (props) => {
       status: isUpdatingServerBlock ? SERVER : CREATED, // ✅ Proper status
     };
 
-    console.log("Updating virtual block:", {
-      key: state.virtual_block_key,
-      updatedBlock,
-      isUpdate: isUpdatingServerBlock,
-    });
 
     // Update virtualBlocks
     setVirtualBlocks({

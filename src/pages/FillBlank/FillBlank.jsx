@@ -33,7 +33,6 @@ const FillBlankForm = () => {
 
   const fetchData = async (id) => {
     const res = await axios.get(`/interactive-objects/${id}`);
-    console.log(res.data);
     const { parameters } = res.data;
     setParameters(parameters);
   };
@@ -43,7 +42,10 @@ const FillBlankForm = () => {
       const { id } = params;
       fetchData(id);
     }
-  }, []);
+    // fetchData intentionally omitted: it's redefined every render and only
+    // reads params/state that are already covered by the deps below.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname, params]);
 
   const handleEditQuestionParam = (param, value) => {
     setParameters((prevState) => ({ ...prevState, [param]: value }));
@@ -57,13 +59,11 @@ const FillBlankForm = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    console.log(state);
     const data = {
       ...state,
       isAnswered: "g",
       parameters,
     };
-    console.log(data);
     try {
       setLoading(true);
       if (location.pathname !== "/add-question/filltheblanks/manual") {

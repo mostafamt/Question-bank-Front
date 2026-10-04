@@ -44,6 +44,10 @@ const EditObjectModal = (props) => {
     if (!subObject) {
       getData();
     }
+    // Intentionally run once on mount only: getData/subObject are stable for
+    // the lifetime of this modal and re-adding them would re-trigger the fetch
+    // on every render since getData is recreated each render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleChangeName = (event) => {
@@ -56,11 +60,9 @@ const EditObjectModal = (props) => {
 
   const onSubmit = (event) => {
     event.preventDefault();
-    console.log("state= ", state);
     const selectedTypeObject = state?.types.find(
       (item) => item.typeName === type
     );
-    console.log("selectedTypeObject= ", selectedTypeObject);
     setFormState({
       ...state,
       questionName: name,
@@ -68,7 +70,6 @@ const EditObjectModal = (props) => {
       // types: selectedTypeObject,
       labels: selectedTypeObject?.labels,
     });
-    console.log(state);
     handleClose();
   };
 

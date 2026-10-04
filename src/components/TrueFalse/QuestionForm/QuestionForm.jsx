@@ -1,12 +1,9 @@
 import React from "react";
-import { Button, FormControl, FormLabel, TextField } from "@mui/material";
+import { FormControl, TextField } from "@mui/material";
 
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import IconButton from "@mui/material/IconButton";
-import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
 
 import styles from "./questionForm.module.scss";
 

@@ -1,5 +1,5 @@
 import { default as axios } from "../axios";
-import { chapters, pages } from "./test-data";
+import { chapters } from "./test-data";
 import { toast } from "react-toastify";
 
 export const wait = (ms) => {
@@ -36,6 +36,16 @@ export const getChapterPages = async (id) => {
   return res.data;
 };
 
+export const getChapterPagesByLanguage = async ({ chapterId, language }) => {
+  const res = await axios.get("/pages", { params: { chapterId, language } });
+  return res.data;
+};
+
+export const getChapterLanguages = async (chapterId) => {
+  const res = await axios.get(`/chapters/${chapterId}/languages`);
+  return res.data;
+};
+
 export const submitBlock = async () => {};
 
 export const getChapterTOC = async (chapterId) => {
@@ -50,6 +60,58 @@ export const getChapterTOC = async (chapterId) => {
 };
 
 export const getBlocksByChapter = async () => {};
+
+export const importPages = async ({ pageIds, chapterId }) => {
+  const res = await axios.post("/pages/import", { pageIds, chapterId });
+  return res.data;
+};
+
+export const submitPages = async ({ pageIds, chapterId }) => {
+  const res = await axios.post("/pages/submit", { pageIds, chapterId });
+  return res.data;
+};
+
+export const addNewPage = async ({ chapterId }) => {
+  const res = await axios.post("/pages/new", { blocks: [], chapterId });
+  return res.data;
+};
+
+export const addNewPages = async ({ chapterId, pageUrls }) => {
+  const res = await axios.post("/pages/new", { chapterId, pageUrls });
+  return res.data;
+};
+
+export const convertPdfToImages = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await axios.post("/pdf/to-images", formData);
+  return res.data;
+};
+
+export const createChapter = async (payload) => {
+  const { file, ...fields } = payload;
+
+  if (!file) {
+    const res = await axios.post("/chapters", fields);
+    return res.data;
+  }
+
+  const formData = new FormData();
+  Object.entries(fields).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      formData.append(key, value);
+    }
+  });
+  formData.append("file", file);
+
+  const res = await axios.post("/chapters", formData);
+  return res.data;
+};
+
+export const copyChapter = async ({ bookId, chapterId }) => {
+  const res = await axios.post("/chapters/copy", { bookId, chapterId });
+  return res.data;
+};
 
 export const getObject = async (id) => {
   const url = `/interactive-objects/${id}`;

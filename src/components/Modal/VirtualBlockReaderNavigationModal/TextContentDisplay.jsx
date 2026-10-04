@@ -1,6 +1,6 @@
 import React from "react";
 import QuillEditor from "react-quill";
-import { quillModules } from "../../../utils/quill";
+import { quillModules, quillFormats } from "../../../utils/quill";
 import "react-quill/dist/quill.snow.css";
 
 import styles from "./textContentDisplay.module.scss";
@@ -35,6 +35,7 @@ const TextContentDisplay = ({ value, title }) => {
         value={editorValue}
         onChange={onChange}
         modules={quillModules}
+        formats={quillFormats}
       />
     </div>
   );

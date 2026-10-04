@@ -194,6 +194,7 @@ export function transformBlockForSubmit(areaProperty, area) {
       unit: area?.unit || "percentage",
     },
     status: areaProperty.status || CREATED,
+    isDeep: areaProperty.isDeep === true,
   };
 }
 
@@ -223,6 +224,7 @@ export function transformBlockFromServer(serverBlock, index, color) {
     order: index,
     open: false,
     isServer: true,
+    isDeep: serverBlock.isDeep === true,
     status: UPDATED,
   };
 }
@@ -256,6 +258,7 @@ export function createBlock({ x, y, width, height, color, type = "" }) {
     order: 0,
     open: true,
     isServer: false,
+    isDeep: false,
     status: CREATED,
   };
 }

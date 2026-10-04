@@ -1,12 +1,11 @@
 import React, { useState, useCallback, useRef } from "react";
-import { useParams } from "react-router";
+import { useParams, useLocation } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { CircularProgress } from "@mui/material";
-import { getChapterPages } from "../../api/bookapi";
+import { getChapterPagesByLanguage } from "../../api/bookapi";
 import { INITIAL_PAGE_INDEX } from "../../utils/book";
 import { tabsConfig } from "../../config/reader";
 import {
-  HIGHLIGHT_CONFIG,
   getAutoClearTimeout,
   isDebugEnabled,
 } from "../../config/highlighting";
@@ -15,19 +14,26 @@ import BookTabsLayout from "../../layouts/BookTabsLayout/BookTabsLayout";
 
 const Book = () => {
   const { bookId, chapterId } = useParams();
-  const { data: pages = [], isFetching } = useQuery({
-    queryKey: [`book-${bookId}-chapter-${chapterId}`],
-    queryFn: () => getChapterPages(chapterId),
+  const location = useLocation();
+  // Content language for this chapter's reading endpoint only — separate
+  // from the navbar's layout (RTL/LTR) language switcher.
+  const contentLanguage = location.state?.contentLanguage || "en";
+
+  const { data, isFetching } = useQuery({
+    queryKey: [`book-${bookId}-chapter-${chapterId}`, contentLanguage],
+    queryFn: () =>
+      getChapterPagesByLanguage({ chapterId, language: contentLanguage }),
     refetchOnWindowFocus: false,
   });
-  const [outerValue, setOuterValue] = React.useState(0); // top-level tabs
-  const [innerValue, setInnerValue] = React.useState(0); // nested tabs
+  const { pages = [] } = data ?? {};
+  const [outerValue] = React.useState(0); // top-level tabs
+  const [innerValue] = React.useState(0); // nested tabs
   const [activePage, setActivePage] = useState(null);
   const thumbnailsRef = React.useRef(null);
   const highlightTimeoutRef = useRef(null);
   const [highlightedBlockId, setHighlightedBlockId] = React.useState(null);
 
-  const [areas, setAreas] = React.useState(
+  const [, setAreas] = React.useState(
     pages?.map((page) =>
       page.blocks?.map((block) => {
         return {
@@ -47,9 +53,11 @@ const Book = () => {
   );
 
   React.useEffect(() => {
-    if (pages?.length) {
-      setActivePage(pages[INITIAL_PAGE_INDEX]);
-    }
+    if (!pages?.length) return;
+    setActivePage((prev) => {
+      if (!prev) return pages[INITIAL_PAGE_INDEX];
+      return pages.find((p) => p._id === prev._id) ?? pages[INITIAL_PAGE_INDEX];
+    });
   }, [pages]);
 
   // Update areas when pages data changes
@@ -184,7 +192,6 @@ const Book = () => {
       }
 
       if (isDebugEnabled()) {
-        console.log(`Highlighting block: ${blockId}`);
       }
 
       setHighlightedBlockId(blockId);
@@ -195,7 +202,6 @@ const Book = () => {
         highlightTimeoutRef.current = setTimeout(() => {
           setHighlightedBlockId(null);
           if (isDebugEnabled()) {
-            console.log(`Cleared highlight for block: ${blockId}`);
           }
         }, timeout);
       }

@@ -1,8 +1,6 @@
 import React from "react";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import DeleteIcon from "@mui/icons-material/Delete";
-import NorthIcon from "@mui/icons-material/North";
-import SouthIcon from "@mui/icons-material/South";
 import { IconButton } from "@mui/material";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -17,7 +15,6 @@ const ListItem = ({ item, onPlay, onDelete, onMoveUp, onMoveDown, reader }) => {
     if (onMoveUp) {
       onMoveUp();
     } else {
-      console.log("onClickUp - no handler provided");
     }
   };
 
@@ -26,7 +23,6 @@ const ListItem = ({ item, onPlay, onDelete, onMoveUp, onMoveDown, reader }) => {
     if (onMoveDown) {
       onMoveDown();
     } else {
-      console.log("onClickDown - no handler provided");
     }
   };
 
