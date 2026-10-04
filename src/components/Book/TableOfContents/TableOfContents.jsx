@@ -2,7 +2,7 @@ import React from "react";
 import Box from "@mui/material/Box";
 import { SimpleTreeView } from "@mui/x-tree-view/SimpleTreeView";
 import { TreeItem } from "@mui/x-tree-view/TreeItem";
-import { mapTableOfContents } from "../../../utils/book";
+import { mapTableOfContents } from "../../../utils/tableOfContents";
 import { getChapterTOC } from "../../../api/bookapi";
 import { useQuery } from "@tanstack/react-query";
 import { CircularProgress } from "@mui/material";
@@ -51,7 +51,7 @@ const TableOfContents = (props) => {
   const tableOfContents = React.useMemo(() => mapTableOfContents(data), [data]);
 
   return (
-    <Box sx={{ minHeight: 352, minWidth: 250 }}>
+    <Box className={styles["toc-container"]} sx={{ minHeight: 352, minWidth: 250 }}>
       {isFetching ? (
         <CircularProgress size="1rem" />
       ) : (

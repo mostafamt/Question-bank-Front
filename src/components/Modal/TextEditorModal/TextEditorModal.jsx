@@ -3,7 +3,7 @@ import { default as BootstrapModal } from "react-bootstrap/Modal";
 import Button from "@mui/material/Button";
 import QuillEditor from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { quillModules } from "../../../utils/quill";
+import { quillModules, quillFormats } from "../../../utils/quill";
 
 import styles from "./textEditorModal.module.scss";
 
@@ -30,10 +30,6 @@ const TextEditorModal = (props) => {
   // Local state for editor value
   const [value, setValue] = React.useState(initialValue);
 
-  console.log("TextEditorModal props:", {
-    initialValue,
-    hasSubmitHandler: !!onClickSubmit,
-  });
 
   // Determine if modal is in read-only mode
   const isReadOnly = !onClickSubmit;
@@ -83,10 +79,11 @@ const TextEditorModal = (props) => {
           onChange={onChange}
           readOnly={isReadOnly}
           modules={isReadOnly ? { toolbar: false } : quillModules}
+          formats={quillFormats}
         />
       </BootstrapModal.Body>
 
-      <BootstrapModal.Footer>
+      <BootstrapModal.Footer style={{ justifyContent: "space-between" }}>
         {isReadOnly ? (
           // Read-only mode: Only show Close button
           <Button

@@ -2,8 +2,6 @@ import React from "react";
 import "react-quill/dist/quill.snow.css";
 /** @jsxImportSource @emotion/react */
 
-import styles from "./test.module.scss";
-
 const Test = () => {
   const targetRef = React.useRef(null);
   const [isStickyVisible, setStickyVisible] = React.useState(false);
@@ -11,7 +9,6 @@ const Test = () => {
   React.useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        console.log(entry);
         // If the target is NOT visible → show sticky content
         setStickyVisible(!entry.isIntersecting);
       },
@@ -21,14 +18,15 @@ const Test = () => {
       }
     );
 
-    if (targetRef.current) {
-      console.log(targetRef.current);
-      observer.observe(targetRef.current);
+    const target = targetRef.current;
+
+    if (target) {
+      observer.observe(target);
     }
 
     return () => {
-      if (targetRef.current) {
-        observer.unobserve(targetRef.current);
+      if (target) {
+        observer.unobserve(target);
       }
     };
   }, []);

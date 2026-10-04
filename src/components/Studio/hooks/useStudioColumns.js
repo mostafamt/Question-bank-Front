@@ -4,7 +4,7 @@
  * Centralizes the complex column building logic from Studio.jsx
  */
 
-import React, {
+import {
   useRef,
   useCallback,
   useMemo,
@@ -36,6 +36,7 @@ import {
 const useStudioColumns = ({
   isReaderMode,
   pages,
+  setPages,
   activePageIndex,
   chapterId,
   thumbnailsRef,
@@ -44,6 +45,11 @@ const useStudioColumns = ({
   getBlockFromBlockId,
   hightBlock,
   rightColumnProps = {},
+  onPageDeleted,
+  addEmptyPage,
+  addImportedPages,
+  insertPageLocally,
+  reorderPages,
 }) => {
   // Store callback functions in refs to avoid dependency changes
   const changePageByIdRef = useRef(changePageById);
@@ -109,6 +115,12 @@ const useStudioColumns = ({
 
     return buildLeftColumns({
       pages,
+      setPages,
+      addLocalPages: rightColumnProps.addLocalPages,
+      addEmptyPage,
+      addImportedPages,
+      insertPageLocally,
+      reorderPages,
       chapterId,
       activePageIndex,
       changePageByIndex: changePageByIndexRef.current,
@@ -116,6 +128,7 @@ const useStudioColumns = ({
       changePageById: changePageByIdRef.current,
       getBlockFromBlockId: getBlockFromBlockIdRef.current,
       hightBlock: hightBlockRef.current,
+      onPageDeleted,
     });
   }, [
     isReaderMode,
@@ -125,6 +138,13 @@ const useStudioColumns = ({
     thumbnailsRef,
     setActivePage,
     navigateToBlock,
+    setPages,
+    rightColumnProps.addLocalPages,
+    addEmptyPage,
+    addImportedPages,
+    insertPageLocally,
+    reorderPages,
+    onPageDeleted,
   ]);
 
   // Store rightColumnProps in ref for stable access
@@ -161,6 +181,7 @@ const useStudioColumns = ({
       subObject,
       tOfActiveType,
       onSubmitAutoGenerate,
+      onSelectFromLibrary,
       compositeBlocksTypes,
       onChangeCompositeBlocks,
       processCompositeBlock,
@@ -174,25 +195,29 @@ const useStudioColumns = ({
     // These props either:
     // 1. Use activePageIndex in their closures (callbacks)
     // 2. Are state values that change frequently
-    const {
-      areasProperties,
-      compositeBlocks,
-      loadingSubmitCompositeBlocks,
-      onClickDeleteArea,
-      loadingSubmit,
-      // Callbacks that use activePageIndex in closures
-      updateAreaProperty,
-      updateAreaPropertyById,
-      onEditText,
-      onClickSubmit,
-      onChangeLabel,
-      onClickToggleVirutalBlocks,
-      onClickHand,
-      // State values that change
-      showVB,
-      highlight,
-      loadingAutoGenerate,
-    } = rightColumnProps;
+    const areasProperties = rightColumnProps.areasProperties;
+    const compositeBlocks = rightColumnProps.compositeBlocks;
+    const loadingSubmitCompositeBlocks =
+      rightColumnProps.loadingSubmitCompositeBlocks;
+    const onClickDeleteArea = rightColumnProps.onClickDeleteArea;
+    const loadingSubmit = rightColumnProps.loadingSubmit;
+    // Callbacks that use activePageIndex in closures
+    const updateAreaProperty = rightColumnProps.updateAreaProperty;
+    const updateAreaPropertyById = rightColumnProps.updateAreaPropertyById;
+    const onEditText = rightColumnProps.onEditText;
+    const onClickSubmit = rightColumnProps.onClickSubmit;
+    const onChangeLabel = rightColumnProps.onChangeLabel;
+    const onClickToggleVirutalBlocks =
+      rightColumnProps.onClickToggleVirutalBlocks;
+    const onClickHand = rightColumnProps.onClickHand;
+    // State values that change
+    const showVB = rightColumnProps.showVB;
+    const highlight = rightColumnProps.highlight;
+    const loadingAutoGenerate = rightColumnProps.loadingAutoGenerate;
+    const showBlocksStyling = rightColumnProps.showBlocksStyling;
+    const setShowBlocksStyling = rightColumnProps.setShowBlocksStyling;
+    const isWhiteOutMode = rightColumnProps.isWhiteOutMode;
+    const onToggleWhiteOutMode = rightColumnProps.onToggleWhiteOutMode;
 
     return buildRightColumns({
       areasProperties,
@@ -211,6 +236,7 @@ const useStudioColumns = ({
       tOfActiveType,
       onSubmitAutoGenerate,
       loadingAutoGenerate,
+      onSelectFromLibrary,
       onClickToggleVirutalBlocks,
       showVB,
       compositeBlocks,
@@ -230,6 +256,10 @@ const useStudioColumns = ({
       hightBlock: hightBlockRef.current,
       changePageByIndex: changePageByIndexRef.current,
       onClickHand,
+      showBlocksStyling,
+      setShowBlocksStyling,
+      isWhiteOutMode,
+      onToggleWhiteOutMode,
     });
   }, [
     isReaderMode,
@@ -256,17 +286,21 @@ const useStudioColumns = ({
     rightColumnProps.onChangeLabel,
     rightColumnProps.onClickToggleVirutalBlocks,
     rightColumnProps.onClickHand,
+    rightColumnProps.showBlocksStyling,
+    rightColumnProps.setShowBlocksStyling,
+    rightColumnProps.isWhiteOutMode,
+    rightColumnProps.onToggleWhiteOutMode,
   ]);
 
-  // Create stable strings of tab labels to detect actual tab configuration changes
+  // Create stable strings of tab IDs to detect actual tab configuration changes
   // This prevents sync effects from running when only object references change
-  const leftColumnsLabels = useMemo(
-    () => leftColumns.map((c) => c.label).join(","),
+  const leftColumnsIds = useMemo(
+    () => leftColumns.map((c) => c.id).join(","),
     [leftColumns]
   );
 
-  const rightColumnsLabels = useMemo(
-    () => rightColumns.map((c) => c.label).join(","),
+  const rightColumnsIds = useMemo(
+    () => rightColumns.map((c) => c.id).join(","),
     [rightColumns]
   );
 
@@ -278,17 +312,17 @@ const useStudioColumns = ({
     () => rightColumns[0] || null
   );
 
-  // Store active tab labels in refs to avoid dependency issues
-  const activeLeftTabLabelRef = useRef(activeLeftTab?.label);
-  const activeRightTabLabelRef = useRef(activeRightTab?.label);
+  // Store active tab IDs in refs to avoid dependency issues
+  const activeLeftTabIdRef = useRef(activeLeftTab?.id);
+  const activeRightTabIdRef = useRef(activeRightTab?.id);
 
   // Update refs when tabs change (with proper dependencies)
   useEffect(() => {
-    activeLeftTabLabelRef.current = activeLeftTab?.label;
+    activeLeftTabIdRef.current = activeLeftTab?.id;
   }, [activeLeftTab]);
 
   useEffect(() => {
-    activeRightTabLabelRef.current = activeRightTab?.label;
+    activeRightTabIdRef.current = activeRightTab?.id;
   }, [activeRightTab]);
 
   // Sync left tab when columns change
@@ -297,20 +331,19 @@ const useStudioColumns = ({
     if (!leftColumns.length) return;
 
     // Respect collapsed state - don't reset if intentionally collapsed
-    const currentLabel = activeLeftTabLabelRef.current;
-    if (currentLabel === "" || currentLabel === null || currentLabel === undefined) {
+    const currentId = activeLeftTabIdRef.current;
+    if (currentId === "" || currentId === null || currentId === undefined) {
       return;
     }
 
     const next =
-      leftColumns.find((col) => col.label === currentLabel) ||
-      leftColumns[0];
+      leftColumns.find((col) => col.id === currentId) || leftColumns[0];
 
-    // Only update if the label actually changed
-    if (next.label !== currentLabel) {
+    // Only update if the tab actually changed
+    if (next.id !== currentId) {
       setActiveLeftTab(next);
     }
-  }, [leftColumnsLabels, leftColumns]);
+  }, [leftColumnsIds, leftColumns]);
 
   // Sync right tab when columns change
   // Only runs when tabs are actually added/removed (not just reference changes)
@@ -318,20 +351,19 @@ const useStudioColumns = ({
     if (!rightColumns.length) return;
 
     // Respect collapsed state - don't reset if intentionally collapsed
-    const currentLabel = activeRightTabLabelRef.current;
-    if (currentLabel === "" || currentLabel === null || currentLabel === undefined) {
+    const currentId = activeRightTabIdRef.current;
+    if (currentId === "" || currentId === null || currentId === undefined) {
       return;
     }
 
     const next =
-      rightColumns.find((col) => col.label === currentLabel) ||
-      rightColumns[0];
+      rightColumns.find((col) => col.id === currentId) || rightColumns[0];
 
-    // Only update if the label actually changed
-    if (next.label !== currentLabel) {
+    // Only update if the tab actually changed
+    if (next.id !== currentId) {
       setActiveRightTab(next);
     }
-  }, [rightColumnsLabels, rightColumns]);
+  }, [rightColumnsIds, rightColumns]);
 
   return {
     // Columns

@@ -17,6 +17,9 @@ import styles from "../studio.module.scss";
 const StudioLayout = React.forwardRef(
   (
     {
+      // Refs
+      pageContainerRef,
+
       // Left column props
       leftColumns,
       activeLeftTab,
@@ -50,6 +53,15 @@ const StudioLayout = React.forwardRef(
       setHighlight,
       highlightedBlockId,
       onPlayBlock,
+      showBlocksStyling,
+      setShowBlocksStyling,
+      deletedDeepBlockAreas,
+      isWhiteOutMode,
+      onToggleWhiteOutMode,
+      addManualWhiteOverlayArea,
+      removeWhiteOverlayArea,
+      chapterId,
+      publishLanguage,
     },
     ref
   ) => {
@@ -67,6 +79,7 @@ const StudioLayout = React.forwardRef(
         {/* Main Editor */}
         <StudioEditor
           ref={ref}
+          pageContainerRef={pageContainerRef}
           areasProperties={areasProperties}
           setAreasProperties={setAreasProperties}
           activePage={activePageIndex}
@@ -90,6 +103,15 @@ const StudioLayout = React.forwardRef(
           setHighlight={setHighlight}
           highlightedBlockId={highlightedBlockId}
           onPlayBlock={onPlayBlock}
+          showBlocksStyling={showBlocksStyling}
+          setShowBlocksStyling={setShowBlocksStyling}
+          deletedDeepBlockAreas={deletedDeepBlockAreas}
+          isWhiteOutMode={isWhiteOutMode}
+          onToggleWhiteOutMode={onToggleWhiteOutMode}
+          addManualWhiteOverlayArea={addManualWhiteOverlayArea}
+          removeWhiteOverlayArea={removeWhiteOverlayArea}
+          chapterId={chapterId}
+          publishLanguage={publishLanguage}
         />
 
         {/* Right Panel */}

@@ -1,7 +1,10 @@
 .image-actions {
   border-bottom: 1px solid black;
-  height: 5%;
+  // min-height + wrap: on a narrow column the last groups drop to a second
+  // line instead of being clipped by the editor.
+  min-height: 5%;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   padding: 0 10px;
 

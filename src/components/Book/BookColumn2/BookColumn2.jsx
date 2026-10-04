@@ -1,23 +1,24 @@
 import React from "react";
 import MinimizeIcon from "@mui/icons-material/Minimize";
 import { getColumnIcon } from "../../../utils/book-icons";
+import { getTabLabel } from "../../../utils/tabFiltering";
+import { useStore } from "../../../store/store";
 
 import styles from "./bookColumn.module.scss";
 
 const BookColumn2 = (props) => {
   const [columns, setColumns] = React.useState(props.columns);
   const [activeColumn, setActiveColumn] = React.useState(props.columns[0]);
-  const { activePage, setActivePage } = props;
+  const { activePage } = props;
+  const language = useStore((s) => s.language);
 
   React.useEffect(() => {
     setColumns(props.columns);
   }, [props.columns]);
 
   React.useEffect(() => {
-    console.log("window.innerWidth= ", window.innerWidth);
     const checkMobile = () => {
       if (window.innerWidth <= 768) {
-        console.log("here");
         setActiveColumn(null);
       }
     };
@@ -43,7 +44,7 @@ const BookColumn2 = (props) => {
       {activeColumn ? (
         <div className={styles.opened}>
           <div className={styles.head}>
-            <span>{activeColumn.label}</span>
+            <span>{getTabLabel(activeColumn.label, language)}</span>
             <button onClick={() => setActiveColumn(null)}>
               <MinimizeIcon />
             </button>
@@ -58,10 +59,10 @@ const BookColumn2 = (props) => {
       ) : (
         <div className={styles.closed}>
           {columns.map((column) => {
-            const IconComponent = getColumnIcon(column.label);
+            const IconComponent = getColumnIcon(column.id);
             return (
               <button key={column.id} onClick={() => setActiveColumn(column)}>
-                <span>{column.label}</span>
+                <span>{getTabLabel(column.label, language)}</span>
                 <IconComponent />
               </button>
             );

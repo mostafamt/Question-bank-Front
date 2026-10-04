@@ -1,16 +1,33 @@
-import React, { useMemo, useCallback } from "react";
-import { AreaSelector } from "@bmunozg/react-image-area";
-import { constructBoxColors } from "../services/styling.service";
+import React, { useCallback, useMemo } from "react";
 import clsx from "clsx";
 /** @jsxImportSource @emotion/react */
 
 import styles from "./studioAreaSelector.module.scss";
 import VirtualBlocks from "../../VirtualBlocks/VirtualBlocks";
-import { getList2FromData } from "../../../utils/studio";
-import { RIGHT_TAB_NAMES } from "../constants";
+import { constructBoxColors } from "../services/styling.service";
 import { hexToRgbA } from "../../../utils/helper";
 import { useAppMode } from "../../../utils/tabFiltering";
+import { WHITE_PAGE_FALLBACK } from "../constants";
+import useReaderVBlocks from "../hooks/useReaderVBlocks";
 
+import { getRenderMode, RENDER_MODES } from "./utils/renderMode";
+import { BlockOverlayLayer } from "./shared";
+import {
+  ReaderModeRenderer,
+  HandToolRenderer,
+  EditModeRenderer,
+  DefaultRenderer,
+} from "./renderers";
+import { useAreaCustomRenderer, useCompositeBlockPicking } from "./hooks";
+
+/**
+ * @file StudioAreaSelector.jsx
+ * @description Orchestrator: resolves which of the 6 render modes applies
+ * (see ./utils/renderMode.js) and delegates to the matching sub-component.
+ * Owns the mode-independent pieces: image-source resolution, per-area
+ * inline styling (getBlockStyle), the VirtualBlocks wrapper, and the
+ * container's box-color CSS.
+ */
 const StudioAreaSelector = React.memo(
   React.forwardRef((props, ref) => {
     const {
@@ -33,16 +50,37 @@ const StudioAreaSelector = React.memo(
       readOnly = false,
       onAreaClick,
       onPlayBlock,
+      pageContainerRef,
+      showBlocksStyling,
+      deletedDeepBlockAreas = [],
+      isWhiteOutMode,
+      addManualWhiteOverlayArea,
+      removeWhiteOverlayArea,
+      onImageLoad,
     } = props;
 
     // Detect mode (reader vs studio)
     const mode = useAppMode();
     const isReaderMode = mode === "reader";
 
+    // Reader's own virtual blocks for this page (reader mode only)
+    const {
+      readerBlocks,
+      saveSlot: saveReaderSlot,
+      deleteSlot: deleteReaderSlot,
+    } = useReaderVBlocks(pages[activePage]?._id, isReaderMode);
+
+    // Get image source with fallback to white canvas if URL is missing
+    const getImageSource = useCallback(() => {
+      const url = pages[activePage]?.url;
+      return url && typeof url === "string" && url.trim().length > 0
+        ? url
+        : WHITE_PAGE_FALLBACK;
+    }, [pages, activePage]);
+
     // Helper function to get block styles based on mode
     const getBlockStyle = useCallback(
       (area, idx) => {
-        console.log("area= ", area);
         if (isReaderMode) {
           // Reader mode: simple percentage positioning with no visual clutter
           return {
@@ -52,193 +90,79 @@ const StudioAreaSelector = React.memo(
             width: `${area.width}px`,
             height: `${area.height}px`,
           };
-        } else {
-          // Studio mode: existing colored style for editing
-          const areaProps = areasProperties[activePage]?.[idx];
+        }
+
+        // Studio / read-only mode — areas are always stored in px (see
+        // processPageAreas/convertPercentageToPixels), matching how the
+        // AreaSelector library itself positions boxes via area.unit.
+        const unit = area.unit || "px";
+        const baseStyle = {
+          position: "absolute",
+          top: `${area.y}${unit}`,
+          left: `${area.x}${unit}`,
+          width: `${area.width}${unit}`,
+          height: `${area.height}${unit}`,
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        };
+
+        // Only add border and background if showBlocksStyling is true
+        if (!showBlocksStyling) {
+          return baseStyle;
+        }
+
+        const areaProps = areasProperties[activePage]?.[idx];
+
+        if (!areaProps?.color) {
+          // No color assigned yet — dashed border (added but not typed)
           return {
-            position: "absolute",
-            top: `${area.y}%`,
-            left: `${area.x}%`,
-            width: `${area.width}%`,
-            height: `${area.height}%`,
-            border: `2px solid ${areaProps?.color || "#000"}`,
-            backgroundColor: areaProps?.color
-              ? hexToRgbA(areaProps.color)
-              : "rgba(0, 0, 0, 0.2)",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            ...baseStyle,
+            border: "2px dashed rgba(0, 0, 0, 0.5)",
+            backgroundColor: "rgba(0, 0, 0, 0.05)",
           };
         }
+
+        return {
+          ...baseStyle,
+          border: `2px solid ${areaProps.color}`,
+          backgroundColor: hexToRgbA(areaProps.color),
+        };
       },
-      [isReaderMode, areasProperties, activePage]
+      [isReaderMode, areasProperties, activePage, showBlocksStyling]
     );
 
-    const onClickExistedArea = useCallback(
-      (areaProps) => {
-        setAreasProperties((prevAreasProperties) => {
-          const newAreasProperties = [...prevAreasProperties];
-          const idx = areaProps.areaNumber - 1;
-          newAreasProperties[activePage][idx].open =
-            !newAreasProperties[activePage][idx].open;
-          return newAreasProperties;
-        });
-      },
-      [activePage, setAreasProperties]
-    );
-
-    const customRender = useCallback(
-      (areaProps) => {
-        if (!areaProps.isChanging) {
-          const isCompositeBlocksTab =
-            activeRightTab.label === "Composite Blocks";
-          const areaIndex = areaProps.areaNumber - 1;
-
-          let areaType, areaLabel;
-
-          if (isCompositeBlocksTab) {
-            const area = compositeBlocks.areas?.[areaIndex];
-            areaType = area?.type;
-            areaLabel = compositeBlocks?.type;
-          } else {
-            const area = areasProperties[activePage]?.[areaIndex];
-            areaType = area?.type;
-            areaLabel = area?.label;
-          }
-
-          if (areaType) {
-            return (
-              <div
-                key={areaProps.areaNumber}
-                onClick={() => {
-                  if (readOnly && onAreaClick) {
-                    onAreaClick(areaProps);
-                  } else {
-                    onClickExistedArea(areaProps);
-                  }
-                }}
-                style={{ cursor: readOnly ? "pointer" : "default" }}
-              >
-                <div className={styles.type}>
-                  {areaType} - {areaLabel}
-                </div>
-              </div>
-            );
-          }
-        }
-      },
-      [
-        onClickExistedArea,
-        activePage,
-        activeRightTab.label,
-        compositeBlocks,
-        areasProperties,
-        readOnly,
-        onAreaClick,
-      ]
-    );
-
-    const onImageLoad = useCallback(() => {
-      props.onImageLoad();
-    }, [props.onImageLoad]);
-
-    const onChangeHandlerForCB = (areas) => {
-      // _setCompositeBlocks((prevState) => ({ ...prevState, areas }));
-    };
-
-    const onPickAreaForCompositeBlocks = useCallback(
-      (idx) => {
-        const area = areasProperties[activePage][idx];
-        const list = getList2FromData(
-          compositeBlocksTypes,
-          compositeBlocks.type
-        );
-
-        const condition1 =
-          (area.type === "Illustrative object" || area.type === "Question") &&
-          list.includes("Object");
-        const condition2 =
-          area.type === "Question" && list.includes("Question");
-
-        if (condition1 || condition2) {
-          setCompositeBlocks((prevState) => ({
-            ...prevState,
-            areas: [
-              ...prevState.areas,
-              {
-                x: area.x,
-                y: area.y,
-                height: area.height,
-                width: area.width,
-                type: list.includes("Object") ? "Object" : "Question",
-                text: area.blockId,
-                unit: "%",
-              },
-            ],
-          }));
-        }
-      },
-      [
-        areasProperties,
-        activePage,
-        compositeBlocksTypes,
-        compositeBlocks.type,
-        setCompositeBlocks,
-      ]
-    );
-
-    const blocksToRender = useMemo(() => {
-      return (
-        areas[activePage]
-          ?.map((area, idx) => ({ area, idx })) // Preserve index
-          .filter(({ idx }) => {
-            // Filter out SimpleItem blocks
-            const areaProps = areasProperties[activePage]?.[idx];
-            return areaProps?.type !== "Simple item";
-          })
-          .map(({ area, idx }) => (
-            <div
-              key={idx}
-              style={{
-                position: "absolute",
-                top: `${area.y}px`,
-                left: `${area.x}px`,
-                width: `${area.width}px`,
-                height: `${area.height}px`,
-                backgroundColor: "rgba(0, 0, 0, 0.2)",
-                cursor: "pointer",
-              }}
-              onClick={() => onPickAreaForCompositeBlocks(idx)}
-            />
-          )) || []
-      );
-    }, [areas, activePage, areasProperties, onPickAreaForCompositeBlocks]);
-
-    // Debug: Log which props are changing
-    const prevPropsRef = React.useRef(props);
-    React.useEffect(() => {
-      const prevProps = prevPropsRef.current;
-      const changedProps = {};
-
-      Object.keys(props).forEach((key) => {
-        if (props[key] !== prevProps[key]) {
-          changedProps[key] = {
-            old: prevProps[key],
-            new: props[key],
-            changed: true,
-          };
-        }
-      });
-
-      prevPropsRef.current = props;
+    const customRender = useAreaCustomRenderer({
+      activePage,
+      activeRightTabId: activeRightTab.id,
+      compositeBlocks,
+      areasProperties,
+      setAreasProperties,
+      readOnly,
+      onAreaClick,
+      isReaderMode,
+      showBlocksStyling,
     });
 
+    const { blocksToRender } = useCompositeBlockPicking({
+      areas,
+      areasProperties,
+      activePage,
+      compositeBlocksTypes,
+      compositeBlocks,
+      setCompositeBlocks,
+    });
+
+    const handleImageLoad = useCallback(() => {
+      onImageLoad();
+    }, [onImageLoad]);
+
     const renderedAreas = useMemo(() => {
-      return activeRightTab.label === "Composite Blocks"
+      return activeRightTab.id === "composite-blocks"
         ? compositeBlocks.areas || []
         : areas[activePage] || [];
-    }, [activeRightTab.label, compositeBlocks.areas, areas, activePage]);
+    }, [activeRightTab.id, compositeBlocks.areas, areas, activePage]);
 
     const wrapperStyle = useMemo(
       () => ({
@@ -249,12 +173,27 @@ const StudioAreaSelector = React.memo(
 
     const areaPropsConfig = useMemo(
       () => ({
-        onClick: (event, area) => {
-          // console.log("here");
-        },
+        onClick: (event, area) => {},
       }),
       []
     );
+
+    const renderMode = getRenderMode({
+      isReaderMode,
+      readOnly,
+      showBlocksStyling,
+      highlight,
+      activeRightTabId: activeRightTab.id,
+    });
+
+    const sharedRendererProps = {
+      deletedDeepBlockAreas,
+      activePage,
+      pages,
+      imageScaleFactor,
+      onImageLoad: handleImageLoad,
+      getImageSource,
+    };
 
     return (
       <VirtualBlocks
@@ -267,133 +206,73 @@ const StudioAreaSelector = React.memo(
         setVirtualBlocks={setVirtualBlocks}
         activePage={activePage}
         reader={isReaderMode}
+        readerBlocks={readerBlocks}
+        onSaveReaderSlot={saveReaderSlot}
+        onDeleteReaderSlot={deleteReaderSlot}
+        pageImageUrl={getImageSource()}
       >
         <div
-          className={styles.block}
+          ref={pageContainerRef}
+          className={clsx(
+            styles.block,
+            !showBlocksStyling && styles.hideBlocksStyling
+          )}
           css={constructBoxColors(
-            activeRightTab.label === "Composite Blocks"
+            readOnly
+              ? [] // read-only mode: let inline getBlockStyle handle borders
+              : activeRightTab.id === "composite-blocks"
               ? compositeBlocks.areas || []
               : areasProperties[activePage] || [],
-            highlightedBlockId
+            highlightedBlockId,
+            showBlocksStyling
           )}
         >
-          {isReaderMode ? (
-            <div style={{ position: "relative" }}>
-              {areas[activePage]?.map((area, idx) => {
-                const areaProps = areasProperties[activePage]?.[idx];
-                if (!areaProps?.blockId) return null;
-
-                return (
-                  <button
-                    key={area.id || idx}
-                    className={styles["reader-area-button"]}
-                    style={getBlockStyle(area, idx)}
-                    onClick={() => onPlayBlock?.(area, areaProps)}
-                    aria-label={`Play ${areaProps.type || "content"}`}
-                  />
-                );
-              })}
-              <img
-                src={pages[activePage]?.url}
-                alt={pages[activePage]?.url || pages[activePage]}
-                crossOrigin="anonymous"
-                ref={ref}
-                style={{
-                  width: `${imageScaleFactor * 100}%`,
-                  height: `${imageScaleFactor * 100}%`,
-                  overflow: "scroll",
-                }}
-                onLoad={onImageLoad}
-              />
-            </div>
-          ) : readOnly ? (
-            <div style={{ position: "relative" }}>
-              {areas[activePage]?.map((area, idx) => {
-                const areaProps = areasProperties[activePage]?.[idx];
-                if (!areaProps?.blockId) return null;
-
-                return (
-                  <div
-                    key={idx}
-                    style={getBlockStyle(area, idx)}
-                    onClick={() => onAreaClick?.({ areaNumber: idx + 1 })}
-                  >
-                    {customRender({ areaNumber: idx + 1, isChanging: false })}
-                  </div>
-                );
-              })}
-              <img
-                src={pages[activePage]?.url}
-                alt={pages[activePage]?.url || pages[activePage]}
-                crossOrigin="anonymous"
-                ref={ref}
-                style={{
-                  width: `${imageScaleFactor * 100}%`,
-                  height: `${imageScaleFactor * 100}%`,
-                  overflow: "scroll",
-                }}
-                onLoad={onImageLoad}
-              />
-            </div>
-          ) : highlight === "hand" ? (
-            <div style={{ position: "relative" }}>
-              {blocksToRender}
-              <img
-                src={pages[activePage]?.url}
-                alt={pages[activePage]?.url || pages[activePage]}
-                crossOrigin="anonymous"
-                ref={ref}
-                style={{
-                  width: `${imageScaleFactor * 100}%`,
-                  height: `${imageScaleFactor * 100}%`,
-                  overflow: "scroll",
-                  cursor: "pointer",
-                }}
-                onLoad={onImageLoad}
-              />
-            </div>
-          ) : activeRightTab.label === RIGHT_TAB_NAMES.BLOCK_AUTHORING.label ||
-            activeRightTab.label === RIGHT_TAB_NAMES.COMPOSITE_BLOCKS.label ||
-            activeRightTab.label === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.label ||
-            activeRightTab.label ===
-              RIGHT_TAB_NAMES.ILLUSTRATIVE_INTERACTIONS.label ? (
-            <AreaSelector
-              areas={renderedAreas}
-              onChange={onChangeHandler}
+          {renderMode === RENDER_MODES.READER && (
+            <ReaderModeRenderer
+              ref={ref}
+              areas={areas}
+              areasProperties={areasProperties}
+              getBlockStyle={getBlockStyle}
+              onPlayBlock={onPlayBlock}
+              highlightedBlockId={highlightedBlockId}
+              {...sharedRendererProps}
+            />
+          )}
+          {(renderMode === RENDER_MODES.VIEW_AND_PLAY ||
+            renderMode === RENDER_MODES.READ_ONLY) && (
+            <BlockOverlayLayer
+              ref={ref}
+              areas={areas}
+              areasProperties={areasProperties}
+              getBlockStyle={getBlockStyle}
+              customRender={customRender}
+              onAreaClick={onAreaClick}
+              {...sharedRendererProps}
+            />
+          )}
+          {renderMode === RENDER_MODES.HAND_TOOL && (
+            <HandToolRenderer
+              ref={ref}
+              blocksToRender={blocksToRender}
+              {...sharedRendererProps}
+            />
+          )}
+          {renderMode === RENDER_MODES.EDIT_MODE && (
+            <EditModeRenderer
+              ref={ref}
+              renderedAreas={renderedAreas}
+              onChangeHandler={onChangeHandler}
               wrapperStyle={wrapperStyle}
-              customAreaRenderer={customRender}
-              areaProps={areaPropsConfig}
-              unit="percentage"
-            >
-              <img
-                src={pages[activePage]?.url}
-                alt={pages[activePage]?.url || pages[activePage]}
-                crossOrigin="anonymous"
-                ref={ref}
-                style={{
-                  width: `${imageScaleFactor * 100}%`,
-                  height: `${imageScaleFactor * 100}%`,
-                  overflow: "scroll",
-                }}
-                // onLoad={onImageLoad}
-              />
-            </AreaSelector>
-          ) : (
-            <div style={{ position: "relative" }}>
-              <img
-                src={pages[activePage]?.url}
-                alt={pages[activePage]?.url || pages[activePage]}
-                crossOrigin="anonymous"
-                ref={ref}
-                style={{
-                  width: `${imageScaleFactor * 100}%`,
-                  height: `${imageScaleFactor * 100}%`,
-                  overflow: "scroll",
-                  cursor: "pointer",
-                }}
-                onLoad={onImageLoad}
-              />
-            </div>
+              customRender={customRender}
+              areaPropsConfig={areaPropsConfig}
+              isWhiteOutMode={isWhiteOutMode}
+              onAddWhiteOverlay={addManualWhiteOverlayArea}
+              onRemoveWhiteOverlay={removeWhiteOverlayArea}
+              {...sharedRendererProps}
+            />
+          )}
+          {renderMode === RENDER_MODES.DEFAULT && (
+            <DefaultRenderer ref={ref} {...sharedRendererProps} />
           )}
         </div>
       </VirtualBlocks>

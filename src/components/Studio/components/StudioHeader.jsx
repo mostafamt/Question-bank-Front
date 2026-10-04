@@ -26,6 +26,8 @@ import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
  * @param {Function} props.onClickImage - Image click handler
  * @param {string} props.language - Current OCR language
  * @param {Function} props.setLanguage - Language setter
+ * @param {string} props.chapterId - Current chapter id (for publishing)
+ * @param {string} props.publishLanguage - Language code to publish with (e.g. "en"/"ar")
  */
 const StudioHeader = ({
   showStickyToolbar,
@@ -42,6 +44,8 @@ const StudioHeader = ({
   onClickImage,
   language,
   setLanguage,
+  chapterId,
+  publishLanguage,
 }) => {
   return (
     <>
@@ -58,6 +62,8 @@ const StudioHeader = ({
         onImageLoad={onImageLoad}
         pages={pages}
         onClickImage={onClickImage}
+        chapterId={chapterId}
+        publishLanguage={publishLanguage}
       />
       <LanguageSwitcher language={language} setLanguage={setLanguage} />
     </>

@@ -4,7 +4,7 @@ import { LEFT_TAB_NAMES, RIGHT_TAB_NAMES } from "../constants";
 /**
  * @typedef {Object} TabConfig
  * @property {string} id - Tab identifier
- * @property {string} label - Display label
+ * @property {string|Object} label - Display label (string or { en, ar })
  * @property {string} name - Tab name for matching
  * @property {React.ReactNode} [component] - Tab content component
  */
@@ -20,7 +20,7 @@ const useTabState = (leftColumns = [], rightColumns = []) => {
   const [activeLeftTab, setActiveLeftTab] = React.useState(() => {
     if (leftColumns.length > 0) return leftColumns[0];
     return {
-      id: "initial",
+      id: "thumbnails",
       label: LEFT_TAB_NAMES.THUMBNAILS.label,
       name: LEFT_TAB_NAMES.THUMBNAILS.name,
       component: null,
@@ -30,7 +30,7 @@ const useTabState = (leftColumns = [], rightColumns = []) => {
   const [activeRightTab, setActiveRightTab] = React.useState(() => {
     if (rightColumns.length > 0) return rightColumns[0];
     return {
-      id: "initial",
+      id: "block-authoring",
       label: RIGHT_TAB_NAMES.BLOCK_AUTHORING.label,
       name: RIGHT_TAB_NAMES.BLOCK_AUTHORING.name,
       component: null,
@@ -38,26 +38,26 @@ const useTabState = (leftColumns = [], rightColumns = []) => {
   });
 
   /**
-   * Check if a specific left tab is active by name
-   * @param {string} tabName - Tab name to check
+   * Check if a specific left tab is active by name or id
+   * @param {string} tabName - Tab name or id to check
    * @returns {boolean} True if the tab is active
    */
   const isLeftTabActive = React.useCallback(
     (tabName) => {
-      return activeLeftTab?.name === tabName || activeLeftTab?.label === tabName;
+      return activeLeftTab?.name === tabName || activeLeftTab?.id === tabName;
     },
     [activeLeftTab]
   );
 
   /**
-   * Check if a specific right tab is active by name
-   * @param {string} tabName - Tab name to check
+   * Check if a specific right tab is active by name or id
+   * @param {string} tabName - Tab name or id to check
    * @returns {boolean} True if the tab is active
    */
   const isRightTabActive = React.useCallback(
     (tabName) => {
       return (
-        activeRightTab?.name === tabName || activeRightTab?.label === tabName
+        activeRightTab?.name === tabName || activeRightTab?.id === tabName
       );
     },
     [activeRightTab]
@@ -68,7 +68,7 @@ const useTabState = (leftColumns = [], rightColumns = []) => {
    * @returns {boolean}
    */
   const isBlockAuthoringActive = React.useMemo(() => {
-    return isRightTabActive(RIGHT_TAB_NAMES.BLOCK_AUTHORING.label);
+    return isRightTabActive("block-authoring");
   }, [isRightTabActive]);
 
   /**
@@ -76,7 +76,7 @@ const useTabState = (leftColumns = [], rightColumns = []) => {
    * @returns {boolean}
    */
   const isCompositeBlocksActive = React.useMemo(() => {
-    return isRightTabActive(RIGHT_TAB_NAMES.COMPOSITE_BLOCKS.label);
+    return isRightTabActive("composite-blocks");
   }, [isRightTabActive]);
 
   /**
@@ -84,18 +84,18 @@ const useTabState = (leftColumns = [], rightColumns = []) => {
    * @returns {boolean}
    */
   const isThumbnailsActive = React.useMemo(() => {
-    return isLeftTabActive(LEFT_TAB_NAMES.THUMBNAILS.label);
+    return isLeftTabActive("thumbnails");
   }, [isLeftTabActive]);
 
   /**
-   * Switch to a specific left tab by name
-   * @param {string} tabName - Tab name to activate
+   * Switch to a specific left tab by name or id
+   * @param {string} tabName - Tab name or id to activate
    * @returns {boolean} True if tab was found and activated
    */
   const switchToLeftTab = React.useCallback(
     (tabName) => {
       const tab = leftColumns.find(
-        (col) => col.name === tabName || col.label === tabName
+        (col) => col.name === tabName || col.id === tabName
       );
       if (tab) {
         setActiveLeftTab(tab);
@@ -107,14 +107,14 @@ const useTabState = (leftColumns = [], rightColumns = []) => {
   );
 
   /**
-   * Switch to a specific right tab by name
-   * @param {string} tabName - Tab name to activate
+   * Switch to a specific right tab by name or id
+   * @param {string} tabName - Tab name or id to activate
    * @returns {boolean} True if tab was found and activated
    */
   const switchToRightTab = React.useCallback(
     (tabName) => {
       const tab = rightColumns.find(
-        (col) => col.name === tabName || col.label === tabName
+        (col) => col.name === tabName || col.id === tabName
       );
       if (tab) {
         setActiveRightTab(tab);
@@ -144,7 +144,7 @@ const useTabState = (leftColumns = [], rightColumns = []) => {
       if (newLeftColumns?.length > 0) {
         const currentLeftExists = newLeftColumns.find(
           (col) =>
-            col.label === activeLeftTab?.label ||
+            col.id === activeLeftTab?.id ||
             col.name === activeLeftTab?.name
         );
         if (!currentLeftExists) {
@@ -156,7 +156,7 @@ const useTabState = (leftColumns = [], rightColumns = []) => {
       if (newRightColumns?.length > 0) {
         const currentRightExists = newRightColumns.find(
           (col) =>
-            col.label === activeRightTab?.label ||
+            col.id === activeRightTab?.id ||
             col.name === activeRightTab?.name
         );
         if (!currentRightExists) {

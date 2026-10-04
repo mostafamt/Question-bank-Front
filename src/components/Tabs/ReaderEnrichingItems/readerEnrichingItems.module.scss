@@ -1,0 +1,25 @@
+.reader-enriching {
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+
+  & .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  & .title {
+    margin: 0;
+  }
+
+  & .empty {
+    margin: 0.25rem 0;
+    opacity: 0.7;
+  }
+
+  & .mine {
+    vertical-align: middle;
+    margin-inline-end: 0.25rem;
+  }
+}

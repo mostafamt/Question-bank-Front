@@ -38,12 +38,6 @@ const VirtualBlockReaderNavigationModal = (props) => {
     hasPrevious,
   } = useVirtualBlockNavigation(contents, initialIndex);
 
-  console.log("VirtualBlockReaderNavigationModal:", {
-    blockLabel,
-    totalItems,
-    currentIndex,
-    currentItem,
-  });
 
   // Optional: Keyboard navigation
   useEffect(() => {

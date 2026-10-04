@@ -5,13 +5,12 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import TreeItem from "@mui/lab/TreeItem";
 import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
 
 import { Box, Button, IconButton, TextField } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
 
 import styles from "./trueFalse.module.scss";
-import { useNavigate, useNavigation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const styleSheet = {
   treeItem: {
@@ -61,10 +60,6 @@ const TrueFalse = () => {
   const [answer, setAnswer] = React.useState("true");
   const navigate = useNavigate();
 
-  const clickAddQuestionHandler = () => {
-    setQuestions((prevState) => [...prevState, generateEmptyQuestion()]);
-  };
-
   const clickDeleteQuestionHandler = (e, id) => {
     e.stopPropagation();
     if (questions.length > 1) {
@@ -101,7 +96,6 @@ const TrueFalse = () => {
       }
       return question;
     });
-    console.log(newQuestions);
     setQuestions(newQuestions);
   };
 

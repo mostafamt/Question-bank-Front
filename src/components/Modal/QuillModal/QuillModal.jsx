@@ -1,13 +1,17 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
 import QuillEditor from "react-quill";
-import { quillModules } from "../../../utils/quill";
+import { quillModules, quillFormats } from "../../../utils/quill";
 
 import styles from "./quillModal.module.scss";
 
+/**
+ * QuillModal Component
+ * Rich text editor modal for editing text content in areas
+ * Now supports extended font options (Phase 1: System fonts)
+ */
 const QuillModal = (props) => {
   const { workingArea, updateAreaPropertyById } = props;
-  console.log("workingArea= ", workingArea);
   const [value, setValue] = React.useState(
     workingArea?.typeOfLabel === "image"
       ? `<img src=${workingArea.image} />`
@@ -15,8 +19,6 @@ const QuillModal = (props) => {
       ? `<img src=${workingArea.contentValue} />`
       : workingArea?.text || workingArea.contentValue
   );
-
-  console.log("value= ", value);
 
   const onChange = (value) => {
     setValue(value);
@@ -26,7 +28,7 @@ const QuillModal = (props) => {
   return (
     <div className={styles["quill-modal"]}>
       <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title></BootstrapModal.Title>
+        <BootstrapModal.Title>Edit Text</BootstrapModal.Title>
       </BootstrapModal.Header>
       <BootstrapModal.Body>
         <QuillEditor
@@ -35,6 +37,7 @@ const QuillModal = (props) => {
           value={value}
           onChange={onChange}
           modules={quillModules}
+          formats={quillFormats}
         />
       </BootstrapModal.Body>
     </div>

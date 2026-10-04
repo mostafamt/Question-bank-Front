@@ -1,17 +1,13 @@
 import React from "react";
-import { Button, CircularProgress, List, IconButton } from "@mui/material";
+import { Button, CircularProgress, List } from "@mui/material";
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import AreaAction from "../../AreaAction/AreaAction";
 import { DELETED, reorder } from "../../../utils/ocr";
 import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import VisibilityIcon from "@mui/icons-material/Visibility";
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
+import StudioActionsButtons from "../StudioActionsButtons/StudioActionsButtons";
 
 import styles from "./studioActions.module.scss";
-
-// large | medium | small
-const iconFontSize = "medium";
-// const text
 
 const StudioActions = (props) => {
   const {
@@ -34,8 +30,13 @@ const StudioActions = (props) => {
     tOfActiveType: typeOfActiveType,
     onSubmitAutoGenerate,
     loadingAutoGenerate,
+    onSelectFromLibrary,
     onClickToggleVirutalBlocks,
     showVB,
+    showBlocksStyling,
+    onToggleBlocksStyling,
+    isWhiteOutMode,
+    onToggleWhiteOutMode,
   } = props;
 
   const onDragEnd = (result) => {
@@ -47,7 +48,7 @@ const StudioActions = (props) => {
 
     // TODO
     // Need to fix
-
+    // eslint-disable-next-line no-unreachable
     const orderArray = areasProperties[activePage]?.map((area) => area.order);
 
     const newOrderArray = reorder(
@@ -71,18 +72,14 @@ const StudioActions = (props) => {
   return (
     <div className={styles["studio-actions"]}>
       <div>
-        <div>
-          <IconButton
-            aria-label="visibility-icon"
-            onClick={onClickToggleVirutalBlocks}
-          >
-            {showVB ? (
-              <VisibilityOffIcon fontSize={iconFontSize} />
-            ) : (
-              <VisibilityIcon fontSize={iconFontSize} />
-            )}
-          </IconButton>
-        </div>
+        <StudioActionsButtons
+          onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
+          showVB={showVB}
+          showBlocksStyling={showBlocksStyling}
+          onToggleBlocksStyling={onToggleBlocksStyling}
+          isWhiteOutMode={isWhiteOutMode}
+          onToggleWhiteOutMode={onToggleWhiteOutMode}
+        />
       </div>
       <List sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}>
         <DragDropContext onDragEnd={onDragEnd}>
@@ -137,24 +134,32 @@ const StudioActions = (props) => {
         </DragDropContext>
 
         {subObject && (areasProperties[activePage] || []).length === 0 && (
-          <div>
-            <div>
-              <Button
-                variant="contained"
-                onClick={onSubmitAutoGenerate}
-                sx={{ width: "100%" }}
-                disabled={loadingAutoGenerate}
-                startIcon={
-                  loadingAutoGenerate ? (
-                    <CircularProgress size="1rem" />
-                  ) : (
-                    <AutoFixHighIcon size="1rem" />
-                  )
-                }
-              >
-                Auto Generate
-              </Button>
-            </div>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
+          >
+            <Button
+              variant="contained"
+              onClick={onSubmitAutoGenerate}
+              sx={{ width: "100%" }}
+              disabled={loadingAutoGenerate}
+              startIcon={
+                loadingAutoGenerate ? (
+                  <CircularProgress size="1rem" />
+                ) : (
+                  <AutoFixHighIcon size="1rem" />
+                )
+              }
+            >
+              Auto Generate
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={onSelectFromLibrary}
+              sx={{ width: "100%" }}
+              startIcon={<LibraryBooksIcon fontSize="small" />}
+            >
+              Select from Library
+            </Button>
           </div>
         )}
 

@@ -26,6 +26,7 @@ const iconFontSize = "small";
 const StudioCompositeBlocks = (props) => {
   const {
     compositeBlocks,
+    totalAreas,
     compositeBlocksTypes,
     onChangeCompositeBlocks,
     processCompositeBlock,
@@ -33,14 +34,10 @@ const StudioCompositeBlocks = (props) => {
     loadingSubmitCompositeBlocks,
     DeleteCompositeBlocks,
     highlight,
-    setHighlight,
     onClickHand,
   } = props;
 
   const { openModal } = useStore();
-
-  // Track color index for sequential color assignment
-  const [compositeColorIndex, setCompositeColorIndex] = React.useState(0);
 
   const list1 = getList1FromData(compositeBlocksTypes);
   const list2 = getList2FromData(compositeBlocksTypes, compositeBlocks.type);
@@ -52,17 +49,13 @@ const StudioCompositeBlocks = (props) => {
       value
     );
 
-    // Get next color from palette using modulo for cycling
-    const nextColor = colors[compositeColorIndex % colors.length];
+    // Assign a random color from the palette when the user picks a type
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
 
     onChangeCompositeBlocks(id, type, value);
-    // onChangeCompositeBlocks(id, "text", typeOfLabel);
-    onChangeCompositeBlocks(id, "color", nextColor);
+    onChangeCompositeBlocks(id, "color", randomColor);
 
-    // Increment color index for next assignment
-    setCompositeColorIndex((prev) => prev + 1);
-
-    if (typeOfLabel === "Object" || typeOfLabel === "QObject") {
+    if (typeOfLabel === "Object" || typeOfLabel === "QObject" || typeOfLabel === "XObject") {
       return;
     }
 
@@ -192,7 +185,7 @@ const StudioCompositeBlocks = (props) => {
           <AreaItem
             id={block.id}
             isOpen={block.open}
-            title={compositeBlocks.type}
+            title={`${compositeBlocks.type} — Page ${block.pageIndex + 1}`}
             actions={actions}
             handleToggle={() => handleToggle(block.id, block.open)}
             color={block.color}
@@ -214,7 +207,7 @@ const StudioCompositeBlocks = (props) => {
           variant="contained"
           sx={{ width: "100%", margin: "1rem 0" }}
           disabled={
-            compositeBlocks.areas.length === 0 || loadingSubmitCompositeBlocks
+            totalAreas === 0 || loadingSubmitCompositeBlocks
           }
           startIcon={
             loadingSubmitCompositeBlocks ? (

@@ -1,5 +1,4 @@
 import React from "react";
-import { parseVirtualBlocksFromPages } from "../../../utils/virtual-blocks";
 import { TIMEOUTS } from "../constants";
 import { CONTENT_TYPE_CATEGORIES } from "../constants";
 

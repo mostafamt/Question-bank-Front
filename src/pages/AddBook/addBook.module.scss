@@ -40,8 +40,9 @@
           align-items: center;
           justify-content: space-between;
 
-          & > button {
-            flex: 0 1 30%;
+          & > button,
+          & > .MuiButtonGroup-root {
+            flex: 0 1 20%;
           }
         }
       }

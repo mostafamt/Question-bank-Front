@@ -7,8 +7,6 @@ import { grey } from "@mui/material/colors";
 import { PlayArrow, Edit, DeleteForever } from "@mui/icons-material";
 import AreaItem from "../AreaItem/AreaItem";
 
-import styles from "./areaAction.module.scss";
-
 const SIMPLE_ITEM = "Simple item";
 
 const AreaAction = (props) => {

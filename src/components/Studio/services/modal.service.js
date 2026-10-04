@@ -19,6 +19,12 @@ export const STUDIO_MODALS = {
   QUILL: "quill",
   /** Modal for editing sub-objects (nested complex types) */
   SUB_OBJECT: "sub-object",
+  /** Modal for uploading/replacing a deep block's image */
+  DEEP_IMAGE: "deep-image",
+  /** Modal for uploading/replacing a deep block's audio */
+  DEEP_AUDIO: "deep-audio",
+  /** Modal for uploading/replacing a deep block's video */
+  DEEP_VIDEO: "deep-video",
   /** Modal for selecting composite blocks */
   COMPOSITE_BLOCKS: "composite-blocks-modal",
   /** Modal for playing composite blocks */
@@ -30,6 +36,8 @@ export const STUDIO_MODALS = {
 /**
  * @typedef {Object} QuillModalProps
  * @property {Object} workingArea - The area being edited
+ * @property {string} workingArea.id - Area ID. QuillModal writes back with this — omitting it
+ *   makes the editor silently update nothing
  * @property {string} workingArea.blockId - Block ID
  * @property {string} workingArea.contentType - Content type
  * @property {string} workingArea.text - Text content
@@ -57,6 +65,7 @@ export const STUDIO_MODALS = {
 /**
  * Create props for opening Quill modal
  * @param {Object} params - Parameters
+ * @param {string} params.id - Area ID
  * @param {string} params.blockId - Block ID
  * @param {string} params.contentType - Content type
  * @param {string} params.text - Text content
@@ -66,6 +75,7 @@ export const STUDIO_MODALS = {
  * @returns {QuillModalProps} Modal props
  */
 export function createQuillModalProps({
+  id,
   blockId,
   contentType,
   text,
@@ -75,6 +85,7 @@ export function createQuillModalProps({
 }) {
   return {
     workingArea: {
+      id,
       blockId,
       contentType,
       text,
@@ -161,6 +172,7 @@ export class StudioModalService {
    */
   openQuillModal(areaProps, updateCallback = () => {}) {
     const props = createQuillModalProps({
+      id: areaProps.id,
       blockId: areaProps.blockId,
       contentType: areaProps.type,
       text: areaProps.text,
@@ -244,7 +256,7 @@ export function createModalService(openModal, setFormState) {
  * Types that should open PlayObjectModal2 (iframe-based playback)
  * These are interactive objects that have their own rendering URL
  */
-const COMPLEX_AREA_TYPES = [
+export const COMPLEX_AREA_TYPES = [
   "Question",
   "Illustrative Object",
   "Illustrative object", // Handle case variations
@@ -309,7 +321,7 @@ export function determineModalForArea(areaProps) {
   };
 }
 
-export default {
+const modalService = {
   STUDIO_MODALS,
   createQuillModalProps,
   createSubObjectModalProps,
@@ -318,3 +330,5 @@ export default {
   StudioModalService,
   determineModalForArea,
 };
+
+export default modalService;

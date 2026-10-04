@@ -27,10 +27,6 @@ const LinkEditorModal = (props) => {
   const [value, setValue] = React.useState(initialValue);
   const [error, setError] = React.useState("");
 
-  console.log("LinkEditorModal props:", {
-    initialValue,
-    hasSubmitHandler: !!onClickSubmit,
-  });
 
   /**
    * Handle input changes

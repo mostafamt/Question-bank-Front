@@ -1,9 +1,5 @@
 import React, { useCallback, useRef, useMemo } from "react";
-import clsx from "clsx";
 import VirtualBlock from "./VirtualBlock/VirtualBlock";
-
-import styles from "./virtualBlocks.module.scss";
-//
 
 const VirtualBlocks = React.memo((props) => {
   const {
@@ -14,6 +10,10 @@ const VirtualBlocks = React.memo((props) => {
     setVirtualBlocks,
     activePage,
     reader = false,
+    readerBlocks,
+    onSaveReaderSlot,
+    onDeleteReaderSlot,
+    pageImageUrl,
   } = props;
 
   // Cache setCheckedObject callbacks to prevent recreating on every render
@@ -52,11 +52,25 @@ const VirtualBlocks = React.memo((props) => {
           setCheckedObject={getSetCheckedObject(label)}
           showVB={showVB}
           reader={reader}
+          readerObject={readerBlocks?.[label]}
+          onSaveReaderSlot={onSaveReaderSlot}
+          onDeleteReaderSlot={onDeleteReaderSlot}
+          pageImageUrl={pageImageUrl}
         />
       );
     }
     return renders;
-  }, [virtualBlocks, activePage, showVB, reader, getSetCheckedObject]);
+  }, [
+    virtualBlocks,
+    activePage,
+    showVB,
+    reader,
+    readerBlocks,
+    onSaveReaderSlot,
+    onDeleteReaderSlot,
+    getSetCheckedObject,
+    pageImageUrl,
+  ]);
 
   return (
     <div className={className}>

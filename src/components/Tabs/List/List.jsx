@@ -3,13 +3,20 @@ import AddIcon from "@mui/icons-material/Add";
 import { Box, Button, CircularProgress, IconButton } from "@mui/material";
 import { useStore } from "../../../store/store";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { getTabObjects, updateTabObjects } from "../../../services/api";
+import {
+  getTabObjects,
+  updateTabObjects,
+  getEnrichingContents,
+  submitEnrichingContents,
+} from "../../../services/api";
 import ListItem from "../ListItem/ListItem";
 import { useForm } from "react-hook-form";
 
 import styles from "./list.module.scss";
-import { RIGHT_TAB_NAMES } from "../../Studio/constants";
+import { LEFT_TAB_NAMES, RIGHT_TAB_NAMES } from "../../Studio/constants";
 import GlossaryListItem from "../GlossaryListItem/GlossaryListItem";
+import ReaderEnrichingItems from "../ReaderEnrichingItems/ReaderEnrichingItems";
+import { deriveEnrichingContentName } from "./enrichingContent.utils";
 
 const List = (props) => {
   const { tab, chapterId, reader, changePageById, navigateToBlock } = props;
@@ -23,9 +30,13 @@ const List = (props) => {
     formState: { isSubmitting },
   } = useForm();
 
+  const isEnrichingContent = tab.name === LEFT_TAB_NAMES.ENRICHING_CONTENT.name;
+
   const { data: tabObjects, isFetching } = useQuery({
-    queryKey: [`tab-objects-${tab.name}`],
-    queryFn: () => getTabObjects(chapterId, tab.name),
+    queryKey: [`tab-objects-${tab.name}`, chapterId],
+    queryFn: isEnrichingContent
+      ? () => getEnrichingContents(chapterId)
+      : () => getTabObjects(chapterId, tab.name),
     refetchOnWindowFocus: false,
   });
 
@@ -40,7 +51,7 @@ const List = (props) => {
       ...prevState,
       activeTab: tab.name,
     }));
-  }, []);
+  }, [setFormState, tab.name]);
 
   React.useEffect(() => {
     setOpen(Array(tabObjects?.length).fill(false));
@@ -49,8 +60,23 @@ const List = (props) => {
   React.useEffect(() => {
     if (!tabObjects) return;
 
-    setObjects(tabObjects);
-  }, [tabObjects, tab, setObjects]);
+    if (isEnrichingContent) {
+      const mapped = tabObjects.map((item) => ({
+        _id:          item._id || `${Date.now()}-${Math.random()}`,
+        type:         item.contentType === "url" ? "link" : item.contentType,
+        contentValue: item.contentValue,
+        name:         deriveEnrichingContentName(
+                        item.contentType === "url" ? "link" : item.contentType,
+                        item.contentValue
+                      ),
+        url:          item.url,
+        baseType:     item.baseType,
+      }));
+      setObjects(mapped);
+    } else {
+      setObjects(tabObjects);
+    }
+  }, [tabObjects, tab, setObjects, isEnrichingContent]);
 
   const onClickPlus = () => {
     if (tab.name === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.name) {
@@ -60,10 +86,24 @@ const List = (props) => {
         onSubmit: (term, definition) => {
           // Add the new glossary item to the list
           const newItem = {
-            _id: Date.now().toString(), // Temporary ID
+            _id: Date.now().toString(), // Temporary ID for local use
+            isNew: true,
             term,
             definition,
             references: [],
+          };
+          setObjects((prevState) => [...prevState, newItem]);
+          setOpen((prevState) => [...prevState, true]);
+        },
+      });
+    } else if (tab.name === LEFT_TAB_NAMES.ENRICHING_CONTENT.name) {
+      openModal("enriching-content", {
+        onConfirm: ({ type, contentValue }) => {
+          const newItem = {
+            _id: Date.now().toString(),
+            type,
+            contentValue,
+            name: deriveEnrichingContentName(type, contentValue),
           };
           setObjects((prevState) => [...prevState, newItem]);
         },
@@ -85,7 +125,38 @@ const List = (props) => {
 
   const handlePlay = React.useCallback(
     (item) => {
-      console.log("item.baseType= ", item.baseType);
+      if (tab.name === LEFT_TAB_NAMES.ENRICHING_CONTENT.name) {
+        if (item.type === "text") {
+          openModal("text-editor", {
+            value: item.contentValue,
+            // Reader mode: author items are read-only (no onClickSubmit)
+            onClickSubmit: reader
+              ? null
+              : (newValue) => {
+                  setObjects((prev) =>
+                    prev.map((obj) =>
+                      obj._id === item._id
+                        ? { ...obj, contentValue: newValue }
+                        : obj
+                    )
+                  );
+                },
+          });
+        } else if (item.type === "link") {
+          openModal("iframe-display", { url: item.contentValue });
+        } else if (item.type === "object") {
+          openModal("play-object", {
+            workingArea: {
+              text: item.contentValue,
+              contentValue: item.contentValue,
+              contentType: item.baseType || "Text MCQ",
+              typeOfLabel: item.baseType || "Text MCQ",
+            },
+          });
+        }
+        return;
+      }
+
       openModal("play-object", {
         workingArea: {
           text: item._id,
@@ -95,7 +166,7 @@ const List = (props) => {
         },
       });
     },
-    [openModal]
+    [openModal, tab.name, reader]
   );
 
   const handleDelete = React.useCallback(
@@ -172,13 +243,30 @@ const List = (props) => {
   );
 
   const onSubmitHandler = async () => {
+    if (isEnrichingContent) {
+      const payload = objects.map((item) => ({
+        contentType:  item.type === "link" ? "url" : item.type,
+        contentValue: item.contentValue,
+      }));
+      await submitEnrichingContents(chapterId, payload);
+      return;
+    }
+
     const ids = {
       ids: objects.map((item) => item._id),
     };
 
     if (tab.name === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.name) {
-      console.log("objects= ", objects);
-      await mutation.mutateAsync(objects);
+      const glossaryData = objects.map(({ isNew, _id, ...rest }) => {
+        if (isNew) {
+          return { ...rest, status: "added" };
+        }
+        if (rest.status === "deleted") {
+          return { id: _id, ...rest };
+        }
+        return { id: _id, ...rest, status: "updated" };
+      });
+      await mutation.mutateAsync({ glossary: glossaryData });
     } else {
       await mutation.mutateAsync(ids);
     }
@@ -228,6 +316,7 @@ const List = (props) => {
     handlePlay,
     handleMoveUp,
     handleMoveDown,
+    reader,
   ]);
 
   return (
@@ -244,14 +333,18 @@ const List = (props) => {
       )}
       <ul>{objectsList}</ul>
 
+      {reader && isEnrichingContent && (
+        <ReaderEnrichingItems chapterId={chapterId} />
+      )}
+
       {!reader && (
         <Box sx={{ display: "flex", justifyContent: "center" }}>
           <Button
             variant="contained"
             type="submit"
-            disabled={mutation.isPending}
+            disabled={mutation.isPending || isSubmitting}
             startIcon={
-              mutation.isPending ? <CircularProgress size="1rem" /> : <></>
+              mutation.isPending || isSubmitting ? <CircularProgress size="1rem" /> : <></>
             }
           >
             Submit

@@ -1,5 +1,12 @@
 import React from "react";
-import { IconButton, Typography } from "@mui/material";
+import {
+  CircularProgress,
+  IconButton,
+  Menu,
+  MenuItem,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import ZoomOutIcon from "@mui/icons-material/ZoomOut";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
@@ -9,14 +16,17 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import SearchOffIcon from "@mui/icons-material/SearchOff";
-import BackHandIcon from "@mui/icons-material/BackHand";
+import PublishIcon from "@mui/icons-material/Publish";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 
 import styles from "./styles.module.scss";
 import { useAppMode } from "../../utils/tabFiltering";
+import usePageBookmarks from "../Studio/hooks/usePageBookmarks";
+import ReaderAudioControls from "../ReaderAudioControls/ReaderAudioControls";
+import { getLanguages, publishChapter } from "../../services/api";
 
 const DEGREE = 0.1;
-// large | medium | small
-const iconFontSize = "large";
 // const text
 
 const ImageActions = React.forwardRef((props, ref) => {
@@ -32,22 +42,46 @@ const ImageActions = React.forwardRef((props, ref) => {
     onImageLoad,
     pages,
     onClickImage,
+    chapterId,
+    publishLanguage,
   } = props;
 
   const [oldAreas, setOldAreas] = React.useState(areas?.[activePage] || []);
+  const currentPageAreasCount = areas?.[activePage]?.length;
+  const [isPublishing, setIsPublishing] = React.useState(false);
+  const [publishMenuAnchor, setPublishMenuAnchor] = React.useState(null);
+  const [languages, setLanguages] = React.useState([]);
+  const [isLoadingLanguages, setIsLoadingLanguages] = React.useState(false);
+
+  // Re-baseline the zoom reference points whenever the active page changes,
+  // or that page's areas array size changes — areas[activePage] starts empty
+  // and is populated asynchronously after the page image loads (independent
+  // of any activePage change), so relying on activePage alone still leaves a
+  // window where oldAreas is stale/empty and indexing into it throws.
+  React.useEffect(() => {
+    setOldAreas(areas?.[activePage] || []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activePage, currentPageAreasCount]);
 
   const mode = useAppMode();
   const isReaderMode = mode === "reader";
+  // large | medium | small — the reader toolbar also holds the bookmark and
+  // audio controls in a narrower column, so its icons are one size down.
+  const iconFontSize = isReaderMode ? "medium" : "large";
+
+  const { isBookmarked, toggleBookmark } = usePageBookmarks();
+  const activePageId = pages?.[activePage]?._id;
+  const isActivePageBookmarked = isBookmarked(activePageId);
 
   const onClickZoomIn = () => {
     setImageScaleFactor(imageScaleFactor + DEGREE);
     const newAreas = [...areas];
     newAreas[activePage] = areas[activePage].map((area, idx) => {
-      const { x, y, width, height } = areasProperties[activePage][idx];
-      area.x = area.x + oldAreas[idx].x * DEGREE;
-      area.y = area.y + oldAreas[idx].y * DEGREE;
-      area.height = area.height + oldAreas[idx].height * DEGREE;
-      area.width = area.width + oldAreas[idx].width * DEGREE;
+      const baseline = oldAreas[idx] || area;
+      area.x = area.x + baseline.x * DEGREE;
+      area.y = area.y + baseline.y * DEGREE;
+      area.height = area.height + baseline.height * DEGREE;
+      area.width = area.width + baseline.width * DEGREE;
       return area;
     });
     setAreas(newAreas);
@@ -77,11 +111,11 @@ const ImageActions = React.forwardRef((props, ref) => {
     setImageScaleFactor(imageScaleFactor - DEGREE);
     const newAreas = [...areas];
     newAreas[activePage] = areas[activePage].map((area, idx) => {
-      const { x, y, width, height } = areasProperties[activePage][idx];
-      area.x = area.x - oldAreas[idx].x * DEGREE;
-      area.y = area.y - oldAreas[idx].y * DEGREE;
-      area.height = area.height - oldAreas[idx].height * DEGREE;
-      area.width = area.width - oldAreas[idx].width * DEGREE;
+      const baseline = oldAreas[idx] || area;
+      area.x = area.x - baseline.x * DEGREE;
+      area.y = area.y - baseline.y * DEGREE;
+      area.height = area.height - baseline.height * DEGREE;
+      area.width = area.width - baseline.width * DEGREE;
       return area;
     });
     setAreas(newAreas);
@@ -108,6 +142,25 @@ const ImageActions = React.forwardRef((props, ref) => {
 
   const onClickLastPage = () => {
     onClickImage(pages.length - 1);
+  };
+
+  const handleOpenPublishMenu = (event) => {
+    if (isPublishing) return;
+    setPublishMenuAnchor(event.currentTarget);
+    setIsLoadingLanguages(true);
+    getLanguages()
+      .then(setLanguages)
+      .finally(() => setIsLoadingLanguages(false));
+  };
+
+  const handleClosePublishMenu = () => setPublishMenuAnchor(null);
+
+  const handlePublish = async (languageCode) => {
+    handleClosePublishMenu();
+    if (!chapterId || isPublishing) return;
+    setIsPublishing(true);
+    await publishChapter(chapterId, [languageCode]);
+    setIsPublishing(false);
   };
 
   return (
@@ -146,6 +199,53 @@ const ImageActions = React.forwardRef((props, ref) => {
           <ZoomOutIcon fontSize={iconFontSize} />
         </IconButton>
       </div>
+
+      {!isReaderMode && (
+        <>
+          <div>
+            <span>|</span>
+          </div>
+
+          <div>
+            <IconButton
+              aria-label="publish-chapter"
+              aria-haspopup="true"
+              aria-controls={publishMenuAnchor ? "publish-language-menu" : undefined}
+              onClick={handleOpenPublishMenu}
+              disabled={isPublishing}
+            >
+              {isPublishing ? (
+                <CircularProgress size={24} />
+              ) : (
+                <PublishIcon fontSize={iconFontSize} />
+              )}
+            </IconButton>
+            <Menu
+              id="publish-language-menu"
+              anchorEl={publishMenuAnchor}
+              open={Boolean(publishMenuAnchor)}
+              onClose={handleClosePublishMenu}
+            >
+              {isLoadingLanguages ? (
+                <MenuItem disabled sx={{ justifyContent: "center" }}>
+                  <CircularProgress size={20} />
+                </MenuItem>
+              ) : (
+                languages.map((language) => (
+                  <MenuItem
+                    key={language.code}
+                    selected={publishLanguage === language.code}
+                    onClick={() => handlePublish(language.code)}
+                  >
+                    {language.label}
+                  </MenuItem>
+                ))
+              )}
+            </Menu>
+          </div>
+        </>
+      )}
+
       {isReaderMode && (
         <>
           <div>
@@ -163,6 +263,34 @@ const ImageActions = React.forwardRef((props, ref) => {
                 <VisibilityIcon fontSize={iconFontSize} />
               )}
             </IconButton>
+            <Tooltip
+              title={
+                isActivePageBookmarked ? "Remove bookmark" : "Bookmark this page"
+              }
+            >
+              <span>
+                <IconButton
+                  aria-label="toggle-bookmark"
+                  aria-pressed={isActivePageBookmarked}
+                  onClick={() => toggleBookmark(activePageId)}
+                  disabled={!activePageId}
+                >
+                  {isActivePageBookmarked ? (
+                    <BookmarkIcon fontSize={iconFontSize} />
+                  ) : (
+                    <BookmarkBorderIcon fontSize={iconFontSize} />
+                  )}
+                </IconButton>
+              </span>
+            </Tooltip>
+          </div>
+
+          <div>
+            <span>|</span>
+          </div>
+
+          <div>
+            <ReaderAudioControls />
           </div>
         </>
       )}

@@ -5,6 +5,164 @@
   .editor {
     height: 450px;
 
+    // Quill toolbar with font dropdown styling
+    :global(.ql-toolbar) {
+      :global(.ql-font) {
+        width: 120px;
+
+        :global(.ql-picker-label) {
+          font-size: 13px;
+          padding: 0 8px;
+          min-width: 80px;
+
+          // Show only the ::before content (font label)
+          font-size: 0;
+
+          &::before {
+            font-size: 13px;
+            display: inline-block;
+          }
+
+          // Show proper font name in label with its font style
+          &[data-value="sans-serif"]::before {
+            content: 'Arial';
+            font-family: Arial, Helvetica, sans-serif;
+          }
+          &[data-value="verdana"]::before {
+            content: 'Verdana';
+            font-family: Verdana, sans-serif;
+          }
+          &[data-value="trebuchet"]::before {
+            content: 'Trebuchet MS';
+            font-family: 'Trebuchet MS', sans-serif;
+          }
+          &[data-value="tahoma"]::before {
+            content: 'Tahoma';
+            font-family: Tahoma, sans-serif;
+          }
+          &[data-value="georgia"]::before {
+            content: 'Georgia';
+            font-family: Georgia, serif;
+          }
+          &[data-value="times"]::before {
+            content: 'Times New Roman';
+            font-family: 'Times New Roman', serif;
+          }
+          &[data-value="garamond"]::before {
+            content: 'Garamond';
+            font-family: Garamond, serif;
+          }
+          &[data-value="book"]::before {
+            content: 'Book Antiqua';
+            font-family: 'Book Antiqua', serif;
+          }
+          &[data-value="courier"]::before {
+            content: 'Courier New';
+            font-family: 'Courier New', monospace;
+          }
+          &[data-value="consolas"]::before {
+            content: 'Consolas';
+            font-family: Consolas, monospace;
+          }
+          &[data-value="monaco"]::before {
+            content: 'Monaco';
+            font-family: Monaco, monospace;
+          }
+          &[data-value="comic"]::before {
+            content: 'Comic Sans MS';
+            font-family: 'Comic Sans MS', cursive;
+          }
+          &[data-value="impact"]::before {
+            content: 'Impact';
+            font-family: Impact, sans-serif;
+          }
+        }
+
+        :global(.ql-picker-options) {
+          padding: 4px 0;
+
+          :global(.ql-picker-item) {
+            padding: 6px 12px;
+            font-size: 13px;
+
+            // Hide default text, show only ::before
+            font-size: 0;
+
+            &:hover {
+              background-color: #f0f0f0;
+            }
+
+            // Font-specific labels with their own font styles
+            &[data-value="sans-serif"]::before {
+              content: 'Arial';
+              font-size: 13px;
+              font-family: Arial, Helvetica, sans-serif;
+            }
+            &[data-value="verdana"]::before {
+              content: 'Verdana';
+              font-size: 13px;
+              font-family: Verdana, sans-serif;
+            }
+            &[data-value="trebuchet"]::before {
+              content: 'Trebuchet MS';
+              font-size: 13px;
+              font-family: 'Trebuchet MS', sans-serif;
+            }
+            &[data-value="tahoma"]::before {
+              content: 'Tahoma';
+              font-size: 13px;
+              font-family: Tahoma, sans-serif;
+            }
+            &[data-value="georgia"]::before {
+              content: 'Georgia';
+              font-size: 13px;
+              font-family: Georgia, serif;
+            }
+            &[data-value="times"]::before {
+              content: 'Times New Roman';
+              font-size: 13px;
+              font-family: 'Times New Roman', serif;
+            }
+            &[data-value="garamond"]::before {
+              content: 'Garamond';
+              font-size: 13px;
+              font-family: Garamond, serif;
+            }
+            &[data-value="book"]::before {
+              content: 'Book Antiqua';
+              font-size: 13px;
+              font-family: 'Book Antiqua', serif;
+            }
+            &[data-value="courier"]::before {
+              content: 'Courier New';
+              font-size: 13px;
+              font-family: 'Courier New', monospace;
+            }
+            &[data-value="consolas"]::before {
+              content: 'Consolas';
+              font-size: 13px;
+              font-family: Consolas, monospace;
+            }
+            &[data-value="monaco"]::before {
+              content: 'Monaco';
+              font-size: 13px;
+              font-family: Monaco, monospace;
+            }
+            &[data-value="comic"]::before {
+              content: 'Comic Sans MS';
+              font-size: 13px;
+              font-family: 'Comic Sans MS', cursive;
+            }
+            &[data-value="impact"]::before {
+              content: 'Impact';
+              font-size: 13px;
+              font-family: Impact, sans-serif;
+            }
+          }
+        }
+      }
+    }
+
     // Quill editor container
     :global(.ql-container) {
       font-size: 1rem;
@@ -16,6 +174,54 @@
       min-height: 400px;
       font-size: 1rem;
       line-height: 1.6;
+    }
+
+    // Font family styles to match QuillModal - ensures fonts display the same on book page
+    // Sans Serif
+    :global(.ql-font-sans-serif) {
+      font-family: Arial, Helvetica, sans-serif !important;
+    }
+    :global(.ql-font-verdana) {
+      font-family: Verdana, sans-serif !important;
+    }
+    :global(.ql-font-trebuchet) {
+      font-family: 'Trebuchet MS', sans-serif !important;
+    }
+    :global(.ql-font-tahoma) {
+      font-family: Tahoma, sans-serif !important;
+    }
+
+    // Serif
+    :global(.ql-font-georgia) {
+      font-family: Georgia, serif !important;
+    }
+    :global(.ql-font-times) {
+      font-family: 'Times New Roman', serif !important;
+    }
+    :global(.ql-font-garamond) {
+      font-family: Garamond, serif !important;
+    }
+    :global(.ql-font-book) {
+      font-family: 'Book Antiqua', serif !important;
+    }
+
+    // Monospace
+    :global(.ql-font-courier) {
+      font-family: 'Courier New', monospace !important;
+    }
+    :global(.ql-font-consolas) {
+      font-family: Consolas, monospace !important;
+    }
+    :global(.ql-font-monaco) {
+      font-family: Monaco, monospace !important;
+    }
+
+    // Display/Decorative
+    :global(.ql-font-comic) {
+      font-family: 'Comic Sans MS', cursive !important;
+    }
+    :global(.ql-font-impact) {
+      font-family: Impact, sans-serif !important;
     }
   }
 }
