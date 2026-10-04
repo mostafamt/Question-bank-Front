@@ -25,8 +25,15 @@ const StudyBook = (props) => {
 
   const onClickArea = (block) => {
     setActiveBlock(block);
-    let isComplex = isComplexType(activeBlock.contentType);
-    if (isComplex) {
+    if (block.contentType === "Video") {
+      openModal("video-player", {
+        url: block.contentValue,
+      });
+    } else if (block.contentType === "Voice") {
+      openModal("audio-player", {
+        url: block.contentValue,
+      });
+    } else if (isComplexType(block.contentType)) {
       openModal("play-object", {
         workingArea: block,
       });
