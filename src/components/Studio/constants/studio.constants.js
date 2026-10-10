@@ -32,6 +32,8 @@ export const STORAGE_KEYS = {
   READER_VBLOCKS: "reader_vblocks",
   /** Prefix for the reader's own Enriching Content items; full key is `${prefix}_${chapterId}` */
   READER_ENRICHING: "reader_enriching",
+  /** Reader narration speed (global, not per chapter) */
+  READER_NARRATION_RATE: "reader_narration_rate",
 };
 
 /**

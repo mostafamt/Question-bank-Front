@@ -3,6 +3,7 @@
  * @description Reader toolbar control for Narration / Music.
  * Narration is driven by the shared engine (useReaderNarration) through
  * ReaderAudioContext — see docs/2026-10-01/READER_NARRATION_PLAYBACK_PLAN.md.
+ * Narration speed: docs/2026-10-10/READER_NARRATION_SPEED_PLAN.md.
  * Music is still UI only.
  */
 
@@ -32,6 +33,7 @@ import { useReaderAudio } from "../Studio/context/ReaderAudioContext";
 import {
   AUDIO_MODES,
   NARRATION_STATUS,
+  PLAYBACK_RATES,
 } from "../Studio/hooks/useReaderNarration";
 import styles from "./readerAudioControls.module.scss";
 
@@ -49,10 +51,11 @@ const ReaderAudioControls = () => {
   const [isMusicPlaying, setIsMusicPlaying] = React.useState(false);
   const [menuAnchor, setMenuAnchor] = React.useState(null);
   const [volumeAnchor, setVolumeAnchor] = React.useState(null);
+  const [speedAnchor, setSpeedAnchor] = React.useState(null);
 
   if (!audio) return null;
 
-  const { volume, isMuted, hasNarration } = audio;
+  const { volume, isMuted, hasNarration, playbackRate } = audio;
   const mode =
     Object.values(MODES).find((m) => m.id === audio.mode) || MODES.NARRATION;
   const isNarration = mode.id === AUDIO_MODES.NARRATION;
@@ -66,6 +69,11 @@ const ReaderAudioControls = () => {
     audio.setMode(nextMode.id);
     setIsMusicPlaying(false);
     setMenuAnchor(null);
+  };
+
+  const onSelectSpeed = (value) => {
+    audio.setPlaybackRate(value);
+    setSpeedAnchor(null);
   };
 
   const onTogglePlay = () => {
@@ -134,6 +142,40 @@ const ReaderAudioControls = () => {
             </span>
           </Tooltip>
         )}
+
+        {isNarration && (
+          <Tooltip title="Playback speed">
+            <IconButton
+              size="small"
+              aria-label="playback-speed"
+              aria-haspopup="true"
+              aria-controls={speedAnchor ? "reader-speed-menu" : undefined}
+              onClick={(e) => setSpeedAnchor(e.currentTarget)}
+              className={styles["speed-button"]}
+            >
+              {`${playbackRate}x`}
+            </IconButton>
+          </Tooltip>
+        )}
+        <Menu
+          id="reader-speed-menu"
+          anchorEl={speedAnchor}
+          open={Boolean(speedAnchor)}
+          onClose={() => setSpeedAnchor(null)}
+        >
+          {PLAYBACK_RATES.map((rate) => (
+            <MenuItem
+              key={rate.value}
+              selected={playbackRate === rate.value}
+              onClick={() => onSelectSpeed(rate.value)}
+            >
+              <ListItemText>{rate.label}</ListItemText>
+              {playbackRate === rate.value && (
+                <CheckIcon fontSize="small" sx={{ ml: 2 }} />
+              )}
+            </MenuItem>
+          ))}
+        </Menu>
 
         <Tooltip title="Volume">
           <IconButton
