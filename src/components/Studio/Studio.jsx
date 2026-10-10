@@ -23,7 +23,7 @@ import useVirtualBlocks from "./hooks/useVirtualBlocks";
 import useLabelManagement from "./hooks/useLabelManagement";
 import usePlayBlock from "./hooks/usePlayBlock";
 import useStudioColumns from "./hooks/useStudioColumns";
-import useReaderNarration from "./hooks/useReaderNarration";
+import useReaderAudioEngine from "./hooks/useReaderAudioEngine";
 import ReaderAudioContext from "./context/ReaderAudioContext";
 
 /**
@@ -224,8 +224,8 @@ const Studio = (props) => {
   const { highlight, setHighlight, highlightedBlockId, hightBlock } =
     useStudioActions({ getBlockFromBlockId });
 
-  // ============ READER NARRATION ============
-  const readerAudio = useReaderNarration({
+  // ============ READER AUDIO (narration + music) ============
+  const readerAudio = useReaderAudioEngine({
     pages,
     activePageIndex,
     highlightedBlockId,

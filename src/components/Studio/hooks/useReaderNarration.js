@@ -10,7 +10,6 @@ import { toast } from "react-toastify";
 import { buildPageQueue } from "../services/narration.service";
 import { STORAGE_KEYS } from "../constants";
 
-export const AUDIO_MODES = { NARRATION: "narration", MUSIC: "music" };
 export const PLAYBACK_RATES = [
   { value: 1, label: "Normal" },
   { value: 1.25, label: "1.25" },
@@ -62,7 +61,6 @@ const useReaderNarration = ({
 }) => {
   const lang = contentLanguage || DEFAULT_LANGUAGE;
 
-  const [mode, setModeState] = useState(AUDIO_MODES.NARRATION);
   const [status, setStatus] = useState(NARRATION_STATUS.IDLE);
   const [currentBlockId, setCurrentBlockId] = useState(null);
   const [volume, setVolume] = useState(DEFAULT_VOLUME);
@@ -230,14 +228,6 @@ const useReaderNarration = ({
     playAt(shouldRestart ? indexRef.current : indexRef.current - 1);
   }, [playAt]);
 
-  const setMode = useCallback(
-    (nextMode) => {
-      stop();
-      setModeState(nextMode);
-    },
-    [stop]
-  );
-
   const changeVolume = useCallback((value) => {
     setVolume(value);
     setIsMuted(value === 0);
@@ -257,8 +247,6 @@ const useReaderNarration = ({
 
   return useMemo(
     () => ({
-      mode,
-      setMode,
       status,
       currentBlockId,
       volume,
@@ -275,8 +263,6 @@ const useReaderNarration = ({
       setPlaybackRate,
     }),
     [
-      mode,
-      setMode,
       status,
       currentBlockId,
       volume,
