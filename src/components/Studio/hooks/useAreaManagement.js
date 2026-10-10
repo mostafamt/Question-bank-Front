@@ -189,7 +189,7 @@ const useAreaManagement = ({
    * - Deep blocks: Store for white background rendering, then proceed with deletion
    * - Server areas: Mark as DELETED status (soft delete)
    * - Client areas: Remove from both arrays (hard delete)
-   * @param {number} idx - Index of area to delete
+   * @param {string} id - Id of the area to delete
    */
   const addDeletedDeepBlockArea = React.useCallback(
     (area, areaProps) => {
@@ -213,31 +213,61 @@ const useAreaManagement = ({
     [activePageIndex]
   );
 
-  const onClickDeleteArea = React.useCallback(
-    (idx) => {
-      // 1. Check areas first (source of truth for rendered areas)
-      const area = areas[activePageIndex]?.[idx];
+  const updateAreaPropertyById = React.useCallback(
+    (id, property) => {
+      setAreasProperties((prevState) => {
+        const newAreasProperties = [...prevState];
+        newAreasProperties[activePageIndex] = newAreasProperties[
+          activePageIndex
+        ].map((area) => {
+          if (area.id === id) {
+            return {
+              ...area,
+              ...property,
+            };
+          }
+          return area;
+        });
+        return newAreasProperties;
+      });
+    },
+    [activePageIndex]
+  );
 
-      if (!area) {
-        console.warn(
-          `Cannot delete area at index ${idx}: area not found in areas`
-        );
+  const onClickDeleteArea = React.useCallback(
+    (id) => {
+      // 1. Resolve the real index from the id. The UI list hides soft-deleted
+      // areas, so its positions don't match the unfiltered arrays here.
+      const idx = (areasProperties[activePageIndex] || []).findIndex(
+        (a) => a.id === id
+      );
+
+      if (idx === -1) {
+        console.warn(`Cannot delete area "${id}": not found in areasProperties`);
         return;
       }
 
-      // 2. Get corresponding areaProps for server status check
-      const areaProps = areasProperties[activePageIndex]?.[idx];
+      // 2. Check areas (source of truth for rendered areas)
+      const area = areas[activePageIndex]?.[idx];
 
-      // 3. Check if this is a deep block and store coordinates for white rendering
+      if (!area) {
+        console.warn(`Cannot delete area "${id}": area not found in areas`);
+        return;
+      }
+
+      // 3. Get corresponding areaProps for server status check
+      const areaProps = areasProperties[activePageIndex][idx];
+
+      // 4. Check if this is a deep block and store coordinates for white rendering
       // Only store if it's server-side (has a snapshot to render the overlay on)
       if (isDeepBlock(areaProps) && areaProps?.isServer) {
         addDeletedDeepBlockArea(area, areaProps);
       }
 
-      // 4. Determine delete strategy based on server status
+      // 5. Determine delete strategy based on server status
       if (areaProps?.isServer) {
         // Soft delete: mark as deleted for server sync
-        updateAreaProperty(idx, { status: DELETED });
+        updateAreaPropertyById(id, { status: DELETED });
       } else {
         // Hard delete: remove from both arrays using callback form
         setAreas((prevAreas) =>
@@ -252,26 +282,10 @@ const useAreaManagement = ({
       activePageIndex,
       areas,
       areasProperties,
-      updateAreaProperty,
+      updateAreaPropertyById,
       addDeletedDeepBlockArea,
     ]
   );
-
-  const updateAreaPropertyById = (id, property) => {
-    const newAreasProperties = [...areasProperties];
-    newAreasProperties[activePageIndex] = newAreasProperties[
-      activePageIndex
-    ].map((area) => {
-      if (area.id === id) {
-        return {
-          ...area,
-          ...property,
-        };
-      }
-      return area;
-    });
-    setAreasProperties(newAreasProperties);
-  };
 
   /**
    * Add a manually-drawn white-out rectangle (from the ImageActions "white

@@ -27,7 +27,8 @@ const AreaAction = (props) => {
 
   const { openModal } = useStore();
 
-  const handleToggle = () => updateAreaProperty(idx, { open: !area.open });
+  const handleToggle = () =>
+    updateAreaPropertyById(area.id, { open: !area.open });
 
   const handlePlay = (id, event) => {
     event.stopPropagation();
@@ -47,7 +48,7 @@ const AreaAction = (props) => {
 
   const handleDelete = (id, event) => {
     event.stopPropagation();
-    onClickDeleteArea(idx);
+    onClickDeleteArea(area.id);
   };
 
   const actions = [
