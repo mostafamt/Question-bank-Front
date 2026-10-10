@@ -1,6 +1,9 @@
 import React, { useRef } from "react";
 import MuiSelect from "../../MuiSelect/MuiSelect";
-import { VIRTUAL_BLOCK_MENU } from "../../../utils/virtual-blocks";
+import {
+  VIRTUAL_BLOCK_MENU,
+  getVirtualBlockMenuItem,
+} from "../../../utils/virtual-blocks";
 import IconButton from "@mui/material/IconButton";
 import Badge from "@mui/material/Badge";
 import Tooltip from "@mui/material/Tooltip";
@@ -273,11 +276,7 @@ const VirtualBlock = React.memo((props) => {
       return null;
     }
 
-    const firstContent = displayContents[0];
-    const selectedItem = VIRTUAL_BLOCK_MENU.find(
-      (item) => item.label === firstContent.contentType
-    );
-    return selectedItem?.iconSrc;
+    return getVirtualBlockMenuItem(displayContents[0].contentType)?.iconSrc;
   }, [displayContents]);
 
   /**
