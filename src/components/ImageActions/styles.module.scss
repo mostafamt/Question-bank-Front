@@ -10,6 +10,12 @@
 
   position: sticky;
   top: 0;
+  // The page scrolls underneath: without a background and a z-index above the
+  // page overlays (up to 200, white-out drag catcher), the page paints over
+  // the toolbar — most visibly over a wrapped second row. Stays below MUI
+  // popovers/menus (1300).
+  z-index: 250;
+  background-color: #fff;
 
   & > div {
     display: flex;
