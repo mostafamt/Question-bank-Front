@@ -1,9 +1,17 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
 import Button from "@mui/material/Button";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
 import ContentItemList from "./ContentItemList";
 import ContentItemForm from "./ContentItemForm";
 import { useAutoGenPolling } from "../../../hooks/useAutoGenPolling";
+import {
+  VIRTUAL_BLOCK_MENU,
+  changeVirtualBlockType,
+} from "../../../utils/virtual-blocks";
 
 import styles from "./virtualBlockContentModal.module.scss";
 
@@ -17,6 +25,7 @@ import styles from "./virtualBlockContentModal.module.scss";
  * @param {Array} props.existingContents - Array of existing content items
  * @param {string} [props.pageImageUrl] - URL of the current page image (for AutoGen crop)
  * @param {string[]} [props.allowedTypes] - Content types to offer (default: all); used by reader mode
+ * @param {boolean} [props.allowTypeChange=true] - Show the block type selector in the header
  * @param {Function} props.onSave - Save handler, receives array of contents
  * @param {Function} props.handleCloseModal - Close modal callback
  */
@@ -27,9 +36,23 @@ const VirtualBlockContentModal = (props) => {
     existingContents = [],
     pageImageUrl,
     allowedTypes,
+    allowTypeChange = true,
     onSave,
     handleCloseModal,
   } = props;
+
+  // Block type of this slot; applied to every item on save
+  const [blockLabel, setBlockLabel] = React.useState(selectedLabel);
+
+  // Keep legacy labels (not in the menu) selectable so they aren't overwritten silently
+  const blockTypeOptions = React.useMemo(() => {
+    const isKnown = VIRTUAL_BLOCK_MENU.some(
+      (item) => item.label === selectedLabel
+    );
+    return isKnown || !selectedLabel
+      ? VIRTUAL_BLOCK_MENU
+      : [{ label: selectedLabel }, ...VIRTUAL_BLOCK_MENU];
+  }, [selectedLabel]);
 
   // Local state for managing content items
   const [contents, setContents] = React.useState(existingContents);
@@ -58,7 +81,7 @@ const VirtualBlockContentModal = (props) => {
     const newContentItem = {
       ...contentItem,
       iconLocation: iconLocation,
-      contentType: selectedLabel,
+      contentType: blockLabel,
     };
 
     if (editingIndex !== null) {
@@ -110,7 +133,7 @@ const VirtualBlockContentModal = (props) => {
    */
   const handleSaveAll = () => {
     if (onSave) {
-      onSave(contents);
+      onSave(changeVirtualBlockType(contents, blockLabel));
     }
     // Modal will be closed by parent
   };
@@ -135,8 +158,35 @@ const VirtualBlockContentModal = (props) => {
       aria-describedby="virtual-block-modal-description"
     >
       <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title id="virtual-block-modal-title">
-          Virtual Block: {selectedLabel}
+        <BootstrapModal.Title
+          id="virtual-block-modal-title"
+          className={styles.title}
+        >
+          Virtual Block:
+          {allowTypeChange ? (
+            <Select
+              size="small"
+              variant="standard"
+              value={blockLabel}
+              onChange={(e) => setBlockLabel(e.target.value)}
+              className={styles.typeSelect}
+              inputProps={{ "aria-label": "Block type" }}
+              MenuProps={{ disableScrollLock: true }}
+            >
+              {blockTypeOptions.map((item) => (
+                <MenuItem key={item.label} value={item.label}>
+                  {item.iconSrc && (
+                    <ListItemIcon>
+                      <img src={item.iconSrc} alt="" width="24px" loading="lazy" />
+                    </ListItemIcon>
+                  )}
+                  <ListItemText>{item.label}</ListItemText>
+                </MenuItem>
+              ))}
+            </Select>
+          ) : (
+            ` ${blockLabel}`
+          )}
         </BootstrapModal.Title>
       </BootstrapModal.Header>
 
@@ -153,7 +203,7 @@ const VirtualBlockContentModal = (props) => {
               </h6>
               <ContentItemList
                 contents={contents}
-                selectedLabel={selectedLabel}
+                selectedLabel={blockLabel}
                 onEdit={handleEditContent}
                 onDelete={handleDeleteContent}
               />
@@ -186,7 +236,7 @@ const VirtualBlockContentModal = (props) => {
                 {editingIndex !== null ? "Edit Content" : "Add Content"}
               </h6>
               <ContentItemForm
-                selectedLabel={selectedLabel}
+                selectedLabel={blockLabel}
                 iconLocation={iconLocation}
                 editingContent={editingContent}
                 pageImageUrl={pageImageUrl}

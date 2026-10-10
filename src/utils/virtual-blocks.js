@@ -60,6 +60,26 @@ export const VIRTUAL_BLOCK_MENU = [
   },
 ];
 
+/**
+ * Find the menu entry for a block label
+ * @param {string} label - Block label (e.g., 'Recall 🧠')
+ * @returns {Object|undefined} - VIRTUAL_BLOCK_MENU entry, if any
+ */
+export const getVirtualBlockMenuItem = (label) =>
+  VIRTUAL_BLOCK_MENU.find((item) => item.label === label);
+
+/**
+ * Relabel every content item of a slot with a new block type
+ * @param {Array} contents - Content items of one slot
+ * @param {string} newLabel - New block label (from VIRTUAL_BLOCK_MENU)
+ * @returns {Array} - New contents array (same reference if nothing changed)
+ */
+export const changeVirtualBlockType = (contents, newLabel) => {
+  if (!newLabel || !contents?.length) return contents || [];
+  if (contents.every((item) => item.contentType === newLabel)) return contents;
+  return contents.map((item) => ({ ...item, contentType: newLabel }));
+};
+
 export const NUM_OF_VIRUTAL_BLOCKS = 18;
 export const SERVER = "updated";
 export const CREATED = "new";
