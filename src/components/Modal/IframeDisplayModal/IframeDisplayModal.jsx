@@ -12,61 +12,7 @@ import {
 import { OpenInNew, Refresh, Close } from "@mui/icons-material";
 
 import styles from "./iframeDisplayModal.module.scss";
-
-/**
- * Convert video URLs to embeddable format
- * Supports: YouTube, Vimeo
- *
- * @param {string} url - Original URL
- * @returns {string} - Embeddable URL
- */
-const getEmbedUrl = (url) => {
-  if (!url) return url;
-
-  try {
-    const urlObj = new URL(url);
-
-    // YouTube - youtu.be format
-    if (urlObj.hostname === "youtu.be") {
-      const videoId = urlObj.pathname.slice(1).split("?")[0];
-      return `https://www.youtube.com/embed/${videoId}`;
-    }
-
-    // YouTube - youtube.com/watch format
-    if (
-      urlObj.hostname === "www.youtube.com" ||
-      urlObj.hostname === "youtube.com"
-    ) {
-      if (urlObj.pathname === "/watch") {
-        const videoId = urlObj.searchParams.get("v");
-        if (videoId) {
-          return `https://www.youtube.com/embed/${videoId}`;
-        }
-      }
-      // Already embed format
-      if (urlObj.pathname.startsWith("/embed/")) {
-        return url;
-      }
-    }
-
-    // Vimeo
-    if (
-      urlObj.hostname === "vimeo.com" ||
-      urlObj.hostname === "www.vimeo.com"
-    ) {
-      const videoId = urlObj.pathname.slice(1);
-      if (videoId && !urlObj.pathname.startsWith("/video/")) {
-        return `https://player.vimeo.com/video/${videoId}`;
-      }
-    }
-
-    // Return original URL if no conversion needed
-    return url;
-  } catch (e) {
-    // Invalid URL, return as-is
-    return url;
-  }
-};
+import { getEmbedUrl } from "../../../utils/video";
 
 /**
  * IframeDisplayModal Component
