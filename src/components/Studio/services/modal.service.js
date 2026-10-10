@@ -25,6 +25,10 @@ export const STUDIO_MODALS = {
   DEEP_AUDIO: "deep-audio",
   /** Modal for uploading/replacing a deep block's video */
   DEEP_VIDEO: "deep-video",
+  /** Modal for playing a video block in reader mode */
+  VIDEO_PLAYER: "video-player",
+  /** Modal for playing an audio block in reader mode */
+  AUDIO_PLAYER: "audio-player",
   /** Modal for selecting composite blocks */
   COMPOSITE_BLOCKS: "composite-blocks-modal",
   /** Modal for playing composite blocks */

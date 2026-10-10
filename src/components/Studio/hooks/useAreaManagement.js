@@ -610,6 +610,7 @@ const useAreaManagement = ({
     syncAreasProperties,
     onChangeArea,
     onClickSubmit,
+    loadingSubmit,
     onClickToggleVirutalBlocks,
     loadingSubmit,
   };

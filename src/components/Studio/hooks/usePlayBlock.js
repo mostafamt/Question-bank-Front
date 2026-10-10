@@ -26,7 +26,15 @@ const usePlayBlock = ({ openModal, setFormState }) => {
 
       const { isComplex } = determineModalForArea(areaProps);
 
-      if (isComplex) {
+      if (areaProps.typeOfLabel === "video") {
+        openModal(STUDIO_MODALS.VIDEO_PLAYER, {
+          url: areaProps.video || areaProps.text,
+        });
+      } else if (areaProps.typeOfLabel === "audio") {
+        openModal(STUDIO_MODALS.AUDIO_PLAYER, {
+          url: areaProps.audio || areaProps.text,
+        });
+      } else if (isComplex) {
         // Set the activeId in the store for PlayObjectModal2
         setFormState({ activeId: areaProps.text });
         openModal(STUDIO_MODALS.PLAY_OBJECT);
