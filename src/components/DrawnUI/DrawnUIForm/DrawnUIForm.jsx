@@ -116,7 +116,7 @@ const DrawnUIForm = ({
       const res = await axios.post("/interactive-objects", data);
       toast.success("Object added successfully");
       window.open(`/show/${res.data}`, "_blank");
-      onSuccess?.();
+      // onSuccess?.();   // disable close modal
     } catch (error) {
       toast.error(error?.message);
     }
