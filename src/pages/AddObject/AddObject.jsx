@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useStore } from "../../store/store";
 import { useForm } from "react-hook-form";
 import DesignServicesIcon from "@mui/icons-material/DesignServices";
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
+import LinkIcon from "@mui/icons-material/Link";
 import ScannerIcon from "@mui/icons-material/Scanner";
 import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
 import Input from "../../components/Input/Input";
@@ -18,9 +19,7 @@ import {
   getSubDomainName,
 } from "../../config";
 import { useQuery } from "@tanstack/react-query";
-import { NewInstance as axios } from "../../axios";
-import { toast } from "react-toastify";
-import { getCategories, getQuestionTypes, getTypes } from "../../services/api";
+import { getCategories, getTypes } from "../../services/api";
 import { v4 as uuidv4 } from "uuid";
 
 import styles from "./addObject.module.scss";
@@ -33,6 +32,7 @@ const AddObject = () => {
     register,
     formState: { errors },
     handleSubmit,
+    getValues,
     watch,
   } = useForm({
     defaultValues: {
@@ -51,6 +51,8 @@ const AddObject = () => {
   const [interactiveObjectTypes, setInteractiveObjectTypes] = React.useState(
     []
   );
+  const selectedCategory = watch("category");
+  const selectedType = watch("type");
 
   const getQuestionTypes = async () => {
     const res = await getAllTypes();
@@ -75,10 +77,6 @@ const AddObject = () => {
     refetchOnWindowFocus: false,
     enabled: !!watch("category"), // Disable auto-fetch
   });
-
-  const onClickExcelFile = () => {
-    window.open("/excel-file", "_blank");
-  };
 
   const onSubmit = async (values) => {
     const domainName = getDomainName(values.domainId);
@@ -266,36 +264,73 @@ const AddObject = () => {
               </Select>
             </div>
 
-            <div className={styles.actions}>
-              <Button
-                variant="contained"
-                startIcon={<DesignServicesIcon />}
-                type="submit"
+            {selectedCategory && selectedType && (
+              <div
+                className={`${styles.actions} ${
+                  selectedCategory === "Smart Object" ? styles.smartActions : ""
+                }`}
               >
-                Manual Form
-              </Button>
-              <Button
-                variant="contained"
-                onClick={handleSubmit(onSubmitAutoGen)}
-                startIcon={<AutoFixHighIcon />}
-              >
-                Auto Gen
-              </Button>
-              <Button
-                variant="contained"
-                onClick={handleSubmit(onSubmitOcr)}
-                startIcon={
-                  loadingOCR ? (
-                    <CircularProgress size="1rem" />
-                  ) : (
-                    <ScannerIcon />
-                  )
-                }
-                disabled={loadingOCR}
-              >
-                Scan and Upload
-              </Button>
-            </div>
+                {selectedCategory === "Smart Object" ? (
+                  <>
+                    <Button
+                      variant="contained"
+                      startIcon={<UploadFileIcon />}
+                      type="button"
+                      onClick={() =>
+                        navigate("/smart-object/upload", {
+                          state: { title: getValues("questionName"), object: getValues(), domainName: getDomainName(getValues("domainId")), subDomainName: getSubDomainName(getValues("domainId"), getValues("subDomainId")) },
+                        })
+                      }
+                    >
+                      Upload file
+                    </Button>
+                    <Button
+                      variant="contained"
+                      startIcon={<LinkIcon />}
+                      type="button"
+                      onClick={() =>
+                        navigate("/smart-object/link", {
+                          state: { title: getValues("questionName"), object: getValues(), domainName: getDomainName(getValues("domainId")), subDomainName: getSubDomainName(getValues("domainId"), getValues("subDomainId")) },
+                        })
+                      }
+                    >
+                      Add link
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      variant="contained"
+                      startIcon={<DesignServicesIcon />}
+                      type="submit"
+                    >
+                      Manual Form
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={handleSubmit(onSubmitAutoGen)}
+                      startIcon={<AutoFixHighIcon />}
+                    >
+                      Auto Gen
+                    </Button>
+                    <Button
+                      variant="contained"
+                      onClick={handleSubmit(onSubmitOcr)}
+                      startIcon={
+                        loadingOCR ? (
+                          <CircularProgress size="1rem" />
+                        ) : (
+                          <ScannerIcon />
+                        )
+                      }
+                      disabled={loadingOCR}
+                    >
+                      Scan and Upload
+                    </Button>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </fieldset>
       </form>

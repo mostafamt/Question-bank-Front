@@ -5,6 +5,17 @@
   border-radius: 3px;
 }
 
+.formLayout {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+
+  form {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
 .item {
   border: 1px solid #ccc;
   padding: 1rem;

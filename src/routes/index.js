@@ -20,6 +20,8 @@ import AddType from "../pages/AddType/AddType";
 import Types from "../pages/Types/Types";
 import Error from "../pages/Error/Error";
 import AutoGeneration from "../pages/AutoGeneration/AutoGeneration";
+import SmartObjectUpload from "../pages/SmartObjectUpload/SmartObjectUpload";
+import SmartObjectLink from "../pages/SmartObjectLink/SmartObjectLink";
 
 const routes = [
   {
@@ -61,6 +63,14 @@ const routes = [
   {
     path: "/auto-generation",
     component: AutoGeneration,
+  },
+  {
+    path: "/smart-object/upload",
+    component: SmartObjectUpload,
+  },
+  {
+    path: "/smart-object/link",
+    component: SmartObjectLink,
   },
   {
     path: "/add-question/multiple-choice/manual",

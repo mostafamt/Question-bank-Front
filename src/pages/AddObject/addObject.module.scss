@@ -40,6 +40,11 @@
           align-items: center;
           justify-content: space-between;
 
+          &.smartActions {
+            justify-content: center;
+            gap: 1rem;
+          }
+
           & > button {
             flex: 0 1 30%;
             // border: 0;
