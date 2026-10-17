@@ -26,6 +26,7 @@ const AreaItem = ({
   return (
     <div
       className={styles["area-item"]}
+      data-area-id={area?.id}
       style={{
         borderColor: hexToRgbA(color),
       }}

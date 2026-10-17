@@ -11,14 +11,18 @@ import { WHITE_PAGE_FALLBACK } from "../constants";
 import useReaderVBlocks from "../hooks/useReaderVBlocks";
 
 import { getRenderMode, RENDER_MODES } from "./utils/renderMode";
-import { BlockOverlayLayer } from "./shared";
+import { BlockOverlayLayer, BlockContextMenu } from "./shared";
 import {
   ReaderModeRenderer,
   HandToolRenderer,
   EditModeRenderer,
   DefaultRenderer,
 } from "./renderers";
-import { useAreaCustomRenderer, useCompositeBlockPicking } from "./hooks";
+import {
+  useAreaCustomRenderer,
+  useCompositeBlockPicking,
+  useBlockContextMenu,
+} from "./hooks";
 
 /**
  * @file StudioAreaSelector.jsx
@@ -50,6 +54,8 @@ const StudioAreaSelector = React.memo(
       readOnly = false,
       onAreaClick,
       onPlayBlock,
+      onClickDeleteArea,
+      updateAreaPropertyById,
       pageContainerRef,
       showBlocksStyling,
       deletedDeepBlockAreas = [],
@@ -186,6 +192,32 @@ const StudioAreaSelector = React.memo(
       activeRightTabId: activeRightTab.id,
     });
 
+    // Right-click menu: only where page blocks are shown and clicking a block
+    // doesn't already mean something else (composite picking, white-out).
+    const isContextMenuEnabled =
+      renderMode === RENDER_MODES.READER ||
+      renderMode === RENDER_MODES.VIEW_AND_PLAY ||
+      (renderMode === RENDER_MODES.EDIT_MODE &&
+        activeRightTab.id !== "composite-blocks" &&
+        !isWhiteOutMode);
+
+    const {
+      menuProps: contextMenuProps,
+      onContextMenu,
+      onPointerDownCapture,
+    } = useBlockContextMenu({
+      enabled: isContextMenuEnabled,
+      isReaderMode,
+      canShowInList: activeRightTab.id === "block-authoring",
+      areas,
+      areasProperties,
+      activePage,
+      imageRef: ref,
+      onPlayBlock,
+      onClickDeleteArea,
+      updateAreaPropertyById,
+    });
+
     const sharedRendererProps = {
       deletedDeepBlockAreas,
       activePage,
@@ -213,6 +245,8 @@ const StudioAreaSelector = React.memo(
       >
         <div
           ref={pageContainerRef}
+          onContextMenu={onContextMenu}
+          onPointerDownCapture={onPointerDownCapture}
           className={clsx(
             styles.block,
             !showBlocksStyling && styles.hideBlocksStyling
@@ -275,6 +309,7 @@ const StudioAreaSelector = React.memo(
             <DefaultRenderer ref={ref} {...sharedRendererProps} />
           )}
         </div>
+        <BlockContextMenu {...contextMenuProps} />
       </VirtualBlocks>
     );
   })

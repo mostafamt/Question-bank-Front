@@ -5,3 +5,4 @@
 
 export { default as useAreaCustomRenderer } from "./useAreaCustomRenderer";
 export { default as useCompositeBlockPicking } from "./useCompositeBlockPicking";
+export { default as useBlockContextMenu } from "./useBlockContextMenu";

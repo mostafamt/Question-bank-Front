@@ -53,6 +53,8 @@ const StudioLayout = React.forwardRef(
       setHighlight,
       highlightedBlockId,
       onPlayBlock,
+      onClickDeleteArea,
+      updateAreaPropertyById,
       showBlocksStyling,
       setShowBlocksStyling,
       deletedDeepBlockAreas,
@@ -103,6 +105,8 @@ const StudioLayout = React.forwardRef(
           setHighlight={setHighlight}
           highlightedBlockId={highlightedBlockId}
           onPlayBlock={onPlayBlock}
+          onClickDeleteArea={onClickDeleteArea}
+          updateAreaPropertyById={updateAreaPropertyById}
           showBlocksStyling={showBlocksStyling}
           setShowBlocksStyling={setShowBlocksStyling}
           deletedDeepBlockAreas={deletedDeepBlockAreas}

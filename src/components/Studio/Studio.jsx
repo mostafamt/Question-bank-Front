@@ -507,6 +507,8 @@ const Studio = (props) => {
         setHighlight={setHighlight}
         highlightedBlockId={highlightedBlockId}
         onPlayBlock={onPlayBlock}
+        onClickDeleteArea={onClickDeleteArea}
+        updateAreaPropertyById={updateAreaPropertyById}
         showBlocksStyling={showBlocksStyling}
         setShowBlocksStyling={setShowBlocksStyling}
         chapterId={chapterId}
