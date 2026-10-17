@@ -3,8 +3,6 @@ import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
 import { Link } from "react-router-dom";
 import styles from "./navbar.module.scss";
 import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
@@ -15,19 +13,10 @@ const Navbar = () => {
       <AppBar
         position="static"
         sx={{
-          backgroundColor: "#343a40",
+          background: "linear-gradient(90deg, #0594a9 0%, #036b7a 100%)",
         }}
       >
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ marginInlineEnd: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             <Link
               to="/"
