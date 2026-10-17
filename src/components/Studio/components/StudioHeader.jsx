@@ -6,10 +6,11 @@
 import React from "react";
 import StudioStickyToolbar from "../StudioStickyToolbar/StudioStickyToolbar";
 import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
+import { useAppMode } from "../../../utils/tabFiltering";
 
 /**
  * Studio Header Component
- * Contains the sticky toolbar and language switcher
+ * Contains the sticky toolbar and language switcher (OCR only, so hidden in reader mode)
  *
  * @param {Object} props - Component props
  * @param {boolean} props.showStickyToolbar - Whether to show sticky toolbar
@@ -47,6 +48,8 @@ const StudioHeader = ({
   chapterId,
   publishLanguage,
 }) => {
+  const isReaderMode = useAppMode() === "reader";
+
   return (
     <>
       <StudioStickyToolbar
@@ -65,7 +68,9 @@ const StudioHeader = ({
         chapterId={chapterId}
         publishLanguage={publishLanguage}
       />
-      <LanguageSwitcher language={language} setLanguage={setLanguage} />
+      {!isReaderMode && (
+        <LanguageSwitcher language={language} setLanguage={setLanguage} />
+      )}
     </>
   );
 };

@@ -8,7 +8,11 @@ import React from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { parseVirtualBlocksFromPages } from "../../utils/virtual-blocks";
 import { useAppMode } from "../../utils/tabFiltering";
-import { ENGLISH, ARABIC } from "../../utils/ocr";
+import {
+  ARABIC,
+  OCR_LANGUAGE_BY_CODE,
+  toLanguageCode,
+} from "../../utils/ocr";
 import { useStore } from "../../store/store";
 
 import { DEFAULTS, LANGUAGE_CODES } from "./constants";
@@ -65,7 +69,7 @@ const Studio = (props) => {
 
   // ============ LOCAL STATE ============
   const [language, setLanguage] = React.useState(
-    langProp === LANGUAGE_CODES.ENGLISH ? ENGLISH : ARABIC
+    () => OCR_LANGUAGE_BY_CODE[langProp] ?? ARABIC
   );
   const [virtualBlocks, setVirtualBlocks] = React.useState(() =>
     subObject ? [] : parseVirtualBlocksFromPages(pages)
@@ -433,7 +437,7 @@ const Studio = (props) => {
   );
 
   const publishLanguageCode =
-    language === ARABIC ? LANGUAGE_CODES.ARABIC : LANGUAGE_CODES.ENGLISH;
+    toLanguageCode(language) ?? LANGUAGE_CODES.ENGLISH;
 
   const handleSetVirtualBlocks = React.useCallback(
     (value) => {

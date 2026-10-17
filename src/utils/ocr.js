@@ -337,6 +337,21 @@ export const COMPLEX_TYPES = [
 export const ARABIC = "ara";
 export const ENGLISH = "eng";
 
+// ISO 639-1 codes (as returned by the `/languages` API) → Tesseract codes.
+export const OCR_LANGUAGE_BY_CODE = {
+  en: ENGLISH,
+  ar: ARABIC,
+  fr: "fra",
+  es: "spa",
+  it: "ita",
+  de: "deu",
+};
+
+export const toLanguageCode = (ocrLanguage) =>
+  Object.keys(OCR_LANGUAGE_BY_CODE).find(
+    (code) => OCR_LANGUAGE_BY_CODE[code] === ocrLanguage
+  );
+
 export const isComplexType = (type) => {
   let isComplex = COMPLEX_TYPES.includes(type);
 
