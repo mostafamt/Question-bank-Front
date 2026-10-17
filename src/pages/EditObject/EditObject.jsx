@@ -236,7 +236,7 @@ const EditObject = () => {
                   Save
                 </Button>
                 <Button variant="contained" onClick={onClickEdit}>
-                  Edit Question
+                  Edit
                 </Button>
                 <Button variant="contained" onClick={onClickDelete}>
                   Delete
