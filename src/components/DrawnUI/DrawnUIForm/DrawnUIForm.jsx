@@ -23,7 +23,6 @@ import styles from "../../../pages/DrawnUI/drawnUI.module.scss";
 import Wrapper from "../Wrapper/Wrapper";
 import OneOfUI from "../OneOfUI/OneOfUI";
 import DocumentFrames from "../DocumentFrames/DocumentFrames";
-
 const DrawnUIForm = ({
   baseType,
   initialValues,
@@ -33,6 +32,7 @@ const DrawnUIForm = ({
   isMapToFormMode,
 }) => {
   const isEditMode = Boolean(objectId) && !isMapToFormMode;
+  const isEditMapToForm = Boolean(objectId) && isMapToFormMode;
 
   const [foundAbstractParameters, setFoundAbstractParameters] =
     React.useState(true);
@@ -77,7 +77,12 @@ const DrawnUIForm = ({
     if (isEditMode) {
       const saved = await getParameters();
       setFrameUrls(saved?.frameUrls || []);
-      return remapToAbstractKeys(saved.parameters, abstractParameter);
+      return remapToAbstractKeys(saved, abstractParameter);
+    }
+    if (isEditMapToForm) {
+      const saved = await getParameters();
+      const merged = mergeFormValues(saved, initialValues);
+      return remapToAbstractKeys(merged, abstractParameter);
     }
     if (isMapToFormMode && initialValues) {
       setFrameUrls(initialValues.frameUrls || []);
@@ -87,11 +92,12 @@ const DrawnUIForm = ({
   };
 
   const onSubmit = async (formValues) => {
-    setValues(formValues);
-    if (isEditMode) {
-      await editObject(formValues);
+    const corrected = correctArrayKeyLengths(formValues);
+    setValues(corrected);
+    if (isEditMode || isEditMapToForm) {
+      await editObject(corrected);
     } else {
-      await saveObject(formValues);
+      await saveObject(corrected);
     }
   };
 
@@ -113,7 +119,7 @@ const DrawnUIForm = ({
       const res = await axios.post("/interactive-objects", data);
       toast.success("Object added successfully");
       window.open(`/show/${res.data}`, "_blank");
-      onSuccess?.();
+      // onSuccess?.();   // disable close modal
     } catch (error) {
       toast.error(error?.message);
     }
@@ -168,10 +174,7 @@ const DrawnUIForm = ({
     }
 
     if (Array.isArray(properties.type)) {
-      console.log("Array");
-      console.log("properties= ", properties);
       const object = emptyValues(properties.type[0]);
-      console.log("object= ", object);
       return <ArrayUI {...properties} object={object} />;
     } else if (typeof properties.type === "object") {
       return <ObjectUI {...properties} />;
@@ -278,20 +281,52 @@ const DrawnUIForm = ({
         )}
         {abstractParameters && parseParameters(abstractParameters)}
       </form>
-    </div>
+      <pre>{JSON.stringify(values, null, 4)}</pre>
+    </>
   );
 };
+
+function correctArrayKeyLengths(formValues) {
+  const result = {};
+  for (const [key, value] of Object.entries(formValues)) {
+    if (Array.isArray(value) && value.length > 0) {
+      const base = key.replace(/\s*\d+$/, "").trim();
+      result[`${base} ${value.length}`] = value;
+    } else {
+      result[key] = value;
+    }
+  }
+  return result;
+}
+
+function mergeFormValues(saved, scanned) {
+  const result = { ...saved };
+  for (const [key, value] of Object.entries(scanned ?? {})) {
+    const isEmpty = value === null || value === undefined || value === "";
+    if (!isEmpty) result[key] = value;
+  }
+  return result;
+}
 
 function remapToAbstractKeys(savedParams, abstractParameter) {
   if (!savedParams || !abstractParameter) return savedParams;
   const result = {};
-  for (const [abstractKey, abstractValue] of Object.entries(abstractParameter)) {
+  for (const [abstractKey, abstractValue] of Object.entries(
+    abstractParameter
+  )) {
     if (Array.isArray(abstractValue)) {
-      const abstractBase = abstractKey.replace(/\s*\d+$/, "").trim().toLowerCase();
-      const savedKey = Object.keys(savedParams).find(
-        (k) => k.replace(/\s*\d+$/, "").trim().toLowerCase() === abstractBase
+      const abstractBase = abstractKey
+        .replace(/\s*\d+$/, "")
+        .trim()
+        .toLowerCase();
+      const matchingKeys = Object.keys(savedParams).filter(
+        (k) =>
+          k
+            .replace(/\s*\d+$/, "")
+            .trim()
+            .toLowerCase() === abstractBase
       );
-      result[abstractKey] = savedKey ? savedParams[savedKey] : [];
+      result[abstractKey] = matchingKeys.flatMap((k) => savedParams[k] ?? []);
     } else {
       result[abstractKey] = savedParams[abstractKey] ?? "";
     }

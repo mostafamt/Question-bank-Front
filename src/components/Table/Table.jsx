@@ -21,7 +21,6 @@ export default function DataTable(props) {
     pageSize: 10,
   });
   const columnNames = { name: "questionName", objectType: "objectType", type: "type", domain: "domainName", subDomain: "subDomainName", topic: "topic", IR: "IR" }
-
   const renderColorStatus = (status) => {
     let color = { backgroundColor: "black" };
     if (status === "g") {

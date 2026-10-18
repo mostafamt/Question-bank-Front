@@ -10,11 +10,7 @@ import { colors } from "../../../constants/highlight-color";
 import SubObjectModal from "../../Modal/SubObjectModal/SubObjectModal";
 
 import StudioThumbnails from "../StudioThumbnails/StudioThumbnails";
-import {
-  oldUploadBase64,
-  uploadBase64,
-  uploadForStudio,
-} from "../../../utils/upload";
+import { uploadBase64, uploadForStudio } from "../../../utils/upload";
 import { constructBoxColors } from "../../../utils/ocr";
 import { saveObject } from "../../../services/api";
 

@@ -80,7 +80,7 @@ const ScanAndUpload = () => {
   const handleBookImport = async (chapterId) => {
     setLoading(true);
     try {
-      const pages = await getChapterPages(chapterId);
+      const { pages } = await getChapterPages(chapterId);
 
       // Extract image URLs from pages
       const imageUrls = pages

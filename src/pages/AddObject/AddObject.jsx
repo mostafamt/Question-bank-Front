@@ -19,7 +19,9 @@ import {
   getSubDomainName,
 } from "../../config";
 import { useQuery } from "@tanstack/react-query";
-import { getCategories, getTypes } from "../../services/api";
+import { NewInstance as axios } from "../../axios";
+import { toast } from "react-toastify";
+import { getCategories, getQuestionTypes, getTypes } from "../../services/api";
 import { v4 as uuidv4 } from "uuid";
 
 import styles from "./addObject.module.scss";
@@ -77,6 +79,10 @@ const AddObject = () => {
     refetchOnWindowFocus: false,
     enabled: !!watch("category"), // Disable auto-fetch
   });
+
+  const onClickExcelFile = () => {
+    window.open("/excel-file", "_blank");
+  };
 
   const onSubmit = async (values) => {
     const domainName = getDomainName(values.domainId);
@@ -255,6 +261,41 @@ const AddObject = () => {
                 name="type"
                 register={register}
                 errors={errors}
+              >
+                {labels?.map((item, idx) => (
+                  <option key={idx} value={Object.keys(item)?.[0]}>
+                    {Object.keys(item)?.[0]}
+                  </option>
+                ))}
+              </Select>
+            </div>
+
+            <div className={styles.actions}>
+              <Button
+                variant="contained"
+                startIcon={<DesignServicesIcon />}
+                type="submit"
+              >
+                Manual Form
+              </Button>
+              <Button
+                variant="contained"
+                onClick={handleSubmit(onSubmitAutoGen)}
+                startIcon={<AutoFixHighIcon />}
+              >
+                Auto Gen
+              </Button>
+              <Button
+                variant="contained"
+                onClick={handleSubmit(onSubmitOcr)}
+                startIcon={
+                  loadingOCR ? (
+                    <CircularProgress size="1rem" />
+                  ) : (
+                    <ScannerIcon />
+                  )
+                }
+                disabled={loadingOCR}
               >
                 {labels?.map((item, idx) => (
                   <option key={idx} value={Object.keys(item)?.[0]}>

@@ -91,10 +91,14 @@ const EditObject = () => {
     navigate("/");
   };
 
-  const onClickEdit = () => {
-    const { type, baseType } = watch();
+  // const onClickEdit = () => {
+  //   const { type, baseType } = watch();
+  //   navigate(`/edit-question/${type}/${baseType}/${id}`);
+  // };
 
-    navigate(`/edit-question/${type}/${baseType}/${id}`);
+  const onClickEdit = () => {
+    const { questionName, type, baseType } = watch();
+    navigate("/uploads", { state: { name: questionName, type, baseType, id } });
   };
 
   const onSubmit = async (values) => {
@@ -232,7 +236,7 @@ const EditObject = () => {
                   Save
                 </Button>
                 <Button variant="contained" onClick={onClickEdit}>
-                  Edit Question
+                  Edit
                 </Button>
                 <Button variant="contained" onClick={onClickDelete}>
                   Delete

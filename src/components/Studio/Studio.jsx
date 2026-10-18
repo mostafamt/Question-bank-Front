@@ -2,6 +2,7 @@ import React from "react";
 import { AreaSelector } from "@bmunozg/react-image-area";
 /** @jsxImportSource @emotion/react */
 import { useStore } from "../../store/store";
+import { useModalStore } from "../../store/modalStore";
 import { toast } from "react-toastify";
 import Modal from "../Modal/Modal";
 import AreaActions from "../AreaActions/AreaActions";
@@ -23,20 +24,29 @@ import {
 } from "../../utils/ocr";
 import { saveObject } from "../../services/api";
 import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
-import DrawnUIModal from "../DrawnUIModal/DrawnUIModal";
 import { mapToForm } from "../../utils/mapToForm";
 
 import styles from "./studio.module.scss";
+import { useMatch } from "react-router-dom";
+import useAreaManagement from "./hooks/useAreaManagement";
 
 const Studio = (props) => {
-  const { images, setImages, questionName, type, subObject, handleClose } =
-    props;
+  const {
+    images,
+    setImages,
+    questionName,
+    type,
+    subObject,
+    handleClose,
+    objectId,
+  } = props;
   const [activeIndex, setActiveIndex] = React.useState(0);
-  const [areas, setAreas] = React.useState([]);
+
   const [colorIndex, setColorIndex] = React.useState(0);
   const imageRef = React.createRef();
   const canvasRef = React.createRef();
   const { data: state } = useStore();
+  const { openModal } = useModalStore();
   const [imageScaleFactor, setImageScaleFactor] = React.useState(1);
   // To Extract Sub Object
   const [showModal, setShowModal] = React.useState(false);
@@ -45,75 +55,35 @@ const Studio = (props) => {
   const [pageId, setPageId] = React.useState(images?.[0]?._id);
   const [subTypeObjects, setSubTypeObjects] = React.useState([]);
   const [loadingSubmit, setLoadingSubmit] = React.useState(false);
+  const [loadingMapToForm, setLoadingMapToForm] = React.useState(false);
   const [language, setLanguage] = React.useState(
     state.language === "ar" ? ARABIC : ENGLISH
   );
-  const [trialAreas, setTrialAreas] = React.useState([]);
-  const [drawnUIOpen, setDrawnUIOpen] = React.useState(false);
-  const [mappedJson, setMappedJson] = React.useState(null);
-  const [initialColors, setInitialColors] = React.useState({});
+
+  const {
+    areas,
+    setAreas,
+    trialAreas,
+    setTrialAreas,
+    onChangeHandler,
+    onClickDeleteArea,
+    updateTrialAreas,
+  } = useAreaManagement();
 
   const onClickImage = (idx) => {
     setActiveIndex(idx);
     setPageId(images?.[idx]?._id);
   };
+  const match = useMatch("/studio/:id");
 
-  const onChangeHandler = (areasParam) => {
-    let newAreas = [];
-    for (let i = 0; i < trialAreas.length; i++) {
-      newAreas = [
-        ...newAreas,
-        {
-          x: areasParam[i].x,
-          y: areasParam[i].y,
-          width: areasParam[i].width,
-          height: areasParam[i].height,
-
-          id: trialAreas[i].id,
-          color: trialAreas[i].color,
-          loading: trialAreas[i].loading,
-          text: trialAreas[i].text,
-          image: trialAreas[i].image,
-          parameter: trialAreas[i].parameter,
-          order: trialAreas[i].order,
-          open: trialAreas[i].open,
-          type: trialAreas[i].type,
-        },
-      ];
+  React.useEffect(() => {
+    if (match) {
+      handleMapToForm();
     }
-
-    if (areasParam.length > trialAreas.length) {
-      newAreas = [
-        ...newAreas,
-        {
-          x: areasParam[areasParam.length - 1].x,
-          y: areasParam[areasParam.length - 1].y,
-          width: areasParam[areasParam.length - 1].width,
-          height: areasParam[areasParam.length - 1].height,
-
-          id: uuidv4(),
-          color: null,
-          loading: false,
-          text: "",
-          image: "",
-          parameter: "Select a parameter",
-          order: areasParam.length - 1,
-          open: true,
-        },
-      ];
-    }
-
-    setTrialAreas([...newAreas]);
-    setAreas(areasParam);
-  };
-
-  const onClickDeleteArea = (idx) => {
-    setAreas((prevState) => [...prevState.filter((_, id) => idx !== id)]);
-    setTrialAreas((prevState) => [...prevState.filter((_, id) => idx !== id)]);
-  };
+  }, []);
 
   const handleCloseModal = () => setShowModal(false);
-  const openModal = () => setShowModal(true);
+  const openSubModal = () => setShowModal(true);
 
   const onChangeParameter = (value, idx) => {
     // state
@@ -154,7 +124,7 @@ const Studio = (props) => {
       });
     } else if (typeOfParameter === "SI") {
       setTimeout(() => {
-        openModal();
+        openSubModal();
       }, 1000);
     } else {
       // open modal if it has a supported type
@@ -163,7 +133,7 @@ const Studio = (props) => {
       if (found) {
         // timeout to solve scrollbar hiding
         setTimeout(() => {
-          openModal();
+          openSubModal();
         }, 1000);
       }
     }
@@ -247,11 +217,11 @@ const Studio = (props) => {
     setLoadingSubmit(false);
   };
 
-  const handleMapToForm = () => {
+  const handleMapToForm = async () => {
     const { type, types } = state;
+    setLoadingMapToForm(true);
     try {
-      const json = mapToForm(type, trialAreas, types);
-      setMappedJson(json);
+      const json = await mapToForm(type, trialAreas, types);
 
       console.log("json= ", json);
 
@@ -265,32 +235,24 @@ const Studio = (props) => {
         }
       }
       const colorMap = {};
-      for (const [field, colors] of Object.entries(paramGroups)) {
-        colorMap[field] = colors.length === 1 ? colors[0] : colors;
+      for (const [field, areaColors] of Object.entries(paramGroups)) {
+        colorMap[field] = areaColors.length === 1 ? areaColors[0] : areaColors;
       }
-      setInitialColors(colorMap);
 
-      setDrawnUIOpen(true);
+      openModal("DrawnUIModal", {
+        baseType: state.type,
+        displayType: state.higherType,
+        initialValues: json,
+        initialColors: colorMap,
+        trialAreas,
+        isMapToFormMode: true,
+        objectId,
+      });
     } catch (e) {
       toast.error(e.message);
+    } finally {
+      setLoadingMapToForm(false);
     }
-  };
-
-  const updateTrialAreas = (idx, value) => {
-    console.log("updateTrialAreas");
-    console.log("value= ", value);
-    setTrialAreas((prevState) => {
-      let newTrialAreas = [...prevState];
-
-      if (idx === -1) {
-        const lastIndex = trialAreas.length - 1;
-        newTrialAreas[lastIndex] = { ...newTrialAreas[lastIndex], ...value };
-      } else {
-        newTrialAreas[idx] = { ...newTrialAreas[idx], ...value };
-      }
-
-      return newTrialAreas;
-    });
   };
 
   const clear = async () => {
@@ -331,16 +293,6 @@ const Studio = (props) => {
           updateTrialAreas={updateTrialAreas}
         />
       </Modal>
-      <DrawnUIModal
-        open={drawnUIOpen}
-        onClose={() => setDrawnUIOpen(false)}
-        baseType={state.type}
-        displayType={state.higherType}
-        initialValues={mappedJson}
-        initialColors={initialColors}
-        trialAreas={trialAreas}
-        isMapToFormMode={true}
-      />
       <LanguageSwitcher language={language} setLanguage={setLanguage} />
       <div className={styles.studio}>
         <StudioThumbnails
@@ -391,6 +343,7 @@ const Studio = (props) => {
             loadingSubmit={loadingSubmit}
             updateTrialAreas={updateTrialAreas}
             onClickMapToForm={handleMapToForm}
+            loadingMapToForm={loadingMapToForm}
           />
         </div>
       </div>
