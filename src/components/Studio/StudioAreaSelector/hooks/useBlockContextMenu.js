@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import useLongPress from "./useLongPress";
 import { useStore } from "../../../../store/store";
 import { DELETED } from "../../../../utils/ocr";
 import { determineModalForArea } from "../../services/modal.service";
@@ -13,7 +14,9 @@ import {
  * @file useBlockContextMenu.js
  * @description State and handlers for the right-click menu on page blocks.
  * One `onContextMenu` on the page container finds the block under the cursor
- * (see utils/hitTest.js), so every render mode works the same way.
+ * (see utils/hitTest.js), so every render mode works the same way. On touch
+ * screens a long-press opens the same menu (iOS has no long-press
+ * `contextmenu`; Android's is de-duplicated).
  * Plan: docs/2026-10-17/BLOCK_CONTEXT_MENU_PLAN.md
  */
 
@@ -29,6 +32,8 @@ import {
  * @param {Function} [params.onPlayBlock] - Reader: (area, areaProps) => void
  * @param {Function} [params.onClickDeleteArea] - Studio: (id) => void
  * @param {Function} [params.updateAreaPropertyById] - Studio: (id, patch) => void
+ * @param {boolean} [params.longPressEnabled=true] - Off while a touch drag
+ *   should draw instead (author Draw mode)
  */
 const useBlockContextMenu = ({
   enabled,
@@ -41,6 +46,7 @@ const useBlockContextMenu = ({
   onPlayBlock,
   onClickDeleteArea,
   updateAreaPropertyById,
+  longPressEnabled = true,
 }) => {
   const openModal = useStore((s) => s.openModal);
   // { anchorPosition, area, areaProps, actions }
@@ -53,11 +59,13 @@ const useBlockContextMenu = ({
     setMenu(null);
   }, [activePage]);
 
-  const onContextMenu = useCallback(
+  // Finds the block at the event's point and opens the menu there. Returns
+  // true when it did (so the caller can suppress the browser's own menu).
+  const openMenuAt = useCallback(
     (event) => {
-      if (!enabled) return;
+      if (!enabled) return false;
       const image = imageRef?.current;
-      if (!image) return;
+      if (!image) return false;
 
       // Keyboard (Menu key / Shift+F10) reports 0,0 — use the focused element instead.
       let { clientX, clientY } = event;
@@ -79,28 +87,49 @@ const useBlockContextMenu = ({
           pageProps[i]?.status !== DELETED &&
           (!isReaderMode || Boolean(pageProps[i]?.blockId))
       );
-      if (idx === -1) return; // empty page: keep the browser's menu
+      if (idx === -1) return false; // empty page: keep the browser's menu
 
       const areaProps = pageProps[idx];
       const actions = getBlockActions(areaProps, { isReaderMode, canShowInList });
-      if (!actions.length) return;
+      if (!actions.length) return false;
 
-      event.preventDefault();
       setMenu({
         anchorPosition: { top: clientY, left: clientX },
         area: pageAreas[idx],
         areaProps,
         actions,
       });
+      return true;
     },
     [enabled, imageRef, areas, areasProperties, activePage, isReaderMode, canShowInList]
   );
 
+  const { handlers: longPressHandlers, isNativeMenuDuplicate } = useLongPress({
+    enabled: enabled && longPressEnabled,
+    onLongPress: openMenuAt,
+  });
+
+  const onContextMenu = useCallback(
+    (event) => {
+      // Android Chrome follows our long-press with its own contextmenu
+      if (isNativeMenuDuplicate()) {
+        event.preventDefault();
+        return;
+      }
+      if (openMenuAt(event)) event.preventDefault();
+    },
+    [openMenuAt, isNativeMenuDuplicate]
+  );
+
   // The area-drawing library starts a draw/move on any pointerdown and never
   // checks the button, so right-clicks must not reach it.
-  const onPointerDownCapture = useCallback((event) => {
-    if (event.button === 2) event.stopPropagation();
-  }, []);
+  const onPointerDownCapture = useCallback(
+    (event) => {
+      longPressHandlers.onPointerDownCapture(event);
+      if (event.button === 2) event.stopPropagation();
+    },
+    [longPressHandlers]
+  );
 
   const onSelectAction = useCallback(
     (action) => {
@@ -163,6 +192,10 @@ const useBlockContextMenu = ({
     },
     onContextMenu,
     onPointerDownCapture,
+    onPointerMoveCapture: longPressHandlers.onPointerMoveCapture,
+    onPointerUpCapture: longPressHandlers.onPointerUpCapture,
+    onPointerCancelCapture: longPressHandlers.onPointerCancelCapture,
+    onClickCapture: longPressHandlers.onClickCapture,
   };
 };
 

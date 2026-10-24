@@ -1,6 +1,6 @@
 # Plan: Responsive Book Author and Reader pages
 
-Branch: `IBook-2-development` · Date: 2026-10-24 · Status: **approved with defaults** · Phases 0–4 **implemented**
+Branch: `IBook-2-development` · Date: 2026-10-24 · Status: **approved with defaults** · Phases 0–5 **implemented**
 
 Pages in scope:
 
@@ -270,7 +270,41 @@ As built:
 - **[reader]** Optional: swipe left/right on the page to go to next/previous page
   (respecting RTL). Only when not zoomed in.
 
-### Phase 5 — Touch interactions
+### Phase 5 — Touch interactions — ✅ implemented
+
+As built:
+- **Root problem found:** the area library (`@bmunozg/react-image-area`) sets
+  `touch-action: none` on its wrapper and every area and starts a draw on any pointerdown,
+  so on a touch screen in author editing mode the page could not be scrolled at all —
+  every drag drew a new area.
+- **Draw button** (not in the toolbar — a floating "Draw" / "Done" button at the bottom-right
+  of the editor, `StudioAreaSelector`). Shown only in editing mode (`EDIT_MODE`, not in
+  white-out) on devices with a touch pointer (`any-pointer: coarse`).
+  - Draw off (default): touch pointerdowns are stopped before the library (capture phase on
+    the page container) and `touch-action` becomes `pan-x pan-y` → fingers scroll; taps on
+    areas still click. Mouse and pen are unaffected.
+  - Draw on: library gets the touches, `touch-action: none` → fingers draw / move / resize.
+  - Resets to off when leaving editing mode. The white-out layer got `touch-action: none`
+    (it is already an explicit drawing mode).
+- **Long-press = right-click** (`StudioAreaSelector/hooks/useLongPress.js`, wired inside
+  `useBlockContextMenu`): touch only, 500ms, cancelled by >10px movement, lifting early or a
+  second finger. The click that ends a long-press is swallowed (so it doesn't also play the
+  block); Android Chrome's own long-press `contextmenu` right after is suppressed. Disabled
+  while Draw is on (a still finger starts a drawing).
+- **Hover labels:** on `(hover: none)` the block type label also shows while a finger is on
+  the area (`:active`).
+- **Reader hit area:** on `(pointer: coarse)` reader block buttons get an invisible ≥44×44px
+  `::after` target.
+- **Resize handles:** 20px instead of 10px on `(pointer: coarse)`.
+- Tests: `StudioAreaSelector/hooks/__tests__/useLongPress.test.js` (5).
+- Browser check (390px frame, synthetic touch pointer events): reader long-press opens the
+  block menu and does not play the block; a normal tap still opens the player; short tap and
+  drag do not open the menu. Author: drag with Draw off created no area and the areas allow
+  panning; Draw on → `touch-action: none`, drag created an area (discarded by reload, nothing
+  saved), long-press off; Done → back to scrolling. The dev machine reports
+  `any-pointer: coarse` (touch-capable), so the Draw button also appears there on desktop;
+  `pointer: coarse` / `hover: none` rules (handles, hit area, labels) don't apply to a
+  mouse-primary device.
 
 Fixes problems 7, 8.
 
