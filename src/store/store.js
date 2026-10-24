@@ -47,7 +47,26 @@ const readReaderEnriching = (chapterId) =>
 const writeReaderEnriching = (chapterId, items) =>
   writeJSON(readerEnrichingKey(chapterId), items);
 
+const readAuth = () =>
+  readJSON(
+    STORAGE_KEYS.AUTH,
+    null,
+    (value) => isPlainObject(value) && typeof value.token === "string"
+  );
+
 const useStore = create((set, get) => ({
+  // Logged-in session { token, user }, or null when logged out.
+  auth: readAuth(),
+  setAuth: (auth) => {
+    writeJSON(STORAGE_KEYS.AUTH, auth);
+    set({ auth });
+  },
+  logout: () => {
+    try {
+      localStorage.removeItem(STORAGE_KEYS.AUTH);
+    } catch {}
+    set({ auth: null });
+  },
   language: localStorage.getItem("language") || "en",
   setLanguage: (lang) => {
     localStorage.setItem("language", lang);

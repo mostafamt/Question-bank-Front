@@ -18,11 +18,18 @@ import Error from "../pages/Error/Error";
 import AddBook from "../pages/AddBook/AddBook";
 import Show from "../pages/Show/Show";
 import Reader from "../pages/Reader/Reader";
+import Login from "../pages/Login/Login";
 
 const routes = [
   {
     path: "/",
     component: AddBook,
+  },
+  {
+    path: "/login",
+    component: Login,
+    // Every other route requires a logged-in user
+    public: true,
   },
   {
     path: "/book-author/book/:bookId/chapter/:chapterId",

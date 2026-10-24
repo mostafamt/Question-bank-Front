@@ -34,6 +34,8 @@ export const STORAGE_KEYS = {
   READER_ENRICHING: "reader_enriching",
   /** Reader narration speed (global, not per chapter) */
   READER_NARRATION_RATE: "reader_narration_rate",
+  /** Logged-in session: { token, user } from POST /login */
+  AUTH: "auth",
 };
 
 /**

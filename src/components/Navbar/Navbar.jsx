@@ -3,11 +3,26 @@ import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import { Link } from "react-router-dom";
+import Button from "@mui/material/Button";
+import { Link, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import styles from "./navbar.module.scss";
 import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
+import { useStore } from "../../store/store";
 
 const Navbar = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const auth = useStore((s) => s.auth);
+  const logout = useStore((s) => s.logout);
+
+  const handleLogout = () => {
+    logout();
+    // Drop cached responses fetched with the old user's token
+    queryClient.clear();
+    navigate("/login");
+  };
+
   return (
     <Box sx={{ mb: 6 }}>
       <AppBar
@@ -30,6 +45,18 @@ const Navbar = () => {
               </div>
             </Link>
           </Typography>
+          {auth ? (
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mx: 2 }}>
+              <Typography variant="body2">{auth.user?.username}</Typography>
+              <Button color="inherit" onClick={handleLogout}>
+                Log out
+              </Button>
+            </Box>
+          ) : (
+            <Button color="inherit" component={Link} to="/login" sx={{ mx: 2 }}>
+              Log in
+            </Button>
+          )}
           <LanguageSwitcher />
         </Toolbar>
       </AppBar>
