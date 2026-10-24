@@ -57,3 +57,13 @@
     }
   }
 }
+
+// Studio inside this modal: below desktop it sizes itself from
+// --studio-height (falls back to 100vh, taller than the modal)
+.studio-wrapper {
+  --studio-height: 75vh;
+
+  @supports (height: 100dvh) {
+    --studio-height: 75dvh;
+  }
+}

@@ -43,38 +43,50 @@ const SHEET_BOTTOM_SX = {
  */
 const PanelSheet = ({ open, anchor, title, onMinimize, onClose, children }) => {
   const isBottom = anchor === "bottom";
+  // Studio also runs inside a Bootstrap modal (SubObjectModal). Bootstrap
+  // pulls focus back into the modal, which would fight the drawer's own
+  // focus trap, so portal the drawer into that modal instead of <body>.
+  const placeholderRef = React.useRef(null);
+  const getContainer = React.useCallback(
+    () => placeholderRef.current?.closest(".modal") || document.body,
+    []
+  );
 
   return (
-    <Drawer
-      anchor={anchor}
-      open={open}
-      onClose={onMinimize}
-      // Panels hold state (chat, exercise player, forms) — don't reset it
-      // every time the sheet is minimized.
-      ModalProps={{ keepMounted: true }}
-      // Sizing via sx: MUI's paper styles are injected after CSS modules
-      PaperProps={{ sx: isBottom ? SHEET_BOTTOM_SX : SHEET_SIDE_SX }}
-    >
-      {isBottom && <div className={styles.handle} aria-hidden="true" />}
-      <Box className={styles.header}>
-        <Typography variant="subtitle1" component="h2" noWrap>
-          {title}
-        </Typography>
-        <Box sx={{ display: "flex", flex: "none" }}>
-          <Tooltip title="Minimize panel">
-            <IconButton aria-label="Minimize panel" onClick={onMinimize}>
-              <MinimizeIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Close panel">
-            <IconButton aria-label="Close panel" onClick={onClose}>
-              <CloseIcon />
-            </IconButton>
-          </Tooltip>
+    <>
+      <span ref={placeholderRef} hidden />
+      <Drawer
+        container={getContainer}
+        anchor={anchor}
+        open={open}
+        onClose={onMinimize}
+        // Panels hold state (chat, exercise player, forms) — don't reset it
+        // every time the sheet is minimized.
+        ModalProps={{ keepMounted: true }}
+        // Sizing via sx: MUI's paper styles are injected after CSS modules
+        PaperProps={{ sx: isBottom ? SHEET_BOTTOM_SX : SHEET_SIDE_SX }}
+      >
+        {isBottom && <div className={styles.handle} aria-hidden="true" />}
+        <Box className={styles.header}>
+          <Typography variant="subtitle1" component="h2" noWrap>
+            {title}
+          </Typography>
+          <Box sx={{ display: "flex", flex: "none" }}>
+            <Tooltip title="Minimize panel">
+              <IconButton aria-label="Minimize panel" onClick={onMinimize}>
+                <MinimizeIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Close panel">
+              <IconButton aria-label="Close panel" onClick={onClose}>
+                <CloseIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Box>
-      </Box>
-      <div className={styles.body}>{children}</div>
-    </Drawer>
+        <div className={styles.body}>{children}</div>
+      </Drawer>
+    </>
   );
 };
 

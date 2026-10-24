@@ -1,5 +1,6 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
+import useBreakpoint from "../../hooks/useBreakpoint";
 import { useStore } from "../../store/store";
 import PlayObjectModal from "./PlayObjectModal/PlayObjectModal";
 import PlayObjectModal2 from "./PlayObjectModal2/PlayObjectModal2";
@@ -59,6 +60,7 @@ const MODAL_COMPONENTS = {
 
 const Modal = () => {
   const { modal, closeModal } = useStore();
+  const { isPhone } = useBreakpoint();
 
   const { name = "", size = "xl", opened = false, props = {} } = modal;
 
@@ -78,7 +80,14 @@ const Modal = () => {
   const ModalComponent = MODAL_COMPONENTS[name] || null;
 
   return (
-    <BootstrapModal show={opened} onHide={closeModal} size={size}>
+    // Phones: full screen — a centered xl dialog would leave ~1rem margins
+    // and scroll in two places
+    <BootstrapModal
+      show={opened}
+      onHide={closeModal}
+      size={size}
+      fullscreen={isPhone || undefined}
+    >
       {ModalComponent && (
         <ModalComponent {...props} handleCloseModal={closeModal} />
       )}

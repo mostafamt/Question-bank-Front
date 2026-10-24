@@ -7,6 +7,7 @@ import {
   IconButton,
   ListItemIcon,
   ListItemText,
+  ListSubheader,
   Menu,
   MenuItem,
   Tooltip,
@@ -25,6 +26,7 @@ import PublishIcon from "@mui/icons-material/Publish";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import CheckIcon from "@mui/icons-material/Check";
 
 import styles from "./styles.module.scss";
 import { useAppMode } from "../../utils/tabFiltering";
@@ -33,6 +35,7 @@ import ReaderAudioControls, {
   ReaderAudioControlsCompact,
 } from "../ReaderAudioControls/ReaderAudioControls";
 import GoToPagePopover from "./GoToPagePopover";
+import { useOcrLanguages } from "../Studio/LanguageSwitcher/LanguageSwitcher";
 import useBreakpoint from "../../hooks/useBreakpoint";
 import { getLanguages, publishChapter } from "../../services/api";
 
@@ -54,6 +57,10 @@ const ImageActions = React.forwardRef((props, ref) => {
     onClickImage,
     chapterId,
     publishLanguage,
+    // OCR language (author): shown in the phone ⋮ menu, where the Studio's
+    // separate OCR language select is hidden
+    ocrLanguage,
+    setOcrLanguage,
   } = props;
 
   const [oldAreas, setOldAreas] = React.useState(areas?.[activePage] || []);
@@ -94,6 +101,8 @@ const ImageActions = React.forwardRef((props, ref) => {
   const { isBookmarked, toggleBookmark } = usePageBookmarks();
   const activePageId = pages?.[activePage]?._id;
   const isActivePageBookmarked = isBookmarked(activePageId);
+  const showOcrLanguages = isPhone && !isReaderMode && Boolean(setOcrLanguage);
+  const ocrLanguages = useOcrLanguages({ enabled: showOcrLanguages });
 
   const onClickZoomIn = () => {
     setImageScaleFactor(imageScaleFactor + DEGREE);
@@ -374,6 +383,23 @@ const ImageActions = React.forwardRef((props, ref) => {
               </ListItemText>
             </MenuItem>
           )}
+          {showOcrLanguages && <Divider />}
+          {showOcrLanguages && (
+            <ListSubheader sx={{ lineHeight: "2rem" }}>OCR language</ListSubheader>
+          )}
+          {showOcrLanguages &&
+            ocrLanguages.map((language) => (
+              <MenuItem
+                key={language.code}
+                selected={ocrLanguage === language.value}
+                onClick={fromOverflow(() => setOcrLanguage(language.value))}
+              >
+                <ListItemText inset>{language.label}</ListItemText>
+                {ocrLanguage === language.value && (
+                  <CheckIcon fontSize="small" sx={{ ml: 2 }} />
+                )}
+              </MenuItem>
+            ))}
         </Menu>
         {publishMenu}
         {goToPagePopover}

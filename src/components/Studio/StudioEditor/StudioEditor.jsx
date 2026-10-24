@@ -24,6 +24,8 @@ const StudioEditor = React.memo(
       chapterId,
       publishLanguage,
       pageContainerRef,
+      ocrLanguage,
+      setOcrLanguage,
     } = props;
 
     const studioEditorSelectorRef = React.useRef(null);
@@ -62,6 +64,8 @@ const StudioEditor = React.memo(
           onClickToggleVirutalBlocks={onClickToggleVirutalBlocks}
           chapterId={chapterId}
           publishLanguage={publishLanguage}
+          ocrLanguage={ocrLanguage}
+          setOcrLanguage={setOcrLanguage}
         />
         <StudioAreaSelector
           {...props}

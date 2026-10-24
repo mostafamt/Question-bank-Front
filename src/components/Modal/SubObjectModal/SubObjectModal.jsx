@@ -10,6 +10,8 @@ import { v4 as uuidv4 } from "uuid";
 import { useLocation } from "react-router-dom";
 import { useStore } from "../../../store/store";
 
+import styles from "./subObjectModal.module.scss";
+
 const SubObjectModal = (props) => {
   const {
     handleClose: handleCloseProp,
@@ -116,21 +118,24 @@ const SubObjectModal = (props) => {
           setInstructionalRole={setInstructionalRole}
           type={type}
         />
-        <Studio
-          types={types}
-          pages={[{ _id: uuidv4(), url: image, blocks: [] }]}
-          type={type}
-          images={[image]}
-          handleSubmit={handleSubmit}
-          handleClose={handleClose}
-          subObject
-          updateAreaProperty={updateAreaProperty}
-          typeOfActiveType={typeOfActiveType}
-          language={language}
-          onSubmitAutoGenerate={onSubmitAutoGenerate}
-          loadingAutoGenerate={loadingAutoGenerate}
-          onSelectFromLibrary={onSelectFromLibrary}
-        />
+{/* Below desktop the Studio sizes itself from --studio-height */}
+        <div className={styles["studio-wrapper"]}>
+          <Studio
+            types={types}
+            pages={[{ _id: uuidv4(), url: image, blocks: [] }]}
+            type={type}
+            images={[image]}
+            handleSubmit={handleSubmit}
+            handleClose={handleClose}
+            subObject
+            updateAreaProperty={updateAreaProperty}
+            typeOfActiveType={typeOfActiveType}
+            language={language}
+            onSubmitAutoGenerate={onSubmitAutoGenerate}
+            loadingAutoGenerate={loadingAutoGenerate}
+            onSelectFromLibrary={onSelectFromLibrary}
+          />
+        </div>
       </BootstrapModal.Body>
       <BootstrapModal.Footer></BootstrapModal.Footer>
     </div>

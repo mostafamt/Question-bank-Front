@@ -7,10 +7,12 @@ import React from "react";
 import StudioStickyToolbar from "../StudioStickyToolbar/StudioStickyToolbar";
 import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
 import { useAppMode } from "../../../utils/tabFiltering";
+import useBreakpoint from "../../../hooks/useBreakpoint";
 
 /**
  * Studio Header Component
- * Contains the sticky toolbar and language switcher (OCR only, so hidden in reader mode)
+ * Contains the sticky toolbar and language switcher (OCR only, so hidden in
+ * reader mode; on phones it moves into the toolbar's ⋮ menu)
  *
  * @param {Object} props - Component props
  * @param {boolean} props.showStickyToolbar - Whether to show sticky toolbar
@@ -49,6 +51,7 @@ const StudioHeader = ({
   publishLanguage,
 }) => {
   const isReaderMode = useAppMode() === "reader";
+  const { isPhone } = useBreakpoint();
 
   return (
     <>
@@ -67,8 +70,10 @@ const StudioHeader = ({
         onClickImage={onClickImage}
         chapterId={chapterId}
         publishLanguage={publishLanguage}
+        ocrLanguage={language}
+        setOcrLanguage={setLanguage}
       />
-      {!isReaderMode && (
+      {!isReaderMode && !isPhone && (
         <LanguageSwitcher language={language} setLanguage={setLanguage} />
       )}
     </>

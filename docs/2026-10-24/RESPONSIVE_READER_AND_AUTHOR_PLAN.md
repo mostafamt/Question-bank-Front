@@ -1,6 +1,6 @@
 # Plan: Responsive Book Author and Reader pages
 
-Branch: `IBook-2-development` · Date: 2026-10-24 · Status: **approved with defaults** · Phases 0–5 **implemented**
+Branch: `IBook-2-development` · Date: 2026-10-24 · Status: **approved with defaults** · Phases 0–6 **implemented**
 
 Pages in scope:
 
@@ -319,7 +319,32 @@ Fixes problems 7, 8.
     the page; when on, it draws an area (`touch-action: none` only while drawing).
   - Larger resize handles under `(pointer: coarse)`.
 
-### Phase 6 — Modals and panels content
+### Phase 6 — Modals and panels content — ✅ implemented
+
+As built:
+- Global `Modal` (react-bootstrap): `fullscreen` on phones (via `useBreakpoint`, so it
+  switches at our 600px, not Bootstrap's 576px). Tablets/desktop keep the centered dialog.
+  The existing per-modal `768px` rules were left alone — they still apply inside the
+  full-screen dialog and nothing conflicted.
+- `ImportPagesModal` (MUI Dialog, opened from the author Thumbnails panel): `fullScreen` on
+  phones. (`AddChapterModal` belongs to the AddBook page — out of scope.)
+- **Studio inside `SubObjectModal`:** `PanelSheet` portals its drawer into the enclosing
+  `.modal` (MUI `container`) so Bootstrap's focus enforcement doesn't fight the drawer's focus
+  trap; the Studio there gets `--studio-height: 75dvh` (was falling back to 100vh). Not
+  checked in the browser (no quick way to open it on this chapter).
+- **OCR language on phones:** the separate select above the studio is hidden; the languages
+  are a section of the toolbar ⋮ menu (`useOcrLanguages` shared from
+  `Studio/LanguageSwitcher`, props `ocrLanguage` / `setOcrLanguage` passed Studio →
+  StudioLayout → StudioEditor → ImageActions, and StudioHeader → StudioStickyToolbar).
+  Frees ~70px above the page.
+- Right-panel forms: already fluid (`width: 100%`, list `maxWidth: 360`); measured no
+  overflow in the phone sheet, so no change. `.studio-actions { flex: 0 0 20% }` is inert
+  inside a sheet and was left as is.
+- Browser check (390px phone): author OCR select gone (studio starts at 72px), ⋮ menu lists
+  OCR languages with the current one selected and switching works; Block Authoring sheet
+  375/375px content width, 17 rows, nothing wider than the sheet; thumbnail actions fit one
+  row; import-pages dialog full screen (closed without importing); reader player modal
+  `modal-fullscreen` 390×660 on phone, normal `modal-xl` dialog at 800px.
 
 - Modals opened from these pages (PlayObject, VirtualBlockContent/Reader, IframeDisplay,
   ExercisePlayer, EditObject, Quill…) → `fullScreen` on phone via the global `Modal`

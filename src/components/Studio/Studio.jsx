@@ -520,6 +520,8 @@ const Studio = (props) => {
         setShowBlocksStyling={setShowBlocksStyling}
         chapterId={chapterId}
         publishLanguage={publishLanguageCode}
+        ocrLanguage={language}
+        setOcrLanguage={setLanguage}
         deletedDeepBlockAreas={deletedDeepBlockAreas}
         isWhiteOutMode={isWhiteOutMode}
         onToggleWhiteOutMode={onToggleWhiteOutMode}

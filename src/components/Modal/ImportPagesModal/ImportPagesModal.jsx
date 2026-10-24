@@ -1,4 +1,5 @@
 import React from "react";
+import useBreakpoint from "../../../hooks/useBreakpoint";
 import {
   Dialog,
   DialogTitle,
@@ -33,6 +34,7 @@ const ImportPagesModal = ({ open, handleCloseModal, bookId, chapterId, onPagesIm
     togglePage,
     handleConfirm,
   } = useImportPages({ open, onClose: handleCloseModal, bookId, chapterId, onPagesImported });
+  const { isPhone } = useBreakpoint();
 
   return (
     <Dialog
@@ -40,8 +42,9 @@ const ImportPagesModal = ({ open, handleCloseModal, bookId, chapterId, onPagesIm
       onClose={handleCloseModal}
       maxWidth="xl"
       fullWidth
+      fullScreen={isPhone}
       sx={{ "& .MuiDialog-container": { alignItems: "flex-start" } }}
-      PaperProps={{ sx: { mt: 8 } }}
+      PaperProps={{ sx: { mt: isPhone ? 0 : 8 } }}
     >
       <DialogTitle
         sx={{

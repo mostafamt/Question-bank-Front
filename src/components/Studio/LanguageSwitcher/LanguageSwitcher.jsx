@@ -21,19 +21,28 @@ const FALLBACK_LANGUAGES = [
 
 const LABEL = "OCR language";
 
-const LanguageSwitcher = (props) => {
-  const { language, setLanguage } = props;
-
+/**
+ * Languages OCR can read, as `{ label, code, value }` (`value` is what the
+ * Studio's OCR language state holds). Shared with the phone toolbar menu.
+ * @param {Object} [options]
+ * @param {boolean} [options.enabled=true]
+ */
+export const useOcrLanguages = ({ enabled = true } = {}) => {
   const { data } = useQuery({
     queryKey: ["languages"],
     queryFn: getLanguages,
     staleTime: Infinity,
+    enabled,
   });
 
-  // Only offer languages OCR can read.
-  const languages = (data?.length ? data : FALLBACK_LANGUAGES).filter(
-    (l) => OCR_LANGUAGE_BY_CODE[l.code]
-  );
+  return (data?.length ? data : FALLBACK_LANGUAGES)
+    .filter((l) => OCR_LANGUAGE_BY_CODE[l.code])
+    .map((l) => ({ ...l, value: OCR_LANGUAGE_BY_CODE[l.code] }));
+};
+
+const LanguageSwitcher = (props) => {
+  const { language, setLanguage } = props;
+  const languages = useOcrLanguages();
 
   return (
     <div className={styles["language-switcher"]}>
@@ -60,7 +69,7 @@ const LanguageSwitcher = (props) => {
             sx={{ bgcolor: "#fff" }}
           >
             {languages.map((l) => (
-              <MenuItem key={l.code} value={OCR_LANGUAGE_BY_CODE[l.code]}>
+              <MenuItem key={l.code} value={l.value}>
                 {l.label}
               </MenuItem>
             ))}

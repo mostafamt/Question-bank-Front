@@ -68,6 +68,8 @@ const StudioLayout = React.forwardRef(
       removeWhiteOverlayArea,
       chapterId,
       publishLanguage,
+      ocrLanguage,
+      setOcrLanguage,
     },
     ref
   ) => {
@@ -113,6 +115,8 @@ const StudioLayout = React.forwardRef(
         removeWhiteOverlayArea={removeWhiteOverlayArea}
         chapterId={chapterId}
         publishLanguage={publishLanguage}
+        ocrLanguage={ocrLanguage}
+        setOcrLanguage={setOcrLanguage}
       />
     );
 
