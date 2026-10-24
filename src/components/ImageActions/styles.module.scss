@@ -23,11 +23,18 @@
     align-items: center;
     // margin-right: 1rem;
 
-    & span {
+    & > span {
       font-size: 27px;
       font-weight: 100;
     }
 
     // #212529
   }
+}
+
+// Phone toolbar (ImageActions `isPhone` branch): one row, no wrapping
+.image-actions.compact {
+  flex-wrap: nowrap;
+  gap: 2px;
+  padding: 0 4px;
 }

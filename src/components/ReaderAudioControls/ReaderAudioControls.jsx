@@ -11,6 +11,7 @@
 
 import React from "react";
 import {
+  Badge,
   Divider,
   IconButton,
   ListItemIcon,
@@ -33,6 +34,7 @@ import VolumeOffIcon from "@mui/icons-material/VolumeOff";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CheckIcon from "@mui/icons-material/Check";
 import FolderOpenIcon from "@mui/icons-material/FolderOpen";
+import HeadphonesIcon from "@mui/icons-material/Headphones";
 
 import { useReaderAudio } from "../Studio/context/ReaderAudioContext";
 import { AUDIO_MODES } from "../Studio/hooks/useReaderAudioEngine";
@@ -288,10 +290,10 @@ const ReaderAudioControls = () => {
         </Popover>
       </div>
 
-      <Tooltip title="Playback speed">
+      <Tooltip title="Audio options">
         <IconButton
           size="small"
-          aria-label="Playback speed"
+          aria-label="Audio options"
           aria-haspopup="true"
           aria-controls={menuAnchor ? "reader-audio-menu" : undefined}
           onClick={(e) => setMenuAnchor(e.currentTarget)}
@@ -363,6 +365,49 @@ const ReaderAudioControls = () => {
         onChange={onFileChange}
       />
     </div>
+  );
+};
+
+/**
+ * Phone toolbar version: one button (with a dot while anything plays) that
+ * opens the full controls in a popover.
+ */
+export const ReaderAudioControlsCompact = () => {
+  const audio = useReaderAudio();
+  const [anchor, setAnchor] = React.useState(null);
+
+  if (!audio) return null;
+
+  const isAnyPlaying = [audio.narration, audio.music].some(
+    (channel) => channel.status === NARRATION_STATUS.PLAYING
+  );
+
+  return (
+    <>
+      <Tooltip title="Audio">
+        <IconButton
+          size="small"
+          aria-label="Audio controls"
+          aria-haspopup="dialog"
+          onClick={(event) => setAnchor(event.currentTarget)}
+        >
+          <Badge color="success" variant="dot" invisible={!isAnyPlaying}>
+            <HeadphonesIcon fontSize="small" />
+          </Badge>
+        </IconButton>
+      </Tooltip>
+      <Popover
+        open={Boolean(anchor)}
+        anchorEl={anchor}
+        onClose={() => setAnchor(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        transformOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <div className={styles["compact-popover"]}>
+          <ReaderAudioControls />
+        </div>
+      </Popover>
+    </>
   );
 };
 

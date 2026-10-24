@@ -1,7 +1,12 @@
 import React from "react";
 import {
+  Box,
+  Button,
   CircularProgress,
+  Divider,
   IconButton,
+  ListItemIcon,
+  ListItemText,
   Menu,
   MenuItem,
   Tooltip,
@@ -19,11 +24,16 @@ import SearchOffIcon from "@mui/icons-material/SearchOff";
 import PublishIcon from "@mui/icons-material/Publish";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 import styles from "./styles.module.scss";
 import { useAppMode } from "../../utils/tabFiltering";
 import usePageBookmarks from "../Studio/hooks/usePageBookmarks";
-import ReaderAudioControls from "../ReaderAudioControls/ReaderAudioControls";
+import ReaderAudioControls, {
+  ReaderAudioControlsCompact,
+} from "../ReaderAudioControls/ReaderAudioControls";
+import GoToPagePopover from "./GoToPagePopover";
+import useBreakpoint from "../../hooks/useBreakpoint";
 import { getLanguages, publishChapter } from "../../services/api";
 
 const DEGREE = 0.1;
@@ -52,6 +62,11 @@ const ImageActions = React.forwardRef((props, ref) => {
   const [publishMenuAnchor, setPublishMenuAnchor] = React.useState(null);
   const [languages, setLanguages] = React.useState([]);
   const [isLoadingLanguages, setIsLoadingLanguages] = React.useState(false);
+  // Below desktop: "Page X of Y" opens a go-to-page box; phone: ⋮ menu
+  const [goToPageAnchor, setGoToPageAnchor] = React.useState(null);
+  const [overflowAnchor, setOverflowAnchor] = React.useState(null);
+  const overflowButtonRef = React.useRef(null);
+  const { isPhone, isDesktop } = useBreakpoint();
 
   // Re-baseline the zoom reference points whenever the active page changes,
   // or that page's areas array size changes — areas[activePage] starts empty
@@ -67,7 +82,14 @@ const ImageActions = React.forwardRef((props, ref) => {
   const isReaderMode = mode === "reader";
   // large | medium | small — the reader toolbar also holds the bookmark and
   // audio controls in a narrower column, so its icons are one size down.
-  const iconFontSize = isReaderMode ? "medium" : "large";
+  // Below desktop the editor column is narrower still.
+  const iconFontSize = isPhone
+    ? "small"
+    : !isDesktop
+    ? "medium"
+    : isReaderMode
+    ? "medium"
+    : "large";
 
   const { isBookmarked, toggleBookmark } = usePageBookmarks();
   const activePageId = pages?.[activePage]?._id;
@@ -144,14 +166,16 @@ const ImageActions = React.forwardRef((props, ref) => {
     onClickImage(pages.length - 1);
   };
 
-  const handleOpenPublishMenu = (event) => {
+  const openPublishMenu = (anchorEl) => {
     if (isPublishing) return;
-    setPublishMenuAnchor(event.currentTarget);
+    setPublishMenuAnchor(anchorEl);
     setIsLoadingLanguages(true);
     getLanguages()
       .then(setLanguages)
       .finally(() => setIsLoadingLanguages(false));
   };
+
+  const handleOpenPublishMenu = (event) => openPublishMenu(event.currentTarget);
 
   const handleClosePublishMenu = () => setPublishMenuAnchor(null);
 
@@ -163,12 +187,204 @@ const ImageActions = React.forwardRef((props, ref) => {
     setIsPublishing(false);
   };
 
+  const closeOverflow = () => setOverflowAnchor(null);
+  // Run a ⋮ menu action after closing the menu
+  const fromOverflow = (action) => () => {
+    closeOverflow();
+    action();
+  };
+
+  const pageCount = pages?.length ?? 0;
+
+  const separator = isDesktop ? (
+    <div>
+      <span>|</span>
+    </div>
+  ) : (
+    <Divider orientation="vertical" flexItem sx={{ mx: 0.5, my: 1 }} />
+  );
+
+  const pageIndicator = isDesktop ? (
+    <Typography variant="caption" component="h5" sx={{ color: "#212529" }}>
+      Page {activePage + 1} of {pageCount}
+    </Typography>
+  ) : (
+    <Tooltip title="Go to page">
+      <Button
+        size="small"
+        aria-haspopup="dialog"
+        onClick={(event) => setGoToPageAnchor(event.currentTarget)}
+        sx={{
+          minWidth: 0,
+          px: 0.5,
+          color: "#212529",
+          fontSize: "0.75rem",
+          textTransform: "none",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {isPhone
+          ? `${activePage + 1} / ${pageCount}`
+          : `Page ${activePage + 1} of ${pageCount}`}
+      </Button>
+    </Tooltip>
+  );
+
+  const goToPagePopover = (
+    <GoToPagePopover
+      anchorEl={goToPageAnchor}
+      onClose={() => setGoToPageAnchor(null)}
+      currentPage={activePage + 1}
+      pageCount={pageCount}
+      onGoToPage={onClickImage}
+    />
+  );
+
+  const publishMenu = (
+    <Menu
+      id="publish-language-menu"
+      anchorEl={publishMenuAnchor}
+      open={Boolean(publishMenuAnchor)}
+      onClose={handleClosePublishMenu}
+    >
+      {isLoadingLanguages ? (
+        <MenuItem disabled sx={{ justifyContent: "center" }}>
+          <CircularProgress size={20} />
+        </MenuItem>
+      ) : (
+        languages.map((language) => (
+          <MenuItem
+            key={language.code}
+            selected={publishLanguage === language.code}
+            onClick={() => handlePublish(language.code)}
+          >
+            {language.label}
+          </MenuItem>
+        ))
+      )}
+    </Menu>
+  );
+
+  const toolButton = (label, Icon, onClick) => (
+    <Tooltip title={label}>
+      <IconButton aria-label={label} onClick={onClick} size="small">
+        <Icon fontSize={iconFontSize} />
+      </IconButton>
+    </Tooltip>
+  );
+
+  // Phone: one row with the frequent actions; the rest go in the ⋮ menu
+  if (isPhone) {
+    return (
+      <div
+        className={`${styles["image-actions"]} ${styles.compact}`}
+        ref={ref}
+      >
+        {toolButton("Previous page", KeyboardArrowLeftIcon, onClickPreviousPage)}
+        {pageIndicator}
+        {toolButton("Next page", KeyboardArrowRightIcon, onClickNextPage)}
+        {separator}
+        {toolButton("Zoom in", ZoomInIcon, onClickZoomIn)}
+        {toolButton("Zoom out", ZoomOutIcon, onClickZoomOut)}
+        {isReaderMode && <ReaderAudioControlsCompact />}
+        <Box sx={{ flex: 1 }} />
+        <Tooltip title="More actions">
+          <IconButton
+            ref={overflowButtonRef}
+            size="small"
+            aria-label="More actions"
+            aria-haspopup="true"
+            aria-controls={overflowAnchor ? "toolbar-overflow-menu" : undefined}
+            onClick={(event) => setOverflowAnchor(event.currentTarget)}
+          >
+            {isPublishing ? (
+              <CircularProgress size={18} />
+            ) : (
+              <MoreVertIcon fontSize={iconFontSize} />
+            )}
+          </IconButton>
+        </Tooltip>
+        <Menu
+          id="toolbar-overflow-menu"
+          anchorEl={overflowAnchor}
+          open={Boolean(overflowAnchor)}
+          onClose={closeOverflow}
+        >
+          <MenuItem onClick={fromOverflow(onClickFirstPage)}>
+            <ListItemIcon>
+              <FirstPageIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>First page</ListItemText>
+          </MenuItem>
+          <MenuItem onClick={fromOverflow(onClickLastPage)}>
+            <ListItemIcon>
+              <LastPageIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Last page</ListItemText>
+          </MenuItem>
+          <MenuItem onClick={fromOverflow(onClickZoomOff)}>
+            <ListItemIcon>
+              <SearchOffIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Reset zoom</ListItemText>
+          </MenuItem>
+          {isReaderMode && (
+            <MenuItem onClick={fromOverflow(onClickToggleVirutalBlocks)}>
+              <ListItemIcon>
+                {showVB ? (
+                  <VisibilityOffIcon fontSize="small" />
+                ) : (
+                  <VisibilityIcon fontSize="small" />
+                )}
+              </ListItemIcon>
+              <ListItemText>
+                {showVB ? "Hide virtual blocks" : "Show virtual blocks"}
+              </ListItemText>
+            </MenuItem>
+          )}
+          {isReaderMode && (
+            <MenuItem
+              disabled={!activePageId}
+              onClick={fromOverflow(() => toggleBookmark(activePageId))}
+            >
+              <ListItemIcon>
+                {isActivePageBookmarked ? (
+                  <BookmarkIcon fontSize="small" />
+                ) : (
+                  <BookmarkBorderIcon fontSize="small" />
+                )}
+              </ListItemIcon>
+              <ListItemText>
+                {isActivePageBookmarked ? "Remove bookmark" : "Bookmark this page"}
+              </ListItemText>
+            </MenuItem>
+          )}
+          {!isReaderMode && (
+            <MenuItem
+              disabled={isPublishing}
+              onClick={fromOverflow(() =>
+                openPublishMenu(overflowButtonRef.current)
+              )}
+            >
+              <ListItemIcon>
+                <PublishIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>
+                {isPublishing ? "Publishing…" : "Publish chapter"}
+              </ListItemText>
+            </MenuItem>
+          )}
+        </Menu>
+        {publishMenu}
+        {goToPagePopover}
+      </div>
+    );
+  }
+
   return (
     <div className={styles["image-actions"]} ref={ref}>
       <div>
-        <Typography variant="caption" component="h5" sx={{ color: "#212529" }}>
-          Page {activePage + 1} of {pages?.length}
-        </Typography>
+        {pageIndicator}
         <Tooltip title="First page">
           <IconButton aria-label="First page" onClick={onClickFirstPage}>
             <FirstPageIcon fontSize={iconFontSize} />
@@ -190,9 +406,7 @@ const ImageActions = React.forwardRef((props, ref) => {
           </IconButton>
         </Tooltip>
       </div>
-      <div>
-        <span>|</span>
-      </div>
+      {separator}
 
       <div>
         <Tooltip title="Zoom in">
@@ -216,9 +430,7 @@ const ImageActions = React.forwardRef((props, ref) => {
 
       {!isReaderMode && (
         <>
-          <div>
-            <span>|</span>
-          </div>
+          {separator}
 
           <div>
             <Tooltip title={isPublishing ? "Publishing…" : "Publish chapter"}>
@@ -240,37 +452,14 @@ const ImageActions = React.forwardRef((props, ref) => {
                 </IconButton>
               </span>
             </Tooltip>
-            <Menu
-              id="publish-language-menu"
-              anchorEl={publishMenuAnchor}
-              open={Boolean(publishMenuAnchor)}
-              onClose={handleClosePublishMenu}
-            >
-              {isLoadingLanguages ? (
-                <MenuItem disabled sx={{ justifyContent: "center" }}>
-                  <CircularProgress size={20} />
-                </MenuItem>
-              ) : (
-                languages.map((language) => (
-                  <MenuItem
-                    key={language.code}
-                    selected={publishLanguage === language.code}
-                    onClick={() => handlePublish(language.code)}
-                  >
-                    {language.label}
-                  </MenuItem>
-                ))
-              )}
-            </Menu>
+            {publishMenu}
           </div>
         </>
       )}
 
       {isReaderMode && (
         <>
-          <div>
-            <span>|</span>
-          </div>
+          {separator}
 
           <div>
             <Tooltip
@@ -309,15 +498,15 @@ const ImageActions = React.forwardRef((props, ref) => {
             </Tooltip>
           </div>
 
-          <div>
-            <span>|</span>
-          </div>
+          {separator}
 
           <div>
-            <ReaderAudioControls />
+            {/* Below desktop the full pill would wrap the toolbar */}
+            {isDesktop ? <ReaderAudioControls /> : <ReaderAudioControlsCompact />}
           </div>
         </>
       )}
+      {!isDesktop && goToPagePopover}
     </div>
   );
 });

@@ -1,6 +1,6 @@
 # Plan: Responsive Book Author and Reader pages
 
-Branch: `IBook-2-development` · Date: 2026-10-24 · Status: **approved with defaults** · Phases 0–2 **implemented**
+Branch: `IBook-2-development` · Date: 2026-10-24 · Status: **approved with defaults** · Phases 0–3 **implemented**
 
 Pages in scope:
 
@@ -200,7 +200,29 @@ Fixes problems 1, 2, 10.
 - `studioAreaSelector.module.scss`: the `6rem` grid rows and `height: 95%` move under a
   desktop query; below `lg` the selector is a plain block that scrolls vertically.
 
-### Phase 3 — Toolbar (`ImageActions` + sticky toolbar)
+### Phase 3 — Toolbar (`ImageActions` + sticky toolbar) — ✅ implemented
+
+As built:
+- `ImageActions` has a separate **phone branch**: Prev · page button (`2 / 4`) · Next | Zoom
+  in · Zoom out · [reader] audio button · ⋮. The ⋮ menu holds First, Last, Reset zoom,
+  [reader] virtual blocks + bookmark, [author] Publish (opens the same language menu,
+  anchored to ⋮). Desktop JSX is unchanged; tablet reuses it with `Divider` separators.
+- Icons: phone `small`, tablet `medium`, desktop as before.
+- Page indicator below desktop is a button opening the new
+  `ImageActions/GoToPagePopover.jsx` (number field, range-checked, Go disabled when out of range).
+- `ReaderAudioControlsCompact` (headphones button, green dot while anything plays, full
+  controls in a popover) is used on **tablet as well as phone** — with the full pill the
+  tablet toolbar wrapped to 2 rows; now it is one row (45px).
+- The toolbar SCSS rule that sized every `span` to 27px now targets only the `|`
+  separator spans (`& > div > span`).
+- Bug fix found on the way: the reader audio ⋮ (mode / track menu) was labelled
+  "Playback speed"; now "Audio options".
+- Sticky toolbar: full width, no transform, small shadow below desktop.
+- Tests: `ImageActions/__tests__/GoToPagePopover.test.js` (4).
+- Browser check: phone reader + author toolbars are one 31px row; ⋮ actions, go-to-page
+  (valid / invalid), audio popover and author Publish menu work (menu opened, nothing
+  published); desktop toolbar identical to before (27px `|`, full audio pill, 2 rows at
+  1400px both before and after).
 
 Fixes problems 4, 5.
 
