@@ -24,6 +24,14 @@ export const TIMEOUTS = {
 };
 
 /**
+ * Pinch-to-zoom limits for the page (imageScaleFactor, 1 = fit width)
+ */
+export const PINCH_ZOOM = {
+  MIN: 0.5,
+  MAX: 3,
+};
+
+/**
  * Local storage keys
  */
 export const STORAGE_KEYS = {

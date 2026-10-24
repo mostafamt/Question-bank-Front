@@ -1,3 +1,5 @@
+@use "../../../styles/breakpoints" as bp;
+
 .studio-area-selector {
   background-color: #fff;
 
@@ -24,6 +26,26 @@
   & div:nth-child(3),
   & div:nth-child(18) {
     grid-column: 5 / 7;
+  }
+
+  // Below desktop (virtual blocks shown): the page takes the full width
+  // instead of the middle 4 of 6 columns; the first three slots stay above
+  // it and the rest flow below in rows of three.
+  @include bp.below-desktop {
+    height: auto;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: none;
+    grid-auto-rows: minmax(4rem, auto);
+
+    & > div:nth-child(n) {
+      grid-column: auto;
+    }
+
+    // Same specificity as the reset above (0,2,1), so it must come after it
+    & > div.block {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
   }
 
   & .block {

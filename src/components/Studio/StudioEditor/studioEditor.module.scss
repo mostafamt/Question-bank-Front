@@ -9,6 +9,9 @@
     rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
   overflow: scroll;
   position: relative;
+  // Pinch zoom is handled by usePinchZoom; keep the browser from zooming the
+  // whole page while fingers are on the editor (one-finger scroll still works)
+  touch-action: pan-x pan-y;
 
   @include bp.below-desktop {
     min-width: 0;

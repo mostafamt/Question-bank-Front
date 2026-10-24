@@ -1,6 +1,6 @@
 # Plan: Responsive Book Author and Reader pages
 
-Branch: `IBook-2-development` · Date: 2026-10-24 · Status: **approved with defaults** · Phases 0–3 **implemented**
+Branch: `IBook-2-development` · Date: 2026-10-24 · Status: **approved with defaults** · Phases 0–4 **implemented**
 
 Pages in scope:
 
@@ -236,7 +236,31 @@ Fixes problems 4, 5.
 - Sticky toolbar: `width: 100%`, `left: 0`, `transform: none` below `lg`; or hide it below
   `lg` because the main toolbar is already `position: sticky` (question 5).
 
-### Phase 4 — Page viewing and zoom
+### Phase 4 — Page viewing and zoom — ✅ implemented
+
+As built:
+- Fit-to-width default confirmed: at scale 1 the page fills the editor (344px of a 359px
+  phone editor; the rest is the scrollbar). No change needed.
+- **Pinch zoom is custom, not native.** Native pinch (`touch-action: pinch-zoom`) zooms the
+  whole browser viewport, not `imageScaleFactor`. New `Studio/hooks/usePinchZoom.js` (used in
+  `StudioEditor`) listens to two-finger touch events on the editor:
+  - while pinching it scales the page container with a CSS transform around the fingers'
+    midpoint (the blocks inside follow);
+  - on release it commits `imageScaleFactor` (clamped to `PINCH_ZOOM` 0.5–3), restores the
+    scroll so the pinched point stays under the fingers (in a layout effect, after the new
+    size renders), and recalculates blocks right away (`onZoomed` → `onImageLoad`).
+  - `.studio-editor { touch-action: pan-x pan-y }` blocks the browser's own pinch there;
+    one-finger scroll and taps are untouched; iOS `gesturestart` is prevented.
+- **Virtual-blocks grid below desktop** (moved here from Phase 2): 3 columns, the first three
+  slots above the page, the page full width in row 2, the remaining slots in rows of three
+  below; `height: auto` so the editor scrolls.
+- Swipe to change page: not done (decision 7: later).
+- Tests: `Studio/hooks/__tests__/usePinchZoom.test.js` (3).
+- Browser check (390px phone, synthetic two-finger touches): reader 344→602px with the
+  pinched point kept (0.638 → 0.639) and all blocks within 0.03%; zoom out back to fit and to
+  the 0.5 minimum; author page 9/9 areas within 0.03%. Reader block buttons have an existing
+  `transition: all 0.2s`, so after a zoom they visibly glide into place for ~200ms (same as
+  the zoom buttons). Virtual-blocks grid laid out as above.
 
 - Default `imageScaleFactor` = fit-to-width on phone/tablet (already 1 = 100% width; confirm
   the image is not wider than the column after Phase 2).

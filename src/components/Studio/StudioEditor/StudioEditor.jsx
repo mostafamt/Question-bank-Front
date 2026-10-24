@@ -4,6 +4,7 @@ import ImageActions from "../../ImageActions/ImageActions";
 
 import styles from "./studioEditor.module.scss";
 import StudioAreaSelector from "../StudioAreaSelector/StudioAreaSelector";
+import usePinchZoom from "../hooks/usePinchZoom";
 
 const StudioEditor = React.memo(
   React.forwardRef((props, ref) => {
@@ -22,10 +23,20 @@ const StudioEditor = React.memo(
       showBlocksStyling,
       chapterId,
       publishLanguage,
+      pageContainerRef,
     } = props;
 
     const studioEditorSelectorRef = React.useRef(null);
     const imageActionsRef = React.useRef(null);
+    const editorRef = React.useRef(null);
+
+    usePinchZoom({
+      scrollRef: editorRef,
+      contentRef: pageContainerRef,
+      scale: imageScaleFactor,
+      setScale: setImageScaleFactor,
+      onZoomed: onImageLoad,
+    });
 
     React.useImperativeHandle(ref, () => {
       return {
@@ -35,7 +46,7 @@ const StudioEditor = React.memo(
     });
 
     return (
-      <div className={styles["studio-editor"]}>
+      <div className={styles["studio-editor"]} ref={editorRef}>
         <ImageActions
           imageScaleFactor={imageScaleFactor}
           setImageScaleFactor={setImageScaleFactor}
