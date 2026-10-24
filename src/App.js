@@ -11,6 +11,7 @@ import routes from "./routes";
 import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ModalRegistry } from "./components/Modals";
+import RequireAuth from "./components/RequireAuth/RequireAuth";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const queryClient = new QueryClient();
@@ -19,31 +20,39 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <BrowserRouter>
-        <div
-          style={{
-            minHeight: "100vh",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <Navbar />
-          <ToastContainer />
-          <ErrorBoundary>
-            <QueryClientProvider client={queryClient}>
+        <QueryClientProvider client={queryClient}>
+          <div
+            style={{
+              minHeight: "100vh",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <Navbar />
+            <ToastContainer />
+            <ErrorBoundary>
               <ModalRegistry />
               <Routes>
                 {routes.map((route) => (
                   <Route
                     key={route.path}
                     path={route.path}
-                    Component={route.component}
+                    element={
+                      route.public ? (
+                        <route.component />
+                      ) : (
+                        <RequireAuth>
+                          <route.component />
+                        </RequireAuth>
+                      )
+                    }
                   />
                 ))}
               </Routes>
-            </QueryClientProvider>
-          </ErrorBoundary>
-          <Footer />
-        </div>
+            </ErrorBoundary>
+            <Footer />
+          </div>
+        </QueryClientProvider>
       </BrowserRouter>
     </ThemeProvider>
   );

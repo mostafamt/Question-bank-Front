@@ -22,11 +22,18 @@ import Error from "../pages/Error/Error";
 import AutoGeneration from "../pages/AutoGeneration/AutoGeneration";
 import UploadsPage from "../pages/UploadsPage/UploadsPage";
 import StudioPage from "../pages/StudioPage/StudioPage";
+import Login from "../pages/Login/Login";
 
 const routes = [
   {
     path: "/",
     component: Home,
+  },
+  {
+    path: "/login",
+    component: Login,
+    // Every other route requires a logged-in user
+    public: true,
   },
   {
     path: "/true-false",
