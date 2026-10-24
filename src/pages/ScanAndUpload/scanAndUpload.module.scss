@@ -3,16 +3,17 @@
 .scan-and-upload {
   margin-bottom: 4rem;
 
-  // Height available for the Studio below the navbar. Used by the responsive
-  // layout (Phase 2); --reader-title-height is set there when the title shows.
-  --studio-height: calc(
-    100vh - var(--navbar-height) - var(--reader-title-height, 0px)
-  );
+  // Below desktop the page fills the viewport under the navbar and the
+  // Studio (flex: 1) takes whatever the title / language switcher leave.
+  @include bp.below-desktop {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - var(--navbar-height));
+    --studio-height: auto;
 
-  @supports (height: 100dvh) {
-    --studio-height: calc(
-      100dvh - var(--navbar-height) - var(--reader-title-height, 0px)
-    );
+    @supports (height: 100dvh) {
+      height: calc(100dvh - var(--navbar-height));
+    }
   }
 
   @include bp.phone {

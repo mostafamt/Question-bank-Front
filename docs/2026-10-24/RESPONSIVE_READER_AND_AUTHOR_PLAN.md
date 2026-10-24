@@ -1,6 +1,6 @@
 # Plan: Responsive Book Author and Reader pages
 
-Branch: `IBook-2-development` · Date: 2026-10-24 · Status: **approved with defaults** · Phases 0–1 **implemented**
+Branch: `IBook-2-development` · Date: 2026-10-24 · Status: **approved with defaults** · Phases 0–2 **implemented**
 
 Pages in scope:
 
@@ -151,7 +151,33 @@ Fixes problem 3; without it every later phase shows misplaced blocks.
   for **[reader]**, but the author renderer and the image-area library need px, so we keep one
   path for both. Can revisit later for the reader.
 
-### Phase 2 — Responsive three-column layout
+### Phase 2 — Responsive three-column layout — ✅ implemented
+
+As built (differences from the bullets below):
+- **Minimize ≠ close.** The active right tab drives the editor mode (Block Authoring turns
+  on drawing), so below desktop a panel sheet has two buttons: *Minimize* hides the sheet
+  and keeps the tab active (phone: a dot on the tab), *Close* clears the tab like the
+  desktop column button. Backdrop tap = minimize.
+- New `Studio/components/PanelSheet.jsx` (Drawer, `keepMounted`) used by both the tablet
+  rails and the phone bar; `Studio/components/StudioMobileTabBar.jsx` for phones (tabs
+  interleaved L1, R1, L2, R2…; 4 in the bar + "More" menu); `BookColumn` gets
+  `responsive` / `side` / `navigationKey` props (only `StudioLayout` passes them).
+- Auto-minimize on navigation applies to tablet drawers too, not only phones
+  (`Studio/hooks/useMinimizeOnNavigate.js`, key = active page + highlighted block).
+- Height: below desktop `ScanAndUpload` is a full-viewport flex column and `.studio` is
+  `flex: 1`, so the reader title / OCR language switcher no longer push the bottom bar
+  off-screen (`--reader-title-height` was dropped). `Studio` in `SubObjectModal` falls back to `100vh`.
+- Thumbnails stay a single column (max 200px wide) — the drag-to-reorder `Droppable` is
+  vertical-only, a grid would break it.
+- Not done here: the `studioAreaSelector` 6-column grid only applies when virtual blocks
+  are shown (off by default); its small-screen layout moves to Phase 4.
+- MUI styles are injected after CSS modules, so sizing that overrides MUI defaults (sheet
+  height/width, bottom-bar action min-width) is done with `sx`, not SCSS.
+- Browser check (390px phone, 800px tablet, 1600px desktop; reader + author; RTL tablet):
+  studio ends exactly at the viewport bottom; sheet 85% height on phone, 360px drawer on
+  tablet; picking a thumbnail changes page and minimizes; minimize keeps Block Authoring
+  editing mode on the page; RTL drawers open from the rail's side; desktop unchanged
+  (944px, 32px gap, original columns).
 
 Fixes problems 1, 2, 10.
 

@@ -1,3 +1,5 @@
+@use "../../../styles/breakpoints" as bp;
+
 .studio-editor {
   background-color: #fff;
 
@@ -7,4 +9,10 @@
     rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
   overflow: scroll;
   position: relative;
+
+  @include bp.below-desktop {
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+  }
 }
