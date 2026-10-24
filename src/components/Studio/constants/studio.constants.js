@@ -18,6 +18,9 @@ export const TIMEOUTS = {
 
   /** Delay for area recalculation after post-submit state resync */
   POST_SUBMIT_SYNC_DELAY: 50,
+
+  /** Debounce for area recalculation after the page image is resized */
+  RESIZE_RECALCULATE_DEBOUNCE: 150,
 };
 
 /**

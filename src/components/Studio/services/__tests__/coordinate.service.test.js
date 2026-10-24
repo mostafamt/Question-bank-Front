@@ -754,3 +754,42 @@ describe("createSafeOnImageLoad", () => {
     expect(mockSetAreas).toHaveBeenCalled();
   });
 });
+
+describe("processPageAreas on resize", () => {
+  const percentArea = {
+    id: "a1",
+    x: 10,
+    y: 20,
+    width: 30,
+    height: 40,
+    _unit: "percentage",
+    _percentX: 10,
+    _percentY: 20,
+    _percentWidth: 30,
+    _percentHeight: 40,
+  };
+  const desktop = { clientWidth: 1000, clientHeight: 1400 };
+  const phone = { clientWidth: 360, clientHeight: 504 };
+
+  it("re-derives px from the percentage source, not from stale px", () => {
+    const [atDesktop] = processPageAreas([percentArea], [], desktop);
+    expect(atDesktop).toMatchObject({ x: 100, y: 280, width: 300, height: 560 });
+
+    // Feed the already-converted (px) area back in at a new size
+    const [atPhone] = processPageAreas([atDesktop], [], phone);
+    expect(atPhone.x).toBeCloseTo(36);
+    expect(atPhone.y).toBeCloseTo(100.8);
+    expect(atPhone.width).toBeCloseTo(108);
+    expect(atPhone.height).toBeCloseTo(201.6);
+    expect(atPhone._percentX).toBe(10);
+  });
+
+  it("does not drift after repeated resizes", () => {
+    let [area] = processPageAreas([percentArea], [], desktop);
+    for (let i = 0; i < 5; i++) {
+      [area] = processPageAreas([area], [], phone);
+      [area] = processPageAreas([area], [], desktop);
+    }
+    expect(area).toMatchObject({ x: 100, y: 280, width: 300, height: 560 });
+  });
+});

@@ -1,6 +1,9 @@
 # Plan: Tooltips for icon buttons
 
-Branch: `IBook-2-development` · Date: 2026-10-24 · Status: **for review, nothing changed yet**
+Branch: `IBook-2-development` · Date: 2026-10-24 · Status: **implemented** with the
+suggested text below. Open questions were resolved with the defaults: plain `<button>`s
+got `title` + `aria-label`; the arrow buttons keep their behavior; zoom-off is still a no-op;
+English only.
 
 ## Goal
 

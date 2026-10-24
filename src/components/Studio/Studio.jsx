@@ -28,6 +28,7 @@ import useLabelManagement from "./hooks/useLabelManagement";
 import usePlayBlock from "./hooks/usePlayBlock";
 import useStudioColumns from "./hooks/useStudioColumns";
 import useReaderAudioEngine from "./hooks/useReaderAudioEngine";
+import useRecalculateOnResize from "./hooks/useRecalculateOnResize";
 import ReaderAudioContext from "./context/ReaderAudioContext";
 
 /**
@@ -172,6 +173,12 @@ const Studio = (props) => {
   React.useEffect(() => {
     recalculateAreasRef.current = recalculateAreas;
   }, [recalculateAreas]);
+
+  // Keep blocks aligned with the page image after resize / rotation
+  useRecalculateOnResize(
+    () => studioEditorRef.current?.studioEditorSelectorRef?.current,
+    recalculateAreas
+  );
 
   React.useEffect(() => {
     insertPageAtRef.current = insertPageAt;

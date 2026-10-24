@@ -1,5 +1,30 @@
+@use "../../styles/breakpoints" as bp;
+
 .scan-and-upload {
   margin-bottom: 4rem;
+
+  // Height available for the Studio below the navbar. Used by the responsive
+  // layout (Phase 2); --reader-title-height is set there when the title shows.
+  --studio-height: calc(
+    100vh - var(--navbar-height) - var(--reader-title-height, 0px)
+  );
+
+  @supports (height: 100dvh) {
+    --studio-height: calc(
+      100dvh - var(--navbar-height) - var(--reader-title-height, 0px)
+    );
+  }
+
+  @include bp.phone {
+    margin-bottom: 1rem;
+  }
+}
+
+// Doubled class so it beats Bootstrap's .container-fluid gutter padding
+.scan-and-upload:global(.container-fluid) {
+  @include bp.phone {
+    padding-inline: 0.5rem;
+  }
 }
 
 .reader-title {
@@ -8,12 +33,20 @@
   flex-wrap: wrap;
   gap: 0.25rem 0.75rem;
   margin: 1rem 0;
+
+  @include bp.phone {
+    margin: 0.5rem 0;
+  }
 }
 
 .book-name {
   margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
+
+  @include bp.phone {
+    font-size: 1.15rem;
+  }
 }
 
 .chapter-name {
@@ -21,4 +54,8 @@
   font-size: 1.1rem;
   font-weight: 400;
   color: #666;
+
+  @include bp.phone {
+    font-size: 0.95rem;
+  }
 }

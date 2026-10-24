@@ -1,0 +1,36 @@
+// Device classes for the responsive Book Author / Reader layout.
+// Keep in sync with src/hooks/useBreakpoint.js.
+//
+// Usage: @use "../../styles/breakpoints" as bp;
+//        .x { @include bp.phone { ... } }
+
+$bp-sm: 600px; // phone < 600
+$bp-lg: 1024px; // desktop ≥ 1024
+
+// < 600px
+@mixin phone {
+  @media (max-width: #{$bp-sm - 0.02px}) {
+    @content;
+  }
+}
+
+// 600–1023px
+@mixin tablet {
+  @media (min-width: $bp-sm) and (max-width: #{$bp-lg - 0.02px}) {
+    @content;
+  }
+}
+
+// < 1024px (phone + tablet)
+@mixin below-desktop {
+  @media (max-width: #{$bp-lg - 0.02px}) {
+    @content;
+  }
+}
+
+// ≥ 1024px
+@mixin desktop {
+  @media (min-width: $bp-lg) {
+    @content;
+  }
+}
