@@ -1,5 +1,5 @@
 import React from "react";
-import { IconButton } from "@mui/material";
+import { IconButton, Tooltip } from "@mui/material";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import BorderStyleIcon from "@mui/icons-material/BorderStyle";
@@ -20,16 +20,18 @@ const StudioActionsButtons = (props) => {
   } = props;
   return (
     <div>
-      <IconButton
-        aria-label="visibility-icon"
-        onClick={onClickToggleVirutalBlocks}
-      >
-        {showVB ? (
-          <VisibilityOffIcon fontSize={iconFontSize} />
-        ) : (
-          <VisibilityIcon fontSize={iconFontSize} />
-        )}
-      </IconButton>
+      <Tooltip title={showVB ? "Hide virtual blocks" : "Show virtual blocks"}>
+        <IconButton
+          aria-label={showVB ? "Hide virtual blocks" : "Show virtual blocks"}
+          onClick={onClickToggleVirutalBlocks}
+        >
+          {showVB ? (
+            <VisibilityOffIcon fontSize={iconFontSize} />
+          ) : (
+            <VisibilityIcon fontSize={iconFontSize} />
+          )}
+        </IconButton>
+      </Tooltip>
       <IconButton
         aria-label="toggle-blocks-styling"
         onClick={onToggleBlocksStyling}

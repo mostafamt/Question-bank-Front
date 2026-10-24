@@ -55,6 +55,7 @@ const AreaAction = (props) => {
     area.type !== "Simple item" ? (
       {
         label: "play",
+        tooltip: "Play object",
         icon: <PlayArrow sx={{ color: grey[700] }} />,
         onClick: handlePlay,
       }
@@ -63,11 +64,13 @@ const AreaAction = (props) => {
     ),
     {
       label: "edit",
+      tooltip: "Edit area content",
       icon: <Edit sx={{ color: grey[700] }} />,
       onClick: handleEdit,
     },
     {
       label: "delete",
+      tooltip: "Delete area",
       icon: <DeleteForever color="error" />,
       onClick: handleDelete,
     },

@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, IconButton, List } from "@mui/material";
+import { Box, IconButton, List, Tooltip } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
 import styles from "./arrayUI.module.scss";
@@ -28,13 +28,15 @@ const ArrayUI = (props) => {
   const AddButton = () => {
     return (
       <div>
-        <IconButton
-          aria-label="add"
-          onClick={() => append(object)}
-          color="primary"
-        >
-          <AddIcon />
-        </IconButton>
+        <Tooltip title="Add item">
+          <IconButton
+            aria-label="Add item"
+            onClick={() => append(object)}
+            color="primary"
+          >
+            <AddIcon />
+          </IconButton>
+        </Tooltip>
       </div>
     );
   };

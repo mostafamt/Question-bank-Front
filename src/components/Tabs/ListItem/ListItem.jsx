@@ -1,7 +1,7 @@
 import React from "react";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { IconButton } from "@mui/material";
+import { IconButton, Tooltip } from "@mui/material";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
@@ -30,35 +30,49 @@ const ListItem = ({ item, onPlay, onDelete, onMoveUp, onMoveDown, reader }) => {
     <li className={styles["list-item"]}>
       <span>{item.name}</span>
       <span>
-        <IconButton onClick={() => onPlay(item)}>
-          <PlayArrowIcon />
-        </IconButton>
+        <Tooltip title="Play">
+          <IconButton aria-label="Play" onClick={() => onPlay(item)}>
+            <PlayArrowIcon />
+          </IconButton>
+        </Tooltip>
       </span>
       {reader && (
         <span className={styles["up-down"]}>
-          <IconButton
-            onClick={onClickUp}
-            disabled={!hasReferences}
-            sx={{ opacity: hasReferences ? 1 : 0.3 }}
-          >
-            <KeyboardArrowUpIcon />
-          </IconButton>
-          <IconButton
-            onClick={onClickDown}
-            disabled={!hasReferences}
-            sx={{ opacity: hasReferences ? 1 : 0.3 }}
-          >
-            <KeyboardArrowDownIcon />
-          </IconButton>
+          <Tooltip title="Go to item in page">
+            <span>
+              <IconButton
+                aria-label="Go to item in page"
+                onClick={onClickUp}
+                disabled={!hasReferences}
+                sx={{ opacity: hasReferences ? 1 : 0.3 }}
+              >
+                <KeyboardArrowUpIcon />
+              </IconButton>
+            </span>
+          </Tooltip>
+          <Tooltip title="Go to item in page">
+            <span>
+              <IconButton
+                aria-label="Go to item in page"
+                onClick={onClickDown}
+                disabled={!hasReferences}
+                sx={{ opacity: hasReferences ? 1 : 0.3 }}
+              >
+                <KeyboardArrowDownIcon />
+              </IconButton>
+            </span>
+          </Tooltip>
         </span>
       )}
       {reader ? (
         <></>
       ) : (
         <span>
-          <IconButton onClick={() => onDelete(item._id)}>
-            <DeleteIcon color="error" />
-          </IconButton>
+          <Tooltip title="Delete">
+            <IconButton aria-label="Delete" onClick={() => onDelete(item._id)}>
+              <DeleteIcon color="error" />
+            </IconButton>
+          </Tooltip>
         </span>
       )}
     </li>

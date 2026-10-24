@@ -45,7 +45,11 @@ const BookColumn2 = (props) => {
         <div className={styles.opened}>
           <div className={styles.head}>
             <span>{getTabLabel(activeColumn.label, language)}</span>
-            <button onClick={() => setActiveColumn(null)}>
+            <button
+              onClick={() => setActiveColumn(null)}
+              title="Minimize panel"
+              aria-label="Minimize panel"
+            >
               <MinimizeIcon />
             </button>
           </div>

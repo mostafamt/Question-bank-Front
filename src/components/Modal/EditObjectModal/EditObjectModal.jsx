@@ -8,6 +8,7 @@ import {
   MenuItem,
   Select,
   TextField,
+  Tooltip,
 } from "@mui/material";
 import ClearIcon from "@mui/icons-material/Clear";
 import { useStore } from "../../../store/store";
@@ -77,9 +78,11 @@ const EditObjectModal = (props) => {
     <div className={styles["modal-content"]}>
       <div className={styles.header}>
         <p>Edit Object</p>
-        <IconButton aria-label="close" onClick={handleClose}>
-          <ClearIcon />
-        </IconButton>
+        <Tooltip title="Close">
+          <IconButton aria-label="Close" onClick={handleClose}>
+            <ClearIcon />
+          </IconButton>
+        </Tooltip>
       </div>
 
       <form className={styles.actions} onSubmit={onSubmit}>

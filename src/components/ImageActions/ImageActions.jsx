@@ -169,35 +169,49 @@ const ImageActions = React.forwardRef((props, ref) => {
         <Typography variant="caption" component="h5" sx={{ color: "#212529" }}>
           Page {activePage + 1} of {pages?.length}
         </Typography>
-        <IconButton aria-label="first" onClick={onClickFirstPage}>
-          <FirstPageIcon fontSize={iconFontSize} />
-        </IconButton>
-        <IconButton aria-label="previous" onClick={onClickPreviousPage}>
-          <KeyboardArrowLeftIcon fontSize={iconFontSize} />
-        </IconButton>
-        <IconButton aria-label="next" onClick={onClickNextPage}>
-          <KeyboardArrowRightIcon fontSize={iconFontSize} />
-        </IconButton>
-        <IconButton aria-label="last" onClick={onClickLastPage}>
-          <LastPageIcon fontSize={iconFontSize} />
-        </IconButton>
+        <Tooltip title="First page">
+          <IconButton aria-label="First page" onClick={onClickFirstPage}>
+            <FirstPageIcon fontSize={iconFontSize} />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Previous page">
+          <IconButton aria-label="Previous page" onClick={onClickPreviousPage}>
+            <KeyboardArrowLeftIcon fontSize={iconFontSize} />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Next page">
+          <IconButton aria-label="Next page" onClick={onClickNextPage}>
+            <KeyboardArrowRightIcon fontSize={iconFontSize} />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Last page">
+          <IconButton aria-label="Last page" onClick={onClickLastPage}>
+            <LastPageIcon fontSize={iconFontSize} />
+          </IconButton>
+        </Tooltip>
       </div>
       <div>
         <span>|</span>
       </div>
 
       <div>
-        <IconButton aria-label="zoom-in" onClick={onClickZoomIn}>
-          <ZoomInIcon fontSize={iconFontSize} />
-        </IconButton>
+        <Tooltip title="Zoom in">
+          <IconButton aria-label="Zoom in" onClick={onClickZoomIn}>
+            <ZoomInIcon fontSize={iconFontSize} />
+          </IconButton>
+        </Tooltip>
 
-        <IconButton aria-label="zoom-off" onClick={onClickZoomOff}>
-          <SearchOffIcon fontSize={iconFontSize} />
-        </IconButton>
+        <Tooltip title="Reset zoom">
+          <IconButton aria-label="Reset zoom" onClick={onClickZoomOff}>
+            <SearchOffIcon fontSize={iconFontSize} />
+          </IconButton>
+        </Tooltip>
 
-        <IconButton aria-label="zoom-out" onClick={onClickZoomOut}>
-          <ZoomOutIcon fontSize={iconFontSize} />
-        </IconButton>
+        <Tooltip title="Zoom out">
+          <IconButton aria-label="Zoom out" onClick={onClickZoomOut}>
+            <ZoomOutIcon fontSize={iconFontSize} />
+          </IconButton>
+        </Tooltip>
       </div>
 
       {!isReaderMode && (
@@ -207,19 +221,25 @@ const ImageActions = React.forwardRef((props, ref) => {
           </div>
 
           <div>
-            <IconButton
-              aria-label="publish-chapter"
-              aria-haspopup="true"
-              aria-controls={publishMenuAnchor ? "publish-language-menu" : undefined}
-              onClick={handleOpenPublishMenu}
-              disabled={isPublishing}
-            >
-              {isPublishing ? (
-                <CircularProgress size={24} />
-              ) : (
-                <PublishIcon fontSize={iconFontSize} />
-              )}
-            </IconButton>
+            <Tooltip title={isPublishing ? "Publishing…" : "Publish chapter"}>
+              <span>
+                <IconButton
+                  aria-label={isPublishing ? "Publishing…" : "Publish chapter"}
+                  aria-haspopup="true"
+                  aria-controls={
+                    publishMenuAnchor ? "publish-language-menu" : undefined
+                  }
+                  onClick={handleOpenPublishMenu}
+                  disabled={isPublishing}
+                >
+                  {isPublishing ? (
+                    <CircularProgress size={24} />
+                  ) : (
+                    <PublishIcon fontSize={iconFontSize} />
+                  )}
+                </IconButton>
+              </span>
+            </Tooltip>
             <Menu
               id="publish-language-menu"
               anchorEl={publishMenuAnchor}
@@ -253,16 +273,20 @@ const ImageActions = React.forwardRef((props, ref) => {
           </div>
 
           <div>
-            <IconButton
-              aria-label="visibility-icon"
-              onClick={onClickToggleVirutalBlocks}
+            <Tooltip
+              title={showVB ? "Hide virtual blocks" : "Show virtual blocks"}
             >
-              {showVB ? (
-                <VisibilityOffIcon fontSize={iconFontSize} />
-              ) : (
-                <VisibilityIcon fontSize={iconFontSize} />
-              )}
-            </IconButton>
+              <IconButton
+                aria-label={showVB ? "Hide virtual blocks" : "Show virtual blocks"}
+                onClick={onClickToggleVirutalBlocks}
+              >
+                {showVB ? (
+                  <VisibilityOffIcon fontSize={iconFontSize} />
+                ) : (
+                  <VisibilityIcon fontSize={iconFontSize} />
+                )}
+              </IconButton>
+            </Tooltip>
             <Tooltip
               title={
                 isActivePageBookmarked ? "Remove bookmark" : "Bookmark this page"

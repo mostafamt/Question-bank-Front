@@ -1,5 +1,5 @@
 import React from "react";
-import { IconButton, Typography } from "@mui/material";
+import { IconButton, Tooltip, Typography } from "@mui/material";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
@@ -45,21 +45,34 @@ const BookViewerTopBar = (props) => {
         {getTotalPages(pages)}
       </Typography>
 
-      <IconButton aria-label="first" onClick={onClickFirstPage}>
-        <FirstPageIcon />
-      </IconButton>
-      <IconButton aria-label="previous" onClick={onClickPreviousPage}>
-        <KeyboardArrowLeftIcon />
-      </IconButton>
-      <IconButton aria-label="next" onClick={onClickNextPage}>
-        <KeyboardArrowRightIcon />
-      </IconButton>
-      <IconButton aria-label="next" onClick={onClickLastPage}>
-        <LastPageIcon />
-      </IconButton>
-      <IconButton aria-label="show" onClick={onClickShowVirtualBlocks}>
-        {showVB ? <VisibilityIcon /> : <VisibilityOffIcon />}
-      </IconButton>
+      <Tooltip title="First page">
+        <IconButton aria-label="First page" onClick={onClickFirstPage}>
+          <FirstPageIcon />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Previous page">
+        <IconButton aria-label="Previous page" onClick={onClickPreviousPage}>
+          <KeyboardArrowLeftIcon />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Next page">
+        <IconButton aria-label="Next page" onClick={onClickNextPage}>
+          <KeyboardArrowRightIcon />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Last page">
+        <IconButton aria-label="Last page" onClick={onClickLastPage}>
+          <LastPageIcon />
+        </IconButton>
+      </Tooltip>
+      <Tooltip title={showVB ? "Hide virtual blocks" : "Show virtual blocks"}>
+        <IconButton
+          aria-label={showVB ? "Hide virtual blocks" : "Show virtual blocks"}
+          onClick={onClickShowVirtualBlocks}
+        >
+          {showVB ? <VisibilityIcon /> : <VisibilityOffIcon />}
+        </IconButton>
+      </Tooltip>
     </div>
   );
 };

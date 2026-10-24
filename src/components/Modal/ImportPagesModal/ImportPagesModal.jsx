@@ -9,6 +9,7 @@ import {
   IconButton,
   CircularProgress,
   Box,
+  Tooltip,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Select from "../../Select/Select";
@@ -50,9 +51,11 @@ const ImportPagesModal = ({ open, handleCloseModal, bookId, chapterId, onPagesIm
         }}
       >
         Import Page
-        <IconButton onClick={handleCloseModal}>
-          <CloseIcon />
-        </IconButton>
+        <Tooltip title="Close">
+          <IconButton aria-label="Close" onClick={handleCloseModal}>
+            <CloseIcon />
+          </IconButton>
+        </Tooltip>
       </DialogTitle>
       <Divider sx={{ borderColor: "#777" }} />
       <DialogContent>

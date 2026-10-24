@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, IconButton } from "@mui/material";
+import { Box, IconButton, Tooltip } from "@mui/material";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
@@ -75,36 +75,54 @@ const GlossaryListItem = (props) => {
           </IconButton> */}
 
           {!reader && (
-            <IconButton size="small" onClick={handleEdit}>
-              <EditIcon fontSize="small" />
-            </IconButton>
+            <Tooltip title="Edit term">
+              <IconButton size="small" aria-label="Edit term" onClick={handleEdit}>
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           )}
 
           {reader && (
             <Box className={styles["up-down"]}>
-              <IconButton
-                size="small"
-                onClick={handleMoveUp}
-                disabled={!hasReferences}
-                sx={{ opacity: hasReferences ? 1 : 0.3 }}
-              >
-                <KeyboardArrowUpIcon fontSize="small" />
-              </IconButton>
-              <IconButton
-                size="small"
-                onClick={handleMoveDown}
-                disabled={!hasReferences}
-                sx={{ opacity: hasReferences ? 1 : 0.3 }}
-              >
-                <KeyboardArrowDownIcon fontSize="small" />
-              </IconButton>
+              <Tooltip title="Go to term in page">
+                <span>
+                  <IconButton
+                    size="small"
+                    aria-label="Go to term in page"
+                    onClick={handleMoveUp}
+                    disabled={!hasReferences}
+                    sx={{ opacity: hasReferences ? 1 : 0.3 }}
+                  >
+                    <KeyboardArrowUpIcon fontSize="small" />
+                  </IconButton>
+                </span>
+              </Tooltip>
+              <Tooltip title="Go to term in page">
+                <span>
+                  <IconButton
+                    size="small"
+                    aria-label="Go to term in page"
+                    onClick={handleMoveDown}
+                    disabled={!hasReferences}
+                    sx={{ opacity: hasReferences ? 1 : 0.3 }}
+                  >
+                    <KeyboardArrowDownIcon fontSize="small" />
+                  </IconButton>
+                </span>
+              </Tooltip>
             </Box>
           )}
 
           {!reader && (
-            <IconButton size="small" onClick={handleDelete}>
-              <DeleteIcon fontSize="small" color="error" />
-            </IconButton>
+            <Tooltip title="Delete term">
+              <IconButton
+                size="small"
+                aria-label="Delete term"
+                onClick={handleDelete}
+              >
+                <DeleteIcon fontSize="small" color="error" />
+              </IconButton>
+            </Tooltip>
           )}
         </Box>
       </ListItemButton>

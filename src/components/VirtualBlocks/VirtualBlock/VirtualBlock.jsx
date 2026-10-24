@@ -373,14 +373,16 @@ const VirtualBlock = React.memo((props) => {
           {/* Delete button - only show in edit mode */}
           {!reader && (
             <div className={styles.header}>
-              <IconButton
-                color="inherit"
-                aria-label="delete virtual block"
-                size="small"
-                onClick={handleDelete}
-              >
-                <DeleteForever color="error" />
-              </IconButton>
+              <Tooltip title="Delete virtual block">
+                <IconButton
+                  color="inherit"
+                  aria-label="Delete virtual block"
+                  size="small"
+                  onClick={handleDelete}
+                >
+                  <DeleteForever color="error" />
+                </IconButton>
+              </Tooltip>
             </div>
           )}
 
@@ -395,21 +397,23 @@ const VirtualBlock = React.memo((props) => {
                 horizontal: "right",
               }}
             >
-              <IconButton
-                color="primary"
-                aria-label="view virtual block"
-                onClick={reader ? handlePlayReader : handleEdit}
-                sx={{ padding: 0 }}
-              >
-                {selectedBlockIcon && (
-                  <img
-                    src={selectedBlockIcon}
-                    alt={displayLabel}
-                    width="50px"
-                    loading="lazy"
-                  />
-                )}
-              </IconButton>
+              <Tooltip title={`${reader ? "Open" : "Edit"} ${displayLabel}`}>
+                <IconButton
+                  color="primary"
+                  aria-label={`${reader ? "Open" : "Edit"} ${displayLabel}`}
+                  onClick={reader ? handlePlayReader : handleEdit}
+                  sx={{ padding: 0 }}
+                >
+                  {selectedBlockIcon && (
+                    <img
+                      src={selectedBlockIcon}
+                      alt={displayLabel}
+                      width="50px"
+                      loading="lazy"
+                    />
+                  )}
+                </IconButton>
+              </Tooltip>
             </Badge>
             <div>{displayLabel}</div>
           </div>

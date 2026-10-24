@@ -6,7 +6,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import TreeItem from "@mui/lab/TreeItem";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-import { Box, Button, IconButton, TextField } from "@mui/material";
+import { Box, Button, IconButton, TextField, Tooltip } from "@mui/material";
 import { v4 as uuidv4 } from "uuid";
 
 import styles from "./trueFalse.module.scss";
@@ -179,13 +179,15 @@ const TrueFalse = () => {
     return (
       <div className={styles.label}>
         <div>{`Question ${label}`}</div>
-        <IconButton
-          aria-label="delete"
-          size="large"
-          onClick={(e) => clickDeleteQuestionHandler(e, id)}
-        >
-          <DeleteIcon fontSize="inherit" color="error" />
-        </IconButton>
+        <Tooltip title="Delete question">
+          <IconButton
+            aria-label="Delete question"
+            size="large"
+            onClick={(e) => clickDeleteQuestionHandler(e, id)}
+          >
+            <DeleteIcon fontSize="inherit" color="error" />
+          </IconButton>
+        </Tooltip>
       </div>
     );
   };

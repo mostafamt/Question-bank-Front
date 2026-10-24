@@ -15,7 +15,8 @@ const Bag = ({ items = [], onAdd }) => {
         type="button"
         className={styles.addButton}
         onClick={onAdd}
-        aria-label="Add to bag"
+        title="Add to My Bag"
+        aria-label="Add to My Bag"
       >
         <AddIcon fontSize="small" />
       </button>

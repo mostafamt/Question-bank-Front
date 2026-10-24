@@ -9,7 +9,7 @@ const BookColumnHeader = (props) => {
   return (
     <div className={styles["book-column-header"]}>
       <span>{columnName}</span>
-      <button onClick={close}>
+      <button onClick={close} title="Minimize panel" aria-label="Minimize panel">
         <MinimizeIcon />
       </button>
     </div>

@@ -133,7 +133,12 @@ const QuestionForm = (props) => {
                         )
                       }
                     ></TextField>
-                    <button type="button" onClick={() => onClickTip(answer.id)}>
+                    <button
+                      type="button"
+                      title="Show/hide tip"
+                      aria-label="Show/hide tip"
+                      onClick={() => onClickTip(answer.id)}
+                    >
                       <InfoIcon color="primary" />
                     </button>
                     <div

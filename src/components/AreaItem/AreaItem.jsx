@@ -6,6 +6,7 @@ import {
   List,
   ListItemButton,
   ListItemText,
+  Tooltip,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -55,16 +56,18 @@ const AreaItem = ({
           }}
         >
           {actions.map((action, index) => (
-            <IconButton
-              key={index}
-              aria-label={action.label}
-              onClick={(e) => {
-                e.stopPropagation();
-                action.onClick?.(id, e);
-              }}
-            >
-              {action.icon}
-            </IconButton>
+            // An empty title (e.g. the spacer action) shows no tooltip
+            <Tooltip key={index} title={action.tooltip ?? ""}>
+              <IconButton
+                aria-label={action.tooltip ?? action.label}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  action.onClick?.(id, e);
+                }}
+              >
+                {action.icon}
+              </IconButton>
+            </Tooltip>
           ))}
         </div>
       </ListItemButton>

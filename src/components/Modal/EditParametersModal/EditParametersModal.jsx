@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, IconButton } from "@mui/material";
+import { Button, IconButton, Tooltip } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import ClearIcon from "@mui/icons-material/Clear";
 import MultipleChoiceForm from "../../../pages/MultipleChoiceForm/MultipleChoiceForm";
@@ -18,9 +18,11 @@ const EditParametersModal = (props) => {
   return (
     <div className={styles["modal-content"]}>
       <div className={styles.close}>
-        <IconButton aria-label="close" onClick={handleClose}>
-          <ClearIcon />
-        </IconButton>
+        <Tooltip title="Close">
+          <IconButton aria-label="Close" onClick={handleClose}>
+            <ClearIcon />
+          </IconButton>
+        </Tooltip>
       </div>
 
       <MultipleChoiceForm onSubmit={handleSubmit} />

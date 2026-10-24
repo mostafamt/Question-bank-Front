@@ -1,6 +1,12 @@
 import React from "react";
 import AddIcon from "@mui/icons-material/Add";
-import { Box, Button, CircularProgress, IconButton } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
 import { useStore } from "../../../store/store";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
@@ -319,6 +325,11 @@ const List = (props) => {
     reader,
   ]);
 
+  const addLabel =
+    tab.name === RIGHT_TAB_NAMES.GLOSSARY_KEYWORDS.name
+      ? "Add glossary term"
+      : "Add item";
+
   return (
     <form
       onSubmit={handleSubmit(onSubmitHandler)}
@@ -326,9 +337,16 @@ const List = (props) => {
     >
       {!reader && (
         <div>
-          <IconButton onClick={onClickPlus} color="primary" size="large">
-            <AddIcon color="primary" fontSize="large" />
-          </IconButton>
+          <Tooltip title={addLabel}>
+            <IconButton
+              onClick={onClickPlus}
+              color="primary"
+              size="large"
+              aria-label={addLabel}
+            >
+              <AddIcon color="primary" fontSize="large" />
+            </IconButton>
+          </Tooltip>
         </div>
       )}
       <ul>{objectsList}</ul>

@@ -6,7 +6,7 @@ import ListItemText from "@mui/material/ListItemText";
 import Collapse from "@mui/material/Collapse";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import { Box, IconButton } from "@mui/material";
+import { Box, IconButton, Tooltip } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 import styles from "./arrayItem.module.scss";
@@ -28,9 +28,11 @@ const ArrayItem = (props) => {
   const RemoveButton = () => {
     return (
       <div className={styles["remove-box"]}>
-        <IconButton aria-label="delete" onClick={remove} color="error">
-          <DeleteIcon />
-        </IconButton>
+        <Tooltip title="Remove item">
+          <IconButton aria-label="Remove item" onClick={remove} color="error">
+            <DeleteIcon />
+          </IconButton>
+        </Tooltip>
       </div>
     );
   };

@@ -288,15 +288,17 @@ const ReaderAudioControls = () => {
         </Popover>
       </div>
 
-      <IconButton
-        size="small"
-        aria-label="audio-options"
-        aria-haspopup="true"
-        aria-controls={menuAnchor ? "reader-audio-menu" : undefined}
-        onClick={(e) => setMenuAnchor(e.currentTarget)}
-      >
-        <MoreVertIcon />
-      </IconButton>
+      <Tooltip title="Playback speed">
+        <IconButton
+          size="small"
+          aria-label="Playback speed"
+          aria-haspopup="true"
+          aria-controls={menuAnchor ? "reader-audio-menu" : undefined}
+          onClick={(e) => setMenuAnchor(e.currentTarget)}
+        >
+          <MoreVertIcon />
+        </IconButton>
+      </Tooltip>
       <Menu
         id="reader-audio-menu"
         anchorEl={menuAnchor}
