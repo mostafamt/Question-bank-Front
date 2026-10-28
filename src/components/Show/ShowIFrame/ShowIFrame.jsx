@@ -26,7 +26,7 @@ const ShowIFrame = (props) => {
       title="h5p"
       ref={ref}
       src={url}
-      scrolling="no"
+      scrolling="yes"
       className={styles.iframe}
     ></iframe>
   );

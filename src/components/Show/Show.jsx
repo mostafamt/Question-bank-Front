@@ -39,7 +39,8 @@ const Show = () => {
 
   return (
     <div className={`container ${styles.questions}`}>
-      <ShowIFrame title={object.title} url={object.url} />
+{/*      <ShowIFrame title={object.title} url={object.url} /> */}
+      <ShowIFrame title={object.title} url={`https://smart-study-room-kxyg.vercel.app?id=${id}`} />
     </div>
   );
 };

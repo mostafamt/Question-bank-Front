@@ -835,5 +835,53 @@ export const types = {
         ],
       },
     },
+    {"labels": [
+{
+"*_Doc_": "documentFile"
+},
+{
+"_Description_": "text"
+},
+{
+"_InteractionSlideNo_": "number"
+},
+{
+"_InteractionLabel_": "DropList: Overview, Notes, Recall, Example, Check Yourself, Quizz, Activity, Enriching Content, Summary"
+},
+{
+"_InteractionLabelText_": "QuillInput"
+},
+{
+"_SectionSlideNo_": "number"
+},
+{
+"_SectionLabel_": "timeStamp"
+},
+{
+"_Summary_": "text"
+}
+],
+"_id": "6ab24e45c925ab00048e7b34",
+"typeName": "PowerPoint",
+"abstractParameter": {
+"_Doc_": "documentFile",
+"_Description_": "text",
+"Interactions": [
+{
+"_InteractionSlideNo_": "number",
+"_InteractionLabel_": "text",
+"_InteractionLabelText_": "text"
+}
+],
+"Sections": [
+{
+"_SectionSlideNo_": "number",
+"_SectionLabel_": "text"
+}
+],
+"_Summary_": "text"
+},
+"category": "X",
+"description": "An interactive Document is a multimedia presentation that allows viewers to engage and interact with the content through clickable areas, decision points, and other interactive elements."},
   ],
 };

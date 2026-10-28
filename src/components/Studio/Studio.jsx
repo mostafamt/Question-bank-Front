@@ -74,7 +74,6 @@ const Studio = (props) => {
     setActiveIndex(idx);
     setPageId(images?.[idx]?._id);
   };
-
   const match = useMatch("/studio/:id");
 
   React.useEffect(() => {

@@ -5,7 +5,6 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import PhotoIcon from "@mui/icons-material/Photo";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
-
 import { upload, uploadForStudio } from "../../../utils/upload";
 import { Controller } from "react-hook-form";
 import ValidationMessage from "../../ValidationMessage/ValidationMessage";

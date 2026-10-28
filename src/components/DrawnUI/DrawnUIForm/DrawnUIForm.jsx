@@ -22,7 +22,7 @@ import {
 import styles from "../../../pages/DrawnUI/drawnUI.module.scss";
 import Wrapper from "../Wrapper/Wrapper";
 import OneOfUI from "../OneOfUI/OneOfUI";
-
+import DocumentFrames from "../DocumentFrames/DocumentFrames";
 const DrawnUIForm = ({
   baseType,
   initialValues,
@@ -41,6 +41,7 @@ const DrawnUIForm = ({
   const [values, setValues] = React.useState({});
   const [loading, setLoading] = React.useState(false);
   const [labels, setLabels] = React.useState([]);
+  const [frameUrls, setFrameUrls] = React.useState([]);
   const { data: state } = useStore();
 
   const schema = getSchema(abstractParameters, labels);
@@ -59,7 +60,7 @@ const DrawnUIForm = ({
 
   const getParameters = async () => {
     const res = await axios.get(`/interactive-objects/${objectId}`);
-    return res.data.parameters;
+    return {parameters: res.data.parameters, frameUrls: res.data.frameUrls};
   };
 
   const getData = async () => {
@@ -75,6 +76,7 @@ const DrawnUIForm = ({
     setLoading(false);
     if (isEditMode) {
       const saved = await getParameters();
+      setFrameUrls(saved?.frameUrls || []);
       return remapToAbstractKeys(saved, abstractParameter);
     }
     if (isEditMapToForm) {
@@ -83,6 +85,7 @@ const DrawnUIForm = ({
       return remapToAbstractKeys(merged, abstractParameter);
     }
     if (isMapToFormMode && initialValues) {
+      setFrameUrls(initialValues.frameUrls || []);
       return remapToAbstractKeys(initialValues, abstractParameter);
     }
     return initialValues ?? emptyValues(abstractParameter);
@@ -264,13 +267,16 @@ const DrawnUIForm = ({
     );
   }
 
+  const isDocument = baseType === "Interactive Document" || baseType === "Doc";
+
   return (
-    <>
+    <div className={styles.formLayout}>
+      {isDocument && <DocumentFrames frameUrls={frameUrls} />}
       <form className="mb-4" onSubmit={handleSubmit(onSubmit)}>
         {isMapToFormMode && (
           <Alert severity="info" sx={{ mb: 2 }}>
-            Fields are pre-filled from scanned areas. Review and submit to
-            create a new object.
+            Fields are pre-filled from scanned areas. Review and submit to create
+            a new object.
           </Alert>
         )}
         {abstractParameters && parseParameters(abstractParameters)}

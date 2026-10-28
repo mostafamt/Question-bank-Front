@@ -22,6 +22,7 @@ export async function mapToForm(typeName, trialAreas, typeDefinitions) {
     if (Array.isArray(value)) {
       const template = value[0] ?? {};
       const anchorField = findAnchorField(template, labels, areasByField);
+
       const anchorAreas = anchorField
         ? areasByField[anchorField] ?? lookupAreas(areasByField, anchorField)
         : [];

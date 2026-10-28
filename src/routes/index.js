@@ -68,6 +68,13 @@ const routes = [
     component: ScanAndUpload,
   },
   {
+    path: "/smart-object/upload",
+    component: SmartObjectUpload,
+  },
+  {
+    path: "/smart-object/link",
+    component: SmartObjectLink,
+   },
     path: "/uploads",
     component: UploadsPage,
   },
