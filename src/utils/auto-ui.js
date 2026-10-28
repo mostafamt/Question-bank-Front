@@ -2,6 +2,7 @@ import * as yup from "yup";
 import Text from "../components/DrawnUI/Text/Text";
 import Image from "../components/DrawnUI/Image/Image";
 import Video from "../components/DrawnUI/Video/Video";
+import Pdf from "../components/DrawnUI/Pdf/Pdf";
 import Sound from "../components/DrawnUI/Sound/Sound";
 import Boolean from "../components/DrawnUI/Boolean/Boolean";
 import QuillInput from "../components/DrawnUI/QuillInput/QuillInput";
@@ -15,6 +16,7 @@ export const AUTO_UI_TYPES_MAPPING = {
   color: <Text />,
   image: <Image />,
   video: <Video />,
+  pdf: <Pdf />,
   voice: <Sound />,
   audio: <Sound />,
   Bool: <Boolean />,
@@ -106,7 +108,16 @@ export const getSchema = (abstractParameters, labels, level = 1) => {
 
     // const atLeastOneCorrect = searchIfAtLeastOneCorrect(labels, key);
 
-    if (required) {
+    if (required && type === "pdf") {
+      object = {
+        ...object,
+        [key]: yup
+          .mixed()
+          .test("has-pages", "PDF is required", (data) =>
+            Boolean(data?.pages?.length)
+          ),
+      };
+    } else if (required) {
       object = {
         ...object,
         [key]: yup.string().required(),

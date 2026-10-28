@@ -1,0 +1,40 @@
+.pdf {
+  display: flex;
+  gap: 1rem;
+
+  & .pdf-area {
+    width: 200px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  & .preview {
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    & img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  }
+
+  & .pager {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid #ccc;
+    font-size: 0.85rem;
+  }
+
+  & .inputs {
+    display: flex;
+    flex-direction: column;
+    align-items: space-between;
+    justify-content: space-evenly;
+  }
+}
