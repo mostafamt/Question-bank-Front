@@ -36,7 +36,7 @@ const AutoGeneration = () => {
 
     try {
       const res = await axios.post(
-        "https://questions-api-navy.vercel.app/api/pdf/to-images",
+        "https://processing-api.onrender.com/api/to-images",
         formData
       );
       setLoading(false);

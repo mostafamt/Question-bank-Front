@@ -91,7 +91,7 @@ export const pdfToImages = async (file) => {
   formData.append("file", file);
   try {
     const res = await plainAxios.post(
-      "https://questions-api-navy.vercel.app/api/pdf/to-images",
+      "https://processing-api.onrender.com/api/to-images",
       formData
     );
     return res?.data?.pages ?? [];
