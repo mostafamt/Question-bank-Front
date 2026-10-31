@@ -17,6 +17,7 @@ export const AUTO_UI_TYPES_MAPPING = {
   image: <Image />,
   video: <Video />,
   pdf: <Pdf />,
+  ppt: <Pdf kind="ppt" />,
   voice: <Sound />,
   audio: <Sound />,
   Bool: <Boolean />,
@@ -108,14 +109,13 @@ export const getSchema = (abstractParameters, labels, level = 1) => {
 
     // const atLeastOneCorrect = searchIfAtLeastOneCorrect(labels, key);
 
-    if (required && type === "pdf") {
+    if (required && (type === "pdf" || type === "ppt")) {
+      const message = `${type === "ppt" ? "PowerPoint" : "PDF"} is required`;
       object = {
         ...object,
         [key]: yup
           .mixed()
-          .test("has-pages", "PDF is required", (data) =>
-            Boolean(data?.pages?.length)
-          ),
+          .test("has-pages", message, (data) => data?.pages?.length > 0),
       };
     } else if (required) {
       object = {

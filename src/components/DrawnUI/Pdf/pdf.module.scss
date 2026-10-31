@@ -11,10 +11,18 @@
   }
 
   & .preview {
+    position: relative;
     height: 150px;
     display: flex;
     align-items: center;
     justify-content: center;
+
+    & .full-screen {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background-color: rgba(255, 255, 255, 0.8);
+    }
 
     & img {
       width: 100%;
@@ -23,18 +31,45 @@
     }
   }
 
-  & .pager {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-top: 1px solid #ccc;
-    font-size: 0.85rem;
-  }
-
   & .inputs {
     display: flex;
     flex-direction: column;
     align-items: space-between;
     justify-content: space-evenly;
+  }
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #ccc;
+  font-size: 0.85rem;
+}
+
+.viewer {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  & .close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+
+  & img {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    object-fit: contain;
+  }
+
+  & .pager {
+    justify-content: center;
+    gap: 1rem;
+    padding: 0.5rem;
   }
 }

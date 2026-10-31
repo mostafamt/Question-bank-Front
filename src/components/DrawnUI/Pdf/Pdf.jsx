@@ -3,29 +3,53 @@ import {
   Box,
   Button,
   CircularProgress,
+  Dialog,
   IconButton,
   TextField,
 } from "@mui/material";
 import VisuallyHiddenInput from "../../VisuallyHiddenInput/VisuallyHiddenInput";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import SlideshowIcon from "@mui/icons-material/Slideshow";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import ReplayIcon from "@mui/icons-material/Replay";
+import FullscreenIcon from "@mui/icons-material/Fullscreen";
+import CloseIcon from "@mui/icons-material/Close";
 import { upload } from "../../../utils/upload";
-import { pdfToImages } from "../../../services/api";
+import { fileToImages } from "../../../services/api";
 import ValidationMessage from "../../ValidationMessage/ValidationMessage";
 
 import styles from "./pdf.module.scss";
 
+const PPTX_MIME_TYPE =
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+
+const FILE_KINDS = {
+  pdf: {
+    label: "PDF",
+    accept: "application/pdf",
+    fileName: "document.pdf",
+    mimeType: "application/pdf",
+    Icon: PictureAsPdfIcon,
+  },
+  ppt: {
+    label: "PowerPoint",
+    accept: `.ppt,.pptx,application/vnd.ms-powerpoint,${PPTX_MIME_TYPE}`,
+    fileName: "presentation.pptx",
+    mimeType: PPTX_MIME_TYPE,
+    Icon: SlideshowIcon,
+  },
+};
+
 const getFileSignature = (file) =>
   `${file.name}-${file.size}-${file.lastModified}`;
 
-const fileFromUrl = async (url) => {
+const fileFromUrl = async (url, { fileName, mimeType }) => {
   try {
     const res = await fetch(url);
     const blob = await res.blob();
-    return new File([blob], "document.pdf", { type: "application/pdf" });
+    return new File([blob], fileName, { type: mimeType });
   } catch (error) {
     console.log("error= ", error);
     return null;
@@ -33,12 +57,15 @@ const fileFromUrl = async (url) => {
 };
 
 const Pdf = (props) => {
-  const { setValue, name, getValues, errors, path } = props;
+  const { setValue, name, getValues, errors, path, kind = "pdf" } = props;
+  const fileKind = FILE_KINDS[kind];
+  const { Icon } = fileKind;
 
   const [value, setLocalValue] = React.useState(getValues(name) || null);
   const [url, setUrl] = React.useState(getValues(name)?.url || "");
   const [page, setPage] = React.useState(0);
   const [loading, setLoading] = React.useState(false);
+  const [showViewer, setShowViewer] = React.useState(false);
   // Keeps the picked file so a failed step can be retried without picking it again
   const fileRef = React.useRef(null);
 
@@ -62,8 +89,8 @@ const Pdf = (props) => {
       needsUpload ? upload(file) : current.url,
       needsPages
         ? (async () => {
-            const source = file || (await fileFromUrl(current.url));
-            return source ? pdfToImages(source) : [];
+            const source = file || (await fileFromUrl(current.url, fileKind));
+            return source ? fileToImages(source) : [];
           })()
         : current.pages,
     ]);
@@ -110,40 +137,71 @@ const Pdf = (props) => {
     ? "Retry upload"
     : "Retry conversion";
 
+  const pager = pages.length > 1 && (
+    <div className={styles.pager}>
+      <IconButton
+        size="small"
+        aria-label="previous page"
+        disabled={page === 0}
+        onClick={() => setPage((prevState) => prevState - 1)}
+      >
+        <NavigateBeforeIcon />
+      </IconButton>
+      <span>
+        Page {page + 1} / {pages.length}
+      </span>
+      <IconButton
+        size="small"
+        aria-label="next page"
+        disabled={page >= pages.length - 1}
+        onClick={() => setPage((prevState) => prevState + 1)}
+      >
+        <NavigateNextIcon />
+      </IconButton>
+    </div>
+  );
+
   return (
     <Box>
+      <Dialog
+        fullScreen
+        open={showViewer}
+        onClose={() => setShowViewer(false)}
+      >
+        <div className={styles.viewer}>
+          <IconButton
+            className={styles.close}
+            aria-label="close"
+            onClick={() => setShowViewer(false)}
+          >
+            <CloseIcon />
+          </IconButton>
+          <img src={pages[page]} alt={`Page ${page + 1}`} />
+          {pager}
+        </div>
+      </Dialog>
       <Box className={styles.pdf}>
         <div className={styles["pdf-area"]}>
           <div className={styles.preview}>
             {loading ? (
               <CircularProgress size="2rem" />
             ) : pages.length ? (
-              <img src={pages[page]} alt={`Page ${page + 1}`} />
+              <>
+                <IconButton
+                  size="small"
+                  className={styles["full-screen"]}
+                  aria-label="view full screen"
+                  onClick={() => setShowViewer(true)}
+                >
+                  <FullscreenIcon />
+                </IconButton>
+                <img src={pages[page]} alt={`Page ${page + 1}`} />
+              </>
             ) : (
-              <PictureAsPdfIcon fontSize="large" />
+              <Icon fontSize="large" />
             )}
           </div>
-          {!loading && pages.length > 1 && (
-            <div className={styles.pager}>
-              <IconButton
-                size="small"
-                disabled={page === 0}
-                onClick={() => setPage((prevState) => prevState - 1)}
-              >
-                <NavigateBeforeIcon />
-              </IconButton>
-              <span>
-                Page {page + 1} / {pages.length}
-              </span>
-              <IconButton
-                size="small"
-                disabled={page >= pages.length - 1}
-                onClick={() => setPage((prevState) => prevState + 1)}
-              >
-                <NavigateNextIcon />
-              </IconButton>
-            </div>
-          )}
+          {!loading && pager}
           {!loading && canRetry && (
             <div className={styles.pager}>
               <Button
@@ -171,8 +229,8 @@ const Pdf = (props) => {
               loading ? <CircularProgress size="1rem" /> : <CloudUploadIcon />
             }
           >
-            Upload PDF
-            <VisuallyHiddenInput type="file" accept="application/pdf" />
+            Upload {fileKind.label}
+            <VisuallyHiddenInput type="file" accept={fileKind.accept} />
           </Button>
 
           <TextField

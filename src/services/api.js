@@ -86,7 +86,8 @@ export const getTypes = async (category) => {
   }
 };
 
-export const pdfToImages = async (file) => {
+// Converts a PDF or PowerPoint file to one image per page
+export const fileToImages = async (file) => {
   const formData = new FormData();
   formData.append("file", file);
   try {

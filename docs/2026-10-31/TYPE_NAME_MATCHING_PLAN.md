@@ -157,11 +157,9 @@ For Smart Interactive Video and PDF, in Add Object:
 
 ## Open Questions
 
-### 1. PowerPoint will still not work after this fix: separate task?
+### 1. PowerPoint field (resolved)
 
-The type's `_File_` field has type `ppt`, but `AUTO_UI_TYPES_MAPPING` (`auto-ui.js:13`) has no `ppt` entry, so the field renders nothing. The field is also required (`*_File_`), so **the form opens but can't be submitted**.
-
-**Recommendation:** ship this name fix first, and handle `ppt` as its own task, since a real upload component needs its own design.
+The type's `_File_` field has type `ppt`, which had no input component. `ppt` now maps to `<Pdf kind="ppt" />` in `AUTO_UI_TYPES_MAPPING`, so it shares the PDF preview, pager, retry and URL field. Files convert through the same `/to-images` endpoint, which was confirmed to accept both `.pptx` and `.ppt`.
 
 ### 2. Backend: two types share one `_id`
 
