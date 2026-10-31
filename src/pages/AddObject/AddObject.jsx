@@ -108,8 +108,8 @@ const AddObject = () => {
 
     const { type } = values;
     const baseType = getBaseTypeFromType(categories, watch("category"), type);
+    data = { ...data, type: baseType };
     const selectedTypeObject = findTypeByName(interactiveObjectTypes, baseType);
-    data = { ...data, type: selectedTypeObject?.typeName ?? baseType };
     console.log("data= ", data);
     setFormState({
       // id,
@@ -130,8 +130,8 @@ const AddObject = () => {
 
     const { type } = values;
     const baseType = getBaseTypeFromType(categories, watch("category"), type);
+    data = { ...data, type: baseType };
     const selectedTypeObject = findTypeByName(interactiveObjectTypes, baseType);
-    data = { ...data, type: selectedTypeObject?.typeName ?? baseType };
     console.log("data= ", data);
     setFormState({
       // id,

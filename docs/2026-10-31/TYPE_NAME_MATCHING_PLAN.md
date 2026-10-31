@@ -26,7 +26,9 @@ All the lookups use `===`, so selecting any of these types fails:
 | Scan / OCR | `AddObject.jsx:118` reads `selectedTypeObject.labels` on `undefined` and throws |
 | Auto Gen | Same error at `AddObject.jsx:142` |
 
-**Saved data is not affected.** All 1,416 objects in `/interactive-objects` were checked on 2026-10-31, and none use either spelling in `baseType`. No migration is needed.
+**Correction: saved objects use a third name.** The original check only searched for the two long spellings, so it missed that objects in category `S` are saved by media name only: 18 as `video` and 3 as `PowerPoint` (counted on 2026-10-31, out of 1,417). Opening any of them at `/edit-question/:type/:baseType/:id` crashed the same way, so `typeName.js` now matches these names too.
+
+**Records with older field names.** Some of these objects store their file under `_Video_` or `_Doc_` rather than today's `_File_`. They open, but the file field is empty until a file is picked again. Some `video` records have other parameters or none at all. No migration has been done.
 
 ---
 
@@ -36,24 +38,29 @@ All the lookups use `===`, so selecting any of these types fails:
 
 Both spellings map to one internal comparison key. That key is never displayed, stored or sent to the backend, so it doesn't matter which spelling is chosen for it, and it doesn't need changing when the backend picks a final name.
 
-### 2. Rewrite only the two-word prefix
+### 2. Match only the known names
 
-Only a leading `Interactive Smart ` is rewritten. Everything else must still match exactly.
+A leading `Interactive Smart ` matches `Smart Interactive `, and the media names `video`, `pdf` and `powerpoint` match their smart types. Case is ignored for those media names only. Everything else must still match exactly.
 
 | Compared | Same type? |
 |---|---|
 | `Interactive Smart Video` / `Smart Interactive Video` | Yes |
+| `PowerPoint` / `Interactive Smart PowerPoint` | Yes |
+| `video` / `Interactive Smart Video` | Yes |
 | `Interactive Video` / `Interactive Smart Video` | **No.** `Interactive Video` is a separate type (category `X`) and must stay separate |
+| `video` / `Interactive Video` | **No**, for the same reason |
 
-Sorting the words or ignoring case was rejected. Both would match more names than this problem needs, and could silently join unrelated types.
+Sorting the words or ignoring case for every type was rejected. Both would match more names than this problem needs, and could silently join unrelated types.
 
 ### 3. Exact match wins
 
 `findTypeByName` tries an exact match first and only then the normalized match. If the backend briefly has both spellings as separate records during its fix, each name still finds its own record.
 
-### 4. Use the backend's spelling once resolved
+### 4. Save the label's name
 
-After a lookup, use `found.typeName` rather than the label value. The frontend then passes along whatever the backend currently calls the type, and never hardcodes a spelling.
+The expected saved name is the label value, such as `Smart Interactive PowerPoint`, so every Add Object flow sends that value and `found.typeName` is used only to read the type's definition. This replaces the original decision to send `found.typeName`.
+
+The frontend does not control the final stored value. It sends `type`, and the backend sets `baseType`. Object `6ae5f3097a9b750008311a5d` was stored with both set to `PowerPoint`, so that name needs a backend fix.
 
 ---
 
@@ -64,7 +71,7 @@ After a lookup, use `found.typeName` rather than the label value. The frontend t
 | `src/utils/typeName.js` | **New:** the utility below |
 | `src/utils/typeName.test.js` | **New:** unit tests |
 | `src/components/DrawnUI/DrawnUIForm/DrawnUIForm.jsx:68` | Use `findTypeByName` |
-| `src/pages/AddObject/AddObject.jsx:111,135` | Use `findTypeByName`; set `data.type` to `selectedTypeObject.typeName` |
+| `src/pages/AddObject/AddObject.jsx:111,135` | Use `findTypeByName`; keep sending the label value as `data.type` |
 | `src/pages/StudioPage/StudioPage.jsx:42` | Use `findTypeByName` |
 | `src/components/AreaAction/AreaAction.jsx:38` | Use `findTypeByName` |
 | `src/utils/ocr.js:55` | Use `findTypeByName` in `getTypeOfParameter` |
@@ -112,14 +119,14 @@ const found = objects.find((item) => item.typeName === baseType);
 const found = findTypeByName(objects, baseType);
 ```
 
-### Step 3: Use the backend's spelling in `AddObject`
+### Step 3: Send the label value in `AddObject`
 
 Apply this in both `onSubmitOcr` and `onSubmitAutoGen`:
 
 ```js
 const baseType = getBaseTypeFromType(categories, watch("category"), type);
+data = { ...data, type: baseType };
 const selectedTypeObject = findTypeByName(interactiveObjectTypes, baseType);
-data = { ...data, type: selectedTypeObject?.typeName ?? baseType };
 ```
 
 ---

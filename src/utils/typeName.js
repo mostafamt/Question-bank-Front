@@ -1,10 +1,18 @@
-// The API spells these types both ways, e.g. "Smart Interactive Video" and
-// "Interactive Smart Video". The result is only for comparing names: never
-// display, store or send it.
-const normalizeTypeName = (name) =>
-  typeof name === "string"
-    ? name.replace(/^Interactive Smart /, "Smart Interactive ")
-    : name;
+// Saved objects store these types by media name only, e.g. "PowerPoint" or "video"
+const SMART_MEDIA = ["video", "pdf", "powerpoint"];
+
+// The API spells these types several ways, e.g. "Smart Interactive Video",
+// "Interactive Smart Video" and "video". The result is only for comparing
+// names: never display, store or send it.
+const normalizeTypeName = (name) => {
+  if (typeof name !== "string") return name;
+  const media = name
+    .replace(/^(Smart Interactive|Interactive Smart) /, "")
+    .toLowerCase();
+  return SMART_MEDIA.includes(media)
+    ? media
+    : name.replace(/^Interactive Smart /, "Smart Interactive ");
+};
 
 export const isSameTypeName = (first, second) =>
   normalizeTypeName(first) === normalizeTypeName(second);

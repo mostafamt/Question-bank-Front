@@ -7,6 +7,7 @@ import {
   IconButton,
   TextField,
 } from "@mui/material";
+import { useWatch } from "react-hook-form";
 import VisuallyHiddenInput from "../../VisuallyHiddenInput/VisuallyHiddenInput";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
@@ -57,12 +58,13 @@ const fileFromUrl = async (url, { fileName, mimeType }) => {
 };
 
 const Pdf = (props) => {
-  const { setValue, name, getValues, errors, path, kind = "pdf" } = props;
+  const { setValue, name, control, errors, path, kind = "pdf" } = props;
   const fileKind = FILE_KINDS[kind];
   const { Icon } = fileKind;
 
-  const [value, setLocalValue] = React.useState(getValues(name) || null);
-  const [url, setUrl] = React.useState(getValues(name)?.url || "");
+  // In edit mode the saved value arrives after this component mounts
+  const value = useWatch({ control, name }) || null;
+  const [url, setUrl] = React.useState("");
   const [page, setPage] = React.useState(0);
   const [loading, setLoading] = React.useState(false);
   const [showViewer, setShowViewer] = React.useState(false);
@@ -71,8 +73,11 @@ const Pdf = (props) => {
 
   const pages = value?.pages ?? [];
 
+  React.useEffect(() => {
+    setUrl(value?.url || "");
+  }, [value?.url]);
+
   const update = (next) => {
-    setLocalValue(next);
     setValue(name, next, { shouldValidate: true });
     setUrl(next.url || "");
     setPage(0);

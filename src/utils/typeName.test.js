@@ -20,6 +20,25 @@ describe("isSameTypeName", () => {
     );
   });
 
+  it.each([
+    ["PowerPoint", "Interactive Smart PowerPoint"],
+    ["PowerPoint", "Smart Interactive PowerPoint"],
+    ["video", "Interactive Smart Video"],
+    ["video", "Smart Interactive Video"],
+    ["PDF", "Interactive Smart PDF"],
+    ["pdf", "Smart Interactive PDF"],
+  ])("matches the saved name %s with %s", (saved, typeName) => {
+    expect(isSameTypeName(saved, typeName)).toBe(true);
+  });
+
+  it("does not treat video as Interactive Video", () => {
+    expect(isSameTypeName("video", "Interactive Video")).toBe(false);
+  });
+
+  it("does not ignore case for other types", () => {
+    expect(isSameTypeName("text mcq", "Text MCQ")).toBe(false);
+  });
+
   it("does not match different media", () => {
     expect(
       isSameTypeName("Smart Interactive Video", "Interactive Smart PDF")
@@ -52,6 +71,17 @@ describe("findTypeByName", () => {
 
     expect(findTypeByName(types, "Smart Interactive Video")).toBe(types[1]);
     expect(findTypeByName(types, "Interactive Smart Video")).toBe(types[0]);
+  });
+
+  it("finds the smart type for a saved media name", () => {
+    const types = [
+      { typeName: "Interactive Video" },
+      { typeName: "Interactive Smart Video" },
+      { typeName: "Interactive Smart PowerPoint" },
+    ];
+
+    expect(findTypeByName(types, "video")).toBe(types[1]);
+    expect(findTypeByName(types, "PowerPoint")).toBe(types[2]);
   });
 
   it("does not return Interactive Video for a smart type", () => {
