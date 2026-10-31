@@ -26,6 +26,7 @@ import { v4 as uuidv4 } from "uuid";
 import styles from "./addObject.module.scss";
 import { getImages, getAllTypes } from "../../services/api";
 import { getBaseTypeFromType, instructionalRoles } from "../../utils/helper";
+import { findTypeByName } from "../../utils/typeName";
 
 const AddObject = () => {
   const navigate = useNavigate();
@@ -107,10 +108,8 @@ const AddObject = () => {
 
     const { type } = values;
     const baseType = getBaseTypeFromType(categories, watch("category"), type);
-    data = { ...data, type: baseType };
-    const selectedTypeObject = interactiveObjectTypes.find(
-      (item) => item.typeName === baseType
-    );
+    const selectedTypeObject = findTypeByName(interactiveObjectTypes, baseType);
+    data = { ...data, type: selectedTypeObject?.typeName ?? baseType };
     console.log("data= ", data);
     setFormState({
       // id,
@@ -131,10 +130,8 @@ const AddObject = () => {
 
     const { type } = values;
     const baseType = getBaseTypeFromType(categories, watch("category"), type);
-    data = { ...data, type: baseType };
-    const selectedTypeObject = interactiveObjectTypes.find(
-      (item) => item.typeName === baseType
-    );
+    const selectedTypeObject = findTypeByName(interactiveObjectTypes, baseType);
+    data = { ...data, type: selectedTypeObject?.typeName ?? baseType };
     console.log("data= ", data);
     setFormState({
       // id,

@@ -1,7 +1,8 @@
 import { uploadForStudio } from "./upload";
+import { findTypeByName } from "./typeName";
 
 export async function mapToForm(typeName, trialAreas, typeDefinitions) {
-  const typeDef = typeDefinitions?.find((t) => t.typeName === typeName);
+  const typeDef = findTypeByName(typeDefinitions, typeName);
   if (!typeDef) throw new Error(`mapToForm: unknown type "${typeName}"`);
 
   const { labels, abstractParameter } = typeDef;

@@ -6,6 +6,7 @@ import { getAllTypes, getObject } from "../../services/api";
 import Loader from "../../components/Loader/Loader";
 import styles from "./studioPage.module.scss";
 import QuestionNameHeader from "../../components/QuestionNameHeader/QuestionNameHeader";
+import { findTypeByName } from "../../utils/typeName";
 
 const StudioPage = () => {
   const location = useLocation();
@@ -39,7 +40,7 @@ const StudioPage = () => {
       const allTypes = state.types ?? (await getAllTypes());
       if (!allTypes) return;
 
-      const selectedType = allTypes.find((t) => t.typeName === finalType);
+      const selectedType = findTypeByName(allTypes, finalType);
       setFormState({
         ...state,
         questionName: finalQuestionName,

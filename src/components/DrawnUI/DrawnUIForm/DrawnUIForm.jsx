@@ -22,6 +22,7 @@ import {
 import styles from "../../../pages/DrawnUI/drawnUI.module.scss";
 import Wrapper from "../Wrapper/Wrapper";
 import OneOfUI from "../OneOfUI/OneOfUI";
+import { findTypeByName } from "../../../utils/typeName";
 
 const DrawnUIForm = ({
   baseType,
@@ -65,7 +66,7 @@ const DrawnUIForm = ({
   const getData = async () => {
     setLoading(true);
     const objects = await getAllTypes();
-    const found = objects.find((item) => item.typeName === baseType);
+    const found = findTypeByName(objects, baseType);
     setSelectedType(found);
     const abstractParameter = found?.abstractParameter;
     const foundLabels = found?.labels;

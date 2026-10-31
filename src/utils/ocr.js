@@ -1,6 +1,7 @@
 import Tesseract from "tesseract.js";
 import { hexToRgbA } from "./helper";
 import { trimText } from "./data";
+import { findTypeByName } from "./typeName";
 
 const getLanguageCodeSet2FromSet1 = (set1) => {
   let res = "";
@@ -52,7 +53,7 @@ export const reorder = (list, startIndex, endIndex) => {
 };
 
 export const getTypeOfParameter = (types, type, parameter) => {
-  const selectedType = types.find((_type) => _type.typeName === type);
+  const selectedType = findTypeByName(types, type);
   const labels = selectedType.labels;
   const item = labels.find((label) => {
     const keys = Object.keys(label);

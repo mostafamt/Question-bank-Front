@@ -10,6 +10,7 @@ import ListItemText from "@mui/material/ListItemText";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 import { hexToRgbA } from "../../utils/helper";
+import { findTypeByName } from "../../utils/typeName";
 
 import styles from "./areaAction.module.scss";
 
@@ -35,7 +36,7 @@ const AreaAction = (props) => {
     console.log("AreaAction");
     console.log("type= ", type);
     console.log("state?.types= ", state?.types);
-    let labels = state?.types?.find((item) => item.typeName === type)?.labels;
+    let labels = findTypeByName(state?.types, type)?.labels;
 
     // getTypeOfParameter
 
