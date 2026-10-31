@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@bmunozg/react-image-area": "^1.1.0",
+    "@bmunozg/react-image-area": "1.1.0",
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
