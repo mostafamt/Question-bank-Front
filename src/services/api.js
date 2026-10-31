@@ -7,14 +7,6 @@ import { v4 as uuidv4 } from "uuid";
 import newTypes from "./NewTypes.json";
 import { useStore } from "../store/store";
 
-// TODO: remove PDF test type once a real pdf type exists in the backend
-const PDF_TEST_TYPE = {
-  _id: "pdf-test-type",
-  typeName: "PdfTest",
-  labels: [{ _Title_: "text" }, { "_Document_*": "pdf" }],
-  abstractParameter: { _Title_: "text", _Document_: "pdf" },
-};
-
 const wait = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
@@ -45,7 +37,7 @@ export const getOldTypes = async () => {
 export const getAllTypes = async () => {
   try {
     const res = await axios2.get("io-types");
-    return [...res.data, PDF_TEST_TYPE]; // TODO: remove PDF test type
+    return res.data;
   } catch (error) {
     toast.error(error.message);
     return null;
@@ -55,20 +47,7 @@ export const getAllTypes = async () => {
 export const getCategories = async () => {
   try {
     const res = await axios2.get("io-types");
-    const data = res.data
-      .filter((type) => type.typeCategory === "B")
-      // TODO: remove PDF test type
-      .map((type) =>
-        type.typeName === "Explanation object"
-          ? {
-              ...type,
-              labels: [
-                ...type.labels,
-                { [PDF_TEST_TYPE.typeName]: PDF_TEST_TYPE.typeName },
-              ],
-            }
-          : type
-      );
+    const data = res.data.filter((type) => type.typeCategory === "B");
     return data;
   } catch (error) {
     toast.error(error.message);
