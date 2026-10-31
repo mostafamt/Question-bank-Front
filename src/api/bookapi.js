@@ -1,6 +1,9 @@
 import { default as axios } from "../axios";
+import plainAxios from "axios";
 import { chapters } from "./test-data";
 import { toast } from "react-toastify";
+
+const PDF_TO_IMAGES_URL = "https://processing-api.onrender.com/api/to-images";
 
 export const wait = (ms) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -84,7 +87,8 @@ export const addNewPages = async ({ chapterId, pageUrls }) => {
 export const convertPdfToImages = async (file) => {
   const formData = new FormData();
   formData.append("file", file);
-  const res = await axios.post("/pdf/to-images", formData);
+  // External service: plain axios so the auth token isn't sent to it.
+  const res = await plainAxios.post(PDF_TO_IMAGES_URL, formData);
   return res.data;
 };
 
