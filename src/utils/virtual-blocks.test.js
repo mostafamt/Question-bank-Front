@@ -363,8 +363,31 @@ export const runAllTests = () => {
   return allPassed;
 };
 
-// Export for use in browser console or test runner
-if (typeof window !== "undefined") {
+// Jest runs each check above as a test
+if (typeof describe === "function") {
+  describe("virtual blocks migration", () => {
+    beforeAll(() => {
+      jest.spyOn(console, "log").mockImplementation(() => {});
+    });
+    afterAll(() => {
+      console.log.mockRestore();
+    });
+
+    it.each([
+      ["migrates legacy virtual blocks", testMigrateLegacyVirtualBlocks],
+      ["parses legacy page data", testParseLegacyPage],
+      ["parses new page data", testParseNewPage],
+      ["parses multiple pages with mixed formats", testParseMultiplePages],
+      ["formats for submission", testFormatForSubmission],
+      ["formats empty virtual blocks", testFormatEmptyBlocks],
+    ])("%s", (_name, check) => {
+      expect(check()).toBe(true);
+    });
+  });
+}
+
+// Export for use in browser console
+if (typeof window !== "undefined" && typeof describe !== "function") {
   window.virtualBlocksTests = {
     runAllTests,
     testMigrateLegacyVirtualBlocks,

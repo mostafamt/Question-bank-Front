@@ -1,7 +1,7 @@
 import React from "react";
 import BookViewer from "../Book/BookViewer/BookViewer";
 import { changePage } from "../../utils/book";
-import { isComplexType } from "../../utils/ocr";
+import { isObjectId } from "../../utils/objectId";
 import { useStore } from "../../store/store";
 
 const StudyBook = (props) => {
@@ -25,17 +25,17 @@ const StudyBook = (props) => {
 
   const onClickArea = (block) => {
     setActiveBlock(block);
-    if (block.contentType === "Video") {
+    if (isObjectId(block.contentValue)) {
+      openModal("play-object", {
+        workingArea: block,
+      });
+    } else if (block.contentType === "Video") {
       openModal("video-player", {
         url: block.contentValue,
       });
     } else if (block.contentType === "Voice") {
       openModal("audio-player", {
         url: block.contentValue,
-      });
-    } else if (isComplexType(block.contentType)) {
-      openModal("play-object", {
-        workingArea: block,
       });
     } else {
       openModal("quill", {

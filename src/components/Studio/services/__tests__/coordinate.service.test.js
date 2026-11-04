@@ -161,7 +161,9 @@ describe("shouldConvertArea", () => {
     expect(shouldConvertArea(area)).toBe(true);
   });
 
-  it("should return false for already updated percentage area", () => {
+  // Percentage areas are reconverted on every image load (b7cd3a3), even
+  // when already marked _updated, so the pixel values track the image size.
+  it("should return true for already updated percentage area", () => {
     const area = {
       x: 400,
       y: 300,
@@ -171,7 +173,7 @@ describe("shouldConvertArea", () => {
       _updated: true,
     };
 
-    expect(shouldConvertArea(area)).toBe(false);
+    expect(shouldConvertArea(area)).toBe(true);
   });
 
   it("should return false for pixel unit area", () => {
@@ -750,8 +752,8 @@ describe("createSafeOnImageLoad", () => {
 
     onImageLoad();
 
-    // setAreas should still be called, but processAreasForImageLoad returns null
-    expect(mockSetAreas).toHaveBeenCalled();
+    // processAreasForImageLoad returns the null areas unchanged, so state is left alone
+    expect(mockSetAreas).not.toHaveBeenCalled();
   });
 });
 
