@@ -220,16 +220,16 @@ const AddBook = () => {
                 Author
               </Button>
 
-              {/* <Button
+              <Button
                 variant="contained"
                 type="submit"
-                disabled={loadingScan}
+                disabled={true}
                 startIcon={renderButtonIcon("author")}
                 name="author"
                 sx={{ bgcolor: "#2e7d32", "&:hover": { bgcolor: "#1b5e20" } }}
               >
-                Author
-              </Button> */}
+                Teacher
+              </Button>
 
               <ButtonGroup variant="contained">
                 <Button
