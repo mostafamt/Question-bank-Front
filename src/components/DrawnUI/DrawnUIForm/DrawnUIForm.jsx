@@ -23,6 +23,16 @@ import styles from "../../../pages/DrawnUI/drawnUI.module.scss";
 import Wrapper from "../Wrapper/Wrapper";
 import OneOfUI from "../OneOfUI/OneOfUI";
 import { findTypeByName, isSmartObject } from "../../../utils/typeName";
+import { RateReviewOutlined, SaveOutlined } from "@mui/icons-material";
+
+const actionButtonSx = {
+  minWidth: 180,
+  py: 1.25,
+  borderRadius: "10px",
+  fontSize: "1rem",
+  textTransform: "none",
+  boxShadow: "none",
+};
 
 const DrawnUIForm = ({
   baseType,
@@ -251,26 +261,43 @@ const DrawnUIForm = ({
         {jsx}
         {level === 1 && (
           <Box className={styles["submit-box"]}>
+            {isEditMode && isSmartObject(savedObject) && (
+              <Button
+                type="button"
+                variant="outlined"
+                onClick={onClickProofEdit}
+                disabled={proofLoading}
+                startIcon={
+                  proofLoading ? (
+                    <CircularProgress size={18} color="inherit" />
+                  ) : (
+                    <RateReviewOutlined />
+                  )
+                }
+                sx={{
+                  ...actionButtonSx,
+                  borderWidth: 1.5,
+                  "&:hover": { borderWidth: 1.5 },
+                }}
+              >
+                Proof edit
+              </Button>
+            )}
             <Button
               type="submit"
               variant="contained"
               disabled={isSubmitting}
-              sx={{ mt: 4 }}
+              startIcon={
+                isSubmitting ? (
+                  <CircularProgress size={18} color="inherit" />
+                ) : (
+                  <SaveOutlined />
+                )
+              }
+              sx={actionButtonSx}
             >
-              <span>Submit</span>
-              {isSubmitting && <CircularProgress />}
+              Save
             </Button>
-            {isEditMode && isSmartObject(savedObject) && (
-              <Button
-                type="button"
-                variant="contained"
-                onClick={onClickProofEdit}
-                disabled={proofLoading}
-                sx={{ mt: 4 }}
-              >
-                Proof Edit
-              </Button>
-            )}
           </Box>
         )}
       </>
