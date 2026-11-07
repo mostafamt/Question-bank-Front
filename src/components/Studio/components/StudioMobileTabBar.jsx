@@ -68,7 +68,32 @@ const mergeTabs = (leftColumns, rightColumns) => {
     if (leftColumns[i]) merged.push({ side: "left", column: leftColumns[i] });
     if (rightColumns[i]) merged.push({ side: "right", column: rightColumns[i] });
   }
-  return merged;
+  return moveToEnd(moveBefore(merged, "glossary-keywords", "recalls"), [
+    "enriching-content",
+    "chat",
+  ]);
+};
+
+/** Move the tabs with `ids` to the end, in the given order */
+const moveToEnd = (tabs, ids) => [
+  ...tabs.filter((tab) => !ids.includes(tab.column.id)),
+  ...ids.flatMap((id) => tabs.filter((tab) => tab.column.id === id)),
+];
+
+/** Move the tab with `id` to just before the tab with `beforeId` */
+const moveBefore = (tabs, id, beforeId) => {
+  const from = tabs.findIndex((tab) => tab.column.id === id);
+  if (from === -1 || !tabs.some((tab) => tab.column.id === beforeId)) {
+    return tabs;
+  }
+  const result = [...tabs];
+  const [moved] = result.splice(from, 1);
+  result.splice(
+    result.findIndex((tab) => tab.column.id === beforeId),
+    0,
+    moved
+  );
+  return result;
 };
 
 const StudioMobileTabBar = ({
