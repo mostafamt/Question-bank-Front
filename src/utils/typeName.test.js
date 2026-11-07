@@ -1,4 +1,4 @@
-import { findTypeByName, isSameTypeName } from "./typeName";
+import { findTypeByName, isSameTypeName, isSmartObject } from "./typeName";
 
 describe("isSameTypeName", () => {
   it.each([
@@ -58,5 +58,32 @@ describe("findTypeByName", () => {
     const types = [{ typeName: "Interactive Video" }];
 
     expect(findTypeByName(types, "Interactive Smart Video")).toBeUndefined();
+  });
+});
+
+describe("isSmartObject", () => {
+  it.each([
+    "Interactive Smart Video",
+    "Interactive Smart PDF",
+    "Interactive Smart PowerPoint",
+    "video",
+    "PowerPoint",
+    "pdf",
+  ])("is true for the type %s", (type) => {
+    expect(isSmartObject({ type })).toBe(true);
+  });
+
+  it.each(["Smart Object", "Smart"])("is true for the category %s", (category) => {
+    expect(isSmartObject({ type: "Text MCQ", category })).toBe(true);
+  });
+
+  it("is false for other objects", () => {
+    expect(isSmartObject({ type: "MultipleChoice", category: "Question" })).toBe(false);
+    expect(isSmartObject({ type: "Interactive Video" })).toBe(false);
+  });
+
+  it("is false without an object", () => {
+    expect(isSmartObject(null)).toBe(false);
+    expect(isSmartObject(undefined)).toBe(false);
   });
 });

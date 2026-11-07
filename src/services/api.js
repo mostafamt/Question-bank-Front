@@ -34,6 +34,17 @@ export const getOldTypes = async () => {
   return res;
 };
 
+// Returns the proof-editing app URL for a smart object
+export const getProofEditUrl = async (id) => {
+  try {
+    const res = await axios2.get(`/smart-objects/proof-edit/${id}`);
+    return res.data;
+  } catch (error) {
+    toast.error(error?.message);
+    return null;
+  }
+};
+
 export const getAllTypes = async () => {
   try {
     const res = await axios2.get("io-types");

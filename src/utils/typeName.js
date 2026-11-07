@@ -13,6 +13,16 @@ const toFullTypeName = (name) =>
 export const isSameTypeName = (first, second) =>
   toFullTypeName(first) === toFullTypeName(second);
 
+// Some saved smart objects use the category "Smart" instead of "Smart Object"
+const SMART_CATEGORIES = ["Smart Object", "Smart"];
+
+// Smart objects can be proof-edited (Proof Edit button in the DrawnUI form)
+export const isSmartObject = (object) =>
+  Boolean(
+    toFullTypeName(object?.type)?.startsWith?.("Interactive Smart") ||
+      SMART_CATEGORIES.includes(object?.category)
+  );
+
 const findByName = (types, name) =>
   types?.find((type) => type.typeName === name) ??
   types?.find((type) => isSameTypeName(type.typeName, name));

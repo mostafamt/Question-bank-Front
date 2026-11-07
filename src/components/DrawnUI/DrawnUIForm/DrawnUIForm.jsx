@@ -9,7 +9,7 @@ import ObjectUI from "../ObjectUI/ObjectUI";
 import { useStore } from "../../../store/store";
 import { toast } from "react-toastify";
 import Select from "../Select/Select";
-import { getAllTypes } from "../../../services/api";
+import { getAllTypes, getProofEditUrl } from "../../../services/api";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
   AUTO_UI_TYPES_MAPPING,
@@ -22,7 +22,7 @@ import {
 import styles from "../../../pages/DrawnUI/drawnUI.module.scss";
 import Wrapper from "../Wrapper/Wrapper";
 import OneOfUI from "../OneOfUI/OneOfUI";
-import { findTypeByName } from "../../../utils/typeName";
+import { findTypeByName, isSmartObject } from "../../../utils/typeName";
 
 const DrawnUIForm = ({
   baseType,
@@ -42,6 +42,8 @@ const DrawnUIForm = ({
   const [values, setValues] = React.useState({});
   const [loading, setLoading] = React.useState(false);
   const [labels, setLabels] = React.useState([]);
+  const [savedObject, setSavedObject] = React.useState(null);
+  const [proofLoading, setProofLoading] = React.useState(false);
   const { data: state } = useStore();
 
   const schema = getSchema(abstractParameters, labels);
@@ -60,7 +62,18 @@ const DrawnUIForm = ({
 
   const getParameters = async () => {
     const res = await axios.get(`/interactive-objects/${objectId}`);
+    setSavedObject(res.data);
     return res.data.parameters;
+  };
+
+  const onClickProofEdit = async () => {
+    // Open the tab before the request so the popup blocker allows it
+    const tab = window.open("", "_blank");
+    setProofLoading(true);
+    const url = await getProofEditUrl(objectId);
+    setProofLoading(false);
+    if (url && tab) tab.location.href = url;
+    else tab?.close();
   };
 
   const getData = async () => {
@@ -247,6 +260,17 @@ const DrawnUIForm = ({
               <span>Submit</span>
               {isSubmitting && <CircularProgress />}
             </Button>
+            {isEditMode && isSmartObject(savedObject) && (
+              <Button
+                type="button"
+                variant="contained"
+                onClick={onClickProofEdit}
+                disabled={proofLoading}
+                sx={{ mt: 4 }}
+              >
+                Proof Edit
+              </Button>
+            )}
           </Box>
         )}
       </>
