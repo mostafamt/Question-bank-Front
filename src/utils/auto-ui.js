@@ -3,6 +3,7 @@ import Text from "../components/DrawnUI/Text/Text";
 import Image from "../components/DrawnUI/Image/Image";
 import Video from "../components/DrawnUI/Video/Video";
 import Pdf from "../components/DrawnUI/Pdf/Pdf";
+import Html from "../components/DrawnUI/Html/Html";
 import Sound from "../components/DrawnUI/Sound/Sound";
 import Boolean from "../components/DrawnUI/Boolean/Boolean";
 import QuillInput from "../components/DrawnUI/QuillInput/QuillInput";
@@ -18,6 +19,7 @@ export const AUTO_UI_TYPES_MAPPING = {
   video: <Video />,
   pdf: <Pdf />,
   ppt: <Pdf kind="ppt" />,
+  html: <Html />,
   voice: <Sound />,
   audio: <Sound />,
   Bool: <Boolean />,
@@ -103,7 +105,7 @@ const searchIfHasMinimumLength = (label) => {
 export const getSchema = (abstractParameters, labels, level = 1) => {
   let object = {};
 
-  for (let [key, value] of Object.entries(abstractParameters)) {
+  for (let [key, value] of Object.entries(abstractParameters ?? {})) {
     const type = getTypeOfKey(labels, key) || value;
     const required = searchIfRequired(labels, key);
 

@@ -9,6 +9,7 @@ function getExtensionFromMimeType(mimeType) {
     "image/jpeg": "jpg",
     "image/png": "png",
     "application/pdf": "pdf",
+    "text/html": "html",
     "image/gif": "gif",
     "audio/webm": "webm", // 👈 your case
     "audio/mpeg": "mp3",

@@ -1,0 +1,58 @@
+.html {
+  display: flex;
+  gap: 1rem;
+
+  & .html-area {
+    position: relative;
+    height: 150px;
+    width: 200px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    & .full-screen {
+      position: absolute;
+      top: 0;
+      right: 0;
+      z-index: 1;
+      background-color: rgba(255, 255, 255, 0.8);
+    }
+
+    & iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+  }
+
+  & .inputs {
+    display: flex;
+    flex-direction: column;
+    align-items: space-between;
+    justify-content: space-evenly;
+  }
+}
+
+.viewer {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  & .close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+
+  & iframe {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    border: 0;
+  }
+}
