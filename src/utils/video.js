@@ -55,6 +55,49 @@ export const getEmbedUrl = (url) => {
 };
 
 /**
+ * Extract the video ID from a YouTube URL (watch, youtu.be or embed format)
+ *
+ * @param {string} url
+ * @returns {string|null} - Video ID, or null if the URL isn't a YouTube video
+ */
+export const getYouTubeVideoId = (url) => {
+  if (!url) return null;
+
+  try {
+    const urlObj = new URL(url);
+
+    if (urlObj.hostname === "youtu.be") {
+      return urlObj.pathname.slice(1).split("/")[0] || null;
+    }
+
+    if (/(^|\.)youtube\.com$/.test(urlObj.hostname)) {
+      if (urlObj.pathname === "/watch") {
+        return urlObj.searchParams.get("v");
+      }
+      if (urlObj.pathname.startsWith("/embed/")) {
+        return urlObj.pathname.split("/")[2] || null;
+      }
+    }
+
+    return null;
+  } catch (e) {
+    return null;
+  }
+};
+
+/**
+ * Thumbnail image for a YouTube video. Served by i.ytimg.com with
+ * `Access-Control-Allow-Origin: *`, so it can be drawn onto a canvas.
+ *
+ * @param {string} url - YouTube video URL
+ * @returns {string|null} - Thumbnail URL, or null if not a YouTube video
+ */
+export const getYouTubeThumbnailUrl = (url) => {
+  const videoId = getYouTubeVideoId(url);
+  return videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : null;
+};
+
+/**
  * Whether the URL points to a hosted player (YouTube/Vimeo) that must be
  * rendered in an iframe rather than a native <video> element.
  *

@@ -1,5 +1,10 @@
 import React from "react";
 import clsx from "clsx";
+import {
+  getEmbedUrl,
+  getYouTubeThumbnailUrl,
+  isEmbeddableVideoUrl,
+} from "../../../utils/video";
 import styles from "./deepBlockContent.module.scss";
 
 /**
@@ -14,6 +19,28 @@ const DeepBlockVideo = ({ src, interactive = false }) => {
     return null;
   }
 
+  // YouTube/Vimeo links are web pages, not media files — a <video> tag can't
+  // play them (and crossOrigin makes the browser fail with a CORS error), so
+  // render them through the provider's embed player instead.
+  if (isEmbeddableVideoUrl(src)) {
+    return (
+      <iframe
+        className={clsx(
+          styles["deep-block-video"],
+          interactive && styles["deep-block-video-interactive"]
+        )}
+        style={interactive ? { pointerEvents: "auto" } : {}}
+        src={getEmbedUrl(src)}
+        // html2canvas can't see inside a cross-origin iframe; capturePageSnapshot
+        // swaps it for this thumbnail so the snapshot isn't blank.
+        data-snapshot-thumbnail={getYouTubeThumbnailUrl(src) || undefined}
+        title="Video"
+        frameBorder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
+    );
+  }
 
   return (
     <video
