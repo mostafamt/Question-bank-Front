@@ -20,7 +20,7 @@ export default function DataTable(props) {
     page: 1,
     pageSize: 10,
   });
-  const columnNames = { name: "questionName", type: "type", domain: "domainName", subDomain: "subDomainName", topic: "topic", IR: "IR" }
+  const columnNames = { name: "questionName", category: "category", type: "type", domain: "domainName", subDomain: "subDomainName", topic: "topic", IR: "IR" }
 
   const renderColorStatus = (status) => {
     let color = { backgroundColor: "black" };
@@ -59,6 +59,11 @@ export default function DataTable(props) {
       renderCell: (params) => {
         return <Link to={`/show/${params.id}`}>{params.row.name}</Link>;
       },
+    },
+    {
+      field: "category",
+      headerName: "Category",
+      width: 150,
     },
     {
       field: "type",
@@ -122,6 +127,7 @@ export default function DataTable(props) {
             item.questionName ||
             `Untitled ${paginationModel.page * paginationModel.pageSize + idx + 1
             }`,
+          category: item.category,
           type: item.type,
           domain: item.domainName,
           subDomain: item.subDomainName,
