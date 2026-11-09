@@ -134,9 +134,9 @@ export function validateRefAccess(studioEditorRef) {
 /**
  * Determines if an area needs coordinate conversion.
  *
- * An area needs conversion if:
- * 1. It uses percentage units (_unit === 'percentage')
- * 2. It hasn't been converted yet (_updated is false or undefined)
+ * An area needs conversion if it uses percentage units (_unit === 'percentage').
+ * The _updated flag is deliberately ignored so areas are reconverted whenever
+ * the page image (and therefore its pixel size) changes.
  *
  * @param {import('../../../utils/coordinates').Area} area - The area to check
  * @returns {boolean} True if area should be converted

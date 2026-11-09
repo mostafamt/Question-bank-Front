@@ -1,4 +1,5 @@
 import React from "react";
+import useBreakpoint from "../../../hooks/useBreakpoint";
 import {
   Dialog,
   DialogTitle,
@@ -9,6 +10,7 @@ import {
   IconButton,
   CircularProgress,
   Box,
+  Tooltip,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Select from "../../Select/Select";
@@ -32,6 +34,7 @@ const ImportPagesModal = ({ open, handleCloseModal, bookId, chapterId, onPagesIm
     togglePage,
     handleConfirm,
   } = useImportPages({ open, onClose: handleCloseModal, bookId, chapterId, onPagesImported });
+  const { isPhone } = useBreakpoint();
 
   return (
     <Dialog
@@ -39,8 +42,9 @@ const ImportPagesModal = ({ open, handleCloseModal, bookId, chapterId, onPagesIm
       onClose={handleCloseModal}
       maxWidth="xl"
       fullWidth
+      fullScreen={isPhone}
       sx={{ "& .MuiDialog-container": { alignItems: "flex-start" } }}
-      PaperProps={{ sx: { mt: 8 } }}
+      PaperProps={{ sx: { mt: isPhone ? 0 : 8 } }}
     >
       <DialogTitle
         sx={{
@@ -50,9 +54,11 @@ const ImportPagesModal = ({ open, handleCloseModal, bookId, chapterId, onPagesIm
         }}
       >
         Import Page
-        <IconButton onClick={handleCloseModal}>
-          <CloseIcon />
-        </IconButton>
+        <Tooltip title="Close">
+          <IconButton aria-label="Close" onClick={handleCloseModal}>
+            <CloseIcon />
+          </IconButton>
+        </Tooltip>
       </DialogTitle>
       <Divider sx={{ borderColor: "#777" }} />
       <DialogContent>

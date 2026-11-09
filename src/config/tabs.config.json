@@ -84,7 +84,7 @@
       },
       {
         "id": "chat",
-        "label": { "en": "Chat", "ar": "المحادثة" },
+        "label": { "en": "Q&A", "ar": "المحادثة" },
         "icon": "ChatIcon",
         "modes": ["reader"],
         "position": "left",

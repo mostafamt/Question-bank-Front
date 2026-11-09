@@ -172,7 +172,7 @@ const AddBook = () => {
     <div className={styles["add-book"]}>
       <form onSubmit={handleSubmit(onSubmit)}>
         <fieldset>
-          <legend>Define Blocks</legend>
+          <legend>Select SAieBooks</legend>
           <div>
             <div className={styles.row}>
               <Select
@@ -217,18 +217,16 @@ const AddBook = () => {
                 name="book-author"
                 sx={{ bgcolor: "#1565c0", "&:hover": { bgcolor: "#0d47a1" } }}
               >
-                Book Author
+                Author
               </Button>
 
               <Button
                 variant="contained"
-                type="submit"
-                disabled={loadingScan}
+                type="button"
                 startIcon={renderButtonIcon("author")}
-                name="author"
                 sx={{ bgcolor: "#2e7d32", "&:hover": { bgcolor: "#1b5e20" } }}
               >
-                Author
+                Teacher
               </Button>
 
               <ButtonGroup variant="contained">

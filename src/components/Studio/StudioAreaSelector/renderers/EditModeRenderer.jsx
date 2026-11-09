@@ -179,6 +179,8 @@ const EditModeRenderer = React.forwardRef(
               height: "100%",
               zIndex: 200,
               cursor: "crosshair",
+              // Fingers draw here instead of scrolling the page
+              touchAction: "none",
             }}
           >
             {draftRect && (

@@ -1,3 +1,5 @@
+@use "../../../styles/breakpoints" as bp;
+
 .studio-sticky-toolbar {
   position: fixed;
   background: #fff;
@@ -8,4 +10,11 @@
   transform: translate(-50%, 0);
   z-index: 1;
   background: #fff;
+
+  @include bp.below-desktop {
+    left: 0;
+    width: 100%;
+    transform: none;
+    box-shadow: rgba(0, 0, 0, 0.15) 0 2px 4px;
+  }
 }

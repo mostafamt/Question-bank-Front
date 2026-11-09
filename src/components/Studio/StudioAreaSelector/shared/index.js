@@ -5,3 +5,4 @@
 
 export { default as PageImage } from "./PageImage";
 export { default as BlockOverlayLayer } from "./BlockOverlayLayer";
+export { default as BlockContextMenu } from "./BlockContextMenu";

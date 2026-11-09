@@ -12,6 +12,7 @@ import Loader1 from "../../components/Loader1/Loader1";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
 import { syntaxHighlight } from "../../utils/data";
 import Modal from "../../components/Modal/Modal";
 import DeleteModalContent from "../../components/Modal/DeleteModalContent/DeleteModalContent";
@@ -95,18 +96,22 @@ const Types = () => {
                 <div className={styles.line}>
                   <div>{type?.typeName}</div>
                   <div className={styles.actions}>
-                    <IconButton
-                      aria-label="edit"
-                      onClick={(event) => onClickEdit(event, type._id)}
-                    >
-                      <EditIcon color="primary" />
-                    </IconButton>
-                    <IconButton
-                      aria-label="delete"
-                      onClick={(event) => onClickDelete(event, type._id)}
-                    >
-                      <DeleteIcon color="error" />
-                    </IconButton>
+                    <Tooltip title="Edit type">
+                      <IconButton
+                        aria-label="Edit type"
+                        onClick={(event) => onClickEdit(event, type._id)}
+                      >
+                        <EditIcon color="primary" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Delete type">
+                      <IconButton
+                        aria-label="Delete type"
+                        onClick={(event) => onClickDelete(event, type._id)}
+                      >
+                        <DeleteIcon color="error" />
+                      </IconButton>
+                    </Tooltip>
                   </div>
                 </div>
               </AccordionSummary>

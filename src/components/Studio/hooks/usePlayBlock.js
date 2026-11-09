@@ -26,7 +26,13 @@ const usePlayBlock = ({ openModal, setFormState }) => {
 
       const { isComplex } = determineModalForArea(areaProps);
 
-      if (areaProps.typeOfLabel === "video") {
+      // Object ids are checked first so an object block is never sent to the
+      // raw video/audio player, whatever its typeOfLabel resolves to
+      if (isComplex) {
+        // Set the activeId in the store for PlayObjectModal2
+        setFormState({ activeId: areaProps.text });
+        openModal(STUDIO_MODALS.PLAY_OBJECT);
+      } else if (areaProps.typeOfLabel === "video") {
         openModal(STUDIO_MODALS.VIDEO_PLAYER, {
           url: areaProps.video || areaProps.text,
         });
@@ -34,10 +40,6 @@ const usePlayBlock = ({ openModal, setFormState }) => {
         openModal(STUDIO_MODALS.AUDIO_PLAYER, {
           url: areaProps.audio || areaProps.text,
         });
-      } else if (isComplex) {
-        // Set the activeId in the store for PlayObjectModal2
-        setFormState({ activeId: areaProps.text });
-        openModal(STUDIO_MODALS.PLAY_OBJECT);
       } else {
         // Handle text and image types in quill modal
         openModal(STUDIO_MODALS.QUILL, {

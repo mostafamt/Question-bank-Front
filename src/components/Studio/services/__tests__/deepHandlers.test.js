@@ -39,10 +39,22 @@ describe("getDeepHandler", () => {
     expect(getDeepHandler(makeArea(), "text")).toBeNull();
   });
 
+  // A non-object area type, so the handleDeepObject fallback doesn't apply.
   it.each(["number", "Coordinate", ""])(
     "returns null for a deep block with no handler registered for %s",
     (labelType) => {
-      expect(getDeepHandler(makeArea({ isDeep: true }), labelType)).toBeNull();
+      expect(
+        getDeepHandler(makeArea({ isDeep: true, type: "Text" }), labelType)
+      ).toBeNull();
+    }
+  );
+
+  it.each(["Question", "Illustrative Object"])(
+    "returns the object handler for a deep %s block",
+    (type) => {
+      expect(getDeepHandler(makeArea({ isDeep: true, type }), "Text MCQ")).toEqual(
+        expect.any(Function)
+      );
     }
   );
 });

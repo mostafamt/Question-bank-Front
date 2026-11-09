@@ -8,8 +8,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { buildPageQueue } from "../services/narration.service";
+import { STORAGE_KEYS } from "../constants";
 
-export const AUDIO_MODES = { NARRATION: "narration", MUSIC: "music" };
+export const PLAYBACK_RATES = [
+  { value: 1, label: "Normal" },
+  { value: 1.25, label: "1.25" },
+  { value: 1.5, label: "1.5" },
+  { value: 2, label: "2" },
+];
 export const NARRATION_STATUS = {
   IDLE: "idle",
   PLAYING: "playing",
@@ -21,6 +27,20 @@ const DEFAULT_VOLUME = 80;
 const MAX_CONSECUTIVE_FAILURES = 3;
 // "Previous" restarts the current block once it has played this long.
 const RESTART_THRESHOLD_SECONDS = 2;
+const DEFAULT_PLAYBACK_RATE = 1;
+
+const isValidRate = (value) => PLAYBACK_RATES.some((r) => r.value === value);
+
+const readSavedRate = () => {
+  try {
+    const saved = Number(
+      localStorage.getItem(STORAGE_KEYS.READER_NARRATION_RATE)
+    );
+    return isValidRate(saved) ? saved : DEFAULT_PLAYBACK_RATE;
+  } catch {
+    return DEFAULT_PLAYBACK_RATE;
+  }
+};
 
 /**
  * @param {Object} params
@@ -41,11 +61,11 @@ const useReaderNarration = ({
 }) => {
   const lang = contentLanguage || DEFAULT_LANGUAGE;
 
-  const [mode, setModeState] = useState(AUDIO_MODES.NARRATION);
   const [status, setStatus] = useState(NARRATION_STATUS.IDLE);
   const [currentBlockId, setCurrentBlockId] = useState(null);
   const [volume, setVolume] = useState(DEFAULT_VOLUME);
   const [isMuted, setIsMuted] = useState(false);
+  const [playbackRate, setPlaybackRateState] = useState(readSavedRate);
 
   const queue = useMemo(
     () => (enabled ? buildPageQueue(pages?.[activePageIndex], lang) : []),
@@ -161,6 +181,15 @@ const useReaderNarration = ({
     audio.muted = isMuted;
   }, [volume, isMuted, enabled]);
 
+  // `playbackRate` resets to `defaultPlaybackRate` whenever `src` changes,
+  // so set both to keep the speed across blocks.
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.defaultPlaybackRate = playbackRate;
+    audio.playbackRate = playbackRate;
+  }, [playbackRate, enabled]);
+
   const play = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -199,14 +228,6 @@ const useReaderNarration = ({
     playAt(shouldRestart ? indexRef.current : indexRef.current - 1);
   }, [playAt]);
 
-  const setMode = useCallback(
-    (nextMode) => {
-      stop();
-      setModeState(nextMode);
-    },
-    [stop]
-  );
-
   const changeVolume = useCallback((value) => {
     setVolume(value);
     setIsMuted(value === 0);
@@ -214,14 +235,23 @@ const useReaderNarration = ({
 
   const toggleMute = useCallback(() => setIsMuted((muted) => !muted), []);
 
+  const setPlaybackRate = useCallback((value) => {
+    if (!isValidRate(value)) return;
+    setPlaybackRateState(value);
+    try {
+      localStorage.setItem(STORAGE_KEYS.READER_NARRATION_RATE, `${value}`);
+    } catch {
+      // Storage unavailable: the speed still applies for this session.
+    }
+  }, []);
+
   return useMemo(
     () => ({
-      mode,
-      setMode,
       status,
       currentBlockId,
       volume,
       isMuted,
+      playbackRate,
       hasNarration: queue.length > 0,
       play,
       pause,
@@ -230,14 +260,14 @@ const useReaderNarration = ({
       previous,
       setVolume: changeVolume,
       toggleMute,
+      setPlaybackRate,
     }),
     [
-      mode,
-      setMode,
       status,
       currentBlockId,
       volume,
       isMuted,
+      playbackRate,
       queue.length,
       play,
       pause,
@@ -246,6 +276,7 @@ const useReaderNarration = ({
       previous,
       changeVolume,
       toggleMute,
+      setPlaybackRate,
     ]
   );
 };

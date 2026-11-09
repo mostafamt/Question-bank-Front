@@ -92,19 +92,28 @@ const ReaderEnrichingItems = ({ chapterId }) => {
                 {deriveEnrichingContentName(item.type, item.contentValue)}
               </span>
               <span>
-                <IconButton onClick={() => onClickPlay(item)} aria-label="play">
-                  <PlayArrowIcon />
-                </IconButton>
+                <Tooltip title="Play item">
+                  <IconButton onClick={() => onClickPlay(item)} aria-label="Play item">
+                    <PlayArrowIcon />
+                  </IconButton>
+                </Tooltip>
               </span>
               <span>
-                <IconButton onClick={() => onClickEdit(item)} aria-label="edit">
-                  <EditIcon />
-                </IconButton>
+                <Tooltip title="Edit item">
+                  <IconButton onClick={() => onClickEdit(item)} aria-label="Edit item">
+                    <EditIcon />
+                  </IconButton>
+                </Tooltip>
               </span>
               <span>
-                <IconButton onClick={() => setPendingDelete(item)} aria-label="delete">
-                  <DeleteIcon color="error" />
-                </IconButton>
+                <Tooltip title="Delete item">
+                  <IconButton
+                    onClick={() => setPendingDelete(item)}
+                    aria-label="Delete item"
+                  >
+                    <DeleteIcon color="error" />
+                  </IconButton>
+                </Tooltip>
               </span>
             </li>
           ))}

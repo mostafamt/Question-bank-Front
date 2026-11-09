@@ -15,6 +15,7 @@ import { Box, CircularProgress } from "@mui/material";
 import { formatVirtualBlocksForSubmission } from "../../utils/virtual-blocks";
 import { useStore } from "../../store/store";
 import { useAppMode } from "../../utils/tabFiltering";
+import useBreakpoint from "../../hooks/useBreakpoint";
 
 import styles from "./scanAndUpload.module.scss";
 import { CREATED, DELETED, UPDATED } from "../../utils/ocr";
@@ -26,6 +27,7 @@ const ScanAndUpload = () => {
   const setLanguage = useStore((s) => s.setLanguage);
   const mode = useAppMode();
   const isReaderMode = mode === "reader";
+  const { isDesktop } = useBreakpoint();
   // Reader-only: the language chosen on the Read button. Used solely to
   // query the pages endpoint below — never touches the navbar's layout
   // (RTL/LTR) language. Absent when the chapter has no language options,
@@ -178,7 +180,12 @@ const ScanAndUpload = () => {
   };
 
   return (
-    <div className={`container ${styles["scan-and-upload"]}`}>
+    // Below desktop the fixed-width Bootstrap container wastes the page width
+    <div
+      className={`${isDesktop ? "container" : "container-fluid"} ${
+        styles["scan-and-upload"]
+      }`}
+    >
       {isLoadingPages || isFetchingTypes ? (
         <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
           <CircularProgress size="2rem" />

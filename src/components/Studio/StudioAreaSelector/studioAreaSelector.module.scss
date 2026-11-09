@@ -1,3 +1,5 @@
+@use "../../../styles/breakpoints" as bp;
+
 .studio-area-selector {
   background-color: #fff;
 
@@ -26,6 +28,26 @@
     grid-column: 5 / 7;
   }
 
+  // Below desktop (virtual blocks shown): the page takes the full width
+  // instead of the middle 4 of 6 columns; the first three slots stay above
+  // it and the rest flow below in rows of three.
+  @include bp.below-desktop {
+    height: auto;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: none;
+    grid-auto-rows: minmax(4rem, auto);
+
+    & > div:nth-child(n) {
+      grid-column: auto;
+    }
+
+    // Same specificity as the reset above (0,2,1), so it must come after it
+    & > div.block {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+  }
+
   & .block {
     grid-column: 2 / 6;
     grid-row: 2 / 8;
@@ -36,6 +58,12 @@
       & > div:not(:first-child) {
         &:hover .type {
           display: flex !important;
+        }
+        // Touch screens have no hover: show it while a finger is on the area
+        @media (hover: none) {
+          &:active .type {
+            display: flex !important;
+          }
         }
         & {
           border: 2px solid green;
@@ -124,5 +152,51 @@
     background-color: rgba(255, 213, 79, 0.3);
     box-shadow: 0 0 0 2px rgba(245, 166, 35, 0.9),
                 0 0 12px rgba(245, 166, 35, 0.5);
+  }
+
+  // Fingers need a ≥44px target; small blocks get an invisible larger hit
+  // area (clicks on ::after count as clicks on the button)
+  @media (pointer: coarse) {
+    &::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: max(100%, 44px);
+      height: max(100%, 44px);
+      transform: translate(-50%, -50%);
+    }
+  }
+}
+
+// Author editing on touch screens (see StudioAreaSelector: Draw button).
+// While fingers scroll, the library's areas must not block panning (they set
+// touch-action: none inline).
+.touch-scroll [data-wrapper] {
+  touch-action: pan-x pan-y !important;
+}
+
+// Bigger resize handles for fingers (the library draws 10px squares)
+@media (pointer: coarse) {
+  .block [data-ord] {
+    width: 20px !important;
+    height: 20px !important;
+    margin: -10px !important;
+  }
+}
+
+// Zero-height sticky row at the end of the editor content: the Draw button
+// floats at the bottom of the visible editor area
+.touch-draw-toggle {
+  position: sticky;
+  bottom: 16px;
+  z-index: 260; // above the page overlays and the sticky toolbar (250)
+  height: 0;
+  display: flex;
+  justify-content: flex-end;
+  padding-inline-end: 16px;
+
+  & > * {
+    transform: translateY(-100%);
   }
 }

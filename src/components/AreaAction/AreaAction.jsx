@@ -27,7 +27,8 @@ const AreaAction = (props) => {
 
   const { openModal } = useStore();
 
-  const handleToggle = () => updateAreaProperty(idx, { open: !area.open });
+  const handleToggle = () =>
+    updateAreaPropertyById(area.id, { open: !area.open });
 
   const handlePlay = (id, event) => {
     event.stopPropagation();
@@ -47,13 +48,14 @@ const AreaAction = (props) => {
 
   const handleDelete = (id, event) => {
     event.stopPropagation();
-    onClickDeleteArea(idx);
+    onClickDeleteArea(area.id);
   };
 
   const actions = [
     area.type !== "Simple item" ? (
       {
         label: "play",
+        tooltip: "Play object",
         icon: <PlayArrow sx={{ color: grey[700] }} />,
         onClick: handlePlay,
       }
@@ -62,11 +64,13 @@ const AreaAction = (props) => {
     ),
     {
       label: "edit",
+      tooltip: "Edit area content",
       icon: <Edit sx={{ color: grey[700] }} />,
       onClick: handleEdit,
     },
     {
       label: "delete",
+      tooltip: "Delete area",
       icon: <DeleteForever color="error" />,
       onClick: handleDelete,
     },

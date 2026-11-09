@@ -17,6 +17,7 @@ import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Modal from "./components/Modal/Modal";
+import RequireAuth from "./components/RequireAuth/RequireAuth";
 
 const queryClient = new QueryClient();
 
@@ -42,31 +43,39 @@ function App() {
     <CacheProvider value={cache}>
       <ThemeProvider theme={theme}>
         <BrowserRouter>
-          <div
-            style={{
-              minHeight: "100vh",
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <Navbar />
-            <ToastContainer />
-            <ErrorBoundary>
-              <QueryClientProvider client={queryClient}>
+          <QueryClientProvider client={queryClient}>
+            <div
+              style={{
+                minHeight: "100vh",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <Navbar />
+              <ToastContainer />
+              <ErrorBoundary>
                 <Modal />
                 <Routes>
                   {routes.map((route) => (
                     <Route
                       key={route.path}
                       path={route.path}
-                      Component={route.component}
+                      element={
+                        route.public ? (
+                          <route.component />
+                        ) : (
+                          <RequireAuth>
+                            <route.component />
+                          </RequireAuth>
+                        )
+                      }
                     />
                   ))}
                 </Routes>
-              </QueryClientProvider>
-            </ErrorBoundary>
-            <Footer />
-          </div>
+              </ErrorBoundary>
+              <Footer />
+            </div>
+          </QueryClientProvider>
         </BrowserRouter>
       </ThemeProvider>
     </CacheProvider>

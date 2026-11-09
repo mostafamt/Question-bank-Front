@@ -18,6 +18,17 @@ export const TIMEOUTS = {
 
   /** Delay for area recalculation after post-submit state resync */
   POST_SUBMIT_SYNC_DELAY: 50,
+
+  /** Debounce for area recalculation after the page image is resized */
+  RESIZE_RECALCULATE_DEBOUNCE: 150,
+};
+
+/**
+ * Pinch-to-zoom limits for the page (imageScaleFactor, 1 = fit width)
+ */
+export const PINCH_ZOOM = {
+  MIN: 0.5,
+  MAX: 3,
 };
 
 /**
@@ -32,6 +43,10 @@ export const STORAGE_KEYS = {
   READER_VBLOCKS: "reader_vblocks",
   /** Prefix for the reader's own Enriching Content items; full key is `${prefix}_${chapterId}` */
   READER_ENRICHING: "reader_enriching",
+  /** Reader narration speed (global, not per chapter) */
+  READER_NARRATION_RATE: "reader_narration_rate",
+  /** Logged-in session: { token, user } from POST /login */
+  AUTH: "auth",
 };
 
 /**

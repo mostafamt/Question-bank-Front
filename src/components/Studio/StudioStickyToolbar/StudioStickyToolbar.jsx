@@ -19,6 +19,8 @@ const StudioStickyToolbar = (props) => {
     onClickImage,
     chapterId,
     publishLanguage,
+    ocrLanguage,
+    setOcrLanguage,
   } = props;
 
   if (!show) return;
@@ -39,6 +41,8 @@ const StudioStickyToolbar = (props) => {
         onClickImage={onClickImage}
         chapterId={chapterId}
         publishLanguage={publishLanguage}
+        ocrLanguage={ocrLanguage}
+        setOcrLanguage={setOcrLanguage}
       />
     </div>
   );

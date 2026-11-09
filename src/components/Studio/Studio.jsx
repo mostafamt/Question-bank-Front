@@ -8,7 +8,11 @@ import React from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { parseVirtualBlocksFromPages } from "../../utils/virtual-blocks";
 import { useAppMode } from "../../utils/tabFiltering";
-import { ENGLISH, ARABIC } from "../../utils/ocr";
+import {
+  ARABIC,
+  OCR_LANGUAGE_BY_CODE,
+  toLanguageCode,
+} from "../../utils/ocr";
 import { useStore } from "../../store/store";
 
 import { DEFAULTS, LANGUAGE_CODES } from "./constants";
@@ -23,7 +27,8 @@ import useVirtualBlocks from "./hooks/useVirtualBlocks";
 import useLabelManagement from "./hooks/useLabelManagement";
 import usePlayBlock from "./hooks/usePlayBlock";
 import useStudioColumns from "./hooks/useStudioColumns";
-import useReaderNarration from "./hooks/useReaderNarration";
+import useReaderAudioEngine from "./hooks/useReaderAudioEngine";
+import useRecalculateOnResize from "./hooks/useRecalculateOnResize";
 import ReaderAudioContext from "./context/ReaderAudioContext";
 
 /**
@@ -65,7 +70,7 @@ const Studio = (props) => {
 
   // ============ LOCAL STATE ============
   const [language, setLanguage] = React.useState(
-    langProp === LANGUAGE_CODES.ENGLISH ? ENGLISH : ARABIC
+    () => OCR_LANGUAGE_BY_CODE[langProp] ?? ARABIC
   );
   const [virtualBlocks, setVirtualBlocks] = React.useState(() =>
     subObject ? [] : parseVirtualBlocksFromPages(pages)
@@ -169,6 +174,12 @@ const Studio = (props) => {
     recalculateAreasRef.current = recalculateAreas;
   }, [recalculateAreas]);
 
+  // Keep blocks aligned with the page image after resize / rotation
+  useRecalculateOnResize(
+    () => studioEditorRef.current?.studioEditorSelectorRef?.current,
+    recalculateAreas
+  );
+
   React.useEffect(() => {
     insertPageAtRef.current = insertPageAt;
   }, [insertPageAt]);
@@ -224,8 +235,8 @@ const Studio = (props) => {
   const { highlight, setHighlight, highlightedBlockId, hightBlock } =
     useStudioActions({ getBlockFromBlockId });
 
-  // ============ READER NARRATION ============
-  const readerAudio = useReaderNarration({
+  // ============ READER AUDIO (narration + music) ============
+  const readerAudio = useReaderAudioEngine({
     pages,
     activePageIndex,
     highlightedBlockId,
@@ -433,7 +444,7 @@ const Studio = (props) => {
   );
 
   const publishLanguageCode =
-    language === ARABIC ? LANGUAGE_CODES.ARABIC : LANGUAGE_CODES.ENGLISH;
+    toLanguageCode(language) ?? LANGUAGE_CODES.ENGLISH;
 
   const handleSetVirtualBlocks = React.useCallback(
     (value) => {
@@ -503,10 +514,14 @@ const Studio = (props) => {
         setHighlight={setHighlight}
         highlightedBlockId={highlightedBlockId}
         onPlayBlock={onPlayBlock}
+        onClickDeleteArea={onClickDeleteArea}
+        updateAreaPropertyById={updateAreaPropertyById}
         showBlocksStyling={showBlocksStyling}
         setShowBlocksStyling={setShowBlocksStyling}
         chapterId={chapterId}
         publishLanguage={publishLanguageCode}
+        ocrLanguage={language}
+        setOcrLanguage={setLanguage}
         deletedDeepBlockAreas={deletedDeepBlockAreas}
         isWhiteOutMode={isWhiteOutMode}
         onToggleWhiteOutMode={onToggleWhiteOutMode}

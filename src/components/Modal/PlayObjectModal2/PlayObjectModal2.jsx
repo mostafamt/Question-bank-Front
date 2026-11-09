@@ -14,7 +14,7 @@ const PlayObjectModal2 = () => {
     data: object,
     isFetching,
   } = useQuery({
-    queryKey: [`get-object`],
+    queryKey: [`get-object`, id],
     queryFn: () => getObject(id),
     refetchOnWindowFocus: false,
   });
@@ -38,7 +38,7 @@ const PlayObjectModal2 = () => {
   return (
     <div style={{ height: "100vh" }}>
       <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title></BootstrapModal.Title>
+        <BootstrapModal.Title>{object?.questionName}</BootstrapModal.Title>
       </BootstrapModal.Header>
       <BootstrapModal.Body style={{ height: "100%" }}>
         {renderer}

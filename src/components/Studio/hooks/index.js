@@ -41,3 +41,9 @@ export { default as useStudioColumns } from "./useStudioColumns";
 
 // General studio state (placeholder - may be removed)
 export { default as useStudioState } from "./useStudioState";
+
+// Recalculate areas when the page image is resized (responsive layout)
+export { default as useRecalculateOnResize } from "./useRecalculateOnResize";
+
+// Two-finger pinch zoom for the page
+export { default as usePinchZoom } from "./usePinchZoom";

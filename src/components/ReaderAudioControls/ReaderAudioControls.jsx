@@ -1,16 +1,22 @@
 /**
  * @file ReaderAudioControls.jsx
  * @description Reader toolbar control for Narration / Music.
- * Narration is driven by the shared engine (useReaderNarration) through
- * ReaderAudioContext — see docs/2026-10-01/READER_NARRATION_PLAYBACK_PLAN.md.
- * Music is still UI only.
+ * Driven by the shared engine (useReaderAudioEngine) through
+ * ReaderAudioContext. The mode only picks which channel the buttons control;
+ * switching it never stops anything.
+ * Narration: docs/2026-10-01/READER_NARRATION_PLAYBACK_PLAN.md.
+ * Narration speed: docs/2026-10-10/READER_NARRATION_SPEED_PLAN.md.
+ * Music: docs/2026-10-10/READER_MUSIC_PLAN.md.
  */
 
 import React from "react";
 import {
+  Badge,
+  Divider,
   IconButton,
   ListItemIcon,
   ListItemText,
+  ListSubheader,
   Menu,
   MenuItem,
   Popover,
@@ -27,11 +33,14 @@ import VolumeUpIcon from "@mui/icons-material/VolumeUp";
 import VolumeOffIcon from "@mui/icons-material/VolumeOff";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CheckIcon from "@mui/icons-material/Check";
+import FolderOpenIcon from "@mui/icons-material/FolderOpen";
+import HeadphonesIcon from "@mui/icons-material/Headphones";
 
 import { useReaderAudio } from "../Studio/context/ReaderAudioContext";
+import { AUDIO_MODES } from "../Studio/hooks/useReaderAudioEngine";
 import {
-  AUDIO_MODES,
   NARRATION_STATUS,
+  PLAYBACK_RATES,
 } from "../Studio/hooks/useReaderNarration";
 import styles from "./readerAudioControls.module.scss";
 
@@ -44,38 +53,111 @@ const MODES = {
   MUSIC: { id: AUDIO_MODES.MUSIC, label: "Music", Icon: MusicNoteIcon },
 };
 
+/** Volume slider + mute button for one audio channel. */
+const VolumeColumn = ({ mode, channel }) => {
+  const { label, Icon } = mode;
+  const { volume, isMuted } = channel;
+  const name = label.toLowerCase();
+
+  return (
+    <div className={styles["volume-column"]}>
+      <Tooltip title={label}>
+        <Icon fontSize="small" className={styles["volume-icon"]} />
+      </Tooltip>
+      <Slider
+        size="small"
+        orientation="vertical"
+        aria-label={`${name} volume`}
+        value={isMuted ? 0 : volume}
+        onChange={(_, value) => channel.setVolume(value)}
+        className={styles.slider}
+      />
+      <Tooltip title={`${isMuted ? "Unmute" : "Mute"} ${name}`}>
+        <IconButton
+          size="small"
+          aria-label={`${isMuted ? "unmute" : "mute"} ${name}`}
+          onClick={channel.toggleMute}
+        >
+          {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
+        </IconButton>
+      </Tooltip>
+    </div>
+  );
+};
+
 const ReaderAudioControls = () => {
   const audio = useReaderAudio();
-  const [isMusicPlaying, setIsMusicPlaying] = React.useState(false);
   const [menuAnchor, setMenuAnchor] = React.useState(null);
   const [volumeAnchor, setVolumeAnchor] = React.useState(null);
+  const [speedAnchor, setSpeedAnchor] = React.useState(null);
+  // One hidden picker per toolbar instance; both feed the same music engine.
+  const fileInputRef = React.useRef(null);
 
   if (!audio) return null;
 
-  const { volume, isMuted, hasNarration } = audio;
+  const { narration, music } = audio;
+  const { hasNarration, playbackRate } = narration;
   const mode =
     Object.values(MODES).find((m) => m.id === audio.mode) || MODES.NARRATION;
   const isNarration = mode.id === AUDIO_MODES.NARRATION;
-  const isPlaying = isNarration
-    ? audio.status === NARRATION_STATUS.PLAYING
-    : isMusicPlaying;
+  const channel = isNarration ? narration : music;
+  const otherChannel = isNarration ? music : narration;
+  const isPlaying = channel.status === NARRATION_STATUS.PLAYING;
+  // The dot tells the reader that sound comes from the channel not on screen.
+  const isOtherPlaying = otherChannel.status === NARRATION_STATUS.PLAYING;
+  const otherLabel = isNarration ? MODES.MUSIC.label : MODES.NARRATION.label;
+  const isSilent = (c) => c.isMuted || c.volume === 0;
+  const isAllMuted = isSilent(narration) && isSilent(music);
   const isPlayDisabled = isNarration && !hasNarration;
-  const isSkipDisabled = audio.status === NARRATION_STATUS.IDLE;
+  const isSkipDisabled = narration.status === NARRATION_STATUS.IDLE;
 
   const onSelectMode = (nextMode) => {
     audio.setMode(nextMode.id);
-    setIsMusicPlaying(false);
     setMenuAnchor(null);
+  };
+
+  const onSelectSpeed = (value) => {
+    narration.setPlaybackRate(value);
+    setSpeedAnchor(null);
+  };
+
+  const openFilePicker = () => fileInputRef.current?.click();
+
+  const onSelectTrack = (id) => {
+    music.selectTrack(id);
+    audio.setMode(AUDIO_MODES.MUSIC);
+    setMenuAnchor(null);
+  };
+
+  const onChooseFile = () => {
+    setMenuAnchor(null);
+    openFilePicker();
+  };
+
+  const onFileChange = (event) => {
+    const [file] = event.target.files || [];
+    // Reset so picking the same file again still fires `change`.
+    event.target.value = "";
+    if (!file) return;
+    music.loadFile(file);
+    audio.setMode(AUDIO_MODES.MUSIC);
   };
 
   const onTogglePlay = () => {
     if (!isNarration) {
-      setIsMusicPlaying((p) => !p);
+      if (isPlaying) music.pause();
+      else if (!music.play()) openFilePicker();
       return;
     }
-    if (isPlaying) audio.pause();
-    else audio.play();
+    if (isPlaying) narration.pause();
+    else narration.play();
   };
+
+  const musicTracks = music.userTrack
+    ? [...music.tracks, music.userTrack]
+    : music.tracks;
+  // Built-in tracks must be credited; the reader's own file has no credit.
+  const musicCredit = music.currentTrack?.credit;
 
   const playTitle = isPlayDisabled
     ? "No narration for this page"
@@ -87,8 +169,20 @@ const ReaderAudioControls = () => {
 
   return (
     <div className={styles["reader-audio"]}>
-      <Tooltip title={mode.label}>
-        <ModeIcon className={styles["mode-icon"]} aria-label={mode.label} />
+      <Tooltip
+        title={
+          isOtherPlaying ? `${mode.label} · ${otherLabel} is playing` : mode.label
+        }
+      >
+        <span className={styles["mode-icon-wrapper"]}>
+          <ModeIcon className={styles["mode-icon"]} aria-label={mode.label} />
+          {isOtherPlaying && (
+            <span
+              className={styles["mode-dot"]}
+              aria-label={`${otherLabel} is playing`}
+            />
+          )}
+        </span>
       </Tooltip>
 
       <div className={styles.pill}>
@@ -98,7 +192,7 @@ const ReaderAudioControls = () => {
               <IconButton
                 size="small"
                 aria-label="previous-block"
-                onClick={audio.previous}
+                onClick={narration.previous}
                 disabled={isSkipDisabled}
               >
                 <SkipPreviousIcon />
@@ -126,7 +220,7 @@ const ReaderAudioControls = () => {
               <IconButton
                 size="small"
                 aria-label="next-block"
-                onClick={audio.next}
+                onClick={narration.next}
                 disabled={isSkipDisabled}
               >
                 <SkipNextIcon />
@@ -135,6 +229,40 @@ const ReaderAudioControls = () => {
           </Tooltip>
         )}
 
+        {isNarration && (
+          <Tooltip title="Playback speed">
+            <IconButton
+              size="small"
+              aria-label="playback-speed"
+              aria-haspopup="true"
+              aria-controls={speedAnchor ? "reader-speed-menu" : undefined}
+              onClick={(e) => setSpeedAnchor(e.currentTarget)}
+              className={styles["speed-button"]}
+            >
+              {`${playbackRate}x`}
+            </IconButton>
+          </Tooltip>
+        )}
+        <Menu
+          id="reader-speed-menu"
+          anchorEl={speedAnchor}
+          open={Boolean(speedAnchor)}
+          onClose={() => setSpeedAnchor(null)}
+        >
+          {PLAYBACK_RATES.map((rate) => (
+            <MenuItem
+              key={rate.value}
+              selected={playbackRate === rate.value}
+              onClick={() => onSelectSpeed(rate.value)}
+            >
+              <ListItemText>{rate.label}</ListItemText>
+              {playbackRate === rate.value && (
+                <CheckIcon fontSize="small" sx={{ ml: 2 }} />
+              )}
+            </MenuItem>
+          ))}
+        </Menu>
+
         <Tooltip title="Volume">
           <IconButton
             size="small"
@@ -142,10 +270,12 @@ const ReaderAudioControls = () => {
             aria-haspopup="true"
             onClick={(e) => setVolumeAnchor(e.currentTarget)}
           >
-            {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
+            {isAllMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
           </IconButton>
         </Tooltip>
-        {/* The slider lives in a popover so the toolbar keeps a fixed width */}
+        {/* The sliders live in a popover so the toolbar keeps a fixed width.
+            Both channels are shown in either mode so the reader can balance
+            them in one place. */}
         <Popover
           open={Boolean(volumeAnchor)}
           anchorEl={volumeAnchor}
@@ -154,36 +284,23 @@ const ReaderAudioControls = () => {
           transformOrigin={{ vertical: "top", horizontal: "center" }}
         >
           <div className={styles["volume-popover"]}>
-            <Slider
-              size="small"
-              orientation="vertical"
-              aria-label="volume"
-              value={isMuted ? 0 : volume}
-              onChange={(_, value) => audio.setVolume(value)}
-              className={styles.slider}
-            />
-            <Tooltip title={isMuted ? "Unmute" : "Mute"}>
-              <IconButton
-                size="small"
-                aria-label={isMuted ? "unmute" : "mute"}
-                onClick={audio.toggleMute}
-              >
-                {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
-              </IconButton>
-            </Tooltip>
+            <VolumeColumn mode={MODES.NARRATION} channel={narration} />
+            <VolumeColumn mode={MODES.MUSIC} channel={music} />
           </div>
         </Popover>
       </div>
 
-      <IconButton
-        size="small"
-        aria-label="audio-options"
-        aria-haspopup="true"
-        aria-controls={menuAnchor ? "reader-audio-menu" : undefined}
-        onClick={(e) => setMenuAnchor(e.currentTarget)}
-      >
-        <MoreVertIcon />
-      </IconButton>
+      <Tooltip title="Audio options">
+        <IconButton
+          size="small"
+          aria-label="Audio options"
+          aria-haspopup="true"
+          aria-controls={menuAnchor ? "reader-audio-menu" : undefined}
+          onClick={(e) => setMenuAnchor(e.currentTarget)}
+        >
+          <MoreVertIcon />
+        </IconButton>
+      </Tooltip>
       <Menu
         id="reader-audio-menu"
         anchorEl={menuAnchor}
@@ -203,8 +320,94 @@ const ReaderAudioControls = () => {
             {mode.id === m.id && <CheckIcon fontSize="small" sx={{ ml: 2 }} />}
           </MenuItem>
         ))}
+        <Divider />
+        <ListSubheader className={styles["menu-subheader"]}>
+          Music track
+        </ListSubheader>
+        {musicTracks.map((track) => {
+          const isCurrent = music.currentTrack?.id === track.id;
+          return (
+            <MenuItem
+              key={track.id}
+              selected={isCurrent}
+              onClick={() => onSelectTrack(track.id)}
+            >
+              <ListItemText inset>{track.label}</ListItemText>
+              {isCurrent && <CheckIcon fontSize="small" sx={{ ml: 2 }} />}
+            </MenuItem>
+          );
+        })}
+        <MenuItem onClick={onChooseFile}>
+          <ListItemIcon>
+            <FolderOpenIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Choose a file…</ListItemText>
+        </MenuItem>
+        {musicCredit && <Divider />}
+        {musicCredit && (
+          <li className={styles["music-credit"]} role="none">
+            Music: “{music.currentTrack.label}” by {musicCredit.artist} ·{" "}
+            <a
+              href={musicCredit.source}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {musicCredit.license}
+            </a>
+          </li>
+        )}
       </Menu>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="audio/*"
+        hidden
+        onChange={onFileChange}
+      />
     </div>
+  );
+};
+
+/**
+ * Phone toolbar version: one button (with a dot while anything plays) that
+ * opens the full controls in a popover.
+ */
+export const ReaderAudioControlsCompact = () => {
+  const audio = useReaderAudio();
+  const [anchor, setAnchor] = React.useState(null);
+
+  if (!audio) return null;
+
+  const isAnyPlaying = [audio.narration, audio.music].some(
+    (channel) => channel.status === NARRATION_STATUS.PLAYING
+  );
+
+  return (
+    <>
+      <Tooltip title="Audio">
+        <IconButton
+          size="small"
+          aria-label="Audio controls"
+          aria-haspopup="dialog"
+          onClick={(event) => setAnchor(event.currentTarget)}
+        >
+          <Badge color="success" variant="dot" invisible={!isAnyPlaying}>
+            <HeadphonesIcon fontSize="small" />
+          </Badge>
+        </IconButton>
+      </Tooltip>
+      <Popover
+        open={Boolean(anchor)}
+        anchorEl={anchor}
+        onClose={() => setAnchor(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        transformOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <div className={styles["compact-popover"]}>
+          <ReaderAudioControls />
+        </div>
+      </Popover>
+    </>
   );
 };
 

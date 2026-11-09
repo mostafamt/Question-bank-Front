@@ -11,7 +11,7 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import NorthIcon from "@mui/icons-material/North";
 import SouthIcon from "@mui/icons-material/South";
-import { IconButton } from "@mui/material";
+import { IconButton, Tooltip } from "@mui/material";
 
 import styles from "./styles.module.scss";
 
@@ -101,12 +101,22 @@ const GlossaryAndKeywords = (props) => {
                 sx={{ fontWeight: "bold", "& > span": { fontWeight: "bold" } }}
               />
               <span className={styles["up-down"]}>
-                <IconButton onClick={(e) => onClickUp(e, item?.references)}>
-                  <NorthIcon />
-                </IconButton>
-                <IconButton onClick={(e) => onClickDown(e, item?.references)}>
-                  <SouthIcon />
-                </IconButton>
+                <Tooltip title="Go to term in page">
+                  <IconButton
+                    aria-label="Go to term in page"
+                    onClick={(e) => onClickUp(e, item?.references)}
+                  >
+                    <NorthIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Go to term in page">
+                  <IconButton
+                    aria-label="Go to term in page"
+                    onClick={(e) => onClickDown(e, item?.references)}
+                  >
+                    <SouthIcon />
+                  </IconButton>
+                </Tooltip>
               </span>
             </ListItemButton>
             <Collapse in={open[idx]} timeout="auto" unmountOnExit>

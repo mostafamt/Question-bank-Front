@@ -110,6 +110,11 @@ function paintOneFrame(video) {
  * onto an offscreen canvas and swap the cloned `<video>` for an `<img>` of
  * that frame, which html2canvas renders like any other image.
  *
+ * @note YouTube/Vimeo deep videos render as cross-origin `<iframe>` players,
+ * which html2canvas can't paint either. YouTube ones carry a
+ * `data-snapshot-thumbnail` URL and are swapped for that thumbnail; Vimeo
+ * ones have no thumbnail and come out blank.
+ *
  * @note `DeepBlockObject` renders its linked object as a thumbnail `<img>`
  * (not an `<iframe>`), so it rasterizes normally like any other image.
  */
@@ -181,6 +186,26 @@ export async function capturePageSnapshot(containerEl) {
             console.error('Error capturing video frame for snapshot:', error);
           }
         });
+
+        // Embedded YouTube players are cross-origin iframes that html2canvas
+        // can't paint, so swap each for its thumbnail. A background image
+        // (not an <img>) because html2canvas loads and awaits backgrounds
+        // itself after onclone, and honors background-size: contain.
+        Array.from(clonedEl.querySelectorAll('iframe[data-snapshot-thumbnail]')).forEach(
+          (clonedIframe) => {
+            const thumbnail = clonedDoc.createElement('div');
+            thumbnail.className = clonedIframe.className;
+            thumbnail.style.setProperty(
+              'background-image',
+              `url("${clonedIframe.dataset.snapshotThumbnail}")`
+            );
+            thumbnail.style.setProperty('background-size', 'contain');
+            thumbnail.style.setProperty('background-position', 'center');
+            thumbnail.style.setProperty('background-repeat', 'no-repeat');
+
+            clonedIframe.replaceWith(thumbnail);
+          }
+        );
 
         // Now strip area selection styling from area boxes (NOT white areas)
         // These are typically the AreaSelector-generated divs with borders

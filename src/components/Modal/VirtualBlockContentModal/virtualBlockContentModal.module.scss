@@ -451,3 +451,25 @@
     }
   }
 }
+
+.virtual-block-content-modal {
+  .title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .typeSelect {
+    min-width: 220px;
+    font-size: 1.1rem;
+
+    :global(.MuiSelect-select) {
+      display: flex;
+      align-items: center;
+    }
+
+    :global(.MuiListItemIcon-root) {
+      min-width: 32px;
+    }
+  }
+}

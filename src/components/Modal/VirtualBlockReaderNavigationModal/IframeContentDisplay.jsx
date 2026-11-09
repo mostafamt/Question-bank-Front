@@ -82,9 +82,11 @@ const IframeContentDisplay = ({ url, title }) => {
           <Alert
             severity="error"
             action={
-              <IconButton size="small" onClick={handleRefresh} aria-label="Retry">
-                <Refresh />
-              </IconButton>
+              <Tooltip title="Retry">
+                <IconButton size="small" onClick={handleRefresh} aria-label="Retry">
+                  <Refresh />
+                </IconButton>
+              </Tooltip>
             }
           >
             Failed to load content. Click to retry.

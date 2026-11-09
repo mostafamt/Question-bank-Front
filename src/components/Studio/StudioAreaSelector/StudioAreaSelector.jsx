@@ -1,5 +1,8 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import clsx from "clsx";
+import { Fab, Tooltip, useMediaQuery } from "@mui/material";
+import DrawIcon from "@mui/icons-material/Draw";
+import CheckIcon from "@mui/icons-material/Check";
 /** @jsxImportSource @emotion/react */
 
 import styles from "./studioAreaSelector.module.scss";
@@ -11,14 +14,18 @@ import { WHITE_PAGE_FALLBACK } from "../constants";
 import useReaderVBlocks from "../hooks/useReaderVBlocks";
 
 import { getRenderMode, RENDER_MODES } from "./utils/renderMode";
-import { BlockOverlayLayer } from "./shared";
+import { BlockOverlayLayer, BlockContextMenu } from "./shared";
 import {
   ReaderModeRenderer,
   HandToolRenderer,
   EditModeRenderer,
   DefaultRenderer,
 } from "./renderers";
-import { useAreaCustomRenderer, useCompositeBlockPicking } from "./hooks";
+import {
+  useAreaCustomRenderer,
+  useCompositeBlockPicking,
+  useBlockContextMenu,
+} from "./hooks";
 
 /**
  * @file StudioAreaSelector.jsx
@@ -50,6 +57,8 @@ const StudioAreaSelector = React.memo(
       readOnly = false,
       onAreaClick,
       onPlayBlock,
+      onClickDeleteArea,
+      updateAreaPropertyById,
       pageContainerRef,
       showBlocksStyling,
       deletedDeepBlockAreas = [],
@@ -164,12 +173,6 @@ const StudioAreaSelector = React.memo(
         : areas[activePage] || [];
     }, [activeRightTab.id, compositeBlocks.areas, areas, activePage]);
 
-    const wrapperStyle = useMemo(
-      () => ({
-        width: "100%",
-      }),
-      []
-    );
 
     const areaPropsConfig = useMemo(
       () => ({
@@ -185,6 +188,69 @@ const StudioAreaSelector = React.memo(
       highlight,
       activeRightTabId: activeRightTab.id,
     });
+    const isEditMode = renderMode === RENDER_MODES.EDIT_MODE;
+
+    // Touch screens: the area library draws on every finger drag (it sets
+    // touch-action: none), so the page could not be scrolled. Fingers scroll
+    // by default; the Draw button hands them to the library. Mouse and pen
+    // are unaffected. White-out mode is an explicit drawing mode already.
+    const hasTouch = useMediaQuery("(any-pointer: coarse)");
+    const [isTouchDrawMode, setTouchDrawMode] = useState(false);
+    useEffect(() => {
+      if (!isEditMode) setTouchDrawMode(false);
+    }, [isEditMode]);
+    const touchScrollsPage = isEditMode && !isTouchDrawMode && !isWhiteOutMode;
+
+    // Right-click menu: only where page blocks are shown and clicking a block
+    // doesn't already mean something else (composite picking, white-out).
+    const isContextMenuEnabled =
+      renderMode === RENDER_MODES.READER ||
+      renderMode === RENDER_MODES.VIEW_AND_PLAY ||
+      (renderMode === RENDER_MODES.EDIT_MODE &&
+        activeRightTab.id !== "composite-blocks" &&
+        !isWhiteOutMode);
+
+    const wrapperStyle = useMemo(
+      () => ({
+        width: "100%",
+        touchAction: touchScrollsPage ? "pan-x pan-y" : "none",
+      }),
+      [touchScrollsPage]
+    );
+
+    const {
+      menuProps: contextMenuProps,
+      onContextMenu,
+      onPointerDownCapture: onMenuPointerDownCapture,
+      onPointerMoveCapture,
+      onPointerUpCapture,
+      onPointerCancelCapture,
+      onClickCapture,
+    } = useBlockContextMenu({
+      enabled: isContextMenuEnabled,
+      isReaderMode,
+      canShowInList: activeRightTab.id === "block-authoring",
+      areas,
+      areasProperties,
+      activePage,
+      imageRef: ref,
+      onPlayBlock,
+      onClickDeleteArea,
+      updateAreaPropertyById,
+      // A still finger in Draw mode is the start of a drawing
+      longPressEnabled: !isEditMode || touchScrollsPage,
+    });
+
+    const onPointerDownCapture = useCallback(
+      (event) => {
+        onMenuPointerDownCapture(event);
+        // Keep scrolling fingers away from the area library (see above)
+        if (touchScrollsPage && event.pointerType === "touch") {
+          event.stopPropagation();
+        }
+      },
+      [onMenuPointerDownCapture, touchScrollsPage]
+    );
 
     const sharedRendererProps = {
       deletedDeepBlockAreas,
@@ -196,86 +262,122 @@ const StudioAreaSelector = React.memo(
     };
 
     return (
-      <VirtualBlocks
-        className={clsx(
-          styles["studio-area-selector"],
-          !showVB && styles["show"]
-        )}
-        showVB={showVB}
-        virtualBlocks={virtualBlocks}
-        setVirtualBlocks={setVirtualBlocks}
-        activePage={activePage}
-        reader={isReaderMode}
-        readerBlocks={readerBlocks}
-        onSaveReaderSlot={saveReaderSlot}
-        onDeleteReaderSlot={deleteReaderSlot}
-        pageImageUrl={getImageSource()}
-      >
-        <div
-          ref={pageContainerRef}
+      <>
+        <VirtualBlocks
           className={clsx(
-            styles.block,
-            !showBlocksStyling && styles.hideBlocksStyling
+            styles["studio-area-selector"],
+            !showVB && styles["show"]
           )}
-          css={constructBoxColors(
-            readOnly
-              ? [] // read-only mode: let inline getBlockStyle handle borders
-              : activeRightTab.id === "composite-blocks"
-              ? compositeBlocks.areas || []
-              : areasProperties[activePage] || [],
-            highlightedBlockId,
-            showBlocksStyling
-          )}
+          showVB={showVB}
+          virtualBlocks={virtualBlocks}
+          setVirtualBlocks={setVirtualBlocks}
+          activePage={activePage}
+          reader={isReaderMode}
+          readerBlocks={readerBlocks}
+          onSaveReaderSlot={saveReaderSlot}
+          onDeleteReaderSlot={deleteReaderSlot}
+          pageImageUrl={getImageSource()}
         >
-          {renderMode === RENDER_MODES.READER && (
-            <ReaderModeRenderer
-              ref={ref}
-              areas={areas}
-              areasProperties={areasProperties}
-              getBlockStyle={getBlockStyle}
-              onPlayBlock={onPlayBlock}
-              highlightedBlockId={highlightedBlockId}
-              {...sharedRendererProps}
-            />
-          )}
-          {(renderMode === RENDER_MODES.VIEW_AND_PLAY ||
-            renderMode === RENDER_MODES.READ_ONLY) && (
-            <BlockOverlayLayer
-              ref={ref}
-              areas={areas}
-              areasProperties={areasProperties}
-              getBlockStyle={getBlockStyle}
-              customRender={customRender}
-              onAreaClick={onAreaClick}
-              {...sharedRendererProps}
-            />
-          )}
-          {renderMode === RENDER_MODES.HAND_TOOL && (
-            <HandToolRenderer
-              ref={ref}
-              blocksToRender={blocksToRender}
-              {...sharedRendererProps}
-            />
-          )}
-          {renderMode === RENDER_MODES.EDIT_MODE && (
-            <EditModeRenderer
-              ref={ref}
-              renderedAreas={renderedAreas}
-              onChangeHandler={onChangeHandler}
-              wrapperStyle={wrapperStyle}
-              customRender={customRender}
-              areaPropsConfig={areaPropsConfig}
-              isWhiteOutMode={isWhiteOutMode}
-              onAddWhiteOverlay={addManualWhiteOverlayArea}
-              onRemoveWhiteOverlay={removeWhiteOverlayArea}
-              {...sharedRendererProps}
-            />
-          )}
-          {renderMode === RENDER_MODES.DEFAULT && (
-            <DefaultRenderer ref={ref} {...sharedRendererProps} />
-          )}
-        </div>
-      </VirtualBlocks>
+          <div
+            ref={pageContainerRef}
+            onContextMenu={onContextMenu}
+            onPointerDownCapture={onPointerDownCapture}
+            onPointerMoveCapture={onPointerMoveCapture}
+            onPointerUpCapture={onPointerUpCapture}
+            onPointerCancelCapture={onPointerCancelCapture}
+            onClickCapture={onClickCapture}
+            className={clsx(
+              styles.block,
+              !showBlocksStyling && styles.hideBlocksStyling,
+              touchScrollsPage && styles["touch-scroll"]
+            )}
+            css={constructBoxColors(
+              readOnly
+                ? [] // read-only mode: let inline getBlockStyle handle borders
+                : activeRightTab.id === "composite-blocks"
+                ? compositeBlocks.areas || []
+                : areasProperties[activePage] || [],
+              highlightedBlockId,
+              showBlocksStyling
+            )}
+          >
+            {renderMode === RENDER_MODES.READER && (
+              <ReaderModeRenderer
+                ref={ref}
+                areas={areas}
+                areasProperties={areasProperties}
+                getBlockStyle={getBlockStyle}
+                onPlayBlock={onPlayBlock}
+                highlightedBlockId={highlightedBlockId}
+                {...sharedRendererProps}
+              />
+            )}
+            {(renderMode === RENDER_MODES.VIEW_AND_PLAY ||
+              renderMode === RENDER_MODES.READ_ONLY) && (
+              <BlockOverlayLayer
+                ref={ref}
+                areas={areas}
+                areasProperties={areasProperties}
+                getBlockStyle={getBlockStyle}
+                customRender={customRender}
+                onAreaClick={onAreaClick}
+                {...sharedRendererProps}
+              />
+            )}
+            {renderMode === RENDER_MODES.HAND_TOOL && (
+              <HandToolRenderer
+                ref={ref}
+                blocksToRender={blocksToRender}
+                {...sharedRendererProps}
+              />
+            )}
+            {renderMode === RENDER_MODES.EDIT_MODE && (
+              <EditModeRenderer
+                ref={ref}
+                renderedAreas={renderedAreas}
+                onChangeHandler={onChangeHandler}
+                wrapperStyle={wrapperStyle}
+                customRender={customRender}
+                areaPropsConfig={areaPropsConfig}
+                isWhiteOutMode={isWhiteOutMode}
+                onAddWhiteOverlay={addManualWhiteOverlayArea}
+                onRemoveWhiteOverlay={removeWhiteOverlayArea}
+                {...sharedRendererProps}
+              />
+            )}
+            {renderMode === RENDER_MODES.DEFAULT && (
+              <DefaultRenderer ref={ref} {...sharedRendererProps} />
+            )}
+          </div>
+          <BlockContextMenu {...contextMenuProps} />
+        </VirtualBlocks>
+        {hasTouch && isEditMode && !isWhiteOutMode && (
+          // Zero-height sticky row: the button floats at the bottom of the
+          // visible editor area without taking space in the page layout
+          <div className={styles["touch-draw-toggle"]}>
+            <Tooltip
+              title={isTouchDrawMode ? "Finish drawing" : "Draw areas with your finger"}
+              placement="left"
+            >
+              <Fab
+                variant="extended"
+                size="medium"
+                color={isTouchDrawMode ? "primary" : "default"}
+                aria-pressed={isTouchDrawMode}
+                aria-label={isTouchDrawMode ? "Finish drawing" : "Draw areas"}
+                onClick={() => setTouchDrawMode((on) => !on)}
+              >
+                {isTouchDrawMode ? (
+                  <CheckIcon sx={{ mr: 1 }} />
+                ) : (
+                  <DrawIcon sx={{ mr: 1 }} />
+                )}
+                {isTouchDrawMode ? "Done" : "Draw"}
+              </Fab>
+            </Tooltip>
+          </div>
+        )}
+      </>
     );
   })
 );

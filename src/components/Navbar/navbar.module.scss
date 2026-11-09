@@ -1,6 +1,12 @@
+@use "../../styles/breakpoints" as bp;
+
 .logo-box {
   height: 80px;
   position: relative;
+
+  @include bp.phone {
+    height: 48px;
+  }
 
   & img {
     position: absolute;

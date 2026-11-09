@@ -15,6 +15,7 @@ import {
   MenuItem,
   Box,
   Typography,
+  Tooltip,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { toast } from "react-toastify";
@@ -174,13 +175,18 @@ const ChapterForm = ({ form, setForm, titleError, setTitleError, disabled }) => 
             <Typography variant="body2" noWrap sx={{ flex: 1 }}>
               {form.file.name}
             </Typography>
-            <IconButton
-              size="small"
-              onClick={() => setForm({ file: null })}
-              disabled={disabled}
-            >
-              <CloseIcon fontSize="small" />
-            </IconButton>
+            <Tooltip title="Remove file">
+              <span>
+                <IconButton
+                  size="small"
+                  aria-label="Remove file"
+                  onClick={() => setForm({ file: null })}
+                  disabled={disabled}
+                >
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </span>
+            </Tooltip>
           </>
         )}
       </Box>
@@ -258,9 +264,17 @@ const AddChapterModal = ({ open, handleCloseModal, bookId, onChapterCreated }) =
         sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
       >
         Add Chapter
-        <IconButton onClick={handleClose} disabled={isSubmitting}>
-          <CloseIcon />
-        </IconButton>
+        <Tooltip title="Close">
+          <span>
+            <IconButton
+              aria-label="Close"
+              onClick={handleClose}
+              disabled={isSubmitting}
+            >
+              <CloseIcon />
+            </IconButton>
+          </span>
+        </Tooltip>
       </DialogTitle>
       <Divider sx={{ borderColor: "#777" }} />
       <DialogContent>

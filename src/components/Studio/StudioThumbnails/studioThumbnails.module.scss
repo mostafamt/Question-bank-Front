@@ -1,3 +1,5 @@
+@use "../../../styles/breakpoints" as bp;
+
 .studio-thumbnails {
   flex: 0 0 20%;
 
@@ -49,5 +51,23 @@
     font-size: 1.75rem;
     filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
     pointer-events: none;
+  }
+
+  // Below desktop the thumbnails live in a PanelSheet (drawer / bottom sheet)
+  // with its own non-scrolling header, and are as wide as the sheet.
+  @include bp.below-desktop {
+    & .actions {
+      top: 0;
+      margin: 0;
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+    }
+
+    // Single column kept: the drag-to-reorder Droppable is vertical-only
+    & .thumbnails-container {
+      max-width: 200px;
+      margin-inline: auto;
+    }
   }
 }

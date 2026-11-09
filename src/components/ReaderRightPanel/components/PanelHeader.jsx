@@ -15,6 +15,7 @@ const PanelHeader = ({ title, onBack }) => {
           type="button"
           className={styles.backButton}
           onClick={onBack}
+          title="Back"
           aria-label="Back"
         >
           <ArrowBackIcon fontSize="small" />
