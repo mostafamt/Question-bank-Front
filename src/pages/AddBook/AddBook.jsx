@@ -222,10 +222,8 @@ const AddBook = () => {
 
               <Button
                 variant="contained"
-                type="submit"
-                disabled={true}
+                type="button"
                 startIcon={renderButtonIcon("author")}
-                name="author"
                 sx={{ bgcolor: "#2e7d32", "&:hover": { bgcolor: "#1b5e20" } }}
               >
                 Teacher
