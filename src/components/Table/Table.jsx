@@ -1,16 +1,70 @@
 import * as React from "react";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridCsvExportMenuItem,
+  GridPrintExportMenuItem,
+  GridToolbarColumnsButton,
+  GridToolbarContainer,
+  GridToolbarDensitySelector,
+  GridToolbarExportContainer,
+  GridToolbarFilterButton,
+} from "@mui/x-data-grid";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./table.module.scss";
-import { Button, IconButton, Radio } from "@mui/material";
+import { Button, IconButton, MenuItem, Radio } from "@mui/material";
 import { RadioButtonCheckedRounded, Delete } from "@mui/icons-material";
 import axios from "../../axios";
-import { fetchObjects } from "../../services/api";
+import { fetchObjects, getObject } from "../../services/api";
 import { v4 as uuidv4 } from "uuid";
 
 // author may be a populated user ({ username }) or a plain string
 const getAuthorName = (author) =>
   (typeof author === "string" ? author : author?.username) || "—";
+
+const downloadJson = (data, fileName) => {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  link.click();
+  URL.revokeObjectURL(url);
+};
+
+// The default GridToolbar, plus "Object JSON" / "Object Parameters" in its
+// Export menu for the selected row
+const TableToolbar = ({ onExport, canExport }) => (
+  <GridToolbarContainer>
+    <GridToolbarColumnsButton />
+    <GridToolbarFilterButton />
+    <GridToolbarDensitySelector />
+    <GridToolbarExportContainer>
+      <GridCsvExportMenuItem />
+      <GridPrintExportMenuItem />
+      <JsonExportMenuItem what="object" onExport={onExport} disabled={!canExport}>
+        Download object JSON
+      </JsonExportMenuItem>
+      <JsonExportMenuItem what="parameters" onExport={onExport} disabled={!canExport}>
+        Download object parameters
+      </JsonExportMenuItem>
+    </GridToolbarExportContainer>
+  </GridToolbarContainer>
+);
+
+// The export container passes hideMenu to its items so they can close it
+const JsonExportMenuItem = ({ hideMenu, what, onExport, disabled, children }) => (
+  <MenuItem
+    disabled={disabled}
+    onClick={() => {
+      hideMenu?.();
+      onExport(what);
+    }}
+  >
+    {children}
+  </MenuItem>
+);
 
 export default function DataTable(props) {
   const navigate = useNavigate();
@@ -164,6 +218,18 @@ export default function DataTable(props) {
     navigate(`/edit/${selectedRowId}`);
   };
 
+  // what: "object" downloads the whole object, "parameters" only its parameters
+  const onExport = async (what) => {
+    const object = await getObject(selectedRowId);
+    if (!object) return;
+    const name = object.questionName || selectedRowId;
+    if (what === "parameters") {
+      downloadJson(object.parameters ?? {}, `${name}-parameters.json`);
+    } else {
+      downloadJson(object, `${name}.json`);
+    }
+  };
+
   return (
     <>
       <div className={styles.table}>
@@ -182,7 +248,10 @@ export default function DataTable(props) {
           autoHeight
           columns={columns}
           baseCheckbox={RadioButtonCheckedRounded}
-          slots={{ toolbar: GridToolbar }}
+          slots={{ toolbar: TableToolbar }}
+          slotProps={{
+            toolbar: { onExport, canExport: Boolean(selectedRowId) },
+          }}
           pageSizeOptions={[10, 25, 50, 100]}
           paginationModel={paginationModel}
           paginationMode="server"
