@@ -9,7 +9,7 @@ import {
   GridToolbarExportContainer,
   GridToolbarFilterButton,
 } from "@mui/x-data-grid";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import styles from "./table.module.scss";
 import { Button, IconButton, MenuItem, Radio } from "@mui/material";
 import { RadioButtonCheckedRounded, Delete } from "@mui/icons-material";
@@ -66,6 +66,8 @@ const JsonExportMenuItem = ({ hideMenu, what, onExport, disabled, children }) =>
   </MenuItem>
 );
 
+const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
+
 export default function DataTable(props) {
   const navigate = useNavigate();
   const [rows, setRows] = React.useState([]);
@@ -74,10 +76,28 @@ export default function DataTable(props) {
   const [selectedRowId, setSelectedRowId] = React.useState();
   const [searchValue, setSearchValue] = React.useState("")
   const [searchColumn, setSearchColumn] = React.useState("")
-  const [paginationModel, setPaginationModel] = React.useState({
-    page: 1,
-    pageSize: 10,
-  });
+  // Page lives in the URL (?page=&pageSize=) so leaving the page and coming
+  // back, or reloading, keeps the same page. URL page is 1-based, grid is 0-based.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlPage = Number(searchParams.get("page"));
+  const urlPageSize = Number(searchParams.get("pageSize"));
+  const paginationModel = React.useMemo(
+    () => ({
+      page: Number.isInteger(urlPage) && urlPage > 0 ? urlPage - 1 : 0,
+      pageSize: PAGE_SIZE_OPTIONS.includes(urlPageSize) ? urlPageSize : 10,
+    }),
+    [urlPage, urlPageSize]
+  );
+  const setPaginationModel = (model) => {
+    setSearchParams(
+      (params) => {
+        params.set("page", model.page + 1);
+        params.set("pageSize", model.pageSize);
+        return params;
+      },
+      { replace: true }
+    );
+  };
   const columnNames = { name: "questionName", category: "category", type: "type", domain: "domainName", subDomain: "subDomainName", topic: "topic", IR: "IR", author: "author" }
 
   const renderColorStatus = (status) => {
@@ -176,7 +196,7 @@ export default function DataTable(props) {
   const fetchQuestions = React.useCallback(async () => {
     setLoading(true);
     const res = await fetchObjects(
-      paginationModel.page,
+      paginationModel.page + 1,
       paginationModel.pageSize,
       searchValue,
       searchColumn
@@ -252,7 +272,7 @@ export default function DataTable(props) {
           slotProps={{
             toolbar: { onExport, canExport: Boolean(selectedRowId) },
           }}
-          pageSizeOptions={[10, 25, 50, 100]}
+          pageSizeOptions={PAGE_SIZE_OPTIONS}
           paginationModel={paginationModel}
           paginationMode="server"
           onFilterModelChange={(e) => {
