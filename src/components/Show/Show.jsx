@@ -33,9 +33,9 @@ const Show = () => {
 
   if (!object) return null;
 
-  if (object.baseType === "SnapLearning Object") {
-    return <SnapLearningPlayer data={object} />;
-  }
+  // if (object.baseType === "SnapLearning Object") {
+  //   return <SnapLearningPlayer data={object} />;
+  // }
 
   return (
     <div className={`container ${styles.questions}`}>
