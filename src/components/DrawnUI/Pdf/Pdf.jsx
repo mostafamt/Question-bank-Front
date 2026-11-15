@@ -19,24 +19,25 @@ import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import CloseIcon from "@mui/icons-material/Close";
 import { upload } from "../../../utils/upload";
 import { fileToImages } from "../../../services/api";
+import {
+  acceptFor,
+  PPTX_MIME_TYPE,
+  validateFile,
+} from "../../../utils/fileTypes";
+import { toast } from "react-toastify";
 import ValidationMessage from "../../ValidationMessage/ValidationMessage";
 
 import styles from "./pdf.module.scss";
 
-const PPTX_MIME_TYPE =
-  "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-
 const FILE_KINDS = {
   pdf: {
     label: "PDF",
-    accept: "application/pdf",
     fileName: "document.pdf",
     mimeType: "application/pdf",
     Icon: PictureAsPdfIcon,
   },
   ppt: {
     label: "PowerPoint",
-    accept: `.ppt,.pptx,application/vnd.ms-powerpoint,${PPTX_MIME_TYPE}`,
     fileName: "presentation.pptx",
     mimeType: PPTX_MIME_TYPE,
     Icon: SlideshowIcon,
@@ -58,7 +59,17 @@ const fileFromUrl = async (url, { fileName, mimeType }) => {
 };
 
 const Pdf = (props) => {
-  const { setValue, name, control, errors, path, kind = "pdf" } = props;
+  const {
+    setValue,
+    name,
+    control,
+    errors,
+    path,
+    setError,
+    clearErrors,
+    trackUpload = (promise) => promise,
+    kind = "pdf",
+  } = props;
   const fileKind = FILE_KINDS[kind];
   const { Icon } = fileKind;
 
@@ -90,7 +101,7 @@ const Pdf = (props) => {
     const needsUpload = !current.url && Boolean(file);
     const needsPages = !current.pages?.length;
 
-    const [link, images] = await Promise.all([
+    const [link, images] = await trackUpload(Promise.all([
       needsUpload ? upload(file) : current.url,
       needsPages
         ? (async () => {
@@ -98,7 +109,7 @@ const Pdf = (props) => {
             return source ? fileToImages(source) : [];
           })()
         : current.pages,
-    ]);
+    ]));
 
     update({ url: link || "", pages: images || [] });
     setLoading(false);
@@ -109,6 +120,14 @@ const Pdf = (props) => {
     // Reset so picking the same file again still fires onChange
     event.target.value = "";
     if (!file) return;
+
+    const error = validateFile(file, kind);
+    if (error) {
+      setError?.(name, { type: "file-type", message: error });
+      toast.error(error);
+      return;
+    }
+    clearErrors?.(name);
 
     const isSameFile =
       fileRef.current &&
@@ -235,7 +254,7 @@ const Pdf = (props) => {
             }
           >
             Upload {fileKind.label}
-            <VisuallyHiddenInput type="file" accept={fileKind.accept} />
+            <VisuallyHiddenInput type="file" accept={acceptFor(kind)} />
           </Button>
 
           <TextField

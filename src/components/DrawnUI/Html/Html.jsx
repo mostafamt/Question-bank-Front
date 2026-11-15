@@ -14,7 +14,9 @@ import HtmlIcon from "@mui/icons-material/Html";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import CloseIcon from "@mui/icons-material/Close";
 import { upload } from "../../../utils/upload";
+import { acceptFor, validateFile } from "../../../utils/fileTypes";
 import ValidationMessage from "../../ValidationMessage/ValidationMessage";
+import { toast } from "react-toastify";
 
 import styles from "./html.module.scss";
 
@@ -24,7 +26,16 @@ import styles from "./html.module.scss";
 export const SANDBOX = "allow-scripts";
 
 const Html = (props) => {
-  const { setValue, name, control, errors, path } = props;
+  const {
+    setValue,
+    name,
+    control,
+    errors,
+    path,
+    setError,
+    clearErrors,
+    trackUpload = (promise) => promise,
+  } = props;
 
   // In edit mode the saved value arrives after this component mounts
   const value = useWatch({ control, name }) || "";
@@ -47,8 +58,16 @@ const Html = (props) => {
     event.target.value = "";
     if (!file) return;
 
+    const error = validateFile(file, "html");
+    if (error) {
+      setError?.(name, { type: "file-type", message: error });
+      toast.error(error);
+      return;
+    }
+    clearErrors?.(name);
+
     setLoading(true);
-    const link = await upload(file);
+    const link = await trackUpload(upload(file));
     if (link) update(link);
     setLoading(false);
   };
@@ -119,7 +138,7 @@ const Html = (props) => {
             }
           >
             Upload HTML
-            <VisuallyHiddenInput type="file" accept=".html,.htm,text/html" />
+            <VisuallyHiddenInput type="file" accept={acceptFor("html")} />
           </Button>
 
           <TextField

@@ -14,7 +14,13 @@ const ValidationMessage = (props) => {
 
   const message = error?.message || error?.root?.message;
 
-  return error && <p className={styles["validation-message"]}>{message}</p>;
+  return (
+    error && (
+      <p className={styles["validation-message"]} data-validation-error>
+        {message}
+      </p>
+    )
+  );
 };
 
 export default ValidationMessage;

@@ -14,8 +14,15 @@ const saved = {
 };
 
 // Like the edit form: the fields mount before the saved values arrive
-const Form = ({ getSaved }) => {
-  const { control, getValues, setValue } = useForm({
+const Form = ({ getSaved, kind }) => {
+  const {
+    control,
+    getValues,
+    setValue,
+    setError,
+    clearErrors,
+    formState: { errors },
+  } = useForm({
     defaultValues: getSaved,
   });
 
@@ -23,10 +30,13 @@ const Form = ({ getSaved }) => {
     <Pdf
       name="file"
       path={["file"]}
-      errors={{}}
+      errors={errors}
       control={control}
       getValues={getValues}
       setValue={setValue}
+      setError={setError}
+      clearErrors={clearErrors}
+      kind={kind}
     />
   );
 };
@@ -62,6 +72,37 @@ describe("Pdf", () => {
     expect(image.src).toBe("https://images/new.png");
     expect(screen.getByLabelText("Add Url").value).toBe(
       "https://bucket/new.pdf"
+    );
+  });
+
+  it("rejects a file that is not a pdf without uploading it", async () => {
+    render(<Form getSaved={later({ file: "" })} />);
+    upload.mockClear();
+    fileToImages.mockClear();
+
+    const input = document.querySelector('input[type="file"]');
+    fireEvent.change(input, {
+      target: { files: [new File(["x"], "deck.pptx")] },
+    });
+
+    await screen.findByText("Only PDF files are allowed (.pdf)");
+    expect(upload).not.toHaveBeenCalled();
+    expect(fileToImages).not.toHaveBeenCalled();
+  });
+
+  it("accepts a pptx in a PowerPoint field", async () => {
+    render(<Form getSaved={later({ file: "" })} kind="ppt" />);
+    upload.mockResolvedValue("https://bucket/deck.pptx");
+    fileToImages.mockResolvedValue(["https://images/1.png"]);
+
+    const input = document.querySelector('input[type="file"]');
+    expect(input.accept).toContain(".pptx");
+    fireEvent.change(input, {
+      target: { files: [new File(["x"], "deck.pptx")] },
+    });
+
+    expect((await screen.findByAltText("Page 1")).src).toBe(
+      "https://images/1.png"
     );
   });
 });

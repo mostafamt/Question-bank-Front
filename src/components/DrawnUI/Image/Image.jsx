@@ -7,6 +7,8 @@ import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
 
 import { upload, uploadForStudio } from "../../../utils/upload";
+import { acceptFor, validateFile } from "../../../utils/fileTypes";
+import { toast } from "react-toastify";
 import { Controller } from "react-hook-form";
 import ValidationMessage from "../../ValidationMessage/ValidationMessage";
 
@@ -14,7 +16,16 @@ import styles from "./image.module.scss";
 import Modal from "../../Modal/Modal";
 
 const Image = (props) => {
-  const { space, setValue, name, getValues, control, errors, path } = props;
+  const {
+    setValue,
+    name,
+    control,
+    errors,
+    path,
+    setError,
+    clearErrors,
+    trackUpload = (promise) => promise,
+  } = props;
   const [coordinate, setCoordinate] = React.useState();
   const [scaledCoordinate, setScaledCoordinate] = React.useState();
   const imageRef = React.createRef();
@@ -22,25 +33,32 @@ const Image = (props) => {
   const [showModal, setShowModal] = React.useState(false);
   const [isDragOver, setIsDragOver] = React.useState(false);
 
-  let value = getValues(name);
   const [loading, setLoading] = React.useState(false);
 
   const onChangeHandler = async (event) => {
-    setLoading(true);
     const file = event.target.files[0];
-    // const link =
-    // "https://fastly.picsum.photos/id/772/200/200.jpg?hmac=9euSj4JHTPr7uT5QWVmeNJ8JaqAXY8XmJnYfr_DfBJc";
-    const link = await upload(file);
-    setValue(name, link);
+    // Reset so picking the same file again still fires onChange
+    event.target.value = "";
+    if (!file) return;
+
+    const error = validateFile(file, "image");
+    if (error) {
+      setError?.(name, { type: "file-type", message: error });
+      toast.error(error);
+      return;
+    }
+    clearErrors?.(name);
+
+    setLoading(true);
+    const link = await trackUpload(upload(file));
+    if (link) setValue(name, link, { shouldValidate: true });
     setLoading(false);
   };
 
   React.useEffect(() => {}, [scaledCoordinate, showModal]);
 
   const onChangeInput = (event) => {
-    console.log("value= ", event.target.value);
     setValue(name, event.target.value);
-    console.log("newValue= ", getValues(name));
   };
 
   const onClickImage = (event) => {
@@ -97,7 +115,6 @@ const Image = (props) => {
           <Controller
             name={name}
             control={control}
-            rules={{ required: "File is required" }} // Set required rule
             render={({ field }) => (
               <div className={styles["modal-image-area"]}>
                 <img
@@ -128,7 +145,6 @@ const Image = (props) => {
       <Controller
         name={name}
         control={control}
-        rules={{ required: "File is required" }} // Set required rule
         render={({ field }) => (
           <div className={styles.image}>
             <div
@@ -144,9 +160,11 @@ const Image = (props) => {
                 setIsDragOver(false);
                 const base64 = e.dataTransfer.getData("application/x-area-image");
                 if (!base64) return;
+                // Scanned areas are always images, so they skip the file-type check
+                clearErrors?.(name);
                 setLoading(true);
-                const url = await uploadForStudio(base64);
-                if (url) setValue(name, url);
+                const url = await trackUpload(uploadForStudio(base64));
+                if (url) setValue(name, url, { shouldValidate: true });
                 setLoading(false);
               }}
               style={{
@@ -203,7 +221,7 @@ const Image = (props) => {
                 }
               >
                 Upload Image
-                <VisuallyHiddenInput type="file" />
+                <VisuallyHiddenInput type="file" accept={acceptFor("image")} />
               </Button>
 
               <TextField

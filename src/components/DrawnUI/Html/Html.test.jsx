@@ -10,7 +10,14 @@ const saved = "https://bucket/page.html";
 
 // Like the edit form: the fields mount before the saved values arrive
 const Form = ({ getSaved }) => {
-  const { control, getValues, setValue } = useForm({
+  const {
+    control,
+    getValues,
+    setValue,
+    setError,
+    clearErrors,
+    formState: { errors },
+  } = useForm({
     defaultValues: getSaved,
   });
 
@@ -18,10 +25,12 @@ const Form = ({ getSaved }) => {
     <Html
       name="file"
       path={["file"]}
-      errors={{}}
+      errors={errors}
       control={control}
       getValues={getValues}
       setValue={setValue}
+      setError={setError}
+      clearErrors={clearErrors}
     />
   );
 };
@@ -56,6 +65,37 @@ describe("Html", () => {
     expect(screen.getByLabelText("Add Url").value).toBe(
       "https://bucket/new.html"
     );
+  });
+
+  it("rejects a file that is not html without uploading it", async () => {
+    render(<Form getSaved={later({ file: "" })} />);
+    upload.mockClear();
+
+    const input = document.querySelector('input[type="file"]');
+    fireEvent.change(input, {
+      target: { files: [new File(["x"], "photo.png", { type: "image/png" })] },
+    });
+
+    await screen.findByText("Only HTML files are allowed (.html, .htm)");
+    expect(upload).not.toHaveBeenCalled();
+  });
+
+  it("clears the error once a valid file is picked", async () => {
+    render(<Form getSaved={later({ file: "" })} />);
+    upload.mockResolvedValue("https://bucket/new.html");
+    const input = document.querySelector('input[type="file"]');
+
+    fireEvent.change(input, {
+      target: { files: [new File(["x"], "photo.png", { type: "image/png" })] },
+    });
+    await screen.findByText(/Only HTML files/);
+
+    fireEvent.change(input, {
+      target: { files: [new File(["<p>x</p>"], "new.html")] },
+    });
+
+    await screen.findByTitle("file");
+    expect(screen.queryByText(/Only HTML files/)).toBeNull();
   });
 
   it("shows a pasted url once the field loses focus", async () => {

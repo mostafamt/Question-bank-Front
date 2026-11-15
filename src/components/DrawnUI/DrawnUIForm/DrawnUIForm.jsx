@@ -4,7 +4,7 @@ import Alert from "@mui/material/Alert";
 import { Box, Button, CircularProgress } from "@mui/material";
 import ArrayUI from "../ArrayUI/ArrayUI";
 import { useForm } from "react-hook-form";
-import { emptyValues, ignoreSpaces } from "../../../utils/data";
+import { emptyValues, fullTextTrim } from "../../../utils/data";
 import ObjectUI from "../ObjectUI/ObjectUI";
 import { useStore } from "../../../store/store";
 import { toast } from "react-toastify";
@@ -14,8 +14,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import {
   AUTO_UI_TYPES_MAPPING,
   getSchema,
-  getTypeOfKey,
   groupOneOfFields,
+  resolveType,
   searchIfHintExist,
   searchIfRequired,
 } from "../../../utils/auto-ui";
@@ -49,11 +49,11 @@ const DrawnUIForm = ({
     React.useState(true);
   const [selectedType, setSelectedType] = React.useState(null);
   const [abstractParameters, setAbstractParameters] = React.useState([]);
-  const [values, setValues] = React.useState({});
   const [loading, setLoading] = React.useState(false);
   const [labels, setLabels] = React.useState([]);
   const [savedObject, setSavedObject] = React.useState(null);
   const [proofLoading, setProofLoading] = React.useState(false);
+  const [pendingUploads, setPendingUploads] = React.useState(0);
   const { data: state } = useStore();
 
   const schema = getSchema(abstractParameters, labels);
@@ -64,11 +64,25 @@ const DrawnUIForm = ({
     control,
     setValue,
     getValues,
+    setError,
+    clearErrors,
     formState: { isSubmitting, errors },
   } = useForm({
     resolver: yupResolver(schema),
+    mode: "onSubmit",
+    reValidateMode: "onChange",
     defaultValues: async () => getData(),
   });
+
+  // Fields report their uploads here so Save waits until every file is in
+  const trackUpload = React.useCallback(async (promise) => {
+    setPendingUploads((count) => count + 1);
+    try {
+      return await promise;
+    } finally {
+      setPendingUploads((count) => count - 1);
+    }
+  }, []);
 
   const getParameters = async () => {
     const res = await axios.get(`/interactive-objects/${objectId}`);
@@ -114,12 +128,22 @@ const DrawnUIForm = ({
 
   const onSubmit = async (formValues) => {
     const corrected = correctArrayKeyLengths(formValues);
-    setValues(corrected);
     if (isEditMode || isEditMapToForm) {
       await editObject(corrected);
     } else {
       await saveObject(corrected);
     }
+  };
+
+  const onInvalid = (formErrors) => {
+    const fields = Object.keys(formErrors).map(fullTextTrim).join(", ");
+    toast.error(`Please fix the highlighted fields: ${fields}`);
+    // Upload fields have no focusable input, so scroll to the first message instead
+    requestAnimationFrame(() => {
+      document
+        .querySelector("[data-validation-error]")
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
   };
 
   const saveObject = async (formValues) => {
@@ -168,10 +192,13 @@ const DrawnUIForm = ({
       space,
       label: key,
       required: searchIfRequired(labels, key),
-      type: ignoreSpaces(value) || getTypeOfKey(labels, key),
+      type: resolveType(labels, key, value),
       control,
       setValue,
       getValues,
+      setError,
+      clearErrors,
+      trackUpload,
       parseParameters,
       hint: searchIfHintExist(selectedType?.hints, key),
       initialColor: (() => {
@@ -286,9 +313,9 @@ const DrawnUIForm = ({
             <Button
               type="submit"
               variant="contained"
-              disabled={isSubmitting}
+              disabled={isSubmitting || pendingUploads > 0}
               startIcon={
-                isSubmitting ? (
+                isSubmitting || pendingUploads > 0 ? (
                   <CircularProgress size={18} color="inherit" />
                 ) : (
                   <SaveOutlined />
@@ -296,7 +323,7 @@ const DrawnUIForm = ({
               }
               sx={actionButtonSx}
             >
-              Save
+              {pendingUploads > 0 ? "Uploading…" : "Save"}
             </Button>
           </Box>
         )}
@@ -318,7 +345,7 @@ const DrawnUIForm = ({
 
   return (
     <>
-      <form className="mb-4" onSubmit={handleSubmit(onSubmit)}>
+      <form className="mb-4" onSubmit={handleSubmit(onSubmit, onInvalid)}>
         {isMapToFormMode && (
           <Alert severity="info" sx={{ mb: 2 }}>
             Fields are pre-filled from scanned areas. Review and submit to
@@ -327,7 +354,6 @@ const DrawnUIForm = ({
         )}
         {abstractParameters && parseParameters(abstractParameters)}
       </form>
-      <pre>{JSON.stringify(values, null, 4)}</pre>
     </>
   );
 };
