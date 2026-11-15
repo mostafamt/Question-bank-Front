@@ -8,6 +8,10 @@ import axios from "../../axios";
 import { fetchObjects } from "../../services/api";
 import { v4 as uuidv4 } from "uuid";
 
+// author may be a populated user ({ username }) or a plain string
+const getAuthorName = (author) =>
+  (typeof author === "string" ? author : author?.username) || "—";
+
 export default function DataTable(props) {
   const navigate = useNavigate();
   const [rows, setRows] = React.useState([]);
@@ -20,7 +24,7 @@ export default function DataTable(props) {
     page: 1,
     pageSize: 10,
   });
-  const columnNames = { name: "questionName", category: "category", type: "type", domain: "domainName", subDomain: "subDomainName", topic: "topic", IR: "IR" }
+  const columnNames = { name: "questionName", category: "category", type: "type", domain: "domainName", subDomain: "subDomainName", topic: "topic", IR: "IR", author: "author" }
 
   const renderColorStatus = (status) => {
     let color = { backgroundColor: "black" };
@@ -91,6 +95,11 @@ export default function DataTable(props) {
       width: 150,
     },
     {
+      field: "author",
+      headerName: "Author",
+      width: 150,
+    },
+    {
       field: "dateModified",
       headerName: "Date Modified",
       width: 120,
@@ -133,6 +142,7 @@ export default function DataTable(props) {
           subDomain: item.subDomainName,
           topic: item.topic,
           IR: item.IR,
+          author: getAuthorName(item.author),
           dateModified: new Date(item.createdAt).toLocaleDateString("en-GB"),
           hasAnswered: item.isAnswered,
         }))

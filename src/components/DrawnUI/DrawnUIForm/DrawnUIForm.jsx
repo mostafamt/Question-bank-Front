@@ -55,6 +55,7 @@ const DrawnUIForm = ({
   const [proofLoading, setProofLoading] = React.useState(false);
   const [pendingUploads, setPendingUploads] = React.useState(0);
   const { data: state } = useStore();
+  const auth = useStore((s) => s.auth);
 
   const schema = getSchema(abstractParameters, labels);
 
@@ -127,6 +128,11 @@ const DrawnUIForm = ({
   };
 
   const onSubmit = async (formValues) => {
+    // The token identifies the author on the backend, so don't save without it
+    if (!auth?.token) {
+      toast.error("Your session has expired, please log in again.");
+      return;
+    }
     const corrected = correctArrayKeyLengths(formValues);
     if (isEditMode || isEditMapToForm) {
       await editObject(corrected);
@@ -146,6 +152,11 @@ const DrawnUIForm = ({
     });
   };
 
+  // Sends the logged-in user's token so the backend can identify the author
+  const authHeaders = () => ({
+    headers: { Authorization: `Bearer ${auth.token}` },
+  });
+
   const saveObject = async (formValues) => {
     const data = {
       questionName: state.questionName,
@@ -161,7 +172,7 @@ const DrawnUIForm = ({
       parameters: { ...formValues },
     };
     try {
-      const res = await axios.post("/interactive-objects", data);
+      const res = await axios.post("/interactive-objects", data, authHeaders());
       toast.success("Object added successfully");
       window.open(`/show/${res.data}`, "_blank");
       // onSuccess?.();   // disable close modal
@@ -172,9 +183,11 @@ const DrawnUIForm = ({
 
   const editObject = async (formValues) => {
     try {
-      const res = await axios.patch(`/interactive-objects/${objectId}`, {
-        parameters: { ...formValues },
-      });
+      const res = await axios.patch(
+        `/interactive-objects/${objectId}`,
+        { parameters: { ...formValues } },
+        authHeaders()
+      );
       toast.success("Object updated successfully");
       window.open(`/show/${res.data}`, "_blank");
       onSuccess?.();
