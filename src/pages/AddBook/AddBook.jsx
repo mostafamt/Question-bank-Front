@@ -9,32 +9,24 @@ import {
   copyChapter,
 } from "../../api/bookapi";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import {
-  Button,
-  ButtonGroup,
-  CircularProgress,
-  ListItemIcon,
-  Menu,
-  MenuItem,
-} from "@mui/material";
+import { CircularProgress } from "@mui/material";
 import ImportContactsIcon from "@mui/icons-material/ImportContacts";
 import DrawIcon from "@mui/icons-material/Draw";
 import AutoStoriesIcon from "@mui/icons-material/AutoStories";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import CheckIcon from "@mui/icons-material/Check";
 import { toast } from "react-toastify";
 import styles from "./addBook.module.scss";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../../store/store";
 import { getTypes } from "../../services/api";
+import LanguageSplitButton from "./LanguageSplitButton";
 
 const AddBook = () => {
   const navigate = useNavigate();
   const { setFormState, setLanguage, openModal } = useStore();
   const queryClient = useQueryClient();
   const [loadingScan, setLoadingScan] = React.useState(false);
-  const [readLanguage, setReadLanguage] = React.useState(null);
-  const [languageMenuAnchor, setLanguageMenuAnchor] = React.useState(null);
+  // Content language shared by the Read / Author / Teacher split buttons.
+  const [selectedLanguage, setSelectedLanguage] = React.useState(null);
   const {
     register,
     formState: { errors },
@@ -67,14 +59,14 @@ const AddBook = () => {
 
   React.useEffect(() => {
     if (!hasLanguageOptions) {
-      setReadLanguage(null);
+      setSelectedLanguage(null);
       return;
     }
     const chapterDetails = chapters?.find((c) => c._id === chapterId);
     const preferred = availableLanguages.find(
       (l) => l.code === chapterDetails?.language
     );
-    setReadLanguage((preferred || availableLanguages[0]).code);
+    setSelectedLanguage((preferred || availableLanguages[0]).code);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chapterId, languagesData]);
 
@@ -91,7 +83,7 @@ const AddBook = () => {
     },
   });
 
-  const handleRead = ({ book, chapter }, language = readLanguage) => {
+  const handleRead = ({ book, chapter }, language = selectedLanguage) => {
     // The read language only selects which language the reader fetches
     // content in — it must not touch the navbar's layout (RTL/LTR) language.
     // When the chapter has no language options, omit it entirely so the
@@ -102,8 +94,7 @@ const AddBook = () => {
   };
 
   const handleReadLanguageSelect = (code) => {
-    setReadLanguage(code);
-    setLanguageMenuAnchor(null);
+    setSelectedLanguage(code);
     // Run through handleSubmit so book/chapter validation still applies,
     // then navigate straight to the reader in the chosen language.
     handleSubmit((values) => handleRead(values, code))();
@@ -125,7 +116,10 @@ const AddBook = () => {
     }
   };
 
-  const handleBookAuthor = async ({ book, chapter }) => {
+  const handleBookAuthor = async (
+    { book, chapter },
+    contentLanguage = selectedLanguage
+  ) => {
     setLoadingScan(true);
     try {
       const types = await getTypes();
@@ -135,12 +129,20 @@ const AddBook = () => {
       const language = chapterDetails?.language || "en";
       setLanguage(language);
 
+      // `language` drives the navbar layout (RTL/LTR); `contentLanguage`
+      // only selects which language's pages are loaded. Omit it when the
+      // chapter has no language options so all pages load as before.
       navigate(`/book-author/book/${book}/chapter/${chapter}`, {
-        state: { language },
+        state: contentLanguage ? { language, contentLanguage } : { language },
       });
     } finally {
       setLoadingScan(false);
     }
+  };
+
+  const handleAuthorLanguageSelect = (code) => {
+    setSelectedLanguage(code);
+    handleSubmit((values) => handleBookAuthor(values, code))();
   };
 
   const handleBlankChapter = () => {
@@ -217,74 +219,40 @@ const AddBook = () => {
             </div>
 
             <div className={styles.actions}>
-              <Button
-                variant="contained"
-                type="submit"
+              <LanguageSplitButton
+                label="Author"
+                icon={renderButtonIcon("book-author")}
+                color="#1565c0"
+                hoverColor="#0d47a1"
+                languages={availableLanguages}
+                selectedLanguage={selectedLanguage}
                 disabled={loadingScan}
-                startIcon={renderButtonIcon("book-author")}
-                name="book-author"
-                sx={{ bgcolor: "#1565c0", "&:hover": { bgcolor: "#0d47a1" } }}
-              >
-                Author
-              </Button>
+                mainButtonProps={{ type: "submit", name: "book-author" }}
+                onLanguageSelect={handleAuthorLanguageSelect}
+              />
 
-              <Button
-                variant="contained"
-                type="button"
-                startIcon={renderButtonIcon("author")}
-                sx={{ bgcolor: "#2e7d32", "&:hover": { bgcolor: "#1b5e20" } }}
-              >
-                Teacher
-              </Button>
+              {/* Teacher has no destination yet: its menu only updates the
+                  shared language selection. */}
+              <LanguageSplitButton
+                label="Teacher"
+                icon={renderButtonIcon("author")}
+                color="#2e7d32"
+                hoverColor="#1b5e20"
+                languages={availableLanguages}
+                selectedLanguage={selectedLanguage}
+                onLanguageSelect={setSelectedLanguage}
+              />
 
-              <ButtonGroup variant="contained">
-                <Button
-                  type="submit"
-                  startIcon={renderButtonIcon("read")}
-                  name="read"
-                  sx={{ bgcolor: "#e65100", "&:hover": { bgcolor: "#bf360c" } }}
-                >
-                  Read
-                  {readLanguage &&
-                    ` (${
-                      availableLanguages.find((l) => l.code === readLanguage)
-                        ?.label || readLanguage
-                    })`}
-                </Button>
-                <Button
-                  type="button"
-                  size="small"
-                  disabled={!hasLanguageOptions}
-                  onClick={(e) => setLanguageMenuAnchor(e.currentTarget)}
-                  sx={{
-                    bgcolor: "#e65100",
-                    "&:hover": { bgcolor: "#bf360c" },
-                    px: 0.5,
-                  }}
-                >
-                  <ArrowDropDownIcon />
-                </Button>
-              </ButtonGroup>
-              <Menu
-                anchorEl={languageMenuAnchor}
-                open={Boolean(languageMenuAnchor)}
-                onClose={() => setLanguageMenuAnchor(null)}
-              >
-                {availableLanguages.map(({ code, label }) => (
-                  <MenuItem
-                    key={code}
-                    selected={readLanguage === code}
-                    onClick={() => handleReadLanguageSelect(code)}
-                  >
-                    {readLanguage === code && (
-                      <ListItemIcon>
-                        <CheckIcon fontSize="small" />
-                      </ListItemIcon>
-                    )}
-                    {label}
-                  </MenuItem>
-                ))}
-              </Menu>
+              <LanguageSplitButton
+                label="Read"
+                icon={renderButtonIcon("read")}
+                color="#e65100"
+                hoverColor="#bf360c"
+                languages={availableLanguages}
+                selectedLanguage={selectedLanguage}
+                mainButtonProps={{ type: "submit", name: "read" }}
+                onLanguageSelect={handleReadLanguageSelect}
+              />
             </div>
           </div>
         </fieldset>

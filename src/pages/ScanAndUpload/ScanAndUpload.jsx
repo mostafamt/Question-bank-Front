@@ -27,13 +27,15 @@ const ScanAndUpload = () => {
   const setLanguage = useStore((s) => s.setLanguage);
   const mode = useAppMode();
   const isReaderMode = mode === "reader";
+  const isBookAuthorMode = mode === "book-author";
   const { isDesktop } = useBreakpoint();
-  // Reader-only: the language chosen on the Read button. Used solely to
-  // query the pages endpoint below — never touches the navbar's layout
-  // (RTL/LTR) language. Absent when the chapter has no language options,
-  // in which case the query below omits the language filter entirely.
+  // Reader / book-author: the language chosen on the AddBook Read or Author
+  // button. Used solely to query the pages endpoint below — never touches
+  // the navbar's layout (RTL/LTR) language. Absent when the chapter has no
+  // language options, in which case the query omits the language filter.
   const contentLanguage = location.state?.contentLanguage;
-  const shouldQueryByLanguage = isReaderMode && Boolean(contentLanguage);
+  const shouldQueryByLanguage =
+    (isReaderMode || isBookAuthorMode) && Boolean(contentLanguage);
   const [pages, setPages] = React.useState([]);
 
   React.useEffect(() => {
