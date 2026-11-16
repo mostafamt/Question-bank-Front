@@ -91,14 +91,22 @@ const AddBook = () => {
     },
   });
 
-  const handleRead = ({ book, chapter }) => {
-    // readLanguage only selects which language the reader fetches content
-    // in — it must not touch the navbar's layout (RTL/LTR) language. When
-    // the chapter has no language options, omit it entirely so the reader
-    // fetches pages without a language filter.
+  const handleRead = ({ book, chapter }, language = readLanguage) => {
+    // The read language only selects which language the reader fetches
+    // content in — it must not touch the navbar's layout (RTL/LTR) language.
+    // When the chapter has no language options, omit it entirely so the
+    // reader fetches pages without a language filter.
     navigate(`/read/book/${book}/chapter/${chapter}`, {
-      state: readLanguage ? { contentLanguage: readLanguage } : {},
+      state: language ? { contentLanguage: language } : {},
     });
+  };
+
+  const handleReadLanguageSelect = (code) => {
+    setReadLanguage(code);
+    setLanguageMenuAnchor(null);
+    // Run through handleSubmit so book/chapter validation still applies,
+    // then navigate straight to the reader in the chosen language.
+    handleSubmit((values) => handleRead(values, code))();
   };
 
   const handleAuthor = async ({ book, chapter }) => {
@@ -266,10 +274,7 @@ const AddBook = () => {
                   <MenuItem
                     key={code}
                     selected={readLanguage === code}
-                    onClick={() => {
-                      setReadLanguage(code);
-                      setLanguageMenuAnchor(null);
-                    }}
+                    onClick={() => handleReadLanguageSelect(code)}
                   >
                     {readLanguage === code && (
                       <ListItemIcon>
