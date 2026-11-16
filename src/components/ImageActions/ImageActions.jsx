@@ -38,6 +38,7 @@ import GoToPagePopover from "./GoToPagePopover";
 import { useOcrLanguages } from "../Studio/LanguageSwitcher/LanguageSwitcher";
 import useBreakpoint from "../../hooks/useBreakpoint";
 import { getLanguages, publishChapter } from "../../services/api";
+import { DEFAULTS } from "../Studio/constants";
 
 const DEGREE = 0.1;
 // const text
@@ -121,21 +122,15 @@ const ImageActions = React.forwardRef((props, ref) => {
     }, 1);
   };
 
+  // Back to fit-width. Block positions are rebuilt from their stored
+  // percentages (onImageLoad / Studio's zoom effect), so there is no pixel
+  // math to undo. onImageLoad is called explicitly so a reset at 100% still
+  // re-syncs the blocks (the zoom effect only runs when the scale changes).
   const onClickZoomOff = () => {
-    // setImageScaleFactor(imageScaleFactor + DEGREE);
-    // const newAreas = [...areas];
-    // newAreas[activePage] = areas[activePage].map((area, idx) => {
-    //   const { x, y, width, height } = areasProperties[activePage][idx];
-    //   area.x = area.x + oldAreas[idx].x * DEGREE;
-    //   area.y = area.y + oldAreas[idx].y * DEGREE;
-    //   area.height = area.height + oldAreas[idx].height * DEGREE;
-    //   area.width = area.width + oldAreas[idx].width * DEGREE;
-    //   return area;
-    // });
-    // setAreas(newAreas);
-    // setTimeout(() => {
-    //   onImageLoad();
-    // }, 1);
+    setImageScaleFactor(DEFAULTS.IMAGE_SCALE_FACTOR);
+    setTimeout(() => {
+      onImageLoad();
+    }, 1);
   };
 
   const onClickZoomOut = () => {
