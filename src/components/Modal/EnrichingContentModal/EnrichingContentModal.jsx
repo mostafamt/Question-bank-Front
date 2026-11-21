@@ -1,5 +1,6 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
+import ModalHeader from "../ModalHeader/ModalHeader";
 import ContentItemForm from "../VirtualBlockContentModal/ContentItemForm";
 
 /**
@@ -28,9 +29,7 @@ const EnrichingContentModal = (props) => {
 
   return (
     <>
-      <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title>{title}</BootstrapModal.Title>
-      </BootstrapModal.Header>
+      <ModalHeader>{title}</ModalHeader>
 
       <BootstrapModal.Body>
         <ContentItemForm

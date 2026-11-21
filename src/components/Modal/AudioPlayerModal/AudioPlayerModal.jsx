@@ -1,5 +1,6 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
+import ModalHeader from "../ModalHeader/ModalHeader";
 import { Alert } from "@mui/material";
 
 /**
@@ -13,9 +14,7 @@ import { Alert } from "@mui/material";
 const AudioPlayerModal = ({ url, title = "Audio" }) => {
   return (
     <>
-      <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title>{title}</BootstrapModal.Title>
-      </BootstrapModal.Header>
+      <ModalHeader allowFullscreen={false}>{title}</ModalHeader>
       <BootstrapModal.Body>
         {url ? (
           <audio src={url} controls autoPlay style={{ width: "100%" }}>

@@ -1,5 +1,6 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
+import ModalHeader from "../ModalHeader/ModalHeader";
 import {
   Box,
   IconButton,
@@ -98,11 +99,9 @@ const IframeDisplayModal = (props) => {
       role="dialog"
       aria-labelledby="iframe-modal-title"
     >
-      <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title id="iframe-modal-title">
-          {title}
-        </BootstrapModal.Title>
-      </BootstrapModal.Header>
+      <ModalHeader titleId="iframe-modal-title">
+        {title}
+      </ModalHeader>
 
       <BootstrapModal.Body>
         {/* Toolbar */}

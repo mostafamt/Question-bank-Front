@@ -1,5 +1,6 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
+import ModalHeader from "../ModalHeader/ModalHeader";
 import Button from "@mui/material/Button";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
@@ -157,38 +158,36 @@ const VirtualBlockContentModal = (props) => {
       aria-labelledby="virtual-block-modal-title"
       aria-describedby="virtual-block-modal-description"
     >
-      <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title
-          id="virtual-block-modal-title"
-          className={styles.title}
-        >
-          Virtual Block:
-          {allowTypeChange ? (
-            <Select
-              size="small"
-              variant="standard"
-              value={blockLabel}
-              onChange={(e) => setBlockLabel(e.target.value)}
-              className={styles.typeSelect}
-              inputProps={{ "aria-label": "Block type" }}
-              MenuProps={{ disableScrollLock: true }}
-            >
-              {blockTypeOptions.map((item) => (
-                <MenuItem key={item.label} value={item.label}>
-                  {item.iconSrc && (
-                    <ListItemIcon>
-                      <img src={item.iconSrc} alt="" width="24px" loading="lazy" />
-                    </ListItemIcon>
-                  )}
-                  <ListItemText>{item.label}</ListItemText>
-                </MenuItem>
-              ))}
-            </Select>
-          ) : (
-            ` ${blockLabel}`
-          )}
-        </BootstrapModal.Title>
-      </BootstrapModal.Header>
+      <ModalHeader
+        titleId="virtual-block-modal-title"
+        titleClassName={styles.title}
+      >
+        Virtual Block:
+        {allowTypeChange ? (
+          <Select
+            size="small"
+            variant="standard"
+            value={blockLabel}
+            onChange={(e) => setBlockLabel(e.target.value)}
+            className={styles.typeSelect}
+            inputProps={{ "aria-label": "Block type" }}
+            MenuProps={{ disableScrollLock: true }}
+          >
+            {blockTypeOptions.map((item) => (
+              <MenuItem key={item.label} value={item.label}>
+                {item.iconSrc && (
+                  <ListItemIcon>
+                    <img src={item.iconSrc} alt="" width="24px" loading="lazy" />
+                  </ListItemIcon>
+                )}
+                <ListItemText>{item.label}</ListItemText>
+              </MenuItem>
+            ))}
+          </Select>
+        ) : (
+          ` ${blockLabel}`
+        )}
+      </ModalHeader>
 
       <BootstrapModal.Body>
         <div

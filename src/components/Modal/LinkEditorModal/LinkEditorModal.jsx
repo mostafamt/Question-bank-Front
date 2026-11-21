@@ -1,5 +1,6 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
+import ModalHeader from "../ModalHeader/ModalHeader";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 
@@ -97,9 +98,7 @@ const LinkEditorModal = (props) => {
 
   return (
     <div className={styles["link-editor-modal"]}>
-      <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title>{title}</BootstrapModal.Title>
-      </BootstrapModal.Header>
+      <ModalHeader allowFullscreen={false}>{title}</ModalHeader>
 
       <BootstrapModal.Body>
         <TextField

@@ -1,5 +1,6 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
+import ModalHeader from "../ModalHeader/ModalHeader";
 import { Box, Button } from "@mui/material";
 import RadioQuestionsTable from "../../Tables/RadioQuestionsTable/RadioQuestionsTable";
 import { useStore } from "../../../store/store";
@@ -85,9 +86,7 @@ const ObjectsTableModalContent2 = (props) => {
 
   return (
     <div>
-      <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title></BootstrapModal.Title>
-      </BootstrapModal.Header>
+      <ModalHeader />
       <BootstrapModal.Body>
         <form onSubmit={onSubmit}>
           <RadioQuestionsTable object={object} setObject={setObject} />

@@ -1,5 +1,6 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
+import ModalHeader from "../ModalHeader/ModalHeader";
 import QuillEditor from "react-quill";
 import { quillModules, quillFormats } from "../../../utils/quill";
 
@@ -27,9 +28,7 @@ const QuillModal = (props) => {
 
   return (
     <div className={styles["quill-modal"]}>
-      <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title>Edit Text</BootstrapModal.Title>
-      </BootstrapModal.Header>
+      <ModalHeader>Edit Text</ModalHeader>
       <BootstrapModal.Body>
         <QuillEditor
           className={styles.editor}

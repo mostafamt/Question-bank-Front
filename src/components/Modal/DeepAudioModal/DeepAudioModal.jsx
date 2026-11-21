@@ -1,5 +1,6 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
+import ModalHeader from "../ModalHeader/ModalHeader";
 import { Button } from "@mui/material";
 import { useForm } from "react-hook-form";
 
@@ -41,9 +42,7 @@ const DeepAudioModal = ({ workingArea, updateAreaPropertyById, handleCloseModal 
 
   return (
     <>
-      <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title>Block audio</BootstrapModal.Title>
-      </BootstrapModal.Header>
+      <ModalHeader>Block audio</ModalHeader>
       <BootstrapModal.Body>
         <Sound
           name={NAME}

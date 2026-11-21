@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
+import ModalHeader from "../ModalHeader/ModalHeader";
 import { Box, Button, Typography } from "@mui/material";
 import { ArrowBack, ArrowForward } from "@mui/icons-material";
 import useVirtualBlockNavigation from "../../../hooks/useVirtualBlockNavigation";
@@ -122,11 +123,9 @@ const VirtualBlockReaderNavigationModal = (props) => {
       aria-labelledby="vb-nav-modal-title"
       aria-describedby="vb-nav-modal-content"
     >
-      <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title id="vb-nav-modal-title">
-          {blockLabel}
-        </BootstrapModal.Title>
-      </BootstrapModal.Header>
+      <ModalHeader titleId="vb-nav-modal-title">
+        {blockLabel}
+      </ModalHeader>
 
       <BootstrapModal.Body id="vb-nav-modal-content">
         {renderContent()}

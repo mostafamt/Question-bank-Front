@@ -1,5 +1,6 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
+import ModalHeader from "../ModalHeader/ModalHeader";
 import Button from "@mui/material/Button";
 import {
   Card,
@@ -187,11 +188,9 @@ const VirtualBlockReaderModal = (props) => {
       aria-labelledby="reader-modal-title"
       aria-describedby="reader-modal-description"
     >
-      <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title id="reader-modal-title">
-          {blockLabel}
-        </BootstrapModal.Title>
-      </BootstrapModal.Header>
+      <ModalHeader titleId="reader-modal-title">
+        {blockLabel}
+      </ModalHeader>
 
       <BootstrapModal.Body>
         {/* Loading Overlay for Object URL Fetching */}

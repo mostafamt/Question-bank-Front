@@ -1,5 +1,6 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
+import ModalHeader from "../ModalHeader/ModalHeader";
 import Button from "@mui/material/Button";
 import QuillEditor from "react-quill";
 import "react-quill/dist/quill.snow.css";
@@ -67,9 +68,7 @@ const TextEditorModal = (props) => {
 
   return (
     <div className={styles["text-editor-modal"]}>
-      <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title>{title}</BootstrapModal.Title>
-      </BootstrapModal.Header>
+      <ModalHeader>{title}</ModalHeader>
 
       <BootstrapModal.Body>
         <QuillEditor

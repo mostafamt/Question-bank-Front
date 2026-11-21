@@ -1,0 +1,12 @@
+// Full screen dialog (Modal.jsx adds .is-fullscreen). Bootstrap makes
+// .modal-content a viewport-high flex column, but most content components
+// wrap header + body in their own <div>, which breaks that column. Turn those
+// wrappers into flex columns too so .modal-body can take the remaining height.
+.modal-dialog.is-fullscreen {
+  .modal-content > :not(.modal-header):not(.modal-body):not(.modal-footer) {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+}

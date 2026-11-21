@@ -251,3 +251,33 @@
     font-family: Impact, sans-serif !important;
   }
 }
+
+// Full screen: the editor fills the dialog instead of a fixed 300px
+:global(.is-fullscreen) .text-editor-modal {
+  height: auto;
+
+  :global(.modal-body) {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .editor {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+
+    :global(.ql-toolbar) {
+      flex: 0 0 auto;
+    }
+
+    :global(.ql-container) {
+      flex: 1 1 auto;
+      min-height: 0;
+      height: auto;
+      overflow-y: auto;
+    }
+  }
+}

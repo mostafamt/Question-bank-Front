@@ -12,3 +12,10 @@
   height: 100%;
   border: 0;
 }
+
+// Full screen: grow with the dialog but keep 16:9 inside the viewport height
+// (8rem ≈ header + body padding)
+:global(.is-fullscreen) .container {
+  width: min(100%, calc((100vh - 8rem) * 16 / 9));
+  margin: 0 auto;
+}

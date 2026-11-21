@@ -155,17 +155,20 @@ const useStore = create((set, get) => ({
     name: "",
     size: "xl",
     opened: false,
+    fullscreen: false,
     props: {},
   },
   setFormState: (data) =>
     set((prevState) => ({ data: { ...prevState.data, ...data } })),
 
-  openModal: (name, props = {}) =>
+  // options.fullscreen opens the modal already maximised
+  openModal: (name, props = {}, options = {}) =>
     set((prev) => ({
       modal: {
         ...prev.modal,
         name,
         opened: true,
+        fullscreen: Boolean(options.fullscreen),
         props,
       },
     })),
@@ -176,8 +179,14 @@ const useStore = create((set, get) => ({
         ...prev.modal,
         name: "",
         opened: false,
+        fullscreen: false,
         props: {},
       },
+    })),
+
+  toggleModalFullscreen: () =>
+    set((prev) => ({
+      modal: { ...prev.modal, fullscreen: !prev.modal.fullscreen },
     })),
 }));
 

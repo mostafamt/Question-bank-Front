@@ -1,0 +1,22 @@
+// Bootstrap gives .btn-close margin-left: auto. With the toggle in between,
+// two auto margins would split the free space and center the toggle, so the
+// title takes the space instead and the close button gets a fixed gap.
+.header {
+  gap: 0.25rem;
+
+  :global(.btn-close) {
+    margin-left: 0.25rem;
+  }
+}
+
+.title {
+  flex: 1 1 auto;
+  min-width: 0; // allow long titles to truncate
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toggle {
+  flex: 0 0 auto;
+}

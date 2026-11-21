@@ -1,5 +1,6 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
+import ModalHeader from "../ModalHeader/ModalHeader";
 import { useQuery } from "@tanstack/react-query";
 
 import { getObject } from "../../../api/bookapi";
@@ -7,7 +8,7 @@ import { isObjectId } from "../../../utils/objectId";
 import SnapLearningPlayer from "../../SnapLearningPlayer/SnapLearningPlayer";
 
 const PlayObjectModal = (props) => {
-  const { workingArea } = props;
+  const { workingArea, isFullscreen } = props;
 
   const id = workingArea.isServer ? workingArea.text : workingArea.contentValue;
 
@@ -44,11 +45,12 @@ const PlayObjectModal = (props) => {
   }
 
   return (
-    <div style={{ height: "100vh" }}>
-      <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title>{object?.questionName}</BootstrapModal.Title>
-      </BootstrapModal.Header>
-      <BootstrapModal.Body style={{ height: "100%" }}>
+    // Full screen: the dialog is already viewport-high, so let flex size it
+    <div style={isFullscreen ? undefined : { height: "100vh" }}>
+      <ModalHeader>{object?.questionName}</ModalHeader>
+      <BootstrapModal.Body
+        style={isFullscreen ? undefined : { height: "100%" }}
+      >
         {renderer}
       </BootstrapModal.Body>
     </div>

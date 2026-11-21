@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
+import ModalHeader from "../ModalHeader/ModalHeader";
 import { Button } from "react-bootstrap";
 import StudioEditor from "../../Studio/StudioEditor/StudioEditor";
 import { getAllowedAreaTypes } from "../../../utils/studio";
@@ -12,6 +13,7 @@ const CompositeBlocksModal = (props) => {
     compositeBlocksTypes, // Full type definitions from API
     pages, // Book pages with image URLs
     areasProperties, // Existing areas on all pages
+    isFullscreen,
   } = props;
 
   // State for page navigation and zoom
@@ -94,9 +96,7 @@ const CompositeBlocksModal = (props) => {
   if (!pages || !areasProperties) {
     return (
       <>
-        <BootstrapModal.Header closeButton>
-          <BootstrapModal.Title>Select Object</BootstrapModal.Title>
-        </BootstrapModal.Header>
+        <ModalHeader>Select Object</ModalHeader>
         <BootstrapModal.Body>
           <p>Loading pages...</p>
         </BootstrapModal.Body>
@@ -111,11 +111,11 @@ const CompositeBlocksModal = (props) => {
 
   return (
     <>
-      <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title>Select Object</BootstrapModal.Title>
-      </BootstrapModal.Header>
+      <ModalHeader>Select Object</ModalHeader>
 
-      <BootstrapModal.Body style={{ maxHeight: "70vh", overflow: "auto" }}>
+      <BootstrapModal.Body
+        style={isFullscreen ? undefined : { maxHeight: "70vh", overflow: "auto" }}
+      >
         {/* StudioEditor in Read-Only Mode */}
         <StudioEditor
           areasProperties={displayAreas}

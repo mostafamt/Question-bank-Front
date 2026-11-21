@@ -1,5 +1,6 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
+import ModalHeader from "../ModalHeader/ModalHeader";
 import { Button } from "@mui/material";
 import RadioQuestionsTable from "../../Tables/RadioQuestionsTable/RadioQuestionsTable";
 
@@ -23,9 +24,7 @@ const SelectFromLibraryModal = ({ handleCloseModal, onSelect }) => {
 
   return (
     <div>
-      <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title>Select from Library</BootstrapModal.Title>
-      </BootstrapModal.Header>
+      <ModalHeader>Select from Library</ModalHeader>
 
       <BootstrapModal.Body>
         <RadioQuestionsTable object={selected} setObject={setSelected} />

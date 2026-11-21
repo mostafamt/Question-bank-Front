@@ -28,6 +28,7 @@ import AudioPlayerModal from "./AudioPlayerModal/AudioPlayerModal";
 import SelectFromLibraryModal from "./SelectFromLibraryModal/SelectFromLibraryModal";
 import ImportPagesModal from "./ImportPagesModal";
 import AddChapterModal from "./AddChapterModal/AddChapterModal";
+import "./modal.scss";
 
 // Modal registry
 const MODAL_COMPONENTS = {
@@ -62,7 +63,14 @@ const Modal = () => {
   const { modal, closeModal } = useStore();
   const { isPhone } = useBreakpoint();
 
-  const { name = "", size = "xl", opened = false, props = {} } = modal;
+  const {
+    name = "",
+    size = "xl",
+    opened = false,
+    fullscreen = false,
+    props = {},
+  } = modal;
+  const isFullscreen = isPhone || fullscreen;
 
   if (name === "import-pages") {
     return (
@@ -80,16 +88,22 @@ const Modal = () => {
   const ModalComponent = MODAL_COMPONENTS[name] || null;
 
   return (
-    // Phones: full screen — a centered xl dialog would leave ~1rem margins
-    // and scroll in two places
+    // Phones: always full screen — a centered xl dialog would leave ~1rem
+    // margins and scroll in two places. Larger screens toggle it from
+    // ModalHeader. "is-fullscreen" lets content SCSS relax fixed heights.
     <BootstrapModal
       show={opened}
       onHide={closeModal}
       size={size}
-      fullscreen={isPhone || undefined}
+      fullscreen={isFullscreen || undefined}
+      dialogClassName={isFullscreen ? "is-fullscreen" : undefined}
     >
       {ModalComponent && (
-        <ModalComponent {...props} handleCloseModal={closeModal} />
+        <ModalComponent
+          {...props}
+          isFullscreen={isFullscreen}
+          handleCloseModal={closeModal}
+        />
       )}
     </BootstrapModal>
   );

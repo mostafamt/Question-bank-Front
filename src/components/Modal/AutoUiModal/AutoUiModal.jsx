@@ -1,5 +1,6 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
+import ModalHeader from "../ModalHeader/ModalHeader";
 import DrawnUI from "../../../pages/DrawnUI/DrawnUI";
 
 // // id, type, fromOCR
@@ -9,9 +10,7 @@ const AutoUiModal = (props) => {
 
   return (
     <div>
-      <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title></BootstrapModal.Title>
-      </BootstrapModal.Header>
+      <ModalHeader />
       <BootstrapModal.Body>
         <DrawnUI
           type={workingArea.typeOfLabel}

@@ -1,3 +1,5 @@
+@use "../../../styles/breakpoints" as bp;
+
 .modal-content {
   & .header {
     padding: 1rem;
@@ -65,5 +67,26 @@
 
   @supports (height: 100dvh) {
     --studio-height: 75dvh;
+  }
+}
+
+// Full screen below desktop: like ScanAndUpload, the Studio takes whatever
+// height the name header leaves instead of a fixed 75vh. On desktop the
+// Studio has its own fixed height and the body scrolls.
+@include bp.below-desktop {
+  :global(.is-fullscreen) {
+    .body {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .studio-wrapper {
+      --studio-height: auto;
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
   }
 }

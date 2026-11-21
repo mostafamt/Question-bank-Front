@@ -1,5 +1,6 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
+import ModalHeader from "../ModalHeader/ModalHeader";
 import Studio from "../../Studio/Studio";
 import QuestionNameHeader from "../../QuestionNameHeader/QuestionNameHeader";
 
@@ -105,10 +106,8 @@ const SubObjectModal = (props) => {
 
   return (
     <div>
-      <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title></BootstrapModal.Title>
-      </BootstrapModal.Header>
-      <BootstrapModal.Body>
+      <ModalHeader />
+      <BootstrapModal.Body className={styles.body}>
         <QuestionNameHeader
           subObject
           name={name}

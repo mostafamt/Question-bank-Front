@@ -1,5 +1,6 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
+import ModalHeader from "../ModalHeader/ModalHeader";
 import QuestionsTable from "../../Tables/QuestionsTable/QuestionsTable";
 import { Box, Button } from "@mui/material";
 
@@ -19,9 +20,7 @@ const ObjectsTableModalContent = (props) => {
 
   return (
     <div>
-      <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title></BootstrapModal.Title>
-      </BootstrapModal.Header>
+      <ModalHeader />
       <BootstrapModal.Body>
         <form onSubmit={onSubmit}>
           <QuestionsTable objects={objects} setObjects={setObjects} />

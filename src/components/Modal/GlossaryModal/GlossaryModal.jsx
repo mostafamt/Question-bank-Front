@@ -1,5 +1,6 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
+import ModalHeader from "../ModalHeader/ModalHeader";
 import { Button, TextField, Box } from "@mui/material";
 
 /**
@@ -73,9 +74,7 @@ const GlossaryModal = (props) => {
 
   return (
     <>
-      <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title>{title}</BootstrapModal.Title>
-      </BootstrapModal.Header>
+      <ModalHeader>{title}</ModalHeader>
 
       <BootstrapModal.Body>
         <Box

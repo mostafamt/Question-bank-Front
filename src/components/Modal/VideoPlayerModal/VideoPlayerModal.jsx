@@ -1,5 +1,6 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
+import ModalHeader from "../ModalHeader/ModalHeader";
 import { Alert } from "@mui/material";
 
 import { getEmbedUrl, isEmbeddableVideoUrl } from "../../../utils/video";
@@ -42,9 +43,7 @@ const VideoPlayerModal = ({ url, title = "Video" }) => {
 
   return (
     <>
-      <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title>{title}</BootstrapModal.Title>
-      </BootstrapModal.Header>
+      <ModalHeader>{title}</ModalHeader>
       <BootstrapModal.Body>
         <div className={styles.container}>{player}</div>
       </BootstrapModal.Body>

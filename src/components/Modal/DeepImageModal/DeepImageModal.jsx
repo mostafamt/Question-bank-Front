@@ -1,5 +1,6 @@
 import React from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
+import ModalHeader from "../ModalHeader/ModalHeader";
 import { Button } from "@mui/material";
 import { useForm } from "react-hook-form";
 
@@ -51,9 +52,7 @@ const DeepImageModal = ({ workingArea, updateAreaPropertyById, handleCloseModal 
 
   return (
     <>
-      <BootstrapModal.Header closeButton>
-        <BootstrapModal.Title>Block image</BootstrapModal.Title>
-      </BootstrapModal.Header>
+      <ModalHeader>Block image</ModalHeader>
       <BootstrapModal.Body>
         <Image
           name={NAME}
