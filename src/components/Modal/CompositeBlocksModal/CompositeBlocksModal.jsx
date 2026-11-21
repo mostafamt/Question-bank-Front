@@ -2,10 +2,7 @@ import React, { useState, useMemo, useCallback } from "react";
 import { default as BootstrapModal } from "react-bootstrap/Modal";
 import { Button } from "react-bootstrap";
 import StudioEditor from "../../Studio/StudioEditor/StudioEditor";
-import {
-  getList2FromData,
-  getTypeOfLabelForCompositeBlocks,
-} from "../../../utils/studio";
+import { getAllowedAreaTypes } from "../../../utils/studio";
 
 const CompositeBlocksModal = (props) => {
   const {
@@ -22,27 +19,10 @@ const CompositeBlocksModal = (props) => {
   const [imageScaleFactor, setImageScaleFactor] = useState(1);
 
   // Determine which area types are selectable based on composite block type's labels
-  const allowedAreaTypes = useMemo(() => {
-    if (!compositeBlocksTypes || !compositeBlocks?.type) {
-      return ["Question", "Illustrative object"];
-    }
-
-    const labels = getList2FromData(compositeBlocksTypes, compositeBlocks.type);
-    const allowed = new Set();
-
-    labels.forEach((label) => {
-      const internalType = getTypeOfLabelForCompositeBlocks(
-        compositeBlocksTypes,
-        compositeBlocks.type,
-        label
-      );
-      if (internalType === "QObject") allowed.add("Question");
-      if (internalType === "Object") allowed.add("Illustrative object");
-      if (internalType === "XObject") allowed.add("Illustrative object");
-    });
-
-    return allowed.size > 0 ? [...allowed] : ["Question", "Illustrative object"];
-  }, [compositeBlocksTypes, compositeBlocks?.type]);
+  const allowedAreaTypes = useMemo(
+    () => getAllowedAreaTypes(compositeBlocksTypes, compositeBlocks?.type),
+    [compositeBlocksTypes, compositeBlocks?.type]
+  );
 
   // Filter areas to show only saved objects (with blockId) of the allowed types
   const selectableAreas = useMemo(() => {
@@ -87,6 +67,9 @@ const CompositeBlocksModal = (props) => {
     return selectableAreas.map((pageAreas) =>
       pageAreas.map((area) => ({
         ...area,
+        // areasProperties keep the server's percentage coordinates without a
+        // unit, and getBlockStyle would otherwise read them as px
+        unit: "%",
         color: blockColorMap[area.blockId]
           ?? (addedBlockIds.has(area.blockId) ? "" : "#808080"),
       }))
@@ -148,6 +131,7 @@ const CompositeBlocksModal = (props) => {
           showVB={false} // No virtual blocks in modal
           onClickImage={(pageIndex) => setActivePage(pageIndex)}
           readOnly={true} // Enable read-only mode
+          showBlocksStyling={true} // Draw the pickable blocks' borders/fill
           onAreaClick={onAreaClick} // Click handler for area selection
           activeRightTab={{ label: "" }} // Dummy tab (not used in read-only)
           compositeBlocks={{ areas: [], type: "", name: "" }} // Dummy (not used)

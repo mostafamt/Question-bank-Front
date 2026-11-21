@@ -164,6 +164,7 @@ const AddBook = () => {
     } else if (submitterName === "author") {
       await handleAuthor(values);
     } else {
+      // "read" and "teacher" both open the reader.
       await handleRead(values);
     }
   };
@@ -231,8 +232,8 @@ const AddBook = () => {
                 onLanguageSelect={handleAuthorLanguageSelect}
               />
 
-              {/* Teacher has no destination yet: its menu only updates the
-                  shared language selection. */}
+              {/* Teacher currently behaves exactly like Read: it opens the
+                  reader in the selected language. */}
               <LanguageSplitButton
                 label="Teacher"
                 icon={renderButtonIcon("author")}
@@ -240,7 +241,8 @@ const AddBook = () => {
                 hoverColor="#1b5e20"
                 languages={availableLanguages}
                 selectedLanguage={selectedLanguage}
-                onLanguageSelect={setSelectedLanguage}
+                mainButtonProps={{ type: "submit", name: "teacher" }}
+                onLanguageSelect={handleReadLanguageSelect}
               />
 
               <LanguageSplitButton

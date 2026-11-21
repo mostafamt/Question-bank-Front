@@ -65,10 +65,33 @@ const getTypeOfLabelForCompositeBlocks = (data, type1, type2) => {
   return type;
 };
 
-// Maps an area's display type to the internal label types used in composite block definitions
+// Maps an area's display type (the block-category typeName from
+// interactive-object-types) to the internal label types used in composite
+// block definitions. "Question" / "Illustrative object" are the legacy names.
 const AREA_TYPE_TO_INTERNAL = {
   "Question": ["QObject"],
+  "Questions": ["QObject"],
   "Illustrative object": ["Object", "XObject"],
+  "Explanations": ["Object", "XObject"],
+  "Smart Objects": ["Object", "XObject"],
+  "Simulations": ["Object", "XObject"],
+};
+
+/**
+ * Area display types that can be picked into the given composite block type,
+ * based on the internal types (QObject, Object, XObject) of its labels.
+ * With no composite type chosen, every object-holding area type is allowed.
+ */
+const getAllowedAreaTypes = (data, typeName) => {
+  const allTypes = Object.keys(AREA_TYPE_TO_INTERNAL);
+  const labels = data?.labels?.find((item) => item.typeName === typeName)?.labels;
+  if (!labels) return allTypes;
+
+  const internalTypes = new Set(labels.map((labelObj) => Object.values(labelObj)[0]));
+  const allowed = allTypes.filter((areaType) =>
+    AREA_TYPE_TO_INTERNAL[areaType].some((t) => internalTypes.has(t))
+  );
+  return allowed.length > 0 ? allowed : allTypes;
 };
 
 /**
@@ -96,4 +119,5 @@ export {
   addPropsToAreasForCompositeBlocks,
   getTypeOfLabelForCompositeBlocks,
   getLabelForAreaType,
+  getAllowedAreaTypes,
 };
